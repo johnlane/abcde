@@ -2551,7 +2551,8 @@ else
 		if [ "$DOREAD" = "y" ]; then
 			if [ "$USEPIPES" = "y" ]; then
 				if checkstatus readencodetrack-$UTRACKNUM; then :; else
-					do_cdread $UTRACKNUM | do_encode $UTRACKNUM %local0%
+					# Read, pipe, shut up!
+					do_cdread $UTRACKNUM | do_encode $UTRACKNUM %local0% > /dev/null 2>&1
 				fi
 			else
 				if checkstatus readtrack-$UTRACKNUM; then :; else
