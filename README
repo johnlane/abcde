@@ -58,6 +58,9 @@ Changes in 2.2-pre2:
   under the GPL...
 * New "-s <number>" option for starting the numbering of the output files at 
   a given starting number. Ideal for albums with more than one CD.
+* Support for keeping an existing playlist (and not add new entries to it),
+  erase the existing one (overwrite) or append new entries to the existing
+  one.
 
 Changes in 2.2-pre1:
 

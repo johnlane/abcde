@@ -14,8 +14,8 @@ A. That is not possible, since abcde gets the information from CDDB database.
    You can create a template and fill it with the option "-n".
 
 Q. What formats can I encode my music to?
-A. As for version 2.1.7, abcde includes support for MP3, Ogg/Vorbis, 
-   Ogg/Speex and Flac.
+A. As for version 2.2, abcde includes support for MP3, Ogg/Vorbis, 
+   Ogg/Speex, Flac and MPP/MP+(Musepack).
 
 Q. I have a CD with a data track, and abcde complaints it cannot read/encode
    it.
@@ -24,6 +24,8 @@ A. It is not easy to find a data track on a CD. Right now, I can only think
    a "data" track name is found. But the solution is far from been optimal.
    For now, if you find a "data" track and you know the number, restart abcde
    specifying the tracks to be encoded, leaving out the data one.
+   Version 2.2 includes some checkings with cdparanoia, to try to get this
+   right.
 
 Q. How can I separate the different output files I get using multiple-output
    support?
@@ -83,8 +85,9 @@ A. Try using "-m" when creating the playlists, or setting DOSPLAYLIST as an
 Q. I am requested to have eject when setting the speed although I do not use
    for anything.
 A. If you do not use cdparanoia, eject is used for setting the speed of the 
-   cdrom drive. You can substitute it for "cdset" with "-x" as the argument,
-   but you have to install it manually.
+   cdrom drive. You can substitute it for "setcd" with "-x" as the argument,
+   but you have to install it manually (setcd is, at least, available in 
+   Debian).
    Another way to get the same results is using the pre_read function, defined
    in your /etc/abcde.conf file.
 
@@ -99,6 +102,12 @@ A. Patches are welcome! ;)
    No, seriously, if the format is usable, available for Linux and open
    source/free software, it should be fairly easy to integrate. Support for
    AAC (m4p) should be the next one to be introduced.
+
+Q. (Thanks to Amaya) Where are those options and settings defined? Why dont
+   you include a proper abcde.conf as an example?
+A. I do. It should be installed under /etc/abcde.conf and contains more or
+   less all the defaults abcde uses. You can use $(HOME)/.abcde.conf to 
+   override those defaults.
 
 OBSOLETE
 --------
