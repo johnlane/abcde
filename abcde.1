@@ -66,6 +66,10 @@ CD\-ROM block device that contains audio tracks to be read.
 Capture debugging information (you'll want to redirect this \- try 'abcde \-D
 2>logfile')
 .TP
+.B \-f
+Force the use of a locally cached CDDB entry and fallback to a template if none
+is found. For faster network-disconnected operation.
+.TP
 .B \-j [number]
 Start [number] encoder processes at once. Useful for SMP systems. Overrides
 the MAXPROCS configuration variable. Set it to "0" when using distmp3 to avoid

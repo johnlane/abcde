@@ -68,6 +68,8 @@ Changes in 2.2-pre2:
   system.
 * New mungegenre function to switch off (or modify) the default behaviour of
   transforming uppercase characters to lowercase.
+* No network but you have been using abcde with local CDDB storage before?
+  Use -f and it will try the local CDDB and fallback to an empty template.
 
 Changes in 2.2-pre1:
 

@@ -16,7 +16,7 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
     (Closes: #95828). Geez! That is low bug number...
   * DATA tracks are now excluded from the ripping process using internally
     the cdparanoia "-Q" query option. If using another ripper, it does not
-    work (at least there is no support for them in abcde) 
+    work (at least there is no support for them in abcde)
     (Closes: #112692, #117412).
   * New "0" choice for "None of the above" has been introduced. If selected, a
     template is created and the user encouraged to edit it (Closes: #147683).
@@ -35,8 +35,9 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
     interaction.
   * Changes normalize to normalize-audio (Closes: #267053)
   * Copes with wav files being erased by the ripping tool.
+  * New -f to force local CDDB or fallback to template (no network).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 29 Aug 2004 00:34:19 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 30 Aug 2004 06:22:35 +0000
 
 abcde (2.1.19-1) unstable; urgency=low
 
