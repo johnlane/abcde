@@ -52,6 +52,21 @@ http://www.hispalinux.es/~data/files/cd-discid/
 
 MAJOR CHANGES
 =============
+Changes in 2.2-pre2:
+
+* Support for MPP/MP+(Musepack) format. It can be downloaded from 
+  corecodecs.org. It is supposed to be Free (not only free), and released
+  under the GPL...
+* New "-s <number>" option for starting the numbering of the output files at 
+  a given starting number. Ideal for albums with more than one CD.
+
+Changes in 2.2-pre1:
+
+* cdparanoia permits performing a query to the CD drive and obtain a list of 
+  valid audio tracks. So, now we perform such query and process the results.
+* Support for "None of the above" has been added with the "0" selection. A 
+  template is created, and the selection to edit it is defaulted to "y".
+
 New options in 2.1.19:
 
 * ONETRACK mode has been introduced. Setting the flag "-1" will create a

@@ -1,6 +1,6 @@
 .TH ABCDE 1
 .SH NAME
-abcde \- Grab an entire CD and compress it to Ogg/Vorbis, MP3, FLAC or Ogg/Speex format.
+abcde \- Grab an entire CD and compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format.
 .SH SYNOPSIS
 .B abcde
 .I [options] [tracks]
@@ -10,7 +10,7 @@ tagging or commenting it, is very involved.
 .BR abcde
 is designed to automate this. It will take an entire CD and convert it into
 a compressed audio format - Ogg/Vorbis, MPEG Audio Layer III, Free Lossless
-Audio Codec (FLAC) or Ogg/Speex. With one command, it will:
+Audio Codec (FLAC), Ogg/Speex or MPP/MP+(Musepack). With one command, it will:
 .TP
 .B *
 Do a CDDB query over the Internet to look up your CD or use a locally stored CDDB entry
@@ -19,7 +19,7 @@ Do a CDDB query over the Internet to look up your CD or use a locally stored CDD
 Grab a track from your CD
 .TP
 .B *
-Compress it to Ogg/Vorbis, MP3, FLAC and/or Ogg/Speex format
+Compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format
 .TP
 .B *
 Comment or ID3 tag it
@@ -92,7 +92,7 @@ Create DOS-style playlists, modifying the resulting one by adding CRLF line
 endings. Some hardware players insist on having those to work.
 .TP
 .B \-o [filetype]
-Select output type. Can be "ogg", "mp3", "flac" or "spx". Specify a 
+Select output type. Can be "ogg", "mp3", "flac", "spx" or "mpc". Specify a 
 comma-delimited list of output types to obtain all specified types. See 
 the OUTPUTTYPE configuration variable.
 .TP
@@ -102,6 +102,10 @@ Pads track numbers with 0\'s.
 .B \-r [hosts...]
 Remote encode on this comma-delimited list of machines using distmp3. See
 the REMOTEHOSTS configuration variable.
+.TP
+.B \-s [number]
+Start the numbering of the tracks at a given number. It only affects the
+filenames and the playlist. Internal (tag) numbering remains the same.
 .TP
 .B \-S [speed]
 Set the speed of the CD drive. Needs CDSPEED and CDSPEEDOPTS set properly
@@ -129,7 +133,7 @@ will process the entire CD. Accepts ranges of track numbers -
 Each track is, by default, placed in a separate file named after the track
 in a subdirectory named after the artist under the current directory. Each
 file is given an extension identifying its compression format, '.ogg',
-\'.mp3', '.flac', or '.spx'.
+\'.mp3', '.flac', '.spx', or '.mpc'.
 This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
 variables in your abcde.conf.
 .SH CONFIGURATION
@@ -172,6 +176,10 @@ Specifies the style of encoder to use for the FLAC encoder. At this point only
 Specifies the style of encoder to use for Speex encoder. At this point only
 \'speexenc\' is available for Ogg/Speex encoding.
 .TP
+.B MPPENCODERSYNTAX
+Specifies the style of encoder to use for MPP/MP+ (Musepack) encoder. At this
+point we only have \'mppenc\' available, from corecodecs.org.
+.TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
 and \'normalize'\ (and both run \'normalize\'), since we only support it, ATM.
@@ -204,10 +212,11 @@ to 700MB of temporary space for each session (although it is rare to use
 over 100MB for a machine that can encode music as fast as it can read it).
 .TP
 .B OUTPUTFORMAT
-Specifies the format for completed Ogg/Vorbis, MP3, FLAC or Ogg/Speex filenames.
+Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+ 
+(Musepack) filenames.
 Variables are included
 using standard shell syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE,
-TRACKFILE, and TRACKNUM. Default is
+TRACKFILE, TRACKNUM, and YEAR. Default is
 \'${ARTISTFILE}/${TRACKFILE}.${OUTPUTTYPE}\'.
 Make sure to use single quotes around this variable. TRACKNUM is
 automatically zero-padded.
@@ -215,9 +224,9 @@ automatically zero-padded.
 .B OUTPUTTYPE
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "ogg". Valid settings are "ogg" (Ogg/Vorbis), "mp3"
-(MPEG-1 Audio Layer 3), "flac" (Free Lossless Audio Codec) and "spx" 
-(Ogg/Speex). Values like "ogg,mp3" encode the tracks in both Ogg/Vorbis and MP3
-formats.
+(MPEG-1 Audio Layer 3), "flac" (Free Lossless Audio Codec), "spx" (Ogg/Speex)
+and "mpc" (MPP/MP+ (Musepack)). Values like "ogg,mp3" encode the tracks in 
+both Ogg/Vorbis and MP3 formats.
 .P
 For each value in OUTPUTTYPE, abcde expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
@@ -287,6 +296,10 @@ Make sure to use single quotes around this variable.
 Specifies a prefix for filenames within a playlist. Useful for http
 playlists, etc.
 .TP
+.B DOSPLAYLIST
+If set, the resulting playlist will have CR-LF line endings, needed by some
+hardware-based players.
+.TP
 .B COMMENT
 Specifies a comment to embed in the ID3 or Ogg comment field of each
 finished track. Can be up to 28 characters long. Supports the same
@@ -315,7 +328,7 @@ after all tracks have been read.
 abcde requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC or Ogg/Speex encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc)
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+(Musepack) encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mppenc)
 .TP
 .B *
 An audio CD reading utility (cdparanoia, cdda2wav, dagrab)
@@ -343,6 +356,7 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 .BR vorbize (1),
 .BR flac (1),
 .BR speexenc(1),
+.BR mppenc(1),
 .BR id3 (1),
 .BR wget (1),
 .BR fetch (1),

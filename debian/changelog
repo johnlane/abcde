@@ -1,8 +1,26 @@
-abcde (2.1.20-1) unstable; urgency=low
+abcde (2.1.20-2.2pre2-1) unstable; urgency=low
 
-  * 
+  * Added support for MPP/MP+(Musepack) encoding. Although I am trying to 
+    get 2.2 for Debian Sarge release, mpc seems safe enough to introduce. See
+    corecodec.org for code.
+  * Some POSIX shell corrections (making the code more portable). Thanks to
+    Guillem Jover for pointing the problem out.
+  * CDYEAR is also passed to do_move(), so one can use it for sorting the
+    directories.
+  * Small MacOS X fix, allowing directories with "()" to work. Thanks to Evan
+    Jones.
+    - On the MacOS X, I still do not know if abcde works correctly. If does
+    not, please, drop a note. Or else.
+  * DOSPLAYLIST also changes "/" with "\".
+  * Option "-s <number>" added to modify the numbering from a starting point
+    (Closes: #95828). Geez! That is low bug number...
+  * DATA tracks are now excluded from the ripping process using internally
+    the cdparanoia "-Q" query option. If using another ripper, it does not
+    work (at least there is no support for them in abcde) (Closes: #112692).
+  * New "0" choice for "None of the above" has been introduced. If selected, a
+    template is created and the user encouraged to edit it (Closes: #147683).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 20 Jun 2004 11:54:18 +0000
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 26 Apr 2004 12:19:22 +0000
 
 abcde (2.1.19-1) unstable; urgency=low
 
