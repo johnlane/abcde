@@ -1,0 +1,24 @@
+#!/bin/sh
+# The first version of this script used a very linux-dependent aproach.
+# Modified to use cdparanoia and check for audio files on the CD
+
+#NOTE! Change the CDROM variable to point to your device.
+#CDROM=/proc/ide/hdh
+DELAY=10
+DO_RIP="/usr/bin/abcde -x -b -N"
+CDPARANOIA="cdparanoia -Q 2>&1 | grep 'audio only'"
+
+while true; do
+#    CAPACITY=`cat $CDROM/capacity`
+#     if [ $CAPACITY -gt 0 ]; then
+#         $RIP
+#     fi
+
+	sleep $DELAY
+	GO=$CDPARANOIA
+	RET=$?
+	if [ $RET = "0" ] ; then
+		DO_RIP
+	fi
+done
+

@@ -661,7 +661,7 @@ do_move ()
 		ALBUMFILE=$(mungefilename "$DALBUM")
 		ARTISTFILE=$(mungefilename "$TRACKARTIST")
 		TRACKFILE=$(mungefilename "$TRACKNAME")
-		GENRE=$(echo $CDGENRE | tr "[:upper:]" "[:lower:]")
+		GENRE=$(mungegenre "$GENRE")
 		YEAR=$(echo $CDYEAR)
 		# If we want to start the tracks with a given number, we need to modify the
 		# TRACKNUM value before evaluation
@@ -701,7 +701,7 @@ do_playlist ()
 		for LASTTRACK in $TRACKQUEUE; do :; done
 		ALBUMFILE=$(mungefilename "$DALBUM")
 		ARTISTFILE=$(mungefilename "$DARTIST")
-		GENRE=$(echo $CDGENRE | tr "[:upper:]" "[:lower:]")
+		GENRE=$(mungegenre "$GENRE")
 		if [ "$VARIOUSARTISTS" = "y" ] ; then
 			PLAYLISTFILE=$(eval echo $VAPLAYLISTFORMAT)
 		else
@@ -1765,6 +1765,12 @@ ACTIONS=cddb,read,encode,tag,move,clean
 mungefilename ()
 {
 	echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
+}
+
+# Custom genre munging:
+mungegenre ()
+{
+	echo $CDGENRE | tr "[:upper:]" "[:lower:]"
 }
 
 # pre_read

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+##########
+# The first argument tells what to do.
+##########
+
+RUNNING=`ps -ef|grep [a]bcded|awk '{ print $2 }'`
+
+state=$1
+
+case $state in
+start)
+
+        if [ -n "$RUNNING"  ]; then
+                echo "abcde daemon already running."
+                exit 0
+        fi
+
+        echo "Starting abcde daemon"
+        abcded &
+        echo "Done."
+        ;;
+stop)
+        if [ -n "$RUNNING"  ]; then
+           /bin/kill -9 $RUNNING > /dev/null
+           if [ $? = 0 ]; then
+                echo "abcde daemon killed"
+           fi
+        fi
+        ;;
+restart)
+        $0 stop
+        $0 start
+        ;;
+*)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+

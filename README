@@ -61,6 +61,13 @@ Changes in 2.2-pre2:
 * Support for keeping an existing playlist (and not add new entries to it),
   erase the existing one (overwrite) or append new entries to the existing
   one.
+* Under ./examples you will find a very basic way to make abcde run in the
+  background and start a non-interactive rip of a CD, if it can find an
+  audio CD in the tray.
+  The abcded script depends on eject and cdparanoia being installed in your
+  system.
+* New mungegenre function to switch off (or modify) the default behaviour of
+  transforming uppercase characters to lowercase.
 
 Changes in 2.2-pre1:
 
