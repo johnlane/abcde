@@ -52,7 +52,7 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 	dh_installmenu
-	dh_installmanpages
+	dh_installman
 	dh_installchangelogs 
 	dh_link
 	dh_strip
