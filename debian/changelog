@@ -1,3 +1,10 @@
+abcde (2.2.1-1) unstable; urgency=low
+
+  * Spotted and solved a problem with the way the data tracks were detected
+    (Closes: #282647).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Wed, 24 Nov 2004 22:47:54 +0200
+
 abcde (2.2.0-1) unstable; urgency=low
 
   * New release! Let's see if abcde 2.2 gets into Sarge.

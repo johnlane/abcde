@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.2.0"
+VERSION="2.2.1"
 
 usage ()
 {
@@ -21,7 +21,7 @@ echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
 echo "       Actions to perform (cddb,read,normalize,encode,tag,move,playlist,clean)"
-echo "-A     Experimental actions (retag, transcode)"
+#echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Batch mode: enable album normalization and nogap encoding"
 echo "-c <file>"
 echo "       Specify a configuration file (overrides system and user config files)"
@@ -843,7 +843,7 @@ do_discid ()
 				cdparanoia|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
-						TRACKS=$( $CDROMREADER -Q 2>&1 | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )
+						TRACKS=$( $CDPARANOIA -Q 2>&1 | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
