@@ -131,11 +131,10 @@ will process the entire CD. Accepts ranges of track numbers -
 "abcde 1-5 7 9" will process tracks 1, 2, 3, 4, 5, 7, and 9.
 .SH OUTPUT
 Each track is, by default, placed in a separate file named after the track
-in a subdirectory named after the artist under the current directory. Each
-file is given an extension identifying its compression format, '.ogg',
-\'.mp3', '.flac', '.spx', or '.mpc'.
+in a subdirectory named after the artist under the current directory. 
 This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
-variables in your abcde.conf.
+variables in your abcde.conf. Each file is given an extension identifying 
+its compression format, '.ogg', '.mp3', '.flac', '.spx', or '.mpc'.
 .SH CONFIGURATION
 abcde sources two configuration files on startup - /etc/abcde.conf and
 $HOME/.abcde.conf, in that order. 
@@ -143,7 +142,6 @@ $HOME/.abcde.conf, in that order.
 The configuration variables have to be set as follows:
 .TP
 .B VARIABLE=value
-.TP
 Except when "value" needs to be quoted or otherwise interpreted. If other 
 variables within "value" are to be expanded upon reading the configuration 
 file, then double quotes should be used. If they are only supposed to be 
@@ -217,21 +215,22 @@ Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+
 Variables are included
 using standard shell syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE,
 TRACKFILE, TRACKNUM, and YEAR. Default is
-\'${ARTISTFILE}/${TRACKFILE}.${OUTPUTTYPE}\'.
+\'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'.
 Make sure to use single quotes around this variable. TRACKNUM is
-automatically zero-padded.
+automatically zero-padded, when the number of encoded tracks is higher than
+9. When lower, you can force with '-p' in the command line.
 .TP
 .B OUTPUTTYPE
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "ogg". Valid settings are "ogg" (Ogg/Vorbis), "mp3"
-(MPEG-1 Audio Layer 3), "flac" (Free Lossless Audio Codec), "spx" (Ogg/Speex)
+(MPEG-1 Audio Layer III), "flac" (Free Lossless Audio Codec), "spx" (Ogg/Speex)
 and "mpc" (MPP/MP+ (Musepack)). Values like "ogg,mp3" encode the tracks in 
 both Ogg/Vorbis and MP3 formats.
 .P
 For each value in OUTPUTTYPE, abcde expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
 different subdirectories to hold the different types. The variable OUTPUT will
-be 'ogg', 'mp3', 'flac' and/or 'spx', depending on the OUTPUTTYPE you define.
+be 'ogg', 'mp3', 'flac', 'spx' and/or 'mpc', depending on the OUTPUTTYPE you define.
 For example
 .P
 OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
@@ -243,16 +242,17 @@ OUTPUTFORMAT is set to.
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEECENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, HTTPGET,
-CDDISCID, CDDBTOOL, EJECT, NORMALIZE, DISTMP3, VORBISCOMMENT, and CDSPEED.
+VORBIZE, OGGENC, FLAC, SPEECENC, MPPENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, 
+HTTPGET, CDDISCID, CDDBTOOL, EJECT, NORMALIZE, DISTMP3, VORBISCOMMENT, and 
+CDSPEED.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs abcde
 uses, set the following configuration file options: LAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS,
-OGGENCOPTS, FLACOPTS, SPEEXOPTS, ID3OPTS, ID3V2OPTS, CDPARANOIAOPTS, 
-CDDA2WAVOPTS, HTTPGETOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS,
-NORMALIZEOPTS, CDSPEEDOPTS, and CDSPEEDVALUE.
+OGGENCOPTS, FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, ID3OPTS, ID3V2OPTS, 
+CDPARANOIAOPTS, CDDA2WAVOPTS, HTTPGETOPTS, CDDBTOOLOPTS, EJECTOPTS, 
+DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, and CDSPEEDVALUE.
 .TP
 .B CDROM
 If set, it points to the CD-Rom device which has to be used for audio
@@ -364,6 +364,6 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 .BR distmp3 (1),
 .BR distmp3host (1),
 .BR curl(1)
-.SH AUTHOR
+.SH AUTHORS
 Robert Woodcock <rcw@debian.org>
 Jesus Climent <jesus.climent@hispalinux.es>

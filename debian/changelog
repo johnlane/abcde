@@ -1,6 +1,6 @@
 abcde (2.1.20-2.2pre2-1) unstable; urgency=low
 
-  * Added support for MPP/MP+(Musepack) encoding. Although I am trying to 
+  * Added support for MPP/MP+(Musepack) encoding. Although I am trying to
     get 2.2 for Debian Sarge release, mpc seems safe enough to introduce. See
     corecodec.org for code.
   * Some POSIX shell corrections (making the code more portable). Thanks to
@@ -10,7 +10,7 @@ abcde (2.1.20-2.2pre2-1) unstable; urgency=low
   * Small MacOS X fix, allowing directories with "()" to work. Thanks to Evan
     Jones.
     - On the MacOS X, I still do not know if abcde works correctly. If does
-    not, please, drop a note. Or else.
+      not, please, drop a note. Or else.
   * DOSPLAYLIST also changes "/" with "\".
   * Option "-s <number>" added to modify the numbering from a starting point
     (Closes: #95828). Geez! That is low bug number...
@@ -19,8 +19,13 @@ abcde (2.1.20-2.2pre2-1) unstable; urgency=low
     work (at least there is no support for them in abcde) (Closes: #112692).
   * New "0" choice for "None of the above" has been introduced. If selected, a
     template is created and the user encouraged to edit it (Closes: #147683).
+  * New options for when the PLAYLIST already exists: erase, append or keep.
+  * Small bug fixes along the code: 
+    - abcde.1 corrections
+    - abcde corrections
+    - abcde.conf additions
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 26 Apr 2004 12:19:22 +0000
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 10 Jul 2004 10:42:12 -0300
 
 abcde (2.1.19-1) unstable; urgency=low
 

@@ -2,11 +2,11 @@ ABCDE
 =====
 
 abcde is a frontend command-line utility (actually, a shell script) that
-grabs tracks off a CD, encodes them to Ogg/Vorbis, MP3, FLAC or Ogg/Speex
-format, and tags them, all in one go.
+grabs tracks off a CD, encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or
+MPP/MP+(Musepack) format, and tags them, all in one go.
 
-Your finished Ogg/MP3/FLAC/Speex's are, by default, stored in a subdirectory of 
-the current directory (named after the artist) with a filename based on the
+Your finished Ogg/MP3/FLAC/Speex/MPP's are, by default, stored in a subdirectory 
+of the current directory (named after the artist) with a filename based on the
 track title. Spaces are replaced by underscores, and apostrophes and
 control codes are filtered out. Colons are replaced with an underscore and a
 hyphen. The end result usually looks like: Our_Lady_Peace/01.Supermans_Dead.ogg
@@ -24,8 +24,7 @@ Low on disk space? abcde has different algorithms to schedule ripping and
 encoding - to optimize for disk conservation, use -l.
 
 abcde can also take advantage of SMP systems, just like make. Try
-'abcde -j 2' - it'll run two encoder jobs while it rips the next
-track.
+'abcde -j 2' - it'll run two encoder jobs while it rips the next track.
 
 abcde now uses FreeDB by default. To use a different FreeDB mirror or
 another CDDB service, change the CDDBURL option in your abcde.conf.
@@ -177,7 +176,8 @@ abcde requires the following backend tools to work:
   You can get a trial version of mp3enc at:
     http://www.iis.fhg.de/amm/download/ or:
 * FLAC encoder (flac) or:
-* Ogg/Speex encoder (speexenc)
+* Ogg/Speex encoder (speexenc) or:
+* MPP/MP+(Musepack) encoder (mppenc)
 * normalize for volume normalization.
 * CD Paranoia, an audio CD reading utility,
 * Or cdda2wav, the audio CD reading utility cdparanoia was born from,
