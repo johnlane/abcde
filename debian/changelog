@@ -26,8 +26,11 @@ abcde (2.1.20-2.2pre2-1) experimental; urgency=low
     - abcde.conf additions
   * The GENRE is munged now in its own mungegenre function, so that no more
     upper-to-lowercase is done (forced) except if the default is used.
+  * Examples added to the tarball and /usr/share/doc/abcde/examples with two
+    scripts to make abcde kind-of-a ripper daemon.
+  * Changed to experimental to have an stable 2.1.20 version in Sarge.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 30 Jul 2004 15:14:18 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 30 Jul 2004 18:27:22 +0300
 
 abcde (2.1.19-1) unstable; urgency=low
 
