@@ -1,0 +1,97 @@
+.TH CDDB-TOOL 1
+.SH NAME
+cddb-tool \- Get CDDB information
+.SH SYNOPSIS
+.B cddb-tool parse 
+.I file [-i|-d|-a|-t] [num|-c|-p]
+
+.B cddb-tool template disc-id tracks
+
+.B cddb-tool send
+.I [file] address
+
+.B cddb-tool query
+.I server user host disc-id tracks
+
+.B cddb-tool read
+.I server user host disc-id genre
+
+.B cddb-tool help
+
+.SH DESCRIPTION
+cddb-tool is a backend tool for abcde. It is passed information from
+cd-discid and uses it look up the CD title, artist, and track information
+on the cddb database (http://freedb.freedb.org) on the internet.
+.SH COMMANDS
+.B parse
+.I [file] option
+
+Get data out of a cddb file (use "-" for stdin).
+Options (use one and only one):
+.RS
+.TP
+.B id
+prints disc id
+.TP
+.B album
+prints album title
+.TP
+.B track num
+prints title of track num
+.TP
+.B
+artist
+prints artist
+.TP
+.B category
+prints category
+.TP
+.B cddbgenre
+synonym for category
+.TP
+.B all
+parse file and dumps to stdout in a form sourceable by the shell
+.RE
+
+.B send
+.I [file] address
+
+Mails file file (or stdin of no file specified)
+to specified address, using correct format.  Category should
+be one of blues, classical, country, data, fold, jazz, newage,
+reggae, rock, soundtrack, misc.
+
+.B template
+.I [disc-id] [tracks]
+
+Generates a template (empty) cddb file to stdout.  The command
+line should be essentially the output of cd-discid.
+
+.B query
+.I [server] [user] [host] [disc-id] [tracks]
+
+Looks up disc on server (should be of form "http://host/cddb/cddb.cgi")
+remainder of command line is in the same form as that returned
+by the cd-discid program. Uses wget, so if you need to use a proxy
+then just configure wget to do so. user and host will be used for
+identifying ourselves to the CDDB server. Outputs response code and entries
+with matching CDDB entries, if successful, from the CDDB server.
+
+
+.B read
+.I [server] [user] [host] [disc-id] [genre]
+
+Dumps CDDB entry to stdout. File will contain an extra #CATEGORY=
+line, which leaves it a valid CDDB file but which will be recognized
+by parse and send commands. Uses wget, so if you need to use a proxy
+then just configure wget to do so. user and host will be used for
+identifying ourselves to the CDDB server.
+
+.B help
+
+Prints usage information.
+
+.SH AUTHOR
+Nathaniel Smith <njs@uclink4.berkeley.edu>, maintained as part of abcde by
+Robert Woodcock <rcw@debian.org>. Manual page compiled from help information
+by Robert Woodcock.

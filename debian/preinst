@@ -1,0 +1,26 @@
+#!/bin/sh
+# If:
+# * this isn't an upgrade (a fresh install)
+# * and /etc/cdgrab.conf exists
+# * and /etc/abcde.conf doesn't
+# copy /etc/cdgrab.conf to /etc/abcde.conf
+
+if [ "$1" != "install" ]
+then
+	exit 0
+fi
+if [ "$2" != "" ]
+then
+	exit 0
+fi
+if [ -f /etc/abcde.conf ]
+then
+	exit 0
+fi
+if [ -r /etc/cdgrab.conf ]
+then
+	echo Copying old /etc/cdgrab.conf to /etc/abcde.conf...
+	cp -a /etc/cdgrab.conf /etc/abcde.conf
+	exit 0
+fi
+#DEBHELPER#

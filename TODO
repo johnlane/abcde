@@ -1,0 +1,35 @@
+TODO:
+----
+* move the wav files to a different dir if the user wants to keep the tracks
+* read the TOC and CDTEXT files and store them
+* read the complete CD to a single file, storing TOC seems a good idea to
+  recreate the index entries if we decide to burn the cd.
+* Make concatenating CD1...Cdn sets into one album possible: Maybe a "start
+  with number for files" flag?
+
+* read_and_encode function that uses named pipes for further ripping/encoding
+  parallelization where possible
+* read_and_encode_and_tag? :)
+* Customizable post-read/encode/tag hooks
+  (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=114851)
+
+* Separate local/dist tagging: if local encoding, the tags are added on the
+  encoding phase. If remote, the tracks need tagging.
+  And also add the possibility to add this information via oggenc directly
+  instead of explicitly invoking vorbiscomment.
+
+* Maybe repair files when they have the same name in the original CD?
+  (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=205634)
+
+* Separate the different output encodings, so a user can read and encode one
+  format and then encode another one, later, from the same wavs. Right now,
+  the same status line is used for all formats, so a re-encoding is rejected
+  since abcde sees the encoding already finished. Same with tags and moves.
+
+* Support UTF-8 tags
+
+DONE:
+----
+* FLAC support (http://flac.sourceforge.net/)
+* Multiple ogg/mp3/flac output during the same session
+* Track padding problem with single songs.

@@ -1,0 +1,24 @@
+This package was debianized by Robert Woodcock <rcw@debian.org> on
+Sun, 21 Feb 1999 18:50:34 -0800.
+
+It is available at: http://www.hispalinux.es/~data/abcde.php
+
+Upstream Authors: Robert Wookcock
+		  Jesus Climent <jesus.climent@hispalinux.es>
+
+Copyright:
+
+Copyright (c) 1998-2001 Robert Woodcock <rcw@debian.org>
+Copyright (c) 2003-2004 Jesus Climent <jesus.climent@hispalinux.es>
+This code is hereby licensed for public consumption under either the
+GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+Copyright for this work is to expire January 1, 2010, after which it
+shall be public domain.
+
+See /usr/share/common-licenses/GPL-2
+

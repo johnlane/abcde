@@ -1,0 +1,850 @@
+abcde (2.1.20-1) unstable; urgency=low
+
+  * 
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 20 Jun 2004 11:54:18 +0000
+
+abcde (2.1.19-1) unstable; urgency=low
+
+  * Encoding the whole CD in one file is now possible. Use "-1" as a flag
+    (Closes: #126267).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  9 Apr 2004 17:04:58 +0000
+
+abcde (2.1.18-1) unstable; urgency=low
+
+  * Do not release in a hurry. The eject program is not needed if CDSPEEDVALUE
+    is not set and no EJECT action is performed (Closes: #242506)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  8 Apr 2004 05:18:49 +0000
+
+abcde (2.1.17-2) unstable; urgency=low
+
+  * HUH! the version number in the abcde executable was wrong.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Wed,  7 Apr 2004 21:01:50 +0000
+
+abcde (2.1.17-1) unstable; urgency=low
+
+  * Dud! Those missing quotes are going to kill me. Quotes restored and
+    (Closes: #242508).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Wed,  7 Apr 2004 06:30:31 +0000
+
+abcde (2.1.16-1) unstable; urgency=low
+
+  * New setting for the CD speed. Some drives have a higher failure ratio when
+    spinning at high speed.
+  * Added a pre-read function for preparations. Uses include closing the CD
+    tray (Closes: #137548).
+  * Added COMMENT part in OggFlac metadata.
+  * Documentation update: README, abcde.1
+  * Do not tag GENRE and DATE in Ogg/Vorbis if CDDB does not provide them
+    (Closes: #235531).
+  * Solved bug with batch encoding, thanks to Travis McKay.
+  * When *DATAPREFIX was set, the playlist creation was made without newline.
+  * Added >&2 redirection to visualize the "Erase playlist" question
+    (Closes: #241221).
+  * Added the option "-m" to modify the resulting playlist, to contain CRLF at
+    the end of every line, letting some hardware players which insist with
+    DOS-style files to use them. Also, added DOSPLAYLIST as a config option.
+  * When using a selected, localy cached CDDB entry, we forgot to show the
+    selection when asking the user for editing the choice. Now we show it.
+  * Improved the logic in the order of events when using a local CDDB repo.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue,  6 Apr 2004 05:29:38 +0000
+
+abcde (2.1.15-1) unstable; urgency=low
+
+  * EDITOR is called now evaluating the variable, so it works with full path
+    and arguments.
+  * Patch for making md5sum a variable (since some systems use a different
+    name).
+  * Correction by "huf" <mihi at mail.eol.hu>. The test code in line 376
+    needed some quotes.
+  * The PADDING code and some CDDB funcions were *really* messy. Now it looks
+    cleaner, works faster and some not needed network operations are no
+    longer performed when we are working with local CDDB repositories.
+  * Added "-V" for extra verbosity (on slow networks the user might be waiting
+    and wondering is somethins is happening).
+  * Solved a bug with the non-interactive code.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 16 Feb 2004 00:13:12 +0000
+
+abcde (2.1.14-1) unstable; urgency=low
+
+  * Missing quotes restored (Closes: #228648).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue, 20 Jan 2004 06:43:04 +0000
+
+abcde (2.1.13-1) unstable; urgency=low
+
+  * Solved the problem with re-runs of multiple choices not showing all the
+    choices (Closes: #228405) (this was a quick one)
+  * We now show the selected CDDB entry on a second run, instead of all of
+    them (not that one should stop abcde, but just in case). This way
+    consecutive interrupted runs obtain the same results.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 18 Jan 2004 22:42:15 +0000
+
+abcde (2.1.12-1) unstable; urgency=low
+
+  * Check if normalizer is found in the PATH (Closes: #228014)
+  * Added (commented) bits to check if the CD being processed is the CD on the
+    tray, so that if differs we do not eject it.
+  * Store locally the CDDB information, under $HOME/.cddb since it is being
+    used by Grip (at least). PATH is user defined (Closes: #88048)
+  * If you are using cdda2wav and SCSI drives, you can set CDROMID for the
+    SCSI drive, since it differs from the cd-discid CDROM parameter
+    (Closes: #121987).
+  * MacOSX keeps on failing because the OS mounts the CD before we finish
+    ripping it... or something else. Please, test test test the code, and
+    report your findings. Pretty please. I have not been able to make it work
+    with the reports I have received.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 16 Jan 2004 12:06:07 +0000
+
+abcde (2.1.11-1) unstable; urgency=low
+
+  * Urgent fixes for the FreeBSD and MacOSX bits. When using cdda2wav, the
+    CDROM variable must be modified depending on the device interface. By now
+    we will not try to be very smart.
+  * Added a test for HTTPGETOPTS since it cannot be empty for the default
+    HTTPGET options.
+  * Quick release to fix a problem with the CDROM detection code.
+    (Closes: #226647)
+  * Cleaned a bashism. Thanks to Klaus Ethgen (Closes: #226782).
+  * Rewrote some parts of the cdda2wav code. Since I do not have a machine
+    where cdda2wav works, I cannot test the code. The modifications have been
+    done following user reports. If you use cdda2wav and abcde does not work
+    for you, please, contact me and we will try to sort things out. Thanks.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  8 Jan 2004 21:36:23 +0000
+
+abcde (2.1.10-1) unstable; urgency=low
+
+  * INLINETAG and STARTTRACKNUMBER flags added.
+  * CDROM checking is now done with a bit more wiselly (Closes: #219768)
+  * HTTPGET is only requested is "cddb" action is performed.
+  * Workout the possibility of cdparanoia erasing our wav files
+    (Closes: #172694)
+  * The default answer for editing CDDB data is now "y" if the disk is
+    unknown. If not, the default is "n". Requested by Ricky Buchanan.
+  * Now we do not erase silently any previous $PLAYLISTFILE left behind by a
+    previous CD ripping (Closes: #220753)
+  * Write info file with cdda2wav (Closes: #187702).
+    I do not use cdda2wav myself (me is cd-paranoid) so if anyone using
+    cdda2wav has a problem with this, please, report.
+  * CDROM comes in 1,0,0 kind of format for cdda2wav ripper. Corrected with a
+    quick patch. Kudos go to Mikhail Manuilov <viper5k at pisem dot net> for
+    noticing.
+  * Merged bits to make abcde work under MacOSX. Thanks to Evan Jones.
+  * Merged bits to avoid FreeDB people anger and to cut down the "abcde." part
+    of the discid. Now you can set the "-C" command with the directory name.
+    Kudos go to Bart Samwel.
+  * Added some info bits to the config file about normalize, requested by
+    Ricky Buchanan.
+  * Added some testing for the wav file before normalizing, to check that the
+    file is actually there.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon,  5 Jan 2004 14:43:59 +0000
+
+abcde (2.1.9-1) unstable; urgency=low
+
+  * The "First snow in Finland" release.
+  * One head was missing a "-n". N-less heads should be cut already.
+  * Not use relative links when PLAYLISTDATAPREFIX is set (Closes: #165368)
+  * Stupid use of $OUTPUTTYPE in flac tagging (Closes: #218625)
+  * Small typo in KEEPWAVS check (Closes: #216551)
+  * "Dirty" hack provided by Ben Finney to get rid of the tags in Ogg/Speex
+    encoding, when the user does not specify it as an action (lol! someone is
+    using Ogg/Speex :) (Closes: #219070)
+  * metaflac path was hardcoded. Now it must be in the path.
+  * TAGGER, VORBISCOMMENT and METAFLAC information tools are now dependent upon
+    "tag" action. There is no need to have them if we are not going to
+    comment.
+  * A bunch of small fixes, all along.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Wed,  5 Nov 2003 15:29:13 +0000
+
+abcde (2.1.8-3) unstable; urgency=low
+
+  * Small typo corrected (Closes: #217149)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 23 Oct 2003 09:49:01 +0000
+
+abcde (2.1.8-2) unstable; urgency=low
+
+  * KEEPWAVS now sets the "clean" action to "no", so the wavs are kept.
+    (Closes: #216551)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 19 Oct 2003 16:25:53 +0000
+
+abcde (2.1.8-1) unstable; urgency=low
+
+  * Quick release fixing a couple of bugs introduced by the padding patch
+    (Closes: #215962)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 16 Oct 2003 17:08:12 +0000
+
+abcde (2.1.7-2) unstable; urgency=low
+
+  * Control: Build-Depends-Indep: moved to Build-Depends:, as per
+    http://www.debian.org/doc/debian-policy/ch-relationships.html#s-sourcebinarydeps
+    (Closes: #214200)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue, 14 Oct 2003 12:21:13 +0000
+
+abcde (2.1.7-1) unstable; urgency=low
+
+  * The "Engineer" release. Yeah! I graduated!
+  * Patch applied to solve the track submission interface issues. Kudos to
+    Marc HE Brockschmidt, again (Closes: #126289)
+  * Small bug related with DISTMP3NICE solved. Kudos to Wilbert Alberts.
+    (Closes: #213756)
+  * Padding now creates the list with padded numbers. Test patch. This should
+    solve the problem with delayed tagging a single file.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 13 Oct 2003 20:32:16 +0000
+
+abcde (2.1.6-1) unstable; urgency=low
+
+  * Removed a nasty bug where even if the encode failed, the track was marked
+    as successfully encoded (Closes: #208391)
+  * Various Artists has now its own PLAYLIST format (Closes: #137432)
+  * metaflac path corrected (Closes: #206110)
+  * Hopefully this version repairs the comment part for Ogg/Vorbis files.
+  * If nothing breaks, 2.2 will be released as soon as the KNOWNBUG is solved.
+  * Removed all the inline tagging since it breaks the action chain, except
+    in Ogg/Speex. Need to check if "vorbiscomment" can be used for it.
+    (Closes: #206311)
+  * Added DISTMP3NICE variable, to nice the distmp3 program (Closes: #208398)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  4 Sep 2003 10:53:09 +0000
+
+abcde (2.1.5-1) unstable; urgency=low
+
+  * Small fixes and patches.
+    + GENRE can be used for OUTPUTFORMAT and PLAYLISTFORMAT
+    + id3v2 should work now with -c for comments (Closes: #199949)
+    + small bug with batch encoding
+    + Variables are exported before the CDDB functions are called, so they
+      should use the right variables for the HTTPGET command.
+    + Tagging also use TRACKS and CDGENRE for MP3 files (kudos to Dirk
+      Ruediger)
+    + FLAC encoding now uses dismp3 to encode remotelly (kudos to Taylor and
+      Kevin Cramer). HANDLE WITH CARE ;)
+      Also FLAC now uses CDGENRE and CDYEAR for tagging.
+  * Debian specific:
+    + Standards to 3.6.0. No changes needed.
+    + Changed Build-Depends to -Indep, since this is a POSIX shell script.
+  * tail/head change: -1 has been deprecated. Noted by Stephan Kulow.
+  * Ogg/Speex support added, for speech encoding (Closes #204635)
+  * Documentation update (Closes: #198825)
+  * Patch for "=" in the name applied (Closes: #197199)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 14 Aug 2003 16:45:29 +0000
+
+abcde (2.1.4-1) unstable; urgency=low
+
+  * Small bug fixes:
+    + COMMENT should work now.
+    + Aesthetic padding on the total amount of tracks.
+    + CDROM typo
+    + CDROM is now checked after reading the user defined entries.
+  * Remove trailing args from $EDITOR when checking -x: Closes #179222.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 18 May 2003 18:47:36 +0000
+
+abcde (2.1.3-1) unstable; urgency=low
+
+  * Makefile was missing cddb-tool.1.
+  * Introduced dagrab as CD ripping utility.
+  * cddb-tool seq calls converted to functions. No more distro dependencies.
+  * WGET* variables converted to HTTPGET* variables. FreeBSD can safelly use
+    fetch.
+  * More FreeBSD specific bits: CDROM and EJECT changes.
+  * Typo in abcde.conf
+  * Added CDDBPROTO for specifying the protocol level of the cddb query.
+  * CDDB protocol upgraded to 5. CDYEAR and CDGENRE are now used for CD
+    tagging. Patches from FreeBSD guys.
+  * COMMENT is now used for inline tagging with oggenc (my mistake it was
+    missing): Closes: #191475.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 10 May 2003 07:49:22 +0000
+
+abcde (2.1.2-1) unstable; urgency=low
+
+  * Documentation updates: Closes: #186230.
+  * Usual set of bug fixes and corrections.
+  * Default behaviour of VAOUTPUTFORMAT output changed to avoid multiple
+    directories for a same album. I think the format is more logical, and you
+    can always split the files once they are created.
+  * Padding track wavs with 0 so if you want to burn those wavs just cdrecord
+    *.wav will do it. Use "-p" to force it when encoding a small (<9) number
+    of files (Closes: #111627).
+  * Added "KEEPWAVS" as a variable to keep those wavs. Default is "no". Can
+    use also "-k" in the command line. (Closes: #160372).
+    This probably should be changed with an option to move the wav files to
+    another directory instead of just keep de abcde.<cdid> directory.
+  * Added documentation comments about OUTPUTTYPE (Closes: #184963).
+  * abcde.conf cleanup: (Closes: #186230, #187400).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue, 25 Mar 2003 16:39:25 +0200
+
+abcde (2.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 17 Mar 2003 08:52:01 +0200
+
+abcde (2.1.0-3) unstable; urgency=low
+
+  * Since abcde does not depend on eject, an execution test ([-x]) was added,
+    but that means abcde needs a test for eject in the patch if -x is passed:
+    Closes: #184151.
+  * Merged some more bits from Marc 'HE' Brockschmidt: Closes: #126289. 
+  * A bit of more info in abcde.conf: Closes: #184963.
+  * cddb-tool version updated to 0.4.2
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 14 Mar 2003 18:00:03 +0000
+
+abcde (2.1.0-2) unstable; urgency=low
+
+  * Old version string left behind. Updated.
+  * Few more doc update bits.
+  * Patches from Marc 'HE' Brockschmidt: Closes: #149499.
+  * Small patch from Norbert Preining to support multiple output in the output
+    directory.
+  * cddb-tool parses CDYEAR with the help of awk: Closes: #114848.
+  * cddb-tool does not globe "*" characters anymore: Closes: #157448.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  7 Mar 2003 06:41:32 +0000
+
+abcde (2.1.0-1) unstable; urgency=low
+
+  * The "Time To Release" version.
+  * We close: 
+    + We preppend track number now: Closes: #128966.
+    + Itegrate flac: Closes: #126311.
+    + Multi-format encode: Closes: #148934.
+    + Gapless lame encoding: Closes: #172696.
+    + CDROM documented: Closes: #182403.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  6 Mar 2003 14:45:51 +0000
+
+abcde (2.0.4-0.3) unstable; urgency=low
+
+  * Applied OpenBSD patches to make the script more portable. Thanks to Han
+    Boetes.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 28 Feb 2003 11:27:15 +0200
+
+abcde (2.0.4-0.2) unstable; urgency=low
+
+  * There was a "echo" line producing a strange output on the cd_read
+    procedure.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 28 Feb 2003 00:41:33 +0100
+
+abcde (2.0.4-0.1) unstable; urgency=low
+
+  * abcde takeover.
+  * The infamous "Works for me(TM)" release.
+  * Documentation fixes: closes: #100844, #136741.
+  * NetBSD patches applied:
+    - EXPERIMENTAL Normalize and Batch support.
+    - EXPERIMENTAL FLAC support.
+  * EXPERIMENTAL multiple output support:
+    + multiple output and error checking
+    + multiple lists support
+  * Default output file changed to have the $track_number in the begining.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 27 Feb 2003 19:19:18 +0200
+
+abcde (2.0.3-1) unstable; urgency=low
+
+  * The Fixed-Yet?-How-About-Now?-What-About-Now?-Now? Release
+  * SMP fixed, mad props to Steve Madsen, closes: #69828, #111806
+  * Minor code cleanups thanks to Adam Heath
+  * Multiple inexact match results are generated in a safe manner
+    thanks to Nick Martin, closes: #126025
+  * Removed cddb-tool template generation bashism, thanks to Greg
+    Norris, closes: #126327
+  * Windows can't handle double quotes in filenames either.
+    The default mungefilename now removes them, closes: #127643
+  * Using -C with WAVOUTPUTDIR fixed, closes: #127728
+  * Resuming various artists discs fixed, closes: #127731
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 27 Jan 2002 21:36:48 -0800
+
+abcde (2.0.2-1) unstable; urgency=low
+
+  * The One-More-Time-With-Feeling Release
+  * Bladeenc really works this time. Honest. closes: #121988
+
+ -- Robert Woodcock <rcw@debian.org>  Mon,  3 Dec 2001 19:32:12 -0800
+
+abcde (2.0.1-1) unstable; urgency=low
+
+  * The I-Don't-Listen-To-Sssca Release
+  * Example abcde.conf fixes, closes: #111580
+  * So much for bladeenc's l3enc compatibility, closes: #110863
+  * CDDB submit fixes (to enable CDDB submitting, put
+    UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE=y in your abcde.conf),
+    closes: #111478, #111500
+  * Minor mungefilename() cleanup
+  * Small manpage fix
+  * Works with oggenc when POSIXLY_CORRECT is defined, thanks to Juhapekka
+    Tolvanen
+  * Quote remote locations when calling distmp3
+  * Allow remote encoding of oggs
+  * Only remove wav files if the encoding succeeded
+  * No-local-encoding via -j 0 fixed, thanks to Hans-Joachim Baader
+  * CD read errors are trapped/resumed cleanly now thanks to Pete,
+    closes: #111618
+  * devfs device check fix, thanks to Clint Adams
+  * Check for seq command - some BSD's have jot instead and abcde can't
+    use that yet
+  * Various Artists playlist generation fixed, thanks to William Lash
+
+ -- Robert Woodcock <rcw@debian.org>  Tue,  6 Nov 2001 18:34:25 -0800
+
+abcde (2.0-1) unstable; urgency=low
+
+  * The Psychiatrist-Says-I'm-Stable-Again Release
+  * Renamed to 2.0
+  * Minor documentation updates
+
+ -- Robert Woodcock <rcw@debian.org>  Wed, 15 Aug 2001 15:26:54 -0700
+
+abcde (1.9.10-1) unstable; urgency=low
+
+  * The Waiter-There's-A-Proof-In-My-Pudding Release
+  * Fixed some quoting issues preventing abcde from using a temp directory
+    containing spaces, closes: #89682
+  * Now purges encodetracklocation notes from the status file when resuming.
+  * -a playlist now implies -a cddb
+  * Manpage and default config file updates, closes: #78726, #100841, #100845
+  * Applied checkstatus patch by Itai Zukerman, fixes certain track number
+    status checking situations, closes: #93395
+  * Check to see if things run through run_command return a nonzero error
+    code and present the command and error code to the user later,
+    closes: #93485
+  * Devfs fixup - If /dev/cdrom doesn't exist, try /dev/cdroms/cdrom0,
+    closes: #101933
+  * If a background process returned an error, log it. If it was an encode
+    process, abandon that encode location and don't wait for the encode
+    process to finish. Display the commandlines that resulted in error exits
+    with their exit codes before aborting.
+  * do_tag handles vorbis commenting failures idempotently
+  * -n works again
+  * Resumes encoding if all files have ripped, closes: #101843
+  * do_cddbedit code checks to see if it's already been run
+
+ -- Robert Woodcock <rcw@debian.org>  Wed,  1 Aug 2001 20:20:41 -0700
+
+abcde (1.9.9-1) unstable; urgency=low
+
+  * The Not-Quite-Last-In-The-Development-Series Release
+  * I broke ID3v1 comments in 1.9.8, it's fixed now, thanks to Christian
+    Beyerlein for noticing this, closes: #89519
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 13 Mar 2001 07:53:10 -0800
+
+abcde (1.9.8-1) unstable; urgency=low
+
+  * The Groundshaking Release
+  * Now defaults to using FreeDB instead of Gracenote. Pricks.
+  * New VAOUTPUTFORMAT variable for those who like their various artists
+    discs named in a different format
+  * Accomodates the fact that OpenBSD xargs does not eat whitespace, thanks
+    to Marcus Daniel for discovering this
+  * New scheduler for distmp3, thanks to David Bergeron
+  * xingmp3enc support, thanks to Brian Gannon
+  * Stripped down cddb-tool a little bit so that abcde no longer requires
+    mktemp
+  * New -C option to let people continue where they left off if they no
+    longer have the CD handy
+  * ID3COMMENT is now COMMENT
+  * Ogg commenting is now done separately so resuming doesn't break it
+  * More documentation updates
+
+ -- Robert Woodcock <rcw@debian.org>  Sat, 10 Mar 2001 22:51:39 -0800
+
+abcde (1.9.7-1) unstable; urgency=low
+
+  * The Overcast Partial Eclipse Release
+  * Supports ID3v2
+  * Various Artists heuristics patch by Kevin Everets
+  * New -c option to specify an extra configuration file, closes: #76252
+  * Does not try to check if a tagger exists unless OUTPUTTYPE=mp3,
+    closes: #78540
+  * cddb-tool template output fixes
+  * Yet more documentation updates, closes #78632, #78726
+  * Avoids id3v2's -c option for now
+  * Adds support for another Various Artists format, "Artist: Title", thanks
+    to Wolfgang Borgert, closes: #78292
+  * Fixed typo that was breaking remote encoding support, closes: #81183
+  * Hitting control-c while there's nothing in the foreground no longer
+    causes abcde to delete all its work upon exit
+
+ -- Robert Woodcock <rcw@debian.org>  Sun,  7 Jan 2001 21:17:32 -0800
+
+abcde (1.9.6-1) unstable; urgency=low
+
+  * The Squishy Release
+  * Updated getopts call to remove obsoleted options
+  * More documentation fixes, closes: #77957
+  * Single inexact match spurious question fix
+  * Fixed encoder trigger timing when using -l, closes: #77854
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 26 Nov 2000 18:37:18 -0800
+
+abcde (1.9.5-1) unstable; urgency=low
+
+  * The "Run Towards Trick Or Treaters With Scissors" Release
+  * Some documentation updates, closes: #75707, #75927
+  * mungefilename quoting fix, closes: #75556
+  * Implemented -a, which replaces -p, -P, and a number of other things,
+    closes: #75507
+
+ -- Robert Woodcock <rcw@debian.org>  Wed, 25 Oct 2000 21:16:38 -0700
+
+abcde (1.9.4-1) unstable; urgency=low
+
+  * The "Run With Scissors" Release
+  * Various Artists support by Kevin Everets
+  * Specifying track numbers on the command line should work again, bash was
+    getting a wee bit confuzzled with the way I had things before.
+  * A couple more error output changes and miscellaneous fixes
+  * OUTPUTDIR works again
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 28 Sep 2000 23:11:35 -0700
+
+abcde (1.9.3-1) unstable; urgency=low
+
+  * The ugh Release
+  * Brown Paper Bag fix for mp3enc users
+  * Recreated the rest of the variable environment in do_playlist, fixes
+    TRACKNUM availability for real this time, closes: #72535
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 26 Sep 2000 22:08:27 -0700
+
+abcde (1.9.2-1) unstable; urgency=low
+
+  * The "Very Long Changelog Entries Can Become Addicting" Release.
+  * Switched default output type to ogg, default encoder to oggenc
+  * Since 1.9.x prompts for CDDB edits by default there is now a -N switch
+    for non-interactivity.
+  * Handles cddb entries with random sprinklings of CR's and LF's
+  * You can now specify niceness for the reader and encoders, thanks to
+    Kevin Everets <kevin.everets@alcatel.com>
+  * -j 0 will now disable local encoding, thanks to Antonio Fiol
+    <Antonio.FIOL@enst-bretagne.fr>
+  * Vorbize should actually work now, thanks to Kevin Everets and James
+    LewisMoss
+  * Oggenc/Vorbize commenting support
+  * Made TRACKNUM available for playlist generation
+  * Fleshed out the TODO list a bit more
+  * mungefilename() now translates ':' to ' -' by default. Rationale: You
+    can't put ':' on a FAT filesystem. It also wreaks havoc with Samba.
+
+ -- Robert Woodcock <rcw@debian.org>  Mon, 25 Sep 2000 19:31:35 -0700
+
+abcde (1.9.1-1) unstable; urgency=low
+
+  * The "Don't Fraun" Release.
+  * Fixed a half-dozen minor buglets
+  * A little less debug output, a lot more normal output
+  * Resuming operation works better now
+  * Patched up offline usage again
+  * Broke OUTPUTFORMAT - if you plan on ever using Ogg support, and you've
+    overridden the OUTPUTFORMAT default, change the ".mp3" to
+    ".${OUTPUTTYPE}"
+  * Beginnings of Ogg Vorbis support (vorbize and oggenc) - warning:
+    completely untested
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 17 Aug 2000 21:03:00 -0700
+
+abcde (1.9-1) unstable; urgency=low
+
+  * The "" Release.
+  * Completely redone tmpfile handling, abcde can now continue where you left
+    off. closes: #42970, #50883, #66668
+  * Restructured program execution scheduling around central status file
+  * Moved cddb-tool interactivity to abcde, 'cddb-tool get' no longer exists,
+    it is now 'cddb-tool query' and 'cddb-tool read'.
+  * Removed -e, -v, and -V, since abcde will now prompt you if you want to
+    edit or otherwise muck with the data after you have a chance to see it.
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 22 Jun 2000 18:13:01 -0700
+
+abcde (1.1.1-1) unstable; urgency=low
+
+  * The "That wasn't chicken" Release.
+  * Remote distributed encoding had a bad bug in 1.1 - work to be done
+    remotely was duplicated locally (everything still turned out ok -
+    there was just no speedup). Fixed that.
+  * Restructured encode_and_tag function.
+
+ -- Robert Woodcock <rcw@debian.org>  Sun,  7 May 2000 20:10:10 -0700
+
+abcde (1.1-1) unstable; urgency=low
+
+  * The "We heard Mr. Garrison say them a couple of times" Release.
+  * New -r and REMOTEHOSTS option to use distmp3 to encode to multiple
+    hosts at once.
+  * Command-line track range specification (f.e. "abcde 1-12"
+    (Thanks: Vincent Ho)
+  * Now displays minutes/seconds for each track while displaying track titles
+    at the start
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 18 Apr 2000 23:59:09 -0700
+
+abcde (1.0.6-1) unstable; urgency=low
+
+  * The "Inspected by #17" Release.
+  * New EJECTCD option to eject the CD after all tracks are read (thanks:
+    Hrafnkell F Hlodversson)
+
+ -- Robert Woodcock <rcw@debian.org>  Sun,  2 Apr 2000 23:23:44 -0700
+
+abcde (1.0.5-1) unstable; urgency=low
+
+  * The "...So we can both watch X-Files..." Release.
+  * Quoting fix for setups without space->underscore filename munging
+  * README file URL fixes/updates
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 16 Mar 2000 18:34:38 -0800
+
+abcde (1.0.4-1) unstable; urgency=low
+
+  * The "Plop, Plop, Fizz Fizz" Release
+  * CDPARANOIAOPTS and CDDA2WAVOPTS should work now.
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 20 Feb 2000 18:44:08 -0800
+
+abcde (1.0.3-1) unstable; urgency=low
+
+  * The "This Space Intentionally Left Blank" Release
+  * Support for reverse and dashed Various Artists discs
+  * More elegant way of passing backtick data
+  * Replaced all `foo` commands with $(foo)
+  * Custom filename munging, closes: #38448
+
+ -- Robert Woodcock <rcw@debian.org>  Wed,  9 Feb 2000 20:26:22 -0800
+
+abcde (1.0.2-1) unstable; urgency=low
+
+  * Now eats backticks in CDDB input (thanks to Steve Beattie)
+  * mp3enc support (thanks to Richard Jelinek and Chris Ruvolo),
+    closes: #56189
+  * cddb-tool more gracefully handles no net connection for those with
+    local caching name servers
+  * Fixed HELLOINFO documentation bug, closes: #56268
+
+ -- Robert Woodcock <rcw@debian.org>  Wed, 26 Jan 2000 19:45:06 -0800
+
+abcde (1.0.1-1) unstable; urgency=low
+
+  * The "s/ever/ Three Days/" Release
+  * Now properly handles double-quotes in Artist and Album data
+    (thanks to Clint Adams), closes: #54888
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 13 Jan 2000 23:34:24 -0800
+
+abcde (1.0-1) unstable; urgency=low
+
+  * The "But a 1.0 is Forever" Release
+  * Backed out cddb-tool quoting change, closes: #54005
+  * Now strips carriage returns from CDDB data, closes: #53815
+  * Added ID3COMMENT config option
+
+ -- Robert Woodcock <rcw@debian.org>  Mon, 10 Jan 2000 20:48:24 -0800
+
+abcde (0.8.9-1) unstable; urgency=low
+
+  * The "Get it Before the World Implodes" Release
+  * Added -D (debugging option, outputs debugging information to stderr).
+    Very useful for submitting bug reports, hint hint hint :)
+    Just do 'abcde -D 2>logfile' and include logfile in your bug report.
+  * Now uses id3's new -T option to embed track numbers in ID3 tags.
+  * Fixed cddb-tool output for FreeDB submissions, closes: #51986.
+    Thanks to Clint Adams for spotting the problem
+  * New -v switch for Various Artist CD's (thanks to Magenta Hari Nezumi)
+    closes: #43581
+  * Fixed minor cddb-tool manpage buglet
+  * Fixed cddb-tool output for shell quoting, thanks to Philipp Meier.
+    closes: #52469
+
+ -- Robert Woodcock <rcw@debian.org>  Fri, 31 Dec 1999 14:12:35 -0800
+
+abcde (0.8.8-1) unstable; urgency=low
+
+  * Added gogo explainations to manpages and example config file
+  * Added code by Stuart Ballard <sballard@netreach.net> to intelligently
+    use relative paths for playlist files, closes #51351
+  * Added PLAYLISTDATAPREFIX config option for those who wish to prefix
+    their playlist data with things like URL's
+  * Fixed bug added in 0.8 where the multiple inexact match choice
+    selection would be hidden to the user (cddb-tool wasn't sending all
+    user output to stderr as it should), closes #51434, #50786
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 28 Nov 1999 16:02:24 -0800
+
+abcde (0.8.7-1) unstable; urgency=low
+
+  * Removed some parallelization from encode_and_tag, closes: #50246
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 16 Nov 1999 18:49:29 -0800
+
+abcde (0.8.6-1) unstable; urgency=low
+
+  * Removed remaining bashisms
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 14 Nov 1999 08:46:14 -0800
+
+abcde (0.8.5-1) unstable; urgency=low
+
+  * Fixed some background encoding issues that cropped up in 0.8.3.
+
+ -- Robert Woodcock <rcw@debian.org>  Sun,  7 Nov 1999 01:08:27 -0800
+
+abcde (0.8.4-1) unstable; urgency=low
+
+  * New name. cdgrab was already taken - the original cdgrab name
+    belongs to a CDDA reading program for DOS dating back to 1993.
+    It's still in use and active development, so I'm changing the
+    name of cdgrab instead. See this URL for a description of the
+    original cdgrab: http://www.scn.rain.com/pub/cdrom/cdgrab.txt
+
+    Your old /etc/cdgrab.conf and/or ~/.cdgrab.conf can simply be
+    renamed to /etc/abcde.conf and ~/.abcde.conf.
+
+    The program name is now 'abcde'.
+
+ -- Robert Woodcock <rcw@debian.org>  Tue,  2 Nov 1999 22:28:19 -0800
+
+cdgrab (0.8.3-1) unstable; urgency=low
+
+  * 0.8.2 would leave around cdgrab.xxxxxx tempfiles with -j.
+    Fixed that.
+  * Fixed quoting issues regarding spaces in output files
+    closes: #38449
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 28 Oct 1999 20:08:22 -0700
+
+cdgrab (0.8.2-1) unstable; urgency=low
+
+  * Fixes a cddb-tool quoting issue - closes: #46979
+  * Adds support for gogo
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 10 Oct 1999 11:24:50 -0700
+
+cdgrab (0.8.1-1) unstable; urgency=low
+
+  * Clears up a few bashisms from the merged-in cddb-tool patches
+    closes: #45512, #45514
+  * FHS compliance
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 19 Sep 1999 12:21:40 -0700
+
+cdgrab (0.8-1) unstable; urgency=low
+
+  * New Release - closes: #43579, #42997, #38325, #42971
+  * Removes dependancy for now non-existant cdparanoia-bin package
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 26 Aug 1999 22:34:29 -0700
+
+cdgrab (0.7.7-1) unstable; urgency=low
+
+  * one-liner patch re-release :)
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 12 Aug 1999 07:29:50 -0700
+
+cdgrab (0.7.6-1) unstable; urgency=low
+
+  * New Release - closes: #42734
+
+ -- Robert Woodcock <rcw@debian.org>  Mon,  9 Aug 1999 21:11:30 -0700
+
+cdgrab (0.7.5-1) unstable; urgency=low
+
+  * New Release - closes: #40179, #41086
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 13 Jul 1999 19:20:53 -0700
+
+cdgrab (0.7.4-1) unstable; urgency=low
+
+  * New Release
+
+ -- Robert Woodcock <rcw@debian.org>  Mon,  7 Jun 1999 22:12:20 -0700
+
+cdgrab (0.7.3-1) unstable; urgency=low
+
+  * New Release
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 23 May 1999 22:24:43 -0700
+
+cdgrab (0.7.2-1) unstable; urgency=low
+
+  * New Release
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 16 May 1999 17:41:55 -0700
+
+cdgrab (0.7.1-1) unstable; urgency=low
+
+  * New release
+
+ -- Robert Woodcock <rcw@debian.org>  Fri, 14 May 1999 23:37:00 -0700
+
+cdgrab (0.7-1) unstable; urgency=low
+
+  * New release
+  * cd-discid spun off into its own package, cdgrab is now
+    Architecture: all
+
+ -- Robert Woodcock <rcw@debian.org>  Fri,  7 May 1999 20:44:06 -0700
+
+cdgrab (0.6.2-1) unstable; urgency=low
+
+  * New release, closes: bug #35379, bug #36272
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 18 Apr 1999 15:09:43 -0700
+
+cdgrab (0.6.1-1) unstable; urgency=low
+
+  * New release, quick bashism bugfix - closes: bug #35245
+
+ -- Robert Woodcock <rcw@debian.org>  Mon, 29 Mar 1999 19:19:04 -0800
+
+cdgrab (0.6-1) unstable; urgency=low
+
+  * New release - closes: bug #34454, #34736, #34823, #34824
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 28 Mar 1999 18:26:54 -0800
+
+cdgrab (0.5-1) unstable; urgency=low
+
+  * New release
+
+ -- Robert Woodcock <rcw@debian.org>  Thu, 18 Mar 1999 23:39:02 -0800
+
+cdgrab (0.4-1) unstable; urgency=low
+
+  * New release - closes: bug #34566, #34577
+
+ -- Robert Woodcock <rcw@debian.org>  Tue, 16 Mar 1999 00:10:20 -0800
+
+cdgrab (0.3-1) unstable; urgency=low
+
+  * New release - closes: bug #34101
+
+ -- Robert Woodcock <rcw@debian.org>  Fri,  5 Mar 1999 18:13:30 -0800
+
+cdgrab (0.2-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Robert Woodcock <rcw@debian.org>  Sun, 21 Feb 1999 18:50:34 -0800
