@@ -45,8 +45,10 @@ abcde (2.2.0-1) unstable; urgency=low
     (Closes: #95828). Geez! That is low bug number...
   * Added "-T <number>" to modify also the tag entries on the songs. Currently
     available for FLAC and Ogg/Vorbis.
+  * Removes trailing spaces (Closes: #280382).
+  * TRACKNAME now combines multi-lines from long CDDB entries.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Nov 2004 03:25:21 +0200
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon,  8 Nov 2004 18:28:49 +0200
 
 abcde (2.1.21-1) unstable; urgency=low
 

@@ -758,7 +758,7 @@ do_playlist ()
 			do
 				# Shares some code with do_move since the filenames have to match
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-				TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+				TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
 				splitvarious
 				TRACKFILE=$(mungefilename "$TRACKNAME")
 				ARTISTFILE=$(mungefilename "$TRACKARTIST")
@@ -2446,7 +2446,7 @@ do
 #			TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${UTRACKNUM} + 0))
 			TRACKNUM=$UTRACKNUM
 		        CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
 			splitvarious
 		fi
 	fi
