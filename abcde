@@ -1590,12 +1590,26 @@ do_cdread ()
 	fi
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 	WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
-	OUTDATA="$ABCDETEMPDIR/track$UTRACKNUM.$OUTPUTTYPE"
 	if [ -r "$CDDBDATA" ]; then
 		TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
 		echo "Grabbing track $UTRACKNUM: $TRACKNAME..." >&2
 	else
 		echo "Grabbing track $UTRACKNUM..." >&2
+	fi
+	if [ "$USEPIPES" = "y" ]; then
+		TEMPARG="PIPE_$CDROMREADERSYNTAX"
+		FILEARG=${!TEMPARG}
+		REDIR=""
+	else
+		case "$CDROMREADERSYNTAX" in
+			dagrab)
+				FILEARG="-f $WAVDATA"
+				;;
+			*)
+				FILEARG=$WAVDATA
+				;;
+		esac
+		REDIR=">&2"
 	fi
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM $UTRACKNUM "$WAVDATA" >&2 ;;
@@ -1637,10 +1651,18 @@ do_cdread ()
 		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
 			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
 		fi
-		echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		if [ "$USEPIPES" = "y" ]; then
+			echo "readencodetrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		else
+			echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		fi
 		return $RETURN
 	else
-		echo readtrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+		if [ "$USEPIPES" = "y" ]; then
+			echo readencodetrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+		else
+			echo readtrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+		fi
 	fi
 }
 
@@ -2277,8 +2299,14 @@ else
 	for UTRACKNUM in $TRACKQUEUE
 	do
 		if [ "$DOREAD" = "y" ]; then
-			if checkstatus readtrack-$UTRACKNUM; then :; else
-				do_cdread $UTRACKNUM
+			if [ "$USEPIPES" = "y" ]; then
+				if checkstatus readencodetrack-$UTRACKNUM; then :; else
+					do_cdread $UTRACKNUM | do_encode $UTRACKNUM %local0%
+				fi
+			else
+				if checkstatus readtrack-$UTRACKNUM; then :; else
+					do_cdread $UTRACKNUM
+				fi
 				if [ "$?" != "0" ]; then
 					# CD read failed - don't give the goahead to
 					# the encoder
@@ -2408,7 +2436,7 @@ do
 	read GOAHEAD # For blocking - will contain either "NO" or "NEXTTRACK"
 	if [ "$GOAHEAD" = "NO" ]; then break; fi
 	# find out where this track is to be encoded
-	if [ "$DOENCODE" = "y" ]; then
+	if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 		# Make sure we have a place to encode this, if not, exit stage right
 		if [ -z "$ENCODELOCATIONS" ]; then
 			continue
