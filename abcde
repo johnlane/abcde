@@ -1669,9 +1669,11 @@ pre_read ()
 :
 }
 
+###############################################################################
 # End of functions
 #
 # Start of execution
+###############################################################################
 
 # Builtin defaults
 CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
@@ -1861,7 +1863,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
+while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -1902,6 +1904,7 @@ while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
 		V) EXTRAVERBOSE="y" ;;
 		x) EJECTCD="y" ;;
 		w) COMMENT="$OPTARG" ;;
+		W) STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}" ;;
 		?) usage; exit ;;
 	esac
 done
