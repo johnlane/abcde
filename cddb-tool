@@ -1,0 +1,239 @@
+#!/bin/sh
+
+# Copyright (C) 1999 Nathaniel Smith <njs@uclink4.berkeley.edu>
+# Copyright (C) 1999, 2000, 2001 Robert Woodcock <rcw@debian.org>
+# Copyright (C) 2003 Jesus Climent <jesus.climent@hispalinux.es>
+# This code is hereby licensed for public consumption under either the
+# GNU GPL v2 or greater, or Larry Wall's Artistic License - your choice.
+#
+# You should have recieved a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Copyright for this work is to expire January 1, 2010, after which it
+# shall be public domain.
+
+# TODO:
+#  - Add more error checking
+
+# KNOWN BUGS:
+#  - Not much error checking, esp. of arguments
+#  - Submitted via: line is created by template, when it really should be in send.
+#    Oh well.
+
+VERSION=0.4.5
+NAME=cddb-tool
+
+#return codes
+BAD_SYNTAX_ERR=10  # invalid CDDB file
+NO_TMP_ERR=11      # can't create a temp file
+NO_MATCH_ERR=12    # try submitting one
+LOOKUP_ERR=13      # problem connecting to cddb server
+EMPTY_QUERY_RESPONSE=14	# query response = "", (probably no net connection)
+
+# assume a reasonable default if $HTTPGET is undefined
+if [ "$HTTPGET" = "" ]; then
+	if [ X"$(uname)" = X"FreeBSD" ] ; then
+		HTTPGET=fetch
+		HTTPGETOPTS=${HTTPGETOPTS:="-q -o -"}
+	elif [ X"$(uname)" = X"Darwin" ] ; then
+		HTTPGET=curl
+		HTTPGETOPTS=${HTTPGETOPTS:="-f -s"}
+	else
+		HTTPGET=wget
+		HTTPGETOPTS=${HTTPGETOPTS:="-q -O -"}
+	fi
+fi
+
+HTTPGET="$HTTPGET $HTTPGETOPTS"
+
+usage() {
+	  cat << EOF
+$NAME version $VERSION
+usage: one of:
+  $0 parse file
+  $0 template disc-id tracks
+  $0 send file address
+  $0 read server proto user host disc-id genre
+  $0 query server proto user host disc-id tracks
+  $0 stat serverurl user host proto
+  $0 help
+EOF
+}
+
+help() {
+	cat << EOF
+$NAME version $VERSION
+A toolbox for doing cddb related stuff
+
+Usage: $0 command [command_options]
+
+Commands:
+  parse file
+	Get data out of a cddb file - dumps to stdout in a form
+	source'able by the shell
+
+  send file address
+	Mails a CDDB file to a specified address, using correct format.
+	Category should be one of blues, classical, country, data, folk,
+	jazz, newage, reggae, rock, soundtrack, or misc.
+  template disc-id tracks
+	Generates a template (empty) cddb file to stdout.  The command
+	line should be essentially the output of cd-discid.
+  query server proto user host disc-id tracks
+	Looks up disc on server (should be of form "http://host/~cddb/cddb.cgi")
+	remainder of command line is in the same form as that returned
+	by the cd-discid program.  
+  read server proto user host disc-id genre
+	CDDB file is dumped to stdout. File will contain an extra
+	#CATEGORY= line, which leaves it a valid CDDB file but which will
+	be recognized by parse and send commands. Uses wget, so if you
+	need to use a proxy then just configure wget to do so. user and
+	host will be used for identifying ourselves to the CDDB server.
+  stat serverurl user host proto
+	Check server status with given protocol. This can be used to check
+	if the server supports given protocol. Most common values for proto
+	should be 5 and 3. With 3 you will not get DYEAR and DGENRE fields
+	in response.
+  help  
+	Display this.
+EOF
+}
+
+f_seq ()
+{
+	i=$1
+	while [ $i -ne `expr $2 + 1` ]
+	do
+		echo $i
+		i=`expr $i + 1`
+	done
+}
+
+COMMAND=$1
+shift
+case $COMMAND in
+parse)	# takes 1 argument, a filename, and dumps out a sh parseable version
+	CDDBFILE="$1"
+	
+	set -e
+	# names chosen to match usage in abcde code
+	DISCID=$(grep ^DISCID= "$CDDBFILE" | cut -f2 -d= | tr -d \[:cntrl:\])
+	DARTISTALBUM=$(grep ^DTITLE= "$CDDBFILE" | cut -f2- -d= | tr -d \\n | sed 's- / -~-g' | tr -d \[:cntrl:\])
+	DARTIST=$(echo "$DARTISTALBUM" | cut -f1 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])
+	DALBUM=$(echo "$DARTISTALBUM" | cut -f2 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])
+	CDDBGENRE=$(grep '^#CATEGORY=' "$CDDBFILE" | cut -f2- -d=)
+	if grep "^DYEAR" "$CDDBFILE" 2>&1 > /dev/null ; then
+		CDYEAR=$(grep "^DYEAR" "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
+	elif grep YEAR "$CDDBFILE" 2>&1 > /dev/null ; then
+		CDYEAR=$(grep "YEAR" "$CDDBFILE" | grep -v "DYEAR" | awk 'BEGIN{FS="YEAR:"}{print $2}' | awk '{print $1}')
+	else
+		CDYEAR=""
+	fi
+	CDGENRE=$(grep '^DGENRE=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
+
+	set +e
+	echo DISCID="\"$DISCID\""
+	echo DALBUM="\"$DALBUM\""
+	echo DARTIST="\"$DARTIST\""
+	echo CDDBGENRE="\"$CDDBGENRE\""
+	echo CDYEAR="\"$CDYEAR\""
+	echo CDGENRE="\"$CDGENRE\""
+	NUMTRACKS=$(grep -E '^TTITLE[0-9]+=' "$CDDBFILE" | wc -l)
+	CURRTRACK=0
+	while [ "$CURRTRACK" -lt $NUMTRACKS ]; do
+		CURRTRACKM1=$CURRTRACK # Track minus 1 (cddb numbers from 0)
+		CURRTRACK=$(expr $CURRTRACK + 1)
+		echo -n "TRACK${CURRTRACK}=\""
+		grep ^TTITLE${CURRTRACKM1}= "$CDDBFILE" | cut -f2 -d= | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\]
+		echo \"
+	done
+	;;
+
+template)
+	DISCID="$@"
+	DISCNUM=$1
+	echo '# xmcd CD database file'
+	echo '#'
+	echo '# Track frame offsets:'
+	NUMTRACKS=$2
+	for x in $(f_seq 3 $(expr $NUMTRACKS + 2))
+	do
+		printf "#\t$(echo "$DISCID" | cut -f$x -d' ')\n"
+	done
+	x=$(expr $x + 1)
+	LENGTH=$(echo "$DISCID" | cut -f$x -d' ')
+	echo "#"
+	echo "# Disc length: $LENGTH seconds"
+	echo "#"
+	echo "# Submitted via: $NAME $VERSION"
+	echo "#"
+	echo "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc"
+	echo "#CATEGORY=misc"
+	echo DISCID="$DISCNUM"
+	echo "DTITLE=Unknown Artist / Unknown Album"
+	echo "DYEAR="
+	echo "DGENRE="
+	# TTITLE0 -- TTITLEn
+	for x in $(f_seq 1 $NUMTRACKS)
+	do
+		echo "TTITLE$(expr $x - 1)=Track $x"
+	done
+	echo "EXTD="
+	# EXTT0 -- EXTTn
+	for x in $(f_seq 1 $NUMTRACKS)
+	do
+		echo "EXTT$(expr $x - 1)="
+	done
+	echo "PLAYORDER="
+	;;
+
+send) # cddb-tool send filename email@address
+	FILE="$1"
+	ADDRESS="$2"
+	DISCID=$(grep ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
+	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d=)
+	grep -v "^#CATEGORY=" "$FILE" | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+	;;
+
+query) # cddb-tool query serverurl proto user host discid...
+	SERVER="$1"
+	PROTO="$2"
+	USER="$3"
+	HOST="$4"
+	HELLOINFO="$USER+$HOST+$NAME+$VERSION"
+	shift 4
+	TRACKINFO="$@"
+	TRACKINFOPLUS=$(echo $TRACKINFO | tr ' ' '+')
+	RESULTS=$($HTTPGET "$SERVER?cmd=cddb+query+$TRACKINFOPLUS\&hello=$HELLOINFO\&proto=$PROTO") || exit $LOOKUP_ERR
+	echo $RESULTS | tr '\r' '\n' | tr -s '\n' | sed 's/^ //g'
+	;;
+
+read) # cddb-tool read serverurl proto user host genre discnumber
+	SERVER="$1"
+	PROTO="$2"
+	USER="$3"
+	HOST="$4"
+	CATEGORY="$5"
+	DISCID="$6"
+	HELLOINFO="$USER+$HOST+$NAME+$VERSION"
+	$HTTPGET $CDDBDATA "$SERVER?cmd=cddb+read+$CATEGORY+$DISCID\&hello=$HELLOINFO\&proto=$PROTO" 2>/dev/null
+	;;
+
+stat) # cddb-tool stat serverurl user host proto
+	SERVER="$1"
+	USER="$2"
+	HOST="$3"
+	PROTO="$4"
+	HELLOINFO="$USER+$HOST+$NAME+$VERSION"
+	$HTTPGET $CDDBDATA "$SERVER?cmd=stat&hello=$HELLOINFO\&proto=$PROTO" 2>/dev/null
+	;;
+
+help) # help
+	help
+	;;
+
+*) # usage
+	usage
+	;;
+esac

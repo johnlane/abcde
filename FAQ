@@ -1,0 +1,98 @@
+
+Q. I am using MacOSX and I am having problems to use abcde.
+A. Well, I have a Mac, but I use linux on it. I have not been able to find
+   a way to make it work there, since I do not have the development tools
+   installed. I have placed a basic support, but some user reports are just
+   complaining about abcde not encoding the ripped tracks, as if 
+   cdda2wav/cdparanoia/cddafs would never end reading them. If you have such
+   a system and experience problems, please, report them, and I will try to
+   work them out with your help.
+
+Q. I would like to give the trackname and the artist_name directly to the
+   encoder (in my case oggenc), but found no documentation.
+A. That is not possible, since abcde gets the information from CDDB database.
+   You can create a template and fill it with the option "-n".
+
+Q. What formats can I encode my music to?
+A. As for version 2.1.7, abcde includes support for MP3, Ogg/Vorbis, 
+   Ogg/Speex and Flac.
+
+Q. I have a CD with a data track, and abcde complaints it cannot read/encode
+   it.
+A. It is not easy to find a data track on a CD. Right now, I can only think
+   of getting the track info from CDDB and ask the user for continuing should
+   a "data" track name is found. But the solution is far from been optimal.
+   For now, if you find a "data" track and you know the number, restart abcde
+   specifying the tracks to be encoded, leaving out the data one.
+
+Q. How can I separate the different output files I get using multiple-output
+   support?
+A. Use the OUTPUT variable in PLAYLISTFORMAT and OUTPUTFORMAT. It holds the 
+   different output file types you passed to abcde (i.e., ogg, mp3, flac) 
+   during playlist creation and file/directory creation.
+   
+Q. I keep on getting files with ".ogg.ogg" extension. What am I doing wrong?
+A. The code for multiple-output adds automatically the extension of the
+   different outputs you select with the "-o" extension (or with OUTPUTTYPE
+   variable). Erase the ".${OUTPUTTYPE}" part from the OUTPUTFORMAT variable
+   in /etc/abcde.conf or ~/.abcde.conf
+
+Q. I use Debian/RedHat/(put your Unix flavour here) and MP3 encoding is not 
+   working. What am I doing wrong?
+A. Since MP3 is considered non-free (you get it for free, but hardware players
+   and net broadcasters have to pay license fees), some release engineering 
+   groups and release management teams have decided not to provide MP3 encoding
+   tools.
+   These distributions or operative systems have decided to use Ogg/Vorbis as
+   the default encoding format, since it contains no (known) patent claims
+   and they are (supposed to be) completely Free (released under a BSD-like
+   license).
+   However, there is no strong (at the moment) hardware support, although 
+   some groups and companies are strongly working on getting it, real soon 
+   now. For that reason some people prefer to encode to MP3.
+
+   UPDATE *** UPDATE
+   There are at least 3 known brands already selling Ogg/Vorbis portable
+   players: Rio, iRiver and Neuros.
+   Go buy one and you have no more reasons to use MP3.
+   
+   If you are among those individuals, you might need to add support for MP3
+   encoding to your system:
+   Debian : check http://marillat.free.fr to install lame in your system.
+            others prefer bladeenc. Check www.apt-get.org or google.
+   RedHat : search on rpmfind.net
+   FreeBSD: By default includes LAME support.
+   OpenBSD: Available by specifying you want to install the port with LAME
+            support, or by just installing it later from the ports tree.
+   NetBSD : Available in pkgsrc.
+
+   Others : Please, help me here.
+
+Q. I have modified some of the options, and now CDDB has stopped working.
+A. Check that you have modified everything in the right way. For instance, if
+   you modify the HTTPGET program you might want to set some options of your
+   own. If you use the predefined ones (wget, curl and fetch) abcde will try
+   to use some defaults. Keep in mind that the output should go to the output
+   as standard output, to be saved in a file for later use.
+
+Q. My hardware player (put it here) does not recognize the playlists created
+   with abcde. What I am doing wrong?
+A. Try using "-m" when creating the playlists, or setting DOSPLAYLIST as an
+   option in the config file.
+
+Q. I am requested to have eject when setting the speed although I do not use
+   for anything.
+A. If you do not use cdparanoia, eject is used for setting the speed of the 
+   cdrom drive. You can substitute it for "cdset" with "-x" as the argument,
+   but you have to install it manually.
+   Another way to get the same results is using the pre_read function, defined
+   in your /etc/abcde.conf file.
+
+OBSOLETE
+--------
+Q. I set KEEPWAVS to "y" but abcde insists on erasing my directory, along
+   with the wav tracks. What I am doing wrong?
+A. The default action set includes clean, which cleans the temp directory, 
+   if nothing goes wrong. Take the "clean" out from the action list and you
+   are done.
+   UPDATE: KEEPWAVS unselects now the clean action.

@@ -1,0 +1,211 @@
+ABCDE
+=====
+
+abcde is a frontend command-line utility (actually, a shell script) that
+grabs tracks off a CD, encodes them to Ogg/Vorbis, MP3, FLAC or Ogg/Speex
+format, and tags them, all in one go.
+
+Your finished Ogg/MP3/FLAC/Speex's are, by default, stored in a subdirectory of 
+the current directory (named after the artist) with a filename based on the
+track title. Spaces are replaced by underscores, and apostrophes and
+control codes are filtered out. Colons are replaced with an underscore and a
+hyphen. The end result usually looks like: Our_Lady_Peace/01.Supermans_Dead.ogg
+This filename munging is customizable - edit the mungefilename function in
+your abcde.conf to change it.
+
+Need to go through an HTTP proxy for CDDB access? No problem, just export
+your http_proxy variable first so wget/fetch/curl can see it.
+
+You already store CDDB entries for your CD collection on your hard disk? Piece
+of cake. Just edit CDDBLOCALDIR to point to the repository and give abcde the 
+"-L" flag to make use of it.
+
+Low on disk space? abcde has different algorithms to schedule ripping and
+encoding - to optimize for disk conservation, use -l.
+
+abcde can also take advantage of SMP systems, just like make. Try
+'abcde -j 2' - it'll run two encoder jobs while it rips the next
+track.
+
+abcde now uses FreeDB by default. To use a different FreeDB mirror or
+another CDDB service, change the CDDBURL option in your abcde.conf.
+
+Frustrated that you can't use the CPU power on Machine A sitting right
+next to Machine B with the fast cdrom drive? Now you don't have to be -
+Run distmp3host (included in distmp3) on Machine A, and then run
+abcde -r MachineA from Machine B (where "MachineA" is a dns name or IP
+address). Use this in combination with '-j 0' to shift all encoding off the
+local machine.
+
+You do not have internet connection, or just feel with free time to write 
+down all the song names and artists instead of using CDDB? Use -n and edit
+the template.
+
+To make abcde 2.x work more like 1.x, put these options in your abcde.conf:
+
+INTERACTIVE=n
+OUTPUTTYPE=mp3
+ID3TAGV=1
+
+NOTICE: abcde needs cd-discid. Grab it from:
+http://www.hispalinux.es/~data/files/cd-discid/
+
+MAJOR CHANGES
+=============
+New options in 2.1.19:
+
+* ONETRACK mode has been introduced. Setting the flag "-1" will create a
+  single file with all the tracks from the CD.
+  
+Changes in 2.1.18:
+
+* CDSPEED option defaults to eject. However, since cdparanoia has a built-in
+  option to set the speed, we use it. There is not way (right now) to force
+  the use of eject, but it will be introduced in a future release. Also one
+  can use the pre_read function to set the speed with other program.
+
+New options in 2.1.16:
+
+* -S, CDSPEED and CDSPEEDOPTS for setting the speed of the CDROM. One can 
+  set the options in abcde.conf and pass the value on the command line.
+  This option can be used with "eject -x <speed>", "setcd -x <speed>" or the
+  built-in cdparanoia option "-S <speed>", if the CD reader supports it.
+* Added a pre-read function. Modify it at your pleasure in abcde.conf
+  One can use it to close the CD drive.
+* -m option, to modify the playlist to include CRLF in every line. Some 
+  players insist on having those to work properly with playlists.
+
+New options in 2.1.15:
+
+* -V can be used to obtain some more information about the CDDB queries.
+* -v shows the version, basic help, and exits.
+
+New options from 2.1.10 to 2.1.13:
+
+* CDROMID has been introduced for cdda2wav use with SCSI devices.
+* Use -L to retrieve the CDDB entries from a local repository (also one can
+  set CDDBUSELOCAL in the config file).
+* If CDDBCOPYLOCAL is set to "y" we store copies of the CDDB entries, under
+  CDDBLOCALDIR (defaults to "~/.cddb).
+
+Modifications from 2.1.9 to 2.1.10:
+
+* Initial (still incomplete) MacOSX support is on the works.
+* A new tool (curl) has been added for MacOSX compatibility, as HTTPGET
+  option.
+  
+Options modified from 2.1.8 to 2.1.9:
+
+* KEEPWAVS option now sets the clean to "no".
+
+Options added/modified from 2.1.3 to 2.1.5:
+
+* Ogg/Speex added. Use "-o spx" to rip your audiobooks, for instance.
+
+Options added/modified from 2.1.1 to 2.1.3:
+
+* WGET has been substituted by HTTPGET. Now we support fetch as retrieval
+  program.
+* KEEPWAVS has been introduced. Set it to "y" and the wav tracks will be
+  kept.
+* CDDBPROTO is used to specify the protocol level in the CDDB retrieval.
+* DAGRAB has been introduced as a cd ripper.
+
+Options added/modified from 2.0.3 to 2.1.x:
+
+* -b use batch processing. It uses normalize to adjust the volume of the
+  songs, and a -g gapless option from lame to remove gaps. Only available
+  for mp3+lame combination.
+* a new "normalize" option has been added to -a, to normalize the volume.
+* -o works now with a combination of the different outputs: ogg, mp3, flac.
+  Combine them separated by ",". Example: "-o ogg,flac".
+* OUTPUTTYPE is no longer used for the output file type. From version 2.1
+  abcde implements multiple-output and the file type is always appended at
+  the end of the file. The OUTPUT variable can be used in the 
+  PLAYLISTFORMAT and OUTPUTFORMAT to create different directory structures
+  and playlist names for each of the output formats selected.
+* DYEAR can be used as DiskYear value in CDDB data. If the data is not 
+  supplied by the CDDB server, it can be added.
+
+Other options that changed from 1.x to 2.x:
+
+* -e doesn't exist anymore, abcde now presents you with all of the cddb data
+  and asks you if you want to edit it. If you don't want to be asked,
+  use -N or INTERACTIVE=n
+* The output type defaults to Ogg/Vorbis. Specify -o mp3 or OUTPUTTYPE=mp3
+  if you still want to output mp3's.
+* -l 2 is now just -l, LOWDISK=2 should now be LOWDISK=y
+* -V and -v are gone, abcde will now prompt you if you'd like to use Various
+  Artists handling, after showing you the cddb data.
+* -P is now '-a playlist,clean', PLAYLISTONLY=y is now
+  ACTIONS=playlist,clean
+* -p is now '-a playlist,move,clean', PLAYLIST=y is now
+  ACTIONS=playlist,move,clean
+* cddb-tool has been cleaned up a little bit. 'get' is now 'query' and
+  'read', and the tempfile handling has been removed.
+* ID3COMMENT is now COMMENT.
+* FreeDB is now the default CDDB database.
+
+
+REQUIREMENTS
+============
+
+abcde requires the following backend tools to work:
+
+* An Ogg/Vorbis encoder (oggenc, the default, or vorbize) or:
+* An MP3 encoder (lame, gogo, bladeenc, l3enc, etc). Any MP3 encoder that
+  takes two filenames on the command line, one for input, one for output,
+  will work.
+  You can get lame at: http://www.mp3dev.org/mp3/
+  You can get gogo at: http://homepage1.nifty.com/herumi/gogo_e.html
+  You can get BladeEnc at: http://bladeenc.mp3.no/
+  You can get a trial version of mp3enc at:
+    http://www.iis.fhg.de/amm/download/ or:
+* FLAC encoder (flac) or:
+* Ogg/Speex encoder (speexenc)
+* normalize for volume normalization.
+* CD Paranoia, an audio CD reading utility,
+* Or cdda2wav, the audio CD reading utility cdparanoia was born from,
+* Or dagrab, another audio CD reading utility.
+* cd-discid, a CDDB DiscID reading program. Formerly bundled with abcde.
+  It's available in Debian or http://www.hispalinux.es/~data/files/cd-discid/
+* An HTTP retrieval program: wget, fetch (FreeBSD) or curl (MacOSX)
+* id3, an id3 tagging program. Available at: http://lly.org/~rcw/id3/
+* id3v2, an id3 version 2.0 tagger. http://id3v2.sourceforge.net/
+* (optional) distmp3, a client/server for distributed mp3 encoding.
+  You can get distmp3 at http://wlug.westbo.se/medlprog/medlprog.html
+
+Potential problems:
+
+Having trouble getting cdparanoia to read from your drive as a user?
+Add yourself to the cdrom group, change the permissions on your cdrom device
+to 660, and if you have a SCSI cdrom drive, check the permissions on
+/dev/sg* as well.
+
+Running out of disk space for .wav files but don't want to use -l? Put them
+in a different location by adding WAVOUTPUTDIR=/some/other/path to your
+/etc/abcde.conf or ~/.abcde.conf.
+
+If abcde seems to be ignoring your configuration options or not running
+commands such as the encoder, you may have misquoted something. Config
+options such as the following do not work:
+
+LAMEOPTS=-h -k
+
+Try this instead:
+
+LAMEOPTS='-h -k'
+
+Abcde's new mailing list is abcde@listas.hispalinux.es. So far has not
+been actively used.
+The posts from non-subscribers are moderated to prevent spam.
+
+Archives of the old list are publically available at:
+http://lly.org/~rcw/abcde/list/current/threads.html
+
+Abcde's current page is at http://www.hispalinux.es/~data/abcde.php
+Abcde's new homepage will be at http://abcde.hispalinux.es/.
+Abcde's old homepage is at http://lly.org/~rcw/abcde/page/.
+--
+Robert Woodcock <rcw@debian.org>
+Jesus Climent <jesus.climent@hispalinux.es>

@@ -1,0 +1,19 @@
+Source: abcde
+Section: sound
+Priority: optional
+Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
+Standards-Version: 3.6.1
+Build-Depends: debhelper
+
+Package: abcde
+Architecture: all
+Depends: cd-discid, wget, cdparanoia | cdda2wav, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex
+Conflicts: cdgrab
+Replaces: cdgrab
+Provides: cdgrab
+Suggests: eject, distmp3, id3 (>= 0.12), id3v2, normalize
+Description: A Better CD Encoder
+ A frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
+ Ogg/Vorbis, MP3, FLAC or Ogg/Speex encoder (defaults to oggenc). Grabs an 
+ entire CD and converts each track to Ogg/Vorbis, MP3, FLAC or Ogg/Speex, 
+ then comments or ID3-tags each file, with one command.
