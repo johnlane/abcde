@@ -108,12 +108,19 @@ Remote encode on this comma-delimited list of machines using distmp3. See
 the REMOTEHOSTS configuration variable.
 .TP
 .B \-s [number]
-Start the numbering of the tracks at a given number. It only affects the
-filenames and the playlist. Internal (tag) numbering remains the same.
+[DEPRECATED: use -t, see below]
 .TP
 .B \-S [speed]
 Set the speed of the CD drive. Needs CDSPEED and CDSPEEDOPTS set properly
 and both the program and device must support the capability.
+.TP
+.B \-t [number]
+Start the numbering of the tracks at a given number. It only affects the
+filenames and the playlist. Internal (tag) numbering remains the same.
+.TP
+.B \-T [number]
+Same as \-t but changes also the internal (tag) numbering. Keep in mind that
+the default TRACK tag for MP3 is $T/$TRACKS so it is changed to simply $T.
 .TP
 .B \-v
 Show the version and exit
@@ -339,6 +346,11 @@ preparation actions. The default function is empty.
 .B EJECTCD
 If set to "y", abcde will call eject(1) to eject the cdrom from the drive
 after all tracks have been read.
+.TP
+.B EXTRAVERBOSE
+If set to "y", some operations which are usually now shown to the end user
+are visible, such as CDDB queries. Usefull for initial debug and if your
+network/CDDB server is slow.
 .SH BACKEND TOOLS
 abcde requires the following backend tools to work:
 .TP
