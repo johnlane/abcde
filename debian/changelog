@@ -16,7 +16,8 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
     (Closes: #95828). Geez! That is low bug number...
   * DATA tracks are now excluded from the ripping process using internally
     the cdparanoia "-Q" query option. If using another ripper, it does not
-    work (at least there is no support for them in abcde) (Closes: #112692).
+    work (at least there is no support for them in abcde) 
+    (Closes: #112692, #117412).
   * New "0" choice for "None of the above" has been introduced. If selected, a
     template is created and the user encouraged to edit it (Closes: #147683).
   * New options for when the PLAYLIST already exists: erase, append or keep.
@@ -32,9 +33,10 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
   * Add CDDB information to Ogg/Vorbis and FLAC files (Closes: #265358).
   * Added INTERACTIVE option. Set it to "n" and there you go, without user
     interaction.
-  * normalize has changes its name to normalize-audio.
+  * Changes normalize to normalize-audio (Closes: #267053)
+  * Copes with wav files being erased by the ripping tool.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 20 Aug 2004 13:09:57 +0000
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 29 Aug 2004 00:34:19 +0300
 
 abcde (2.1.19-1) unstable; urgency=low
 
