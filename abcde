@@ -303,6 +303,7 @@ do_tag ()
 					echo GENRE="$CDGENRE"
 		                fi	
 				echo TRACKNUMBER=$1
+				echo CDDB=$CDDBDISCID
 				if [ "$(eval echo ${COMMENT})" != "" ]; then
 					case "$COMMENTOUTPUT" in
 						*=*) echo "$COMMENTOUTPUT";;
@@ -331,13 +332,14 @@ do_tag ()
                	if [ -n "$CDGENRE" ]; then
 			echo GENRE="$CDGENRE"
                 fi	
+		echo TRACKNUMBER=$1
+		echo CDDB=$CDDBDISCID
 		if [ "$(eval echo ${COMMENT})" != "" ]; then
 			case "$COMMENTOUTPUT" in
 				*=*) echo "$COMMENTOUTPUT";;
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-		echo TRACKNUMBER=$1
                 ) | run_command tagtrack-$1 $METAFLAC --import-vc-from=- --no-utf8-convert "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	spx)
