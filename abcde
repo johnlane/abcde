@@ -420,7 +420,7 @@ do_encode ()
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
 			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
-			echo "Encoding track $1 of $TRACKS: $TRACKNAME..." >&2
+			run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
 			case "$OUTPUT" in
 			mp3)
 				case "$2" in
