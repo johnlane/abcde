@@ -725,7 +725,11 @@ do_playlist ()
 				echo e >&2
 				ERASEPLAYLIST=e
 			fi
-			[ "$ERASEPLAYLIST" = "e" -o "$ERASEPLAYLIST" = "E" ] && rm -f "$OUTPUTDIR/$PLAYLISTFILE"
+			# Once we erase the playlist, we use append to create the new one.
+			[ "$ERASEPLAYLIST" = "e" -o "$ERASEPLAYLIST" = "E" ] && rm -f "$OUTPUTDIR/$PLAYLISTFILE" && ERASEPLAYLIST=a
+		else
+			# The playlist does not exist, so we can safelly use append to create the new list
+			ERASEPLAYLIST=a
 		fi
 		if [ "$ERASEPLAYLIST" = "a" -o "$ERASEPLAYLIST" = "A" ]; then
 			touch "$OUTPUTDIR/$PLAYLISTFILE"
@@ -1760,7 +1764,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 # Custom filename munging:
 mungefilename ()
 {
-	echo "$@" | sed s,:,\ -,g | sed 's,*,-,g' | tr \ / __ | tr -d \'\"\?\[:cntrl:\]
+	echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
 }
 
 # pre_read

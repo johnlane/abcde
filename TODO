@@ -29,9 +29,3 @@ TODO:
   since abcde sees the encoding already finished. Same with tags and moves.
 
 * Support UTF-8 tags
-
-DONE:
-----
-* FLAC support (http://flac.sourceforge.net/)
-* Multiple ogg/mp3/flac output during the same session
-* Track padding problem with single songs.
