@@ -580,26 +580,69 @@ do_batch_encode ()
 # TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
 do_encode ()
 {
-	IN="$ABCDETEMPDIR/track$1.wav"
-	# We need IN to proceed.
-	if [ -s "$IN" ] ; then
+	if [ "$USEPIPES" = "y" ]; then
+		case "$OUTPUT" in
+			mp3)
+				TEMPARG="PIPE_$MP3ENCODERSYNTAX"
+				;;
+			ogg)
+				TEMPARG="PIPE_$OGGENCODERSYNTAX"
+				;;
+			flac)
+				TEMPARG="PIPE_$FLACENCODERSYNTAX"
+				;;
+			spx)
+				TEMPARG="PIPE_$SPEEXENCODER"
+				;;
+			mpc)
+				TEMPARG="PIPE_$MPPENCODER"
+				;;
+		esac
+		IN=${!TEMPARG}
+	else
+		IN="$ABCDETEMPDIR/track$1.wav"
+		case "$OUTPUT" in
+			mp3)
+				case "$MP3ENCODERSYNTAX" in
+					# FIXME # check if mp3enc needs -if for pipes
+					mp3enc)
+						FILEARG="-if $IN"
+						;;
+					*)
+						FILEARG=$IN
+						;;
+				esac
+				;;
+			*)
+				FILEARG=$IN
+				;;
+		esac
+	fi
+	# We need IN to proceed, if we are not using pipes.
+	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
 			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
-			run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
+			if [ X"$USEPIPES" = "Xy" ]; then
+				RUN_COMMAND=""
+			else
+				run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
+				RUN_COMMAND="run_command encodetrack-$OUTPUT-$1"
+			fi
 			case "$OUTPUT" in
 			mp3)
 				case "$2" in
 				%local*%)
 					case "$MP3ENCODERSYNTAX" in
-					lame|gogo) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
-					bladeenc) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
-					l3enc|xingmp3enc) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
-					mp3enc) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
+					lame|gogo) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
+					bladeenc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
+					l3enc|xingmp3enc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
+					# FIXME # Relates to the previous FIXME since it might need the "-if" removed.
+					mp3enc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
 					esac
 					;;
 				*)
-					run_command encodetrack-$OUTPUT-$1 nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" >/dev/null 2>&1
+					$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" >/dev/null 2>&1
 					;;
 				esac
 				;;
@@ -607,12 +650,12 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$OGGENCODERSYNTAX" in
-					vorbize) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -w "$OUT" "$IN" ;;
-					oggenc) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -o "$OUT" "$IN" ;;
+					vorbize) $RUN_COMMAND nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -w "$OUT" "$IN" ;;
+					oggenc) $RUN_COMMAND nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -o "$OUT" "$IN" ;;
 					esac
 					;;
 				*)
-					run_command encodetrack-$OUTPUT-$1 nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" >/dev/null 2>&1
+					$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" >/dev/null 2>&1
 					;;
 				esac
 				;;
@@ -620,14 +663,14 @@ do_encode ()
 				case "$2" in
 	                        %local*%)
 					case "$FLACENCODERSYNTAX" in
-					flac) run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $FLACENCODER  $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
+					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER  $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
 					;;
 	
 				*)
 					echo -n "DISTMP3:"
 					echo "$DISTMP3 $DISTMP3OPTS $2 $IN $OUT >/dev/null 2>&1"
-					run_command encodetrack-$OUTPUT-$1 nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" > /dev/null 2>&1
+					$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" > /dev/null 2>&1
 					;;
 				esac
 				;;
@@ -641,9 +684,9 @@ do_encode ()
 				fi
 				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
 				if [ ! "$DOTAG" = "y" ]; then
-					run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" "$COMMENT" "$IN" "$OUT"
+					$RUN_COMMAND nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" "$COMMENT" "$IN" "$OUT"
 				else
-					run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
+					$RUN_COMMAND nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
 				;;
 			mpc)	
@@ -653,7 +696,7 @@ do_encode ()
 				# errors, so I have not tried it myself.
 				## FIXME ## Needs some cleanup to determine if an empty tag sent
 				## FIXME ## to the encoder ends up empty.
-				run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				$RUN_COMMAND nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			esac
 		done
@@ -1718,18 +1761,13 @@ do_cdread ()
 		UTRACKNUM=$1
 	fi
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-	WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
-	if [ -r "$CDDBDATA" ]; then
-		TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
-		echo "Grabbing track $UTRACKNUM: $TRACKNAME..." >&2
-	else
-		echo "Grabbing track $UTRACKNUM..." >&2
-	fi
 	if [ "$USEPIPES" = "y" ]; then
 		TEMPARG="PIPE_$CDROMREADERSYNTAX"
 		FILEARG=${!TEMPARG}
 		REDIR=""
+		PIPE_MESSAGE="and encoding "
 	else
+		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
 		case "$CDROMREADERSYNTAX" in
 		## FIXME ## Find the case for dagrab, to avoid exceptions
 			dagrab)
@@ -1740,6 +1778,12 @@ do_cdread ()
 				;;
 		esac
 		REDIR=">&2"
+	fi
+	if [ -r "$CDDBDATA" ]; then
+		TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+		echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM: $TRACKNAME..." >&2
+	else
+		echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM..." >&2
 	fi
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM $UTRACKNUM $FILEARG $REDIR ;;
