@@ -40,13 +40,16 @@ echo "-o    Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p    Pad track numbers with 0's (if less than 10 tracks)"
 echo "-r    [host1,host2...] Also encode on these remote hosts"
 echo "-R    Add replaygain values to the tag info (ogg,flac)"
-echo "-s    Start the track numbering at a given number"
+echo "-s    Start the track numbering at a given number [DEPRECATED: use -t]"
 echo "-S    Set the CD speed"
 #echo "-t    File types to preprocess (wav)"
 #echo "-T    Set postprocessing options"
+echo "-t    Start the track numbering at a given number"
+echo "-T    Start the track numbering at a given number, modifying tag numbering"
 echo "-v    Show version number and exit"
 echo "-V    Be a bit more verbose about what is happening behind the scenes"
 echo "-x    Eject CD after all tracks are read"
+echo "-w    <comment> Add a comment to the CD tracks"
 echo "Tracks is a space-delimited list of tracks to grab."
 echo "Ranges specified with hyphens are allowed."
 }
@@ -275,6 +278,13 @@ do_tag ()
 {
 	COMMENTOUTPUT="$(eval echo ${COMMENT})"
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
+	# If we want to start the tracks with a given number, we need to modify the
+	# TRACKNUM value before evaluation
+	if [ -n "$STARTTRACKNUMBER" -a -n "$STARTTRACKNUMBERTAG" ] ; then
+		# Get the trackpadding from the current track
+		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - 1 ))
+	fi
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
 	case "$OUTPUT" in
@@ -332,7 +342,7 @@ do_tag ()
                	if [ -n "$CDGENRE" ]; then
 			echo GENRE="$CDGENRE"
                 fi	
-		echo TRACKNUMBER=$1
+		echo TRACKNUMBER=${TRACKNUM:-$1}
 		echo CDDB=$CDDBDISCID
 		if [ "$(eval echo ${COMMENT})" != "" ]; then
 			case "$COMMENTOUTPUT" in
@@ -1043,7 +1053,7 @@ do_localcddb ()
 				#echo "Not using local copy of CDDB data"
 				CDDBLOCALSUCCESS="n"
 			fi
-		elif [ "$FORCECDDBUSELOCAL"= "y" ]; then
+		elif [ "$FORCECDDBUSELOCAL" = "y" ]; then
 			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
 			echo 998 > "$ABCDETEMPDIR/cddbquery" # Assuming 998 isn't used by CDDB
 			echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
@@ -1876,7 +1886,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:vVx opt ; do
+while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -1902,9 +1912,11 @@ while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:vVx opt ; do
 		R) REPLAYGAIN=y ;;
 		s) STARTTRACKNUMBER="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
-		t) PREPROCESSFORMATS="$OPTARG"
-		   PREPROCESS=y ;;
-		T) POSTPROCESSFORMATS="$OPTARG" ;;
+#		t) PREPROCESSFORMATS="$OPTARG"
+#		   PREPROCESS=y ;;
+#		T) POSTPROCESSFORMATS="$OPTARG" ;;
+		t) STARTTRACKNUMBER="$OPTARG" ;;
+		T) STARTTRACKNUMBER="$OPTARG" ; STARTTRACKNUMBERTAG="y" ;;
 		v) 
 		   echo "This is abcde v$VERSION."
 		   echo "Usage: abcde [options] [tracks]"
@@ -1913,6 +1925,7 @@ while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:vVx opt ; do
 		   ;;
 		V) EXTRAVERBOSE="y" ;;
 		x) EJECTCD="y" ;;
+		w) COMMENT="$OPTARG" ;;
 		?) usage; exit ;;
 	esac
 done

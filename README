@@ -5,40 +5,39 @@ abcde is a frontend command-line utility (actually, a shell script) that
 grabs tracks off a CD, encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or
 MPP/MP+(Musepack) format, and tags them, all in one go.
 
-Your finished Ogg/MP3/FLAC/Speex/MPP's are, by default, stored in a subdirectory 
+Your finished Ogg/MP3/FLAC/Speex/MPP's are, by default, stored in a subdirectory
 of the current directory (named after the artist) with a filename based on the
-track title. Spaces are replaced by underscores, and apostrophes and
-control codes are filtered out. Colons are replaced with an underscore and a
-hyphen. The end result usually looks like: Our_Lady_Peace/01.Supermans_Dead.ogg
-This filename munging is customizable - edit the mungefilename function in
-your abcde.conf to change it.
+track title. Spaces are replaced by underscores, and apostrophes and control
+codes are filtered out. Colons are replaced with an underscore and a hyphen. The
+end result usually looks like: Our_Lady_Peace/01.Supermans_Dead.ogg This
+filename munging is customizable - edit the mungefilename function in your
+abcde.conf to change it.
 
-Need to go through an HTTP proxy for CDDB access? No problem, just export
-your http_proxy variable first so wget/fetch/curl can see it.
+Need to go through an HTTP proxy for CDDB access? No problem, just export your
+http_proxy variable first so wget/fetch/curl can see it.
 
 You already store CDDB entries for your CD collection on your hard disk? Piece
-of cake. Just edit CDDBLOCALDIR to point to the repository and give abcde the 
+of cake. Just edit CDDBLOCALDIR to point to the repository and give abcde the
 "-L" flag to make use of it.
 
 Low on disk space? abcde has different algorithms to schedule ripping and
 encoding - to optimize for disk conservation, use -l.
 
-abcde can also take advantage of SMP systems, just like make. Try
-'abcde -j 2' - it'll run two encoder jobs while it rips the next track.
+abcde can also take advantage of SMP systems, just like make. Try 'abcde -j 2' -
+it'll run two encoder jobs while it rips the next track.
 
-abcde now uses FreeDB by default. To use a different FreeDB mirror or
-another CDDB service, change the CDDBURL option in your abcde.conf.
+abcde now uses FreeDB by default. To use a different FreeDB mirror or another
+CDDB service, change the CDDBURL option in your abcde.conf.
 
-Frustrated that you can't use the CPU power on Machine A sitting right
-next to Machine B with the fast cdrom drive? Now you don't have to be -
-Run distmp3host (included in distmp3) on Machine A, and then run
-abcde -r MachineA from Machine B (where "MachineA" is a dns name or IP
-address). Use this in combination with '-j 0' to shift all encoding off the
-local machine.
+Frustrated that you can't use the CPU power on Machine A sitting right next to
+Machine B with the fast cdrom drive? Now you don't have to be - Run distmp3host
+(included in distmp3) on Machine A, and then run abcde -r MachineA from Machine
+B (where "MachineA" is a dns name or IP address). Use this in combination with
+'-j 0' to shift all encoding off the local machine.
 
-You do not have internet connection, or just feel with free time to write 
-down all the song names and artists instead of using CDDB? Use -n and edit
-the template.
+You do not have internet connection, or just feel with free time to write down
+all the song names and artists instead of using CDDB? Use -n and edit the
+template.
 
 To make abcde 2.x work more like 1.x, put these options in your abcde.conf:
 
@@ -46,18 +45,19 @@ INTERACTIVE=n
 OUTPUTTYPE=mp3
 ID3TAGV=1
 
-NOTICE: abcde needs cd-discid. Grab it from:
-http://www.hispalinux.es/~data/files/cd-discid/
-
 MAJOR CHANGES
 =============
 Changes in 2.2-pre2:
 
 * Support for MPP/MP+(Musepack) format. It can be downloaded from 
-  corecodecs.org. It is supposed to be Free (not only free), and released
-  under the GPL...
-* New "-s <number>" option for starting the numbering of the output files at 
+  corecodecs.org. It is supposed to be Free (not only free), and released under
+  the GPL...
+* New "-w <comment>" option to add a comment for a given CD on the command
+  line.
+* New "-t <number>" option for starting the numbering of the output files at 
   a given starting number. Ideal for albums with more than one CD.
+  New "-T <number>" option, similar to "-s" but also modifies the tag entries
+  on the files themselves.
 * Support for keeping an existing playlist (and not add new entries to it),
   erase the existing one (overwrite) or append new entries to the existing
   one.
@@ -86,20 +86,20 @@ New options in 2.1.19:
 Changes in 2.1.18:
 
 * CDSPEED option defaults to eject. However, since cdparanoia has a built-in
-  option to set the speed, we use it. There is not way (right now) to force
-  the use of eject, but it will be introduced in a future release. Also one
-  can use the pre_read function to set the speed with other program.
+  option to set the speed, we use it. There is not way (right now) to force the
+  use of eject, but it will be introduced in a future release. Also one can use
+  the pre_read function to set the speed with other program.
 
 New options in 2.1.16:
 
-* -S, CDSPEED and CDSPEEDOPTS for setting the speed of the CDROM. One can 
-  set the options in abcde.conf and pass the value on the command line.
-  This option can be used with "eject -x <speed>", "setcd -x <speed>" or the
-  built-in cdparanoia option "-S <speed>", if the CD reader supports it.
+* -S, CDSPEED and CDSPEEDOPTS for setting the speed of the CDROM. One can set
+  the options in abcde.conf and pass the value on the command line.  This option
+  can be used with "eject -x <speed>", "setcd -x <speed>" or the built-in
+  cdparanoia option "-S <speed>", if the CD reader supports it.
 * Added a pre-read function. Modify it at your pleasure in abcde.conf
   One can use it to close the CD drive.
-* -m option, to modify the playlist to include CRLF in every line. Some 
-  players insist on having those to work properly with playlists.
+* -m option, to modify the playlist to include CRLF in every line. Some players
+  insist on having those to work properly with playlists.
 
 New options in 2.1.15:
 
@@ -145,13 +145,14 @@ Options added/modified from 2.0.3 to 2.1.x:
 * a new "normalize" option has been added to -a, to normalize the volume.
 * -o works now with a combination of the different outputs: ogg, mp3, flac.
   Combine them separated by ",". Example: "-o ogg,flac".
-* OUTPUTTYPE is no longer used for the output file type. From version 2.1
-  abcde implements multiple-output and the file type is always appended at
-  the end of the file. The OUTPUT variable can be used in the 
-  PLAYLISTFORMAT and OUTPUTFORMAT to create different directory structures
-  and playlist names for each of the output formats selected.
-* DYEAR can be used as DiskYear value in CDDB data. If the data is not 
-  supplied by the CDDB server, it can be added.
+* OUTPUTTYPE is no longer used for the output file type. From version 2.1 abcde
+  implements multiple-output and the file type is always appended at the end of
+  the file. The OUTPUT variable can be used in the PLAYLISTFORMAT and
+  OUTPUTFORMAT to create different directory structures and playlist names for
+  each of the output formats selected.
+
+* DYEAR can be used as DiskYear value in CDDB data. If the data is not supplied 
+  by the CDDB server, it can be added.
 
 Other options that changed from 1.x to 2.x:
 
@@ -204,24 +205,10 @@ abcde requires the following backend tools to work:
 
 Potential problems:
 
-Having trouble getting cdparanoia to read from your drive as a user?
-Add yourself to the cdrom group, change the permissions on your cdrom device
-to 660, and if you have a SCSI cdrom drive, check the permissions on
+Having trouble getting cdparanoia to read from your drive as a user?  Add
+yourself to the cdrom group, change the permissions on your cdrom device to 660,
+and if you have a SCSI cdrom drive, check the permissions on
 /dev/sg* as well.
-
-Running out of disk space for .wav files but don't want to use -l? Put them
-in a different location by adding WAVOUTPUTDIR=/some/other/path to your
-/etc/abcde.conf or ~/.abcde.conf.
-
-If abcde seems to be ignoring your configuration options or not running
-commands such as the encoder, you may have misquoted something. Config
-options such as the following do not work:
-
-LAMEOPTS=-h -k
-
-Try this instead:
-
-LAMEOPTS='-h -k'
 
 Abcde's new mailing list is abcde@listas.hispalinux.es. So far has not
 been actively used.
@@ -234,5 +221,8 @@ Abcde's current page is at http://www.hispalinux.es/~data/abcde.php
 Abcde's new homepage will be at http://abcde.hispalinux.es/.
 Abcde's old homepage is at http://lly.org/~rcw/abcde/page/.
 --
-Robert Woodcock <rcw@debian.org>
 Jesus Climent <jesus.climent@hispalinux.es>
+
+abcde was originally created by Robert Woodcock <rcw@debian.org>, but is
+currently maintained by Jesus Climent <jesus.climent@hispalinux.es>
+

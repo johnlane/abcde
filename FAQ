@@ -1,4 +1,28 @@
 
+1. INSTALLATION
+   ============
+   
+Q. How can I install abcde on my system?
+A. To get abcde you can use a pre-packaged version, available for Debian, 
+   FreeBSD, OpenBSD, NetBSD and others.
+   In case you want to install your own release, you need to download the
+   sources and install the complementary programs (abcde is just a frontend
+   and its functionality is provided by other programs).
+   Read 
+
+   abcde needs cd-discid. Grab it from:
+   http://www.hispalinux.es/~data/files/cd-discid/
+   
+
+2. EXECUTION
+   =========
+
+3. FORMATS
+   =======
+
+4. MISC PROBLEMS
+   ==== ========
+
 Q. What happened with normalize?
 A. Normalize has changed its name under Debian, which is the GNU/Linux 
    distribution for developing abcde (well, is The GNU/Linux Distribution
@@ -22,7 +46,8 @@ A. That is not possible, since abcde gets the information from CDDB database.
 
 Q. What formats can I encode my music to?
 A. As for version 2.2, abcde includes support for MP3, Ogg/Vorbis, 
-   Ogg/Speex, Flac and MPP/MP+(Musepack).
+   Ogg/Speex, Flac and MPP/MP+(Musepack). Support for AAC will be added once
+   an FLOSS encoder/decoder is working.
 
 Q. I have a CD with a data track, and abcde complaints it cannot read/encode
    it.
@@ -83,6 +108,16 @@ A. Check that you have modified everything in the right way. For instance, if
    own. If you use the predefined ones (wget, curl and fetch) abcde will try
    to use some defaults. Keep in mind that the output should go to the output
    as standard output, to be saved in a file for later use.
+   
+   If abcde seems to be ignoring your configuration options or not running commands
+   such as the encoder, you may have misquoted something. Config options such as
+   the following do not work:
+
+   LAMEOPTS=-h -k
+
+   Try this instead:
+
+   LAMEOPTS='-h -k'
 
 Q. My hardware player (put it here) does not recognize the playlists created
    with abcde. What I am doing wrong?
@@ -114,8 +149,13 @@ Q. (Thanks to Amaya) Where are those options and settings defined? Why dont
    you include a proper abcde.conf as an example?
 A. I do. It should be installed under /etc/abcde.conf and contains more or
    less all the defaults abcde uses. You can use $(HOME)/.abcde.conf to 
-   override those defaults.
+   override those defaults. More information can be obtained from the man page
+   which can be consulted using "man abcde".
 
+Q. I am running out of disc space.
+A. You have to options. Use -l or define WAVOUTPUTDIR=/some/other/path to your
+   /etc/abcde.conf or ~/.abcde.conf.
+   
 OBSOLETE
 --------
 Q. I set KEEPWAVS to "y" but abcde insists on erasing my directory, along
@@ -124,3 +164,6 @@ A. The default action set includes clean, which cleans the temp directory,
    if nothing goes wrong. Take the "clean" out from the action list and you
    are done.
    UPDATE: KEEPWAVS unselects now the clean action.
+
+--
+Jesus Climent <jesus.climent@hispalinux.es>
