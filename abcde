@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION=2.1.20-2.2pre2
+VERSION=2.2pre2
 
 usage ()
 {
@@ -35,7 +35,7 @@ echo "-L    Use local CDDB storage directory"
 echo "-n    No lookup. Don't query CDDB, just create and use template"
 echo "-N    Noninteractive. Never prompt for anything"
 echo "-m    Modify playlist to include CRLF endings, to comply with some players"
-echo "-o    Output file type(s) (ogg,mp3,flac,spx). Defaults to ogg"
+echo "-o    Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p    Pad track numbers with 0's (if less than 10 tracks)"
 echo "-r    [host1,host2...] Also encode on these remote hosts"
 echo "-s    Start the track numbering at a given number"
@@ -465,7 +465,7 @@ do_encode ()
 				# errors, so I have not tried it myself.
 				## FIXME ## Needs some cleanup to determine if an empty tag sent
 				## FIXME ## to the encoder ends up empty.
-				run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MPPENCODER $MPPENCOPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				run_command encodetrack-$OUTPUT-$1 nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			esac
 		done
@@ -783,7 +783,7 @@ do_discid ()
 {
 	# Query the CD to get the track info, unless the user specified -C
 	if [ -z "$DISCID" ]; then
-		echo -n "Getting CD track info... "
+		vecho -n "Getting CD track info... "
 		TRACKINFO=$($CDDISCID $CDROM)
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ "$?" = "1" ]; then
@@ -1017,7 +1017,7 @@ do_localcddb ()
 					done
 					[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
 				else
-					echo "y">&2
+					echo "y" >&2
 				fi
 				if [ "$USELOCALRESP" = "y" ]; then
 				#echo "Using local copy of CDDB data"
@@ -1286,7 +1286,7 @@ do_cddbedit ()
 			fi
 		else
 			# We need some code to show the selected option when local repository is selected and we have found a match
-			vecho "Using cached CDDB match..."
+			vecho "Using cached CDDB match..." >&2
 			# Display the $ABCDETEMPDIR/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
@@ -1333,7 +1333,7 @@ do_cddbedit ()
 		exit 1
 	fi
 	CDDBDATA="$ABCDETEMPDIR/cddbread.$(checkstatus cddb-choice)"
-	echo -n "Edit selected CDDB data? [y/n] ("
+	echo -n "Edit selected CDDB data? [y/n] (" >&2
 	if [ "$INTERACTIVE" = "y" ]; then
 		if [ "$UNKNOWNDISK" = "y" ]; then
 			echo -n "y): " >&2
@@ -1734,6 +1734,8 @@ OGGENCOPTS=
 FLACOPTS=
 # speex
 SPEEXENCOPTS=
+# mpc
+MPPENCOPTS=
 
 ID3OPTS=
 ID3V2OPTS=
@@ -1758,7 +1760,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 # Custom filename munging:
 mungefilename ()
 {
-	echo "$@" | sed s,:,\ -,g | tr \ / __ | tr -d \'\"\?\[:cntrl:\]
+	echo "$@" | sed s,:,\ -,g | sed 's,*,-,g' | tr \ / __ | tr -d \'\"\?\[:cntrl:\]
 }
 
 # pre_read

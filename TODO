@@ -1,5 +1,7 @@
 TODO:
 ----
+* Get the echo instances to behave consistently
+
 * move the wav files to a different dir if the user wants to keep the tracks
 * read the TOC and CDTEXT files and store them
 * read the complete CD to a single file, storing TOC seems a good idea to
