@@ -458,6 +458,8 @@ do_tag ()
 	case "$OUTPUT" in
 	mp3)
 		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
+      GENREID=$(do_getgenreid "${CDGENRE}")
+
 		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
 		GENREID=$(do_getgenreid "${CDGENRE}")
 
