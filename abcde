@@ -39,6 +39,7 @@ echo "-L     Use local CDDB storage directory"
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
+echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
 echo "       Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
@@ -970,7 +971,12 @@ do_discid ()
 		fi
 		cat /dev/null > "$ABCDETEMPDIR/status"
 	fi
-	
+	if [ X"$CUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
+		if checkstatus cuefile ; then :; else
+			$MKCUE $MKCUEOPTS > $ABCDETEMPDIR/cue-$(echo $TRACKINFO | cut -f1 -d' ').txt
+			echo cuefile >> "$ABCDETEMPDIR/status"
+		fi
+	fi
 	# If we got the CDPARANOIA status and it is not recorded, save it now
 	if [ -n "$CDPARANOIAAUDIOTRACKS" ]; then
 		if checkstatus cdparanoia-audio-tracks; then :; else
@@ -1517,64 +1523,6 @@ do_cddbedit ()
 	echo "cddb-edit" >> "$ABCDETEMPDIR/status"
 }
 
-# do_cdread_one [lasttrack] [firsttrack]
-# 
-# Reads the CD in a single track. Live performances, concerts, mixes,... benefit from this.
-do_cdread_one ()
-{
-	# The commands here don't go through run_command because they're never supposed to be silenced
-	# return codes need to be doublechecked anyway, however
-	LASTTRACKNUMBER=$1
-	FIRSTTRACKNUMBER=$2
-	WAVDATA="$ABCDETEMPDIR/track$FIRSTTRACKNUMBER.wav"
-	echo "Grabbing the CD to a single track..." >&2
-	case "$CDROMREADERSYNTAX" in
-		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM "1-" "$WAVDATA" >&2 ;;
-		cdda2wav)
-			if [ "$OSFLAVOUR" = "OSX" ] ; then
-				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
-				disktool -u ${CDROM#/dev/} 0
-				# Also, in OSX the cdrom device for cdda2wav changes...
-				CDDA2WAVCDROM="IODVDServices"
-			elif [ "$OSFLAVOUR" = "FBSD" ] ; then
-				CDDA2WAVCDROM="$CDROMID"
-			else
-				if [ "$CDROMID" = "" ]; then
-					CDDA2WAVCDROM="$CDROM"
-				else
-					CDDA2WAVCDROM="$CDROMID"
-				fi
-			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t 1+$LASTTRACKNUM "$WAVDATA" >&2 
-			;;
-		dagrab) nice $READNICE $CDROMREADER -d $CDROM -f $WAVDATA -v $UTRACKNUM >&2 ;;
-		cddafs)
-			# Find the track's mounted path
-			REALTRACKNUM=$(expr $UTRACKNUM + 0)
-			FILEPATH=$(mount | grep "$CDROM on" | sed 's/^[^ ]* on \(.*\) (.*/\1/')
-			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
-			# If the file exists, copy it
-			if [ -e "$FILEPATH" ] ; then
-				nice $READNICE $CDROMREADER "$FILEPATH" "$WAVDATA" >&2
-			else
-				false
-			fi ;;
-		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$WAVDATA" >&2 ;;
-	esac
-	RETURN=$?
-	if [ "$RETURN" != "0" -o ! -s "$WAVDATA" ]; then
-		# Thank goodness errors is only machine-parseable up to the
-		# first colon, otherwise this woulda sucked
-		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
-			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
-		fi
-                echo "readtrack-$FIRSTTRACKNUMBER: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
-		return $RETURN
-	else
-		echo readtrack-$FIRSTTRACKNUMBER >> "$ABCDETEMPDIR/status"
-	fi
-}
-
 # do_cdread [tracknumber]
 # do_cdread onetrack [firsttrack] [lasttrack]
 # 
@@ -1809,6 +1757,7 @@ METAFLAC=metaflac
 NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
+MKCUE=mkcue
 
 # Options for programs called from abcde
 # mp3
@@ -1840,6 +1789,7 @@ DISTMP3OPTS=
 NORMALIZEOPTS=
 CDSPEEDOPTS="-x"
 CDSPEEDVALUE=
+MKCUEOPTS=
 
 # Default to one process if -j isn't specified
 MAXPROCS=1
@@ -1869,6 +1819,7 @@ fi
 # If USEID3 is set to n, no ID3 tagging is done
 CDDBAVAIL=y
 USEID3=y
+USEID3V2=y
 
 if [ -z "$OUTPUTDIR" ]; then
 	OUTPUTDIR=$(pwd)
@@ -1918,7 +1869,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dhj:klLnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+while getopts 1a:A:bc:C:d:Dhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -1938,6 +1889,7 @@ while getopts 1a:A:bc:C:d:Dhj:klLnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		n) CDDBAVAIL=n ;;
 		N) INTERACTIVE=n ;;
 		m) DOSPLAYLIST=y ;;
+		M) CUEFILE=y ;;
 		o) OUTPUTTYPE="$OPTARG" ;;
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
@@ -2016,16 +1968,16 @@ DOCLEAN=n
 for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
-	cddb) DOCDDB=y;;
-	read) DOREAD=y;;
-	normalize) DONORMALIZE=y; DOREAD=y;;
-#	preprocess) DOPREPROCESS=y; DOREAD=y;;
-	encode) DOENCODE=y; DOREAD=y;;
-#	postprocess) DOPREPROCESS=y; DOENCODE=y; DOREAD=y;;
-	tag) DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
-	move) DOMOVE=y; DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
-	playlist) DOCDDB=y; DOPLAYLIST=y;;
-	clean) DOCLEAN=y;;
+		cddb) DOCDDB=y;;
+		read) DOREAD=y;;
+		normalize) DONORMALIZE=y; DOREAD=y;;
+#		preprocess) DOPREPROCESS=y; DOREAD=y;;
+		encode) DOENCODE=y; DOREAD=y;;
+#		postprocess) DOPREPROCESS=y; DOENCODE=y; DOREAD=y;;
+		tag) DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
+		move) DOMOVE=y; DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
+		playlist) DOCDDB=y; DOPLAYLIST=y;;
+		clean) DOCLEAN=y;;
 	esac
 done
 
@@ -2104,86 +2056,109 @@ case "$NORMALIZERSYNTAX" in
 		;;
 esac
 
+# Allow -o OUTPUT(1):OPTIONS(1),...,OUTPUT(N):OPTIONS(N) mode of operation
+if echo $OUTPUTTYPE | grep ":" > /dev/null 2>&1 ; then
+	OLDFS="$FS"
+	export FS=","
+	for OUTPUT in "$OUTPUTTYPE"
+	do
+		case "$OUTPUT" in
+			ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			mpc:*)	MPPENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+		esac
+	done
+	for OUTPUT in "$OUTPUTTYPE"
+	do
+		TEMPOUTPUT=$( echo "$OUTPUT" | cut -d: -f1 )
+		TEMPOUTPUTTYPE="${TEMPOUTPUTTYPE:+$TEMPOUTPUTTYPE,}$TEMPOUTPUT"
+	done
+	OUTPUTTYPE="$TEMPOUTPUTTYPE"
+	FS="$OLDFS"
+fi
+
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac for flacs and speexenc for speex and mppenc for mpps
 
 # Getting ready for multiple output changes
 for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 do
 	case $OUTPUT in
-		ogg)  [ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
-		      [ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
-		      [ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
+		ogg)	[ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
+				[ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
+				[ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
+				;;
+		mp3)	[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
+				[ "$DOTAG" = "y" ] && NEEDTAGGER=y
+				;;
+		flac)	[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
+				[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
+				;;
+		spx) 	[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc ;;
+		mpc) 	[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc ;;
+		*)	echo "abcde error: Invalid OUTPUTTYPE defined" >&2
+			exit 1
 			;;
-		mp3)  [ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
-		      [ "$DOTAG" = "y" ] && NEEDTAGGER=y
-			;;
-		flac) [ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
-		      [ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
-		        ;;
-		spx) [ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc ;;
-		mpc) [ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc ;;
-		*) echo "abcde error: Invalid OUTPUTTYPE defined" >&2
-		   exit 1
-		   ;;
 	esac
 done
 
 # decide which encoder
 case "$MP3ENCODERSYNTAX" in
 	lame)
-		MP3ENCODEROPTS="$LAMEOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$LAMEOPTS}"
 		MP3ENCODER="$LAME"
 		;;
 	gogo)
-		MP3ENCODEROPTS="$GOGOOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$GOGOOPTS}"
 		MP3ENCODER="$GOGO"
 		;;
 	bladeenc)
-		MP3ENCODEROPTS="$BLADEENCOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$BLADEENCOPTS}"
 		MP3ENCODER="$BLADEENC"
 		;;
 	l3enc)
-		MP3ENCODEROPTS="$L3ENCOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$L3ENCOPTS}"
 		MP3ENCODER="$L3ENC"
 		;;
 	xingmp3enc)
-		MP3ENCODEROPTS="$XINGMP3ENCOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$XINGMP3ENCOPTS}"
 		MP3ENCODER="$XINGMP3ENC"
 		;;
 	mp3enc)
-		MP3ENCODEROPTS="$MP3ENCOPTS"
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$MP3ENCOPTS}"
 		MP3ENCODER="$MP3ENC"
 		;;
 esac
 case "$OGGENCODERSYNTAX" in
 	vorbize)
-		OGGENCODEROPTS="$VORBIZEOPTS"
+		OGGENCODEROPTS="${OGGENCODEROPTSCLI:-$VORBIZEOPTS}"
 		OGGENCODER="$VORBIZE"
 		;;
 	oggenc)
-		OGGENCODEROPTS="$OGGENCOPTS"
+		OGGENCODEROPTS="${OGGENCODEROPTSCLI:-$OGGENCOPTS}"
 		OGGENCODER="$OGGENC"
 		;;
 esac
 case "$FLACENCODERSYNTAX" in
 	flac)
-		FLACENCODEROPTS="$FLACOPTS"
+		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
 		FLACENCODER="$FLAC"
 		;;
 esac
 case "$SPEEXENCODERSYNTAX" in
 	speexenc)
-		SPEEXENCODEROPTS="$SPEEXENCOPTS"
+		SPEEXENCODEROPTS="${SPEEXENCODEROPTSCLI:-$SPEEXENCOPTS}"
 		SPEEXENCODER="$SPEEXENC"
 		;;
 esac
 case "$MPPENCODERSYNTAX" in
 	mppenc)
-		MPPENCODEROPTS="$MPPENCOPTS"
+		MPPENCODEROPTS="${MPPENCODEROPTSCLI:-$MPPENCOPTS}"
 		MPPENCODER="$MPPENC"
 		;;
 esac
-
+		
 # and which tagger
 
 if [ "$ID3TAGV" = "1" ]; then
@@ -2211,6 +2186,7 @@ if [ "$REMOTEHOSTS" ]; then NEEDDISTMP3=y; fi
 [ "$DONORMALIZE" = "y" ] && NEEDNORMALIZER=y
 [ "$EJECTCD" = "y" ] && NEEDEJECT=y
 [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ] && NEEDHTTPGET=y
+[ "$CUEFILE" = "y" ] && NEEDMKCUE=y
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
@@ -2240,7 +2216,7 @@ if [ "$USEPIPES" = "y" ]; then
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYTNAX" ;;
 		spx)
-			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
+			IPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
@@ -2351,7 +2327,6 @@ if [ "$ONETRACK" = "y" ]; then
 	TRACKS="$FIRSTTRACK"
 	for UTRACKNUM in $TRACKQUEUE; do :;done
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
-		#do_cdread_one $UTRACKNUM $FIRSTTRACK
 		do_cdread onetrack $FIRSTTRACK $UTRACKNUM
 	fi
 else

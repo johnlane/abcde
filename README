@@ -25,6 +25,13 @@ ID3TAGV=1
 
 MAJOR CHANGES
 =============
+Changes in 2.4:
+* Support for mkcue, to create a CUE sheet of the CD structure.
+* New -o <output(1)>:<options(1)>,... way of passing specific options to an
+  output. Now we can pass specific options without having to modify a config
+  file.
+* Unix PIPEs, as a second way to encode files with a tight disc space.
+
 Changes in 2.2:
 
 * Support for MPP/MP+(Musepack) format. It can be downloaded from
