@@ -358,7 +358,7 @@ do_tag ()
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-                ) | run_command tagtrack-$1 $METAFLAC --import-vc-from=- --no-utf8-convert "$ABCDETEMPDIR/track$1.$OUTPUT"
+                ) | run_command tagtrack-$1 $METAFLAC --import-tags-from=- --no-utf8-convert "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	spx)
 		run_command tagtrack-$1 true

@@ -11,7 +11,7 @@ Depends: cd-discid, wget, cdparanoia | cdda2wav, vorbis-tools (>= 1.0beta4-1) | 
 Conflicts: cdgrab
 Replaces: cdgrab
 Provides: cdgrab
-Suggests: eject, distmp3, id3 (>= 0.12), id3v2, normalize
+Suggests: eject, distmp3, id3 (>= 0.12), id3v2, normalize-audio
 Description: A Better CD Encoder
  A frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
  Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) encoder (defaults 
