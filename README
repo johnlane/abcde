@@ -13,31 +13,9 @@ end result usually looks like: Our_Lady_Peace/01.Supermans_Dead.ogg This
 filename munging is customizable - edit the mungefilename function in your
 abcde.conf to change it.
 
-Need to go through an HTTP proxy for CDDB access? No problem, just export your
-http_proxy variable first so wget/fetch/curl can see it.
-
-You already store CDDB entries for your CD collection on your hard disk? Piece
-of cake. Just edit CDDBLOCALDIR to point to the repository and give abcde the
-"-L" flag to make use of it.
-
-Low on disk space? abcde has different algorithms to schedule ripping and
-encoding - to optimize for disk conservation, use -l.
-
-abcde can also take advantage of SMP systems, just like make. Try 'abcde -j 2' -
-it'll run two encoder jobs while it rips the next track.
-
-abcde now uses FreeDB by default. To use a different FreeDB mirror or another
-CDDB service, change the CDDBURL option in your abcde.conf.
-
-Frustrated that you can't use the CPU power on Machine A sitting right next to
-Machine B with the fast cdrom drive? Now you don't have to be - Run distmp3host
-(included in distmp3) on Machine A, and then run abcde -r MachineA from Machine
-B (where "MachineA" is a dns name or IP address). Use this in combination with
-'-j 0' to shift all encoding off the local machine.
-
-You do not have internet connection, or just feel with free time to write down
-all the song names and artists instead of using CDDB? Use -n and edit the
-template.
+Many of the questions related of problems executing abcde have been moved to the
+FAQ, which should be distributed along with this package. Reffer to that file 
+for help.
 
 To make abcde 2.x work more like 1.x, put these options in your abcde.conf:
 
@@ -68,8 +46,6 @@ Changes in 2.2-pre2:
   system.
 * New mungegenre function to switch off (or modify) the default behaviour of
   transforming uppercase characters to lowercase.
-* No network but you have been using abcde with local CDDB storage before?
-  Use -f and it will try the local CDDB and fallback to an empty template.
 
 Changes in 2.2-pre1:
 
@@ -203,13 +179,6 @@ abcde requires the following backend tools to work:
 * (optional) distmp3, a client/server for distributed mp3 encoding.
   You can get distmp3 at http://wlug.westbo.se/medlprog/medlprog.html
 
-Potential problems:
-
-Having trouble getting cdparanoia to read from your drive as a user?  Add
-yourself to the cdrom group, change the permissions on your cdrom device to 660,
-and if you have a SCSI cdrom drive, check the permissions on
-/dev/sg* as well.
-
 Abcde's new mailing list is abcde@listas.hispalinux.es. So far has not
 been actively used.
 The posts from non-subscribers are moderated to prevent spam.
@@ -218,11 +187,9 @@ Archives of the old list are publically available at:
 http://lly.org/~rcw/abcde/list/current/threads.html
 
 Abcde's current page is at http://www.hispalinux.es/~data/abcde.php
-Abcde's new homepage will be at http://abcde.hispalinux.es/.
 Abcde's old homepage is at http://lly.org/~rcw/abcde/page/.
 --
 Jesus Climent <jesus.climent@hispalinux.es>
 
-abcde was originally created by Robert Woodcock <rcw@debian.org>, but is
-currently maintained by Jesus Climent <jesus.climent@hispalinux.es>
+abcde was originally created by Robert Woodcock <rcw@debian.org>
 

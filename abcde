@@ -26,7 +26,6 @@ echo "-c    Specify a configuration file (overrides system and user config files
 echo "-C    Specify discid to resume from (only needed if you no longer have the cd)"
 echo "-d    Specify CDROM device to grab"
 echo "-D    Debugging mode (equivalent to sh -x abcde)"
-echo "-f    Force the use of a local CDDB entry. Use an empty template if not found"
 echo "-h    This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j    Number of encoder processes to run at once"
@@ -38,8 +37,9 @@ echo "-N    Noninteractive. Never prompt for anything"
 echo "-m    Modify playlist to include CRLF endings, to comply with some players"
 echo "-o    Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p    Pad track numbers with 0's (if less than 10 tracks)"
+#echo "-P    Use UNIX pipes to read+encode without wav files"
 echo "-r    [host1,host2...] Also encode on these remote hosts"
-echo "-R    Add replaygain values to the tag info (ogg,flac)"
+echo "-R    Add replaygain values to the tag info (only for ogg,flac)"
 echo "-s    Start the track numbering at a given number [DEPRECATED: use -t]"
 echo "-S    Set the CD speed"
 #echo "-t    File types to preprocess (wav)"
@@ -49,7 +49,7 @@ echo "-T    Start the track numbering at a given number, modifying tag numbering
 echo "-v    Show version number and exit"
 echo "-V    Be a bit more verbose about what is happening behind the scenes"
 echo "-x    Eject CD after all tracks are read"
-echo "-w    <comment> Add a comment to the CD tracks"
+echo "-w    [comment] Add a comment to the CD tracks"
 echo "Tracks is a space-delimited list of tracks to grab."
 echo "Ranges specified with hyphens are allowed."
 }
@@ -412,7 +412,7 @@ do_encode ()
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
 			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
-			run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
+			echo "Encoding track $1 of $TRACKS: $TRACKNAME..." >&2
 			case "$OUTPUT" in
 			mp3)
 				case "$2" in
@@ -965,35 +965,6 @@ do_discid ()
 	
 	# Create the discid file
 	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
-
-	# Determine what actions are to be done from $ACTIONS and set the
-	# following environment variables for them:
-	DOCDDB=n
-	DOREAD=n
-	DONORMALIZE=n
-	DOPREPROCESS=n
-	DOENCODE=n
-	DOPOSTPROCESS=n
-	DOTAG=n
-	DOMOVE=n
-	DOPLAYLIST=n
-	DOCLEAN=n
-
-	for ACTION in $(echo $ACTIONS | tr , \ )
-	do
-		case $ACTION in
-		cddb) DOCDDB=y;;
-		read) DOREAD=y;;
-		normalize) DONORMALIZE=y; DOREAD=y;;
-		preprocess) DOPREPROCESS=y; DOREAD=y;;
-		encode) DOENCODE=y; DOREAD=y;;
-		postprocess) DOPREPROCESS=y; DOENCODE=y; DOREAD=y;;
-		tag) DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
-		move) DOMOVE=y; DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
-		playlist) DOCDDB=y; DOPLAYLIST=y;;
-		clean) DOCLEAN=y;;
-		esac
-	done
 }
 
 # do_cddbparse
@@ -1053,12 +1024,6 @@ do_localcddb ()
 				#echo "Not using local copy of CDDB data"
 				CDDBLOCALSUCCESS="n"
 			fi
-		elif [ "$FORCECDDBUSELOCAL" = "y" ]; then
-			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
-			echo 998 > "$ABCDETEMPDIR/cddbquery" # Assuming 998 isn't used by CDDB
-			echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
-			do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
-			echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
 			CDDBLOCALSUCCESS="y"
 		else
 			CDDBLOCALSUCCESS="n"
@@ -1676,6 +1641,28 @@ if [ x"$EXTRAVERBOSE" != "x" ]; then
 fi
 }
 
+# User-redefinable functions
+# Custom filename munging:
+mungefilename ()
+{
+	echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
+}
+
+# Custom genre munging:
+mungegenre ()
+{
+	echo $CDGENRE | tr "[:upper:]" "[:lower:]"
+}
+
+# pre_read
+# Empty pre_read function, to be defined in the configuration file.
+pre_read ()
+{
+:
+}
+
+# End of functions
+#
 # Start of execution
 
 # Builtin defaults
@@ -1795,26 +1782,6 @@ MAXPROCS=1
 # List of actions to perform - by default, run to completion
 ACTIONS=cddb,read,encode,tag,move,clean
 
-# User-redefinable functions
-# Custom filename munging:
-mungefilename ()
-{
-	echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
-}
-
-# Custom genre munging:
-mungegenre ()
-{
-	echo $CDGENRE | tr "[:upper:]" "[:lower:]"
-}
-
-# pre_read
-# Empty pre_read function, to be defined in the configuration file.
-pre_read ()
-{
-:
-}
-
 # Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for Linux/OpenBSD/NetBSD.
 # Let's use these checkings to determine the OS flavour, which will be used later
 if [ X$(uname) = "XFreeBSD" ] ; then
@@ -1856,7 +1823,7 @@ if [ -r $HOME/.abcde.conf ]; then
 fi
 
 # By this time, we need some HTTPGETOPTS already defined.
-# If the user has defined its own, we should not be empty.
+# If the user has defined a non-default HTTPGET method, we should not be empty.
 
 if [ "$HTTPGETOPTS" = "" ] ; then
 	case $HTTPGET in
@@ -1886,7 +1853,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
+while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -1897,17 +1864,18 @@ while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:t:T:vVxw: opt ; do
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
 		h) usage; exit ;;
-		f) FORCECDDBUSELOCAL=y ;;
+#		f) FORCECDDBUSELOCAL=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
 		k) KEEPWAVS=y ;;
 		l) LOWDISK=y ;;
-		L) CDDBUSELOCAL="y" ;;
-		n) CDDBAVAIL="n" ;;
-		N) INTERACTIVE="n" ;;
+		L) CDDBUSELOCAL=y ;;
+		n) CDDBAVAIL=n ;;
+		N) INTERACTIVE=n ;;
 		m) DOSPLAYLIST=y ;;
 		o) OUTPUTTYPE="$OPTARG" ;;
-		p) PADTRACKS="y" ;;
+		p) PADTRACKS=y ;;
+		P) USEPIPES=y ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
 		R) REPLAYGAIN=y ;;
 		s) STARTTRACKNUMBER="$OPTARG" ;;
@@ -1959,6 +1927,40 @@ else
 		shift
 	done
 fi
+
+# List of valid actions: cddb,read,normalize,encode,tag,move,playlist,clean
+# List of experimental actions: retag,transcode
+
+# Determine what actions are to be done from $ACTIONS and set the
+# following environment variables for them:
+DOCDDB=n
+DOREAD=n
+DONORMALIZE=n
+DOPREPROCESS=n
+DOENCODE=n
+DOPOSTPROCESS=n
+DOTAG=n
+DOMOVE=n
+DOPLAYLIST=n
+DOCLEAN=n
+
+for ACTION in $(echo $ACTIONS | tr , \ )
+do
+	case $ACTION in
+	cddb) DOCDDB=y;;
+	read) DOREAD=y;;
+	normalize) DONORMALIZE=y; DOREAD=y;;
+#	preprocess) DOPREPROCESS=y; DOREAD=y;;
+	encode) DOENCODE=y; DOREAD=y;;
+#	postprocess) DOPREPROCESS=y; DOENCODE=y; DOREAD=y;;
+	tag) DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
+	move) DOMOVE=y; DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
+	playlist) DOCDDB=y; DOPLAYLIST=y;;
+	clean) DOCLEAN=y;;
+	esac
+done
+
+# Sanity checks:
 
 # At this point a CDROM has to be defined, so we check it exists.
 if [ "$CDROM" != "" ] ; then 
@@ -2014,14 +2016,14 @@ for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 do
 	case $OUTPUT in
 		ogg)  [ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
-		      echo $ACTIONS | grep tag > /dev/null 2>&1 && NEEDCOMMENTER=y
-		      if [ "$REPLAYGAIN" = "y" ]; then NEEDVORBISGAIN=y; fi
+		      [ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
+		      [ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
 			;;
 		mp3)  [ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
-		      echo $ACTIONS | grep tag > /dev/null 2>&1 && NEEDTAGGER=y
+		      [ "$DOTAG" = "y" ] && NEEDTAGGER=y
 			;;
 		flac) [ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
-		      echo $ACTIONS | grep tag > /dev/null 2>&1 && NEEDMETAFLAC=y
+		      [ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 		        ;;
 		spx) [ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc ;;
 		mpc) [ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc ;;
@@ -2111,9 +2113,9 @@ fi
 
 # Don't check for stuff if it's not needed
 if [ "$REMOTEHOSTS" ]; then NEEDDISTMP3=y; fi
-if echo $ACTIONS | grep normalize > /dev/null 2>&1 ; then NEEDNORMALIZER=y; fi
-if [ "$EJECTCD" = "y" ]; then NEEDEJECT=y; fi
-if echo $ACTIONS | grep cddb > /dev/null 2>&1 ; then NEEDHTTPGET=y ; fi
+[ "$DONORMALIZE" = "y" ] && NEEDNORMALIZER=y
+[ "$EJECTCD" = "y" ] && NEEDEJECT=y
+[ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ] && NEEDHTTPGET=y
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
@@ -2149,10 +2151,7 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 2139 ;)
-
-# List of valid actions: cddb,read,normalize,encode,tag,playlist,move,clean
-# List of experimental actions: retag,transcode
+# Well, right now we are at line 2157 ;)
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
@@ -2173,11 +2172,14 @@ if [ "$DOCDDB" = "y" ]; then
 	if [ $CDDBUSELOCAL = "y" ]; then
 		do_localcddb
 	fi
-	## FIXME ## ! is non-portable
-	if ! checkstatus cddb-choice > /dev/null && [ ! "$CDDBLOCALSUCCESS" = "y" ] ; then
-		do_cddbstat
-		do_cddbquery
-		do_cddbread
+	if checkstatus cddb-choice > /dev/null; then
+		:
+	else 
+		if [ ! "$CDDBLOCALSUCCESS" = "y" ] ; then
+			do_cddbstat
+			do_cddbquery
+			do_cddbread
+		fi
 	fi
 	do_cddbedit
 
@@ -2204,7 +2206,7 @@ if [ "$STRIPDATATRACKS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
 				vecho "Querying the CD to obtain a list of valid audio tracks..."
 				$CDROMREADER -Q > $ABCDETEMPDIR/cdparanoia-query 2>&1
 				# Obtain a list of valid audio tracks from the results of the query
-				CDTRACKQUEUE=$( cat $ABCDETEMODIR/cdparanoia- | egrep '^[[:space:]]+[[:digit:]]' | awk '{print $1}' | tr -d "." | tr '\n' ' ' )
+				CDTRACKQUEUE=$( cat $ABCDETEMPDIR/cdparanoia-query | egrep '^[[:space:]]+[[:digit:]]' | awk '{print $1}' | tr -d "." | tr '\n' ' ' )
 			fi
 			# Obtain the track padding value from the before-processing list and pad the CD list
 			TRACKNUMPADDING=$( echo $TRACKQUEUE | awk '{print $1}' | tr -d " \n" | wc -c )
