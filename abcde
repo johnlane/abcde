@@ -1560,9 +1560,12 @@ do_cdread_one ()
 		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$WAVDATA" >&2 ;;
 	esac
 	RETURN=$?
-	if [ "$RETURN" != "0" ]; then
+	if [ "$RETURN" != "0" -o ! -s "$WAVDATA" ]; then
 		# Thank goodness errors is only machine-parseable up to the
 		# first colon, otherwise this woulda sucked
+		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
+			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
+		fi
                 echo "readtrack-$FIRSTTRACKNUMBER: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 		return $RETURN
 	else
@@ -1620,9 +1623,12 @@ do_cdread ()
 		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$WAVDATA" >&2 ;;
 	esac
 	RETURN=$?
-	if [ "$RETURN" != "0" ]; then
+	if [ "$RETURN" != "0" -o ! -s "$WAVDATA" ]; then
 		# Thank goodness errors is only machine-parseable up to the
 		# first colon, otherwise this woulda sucked
+		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
+			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
+		fi
                 echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 		return $RETURN
 	else
