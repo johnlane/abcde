@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.2pre3"
+VERSION="2.1pre2.2.0"
 
 usage ()
 {
@@ -1668,6 +1668,7 @@ OGGENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPPENCODERSYNTAX=default
+NORMALIZERSYNTAX=default
 
 OUTPUTFORMAT='${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}.${TRACKFILE}'
 # Use the following VAOUTPUTFORMAT to revert to 2.0.x VA format:
@@ -1687,7 +1688,6 @@ READNICE=10
 DISTMP3NICE=10
 VARIOUSARTISTS=n
 VARIOUSARTISTSTYLE=forward
-NORMALIZERSYNTAX=default
 KEEPWAVS=n
 PADTRACKS=n
 CDDBCOPYLOCAL="n"
@@ -1729,7 +1729,7 @@ MD5SUM=md5sum
 DISTMP3=distmp3
 VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
-NORMALIZE=normalize
+NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
 

@@ -1,4 +1,11 @@
 
+Q. What happened with normalize?
+A. Normalize has changed its name under Debian, which is the GNU/Linux 
+   distribution for developing abcde (well, is The GNU/Linux Distribution
+   i only use, at the moment). Now it is called normalize-audio.
+   If you are using some other flavour of OS, you need to change the name
+   of the executable in your abcde.conf file.
+
 Q. I am using MacOSX and I am having problems to use abcde.
 A. Well, I have a Mac, but I use linux on it. I have not been able to find
    a way to make it work there, since I do not have the development tools
