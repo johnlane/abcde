@@ -732,7 +732,6 @@ do_playlist ()
 		FINALPLAYLISTDIR=$(dirname "$OUTPUTDIR/$PLAYLISTFILE")
 		mkdir -p "$FINALPLAYLISTDIR"
 		if [ -s "$OUTPUTDIR/$PLAYLISTFILE" ]; then
-			#echo -n "Erase any existing playlist file? [y/n] (y): " >&2
 			echo -n "Erase, Append to, or Keep the existing playlist file? [e/a/k] (e): " >&2
 			if [ "$INTERACTIVE" = "y" ]; then
 				while [ "$DONE" != "y" ]; do
@@ -973,10 +972,11 @@ do_discid ()
 	fi
 	
 	# If we got the CDPARANOIA status and it is not recorded, save it now
-	## FIXME ## ! is non-portable
-	if [ -n "$CDPARANOIAAUDIOTRACKS" ] && ! checkstatus cdparanoia-audio-tracks; then
-		if echo "$CDPARANOIAAUDIOTRACKS" >> "$ABCDETEMPDIR/cdparanoia-audio-tracks"; then
-			echo "cdparanoia-audio-tracks" >> "$ABCDETEMPDIR/status"
+	if [ -n "$CDPARANOIAAUDIOTRACKS" ]; then
+		if checkstatus cdparanoia-audio-tracks; then :; else
+			if echo "$CDPARANOIAAUDIOTRACKS" >> "$ABCDETEMPDIR/cdparanoia-audio-tracks"; then
+				echo "cdparanoia-audio-tracks" >> "$ABCDETEMPDIR/status"
+			fi
 		fi
 	fi
 	
@@ -1584,7 +1584,8 @@ do_cdread ()
 	# return codes need to be doublechecked anyway, however
 	if [ "$1" = "onetrack" ]; then
 		# FIXME # Add the possibility of grabbing ranges of tracks in onetrack
-		# FIXME # Until then, we grab the whole CD in one track, no matter what the user said
+		# FIXME # Until then, we grab the whole CD in one track, no matter what
+		# the user said
 		# We need the first and last track for cdda2wav
 		FIRSTTRACK=$2
 		LASTTRACK=$3
@@ -1611,6 +1612,7 @@ do_cdread ()
 		REDIR=""
 	else
 		case "$CDROMREADERSYNTAX" in
+		## FIXME ## Find the case for dagrab, to avoid exceptions
 			dagrab)
 				FILEARG="-f $WAVDATA"
 				;;
@@ -1621,7 +1623,7 @@ do_cdread ()
 		REDIR=">&2"
 	fi
 	case "$CDROMREADERSYNTAX" in
-		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM $UTRACKNUM "$WAVDATA" >&2 ;;
+		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM $UTRACKNUM $FILEARG $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -1637,9 +1639,12 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t $UTRACKNUM "$WAVDATA" >&2 
+			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t $UTRACKNUM $FILEARG $REDIR
 			;;
-		dagrab) nice $READNICE $CDROMREADER -d $CDROM -f $WAVDATA -v $UTRACKNUM >&2 ;;
+		## FIXME ## We have an exception for dagrab, since it uses -f
+		## FIXME ## Shall we just use -f $FILEARG ??
+		dagrab) nice $READNICE $CDROMREADER -d $CDROM -v $UTRACKNUM $FILEARG $REDIR
+			;;
 		cddafs)
 			# Find the track's mounted path
 			REALTRACKNUM=$(expr $UTRACKNUM + 0)
@@ -1647,14 +1652,17 @@ do_cdread ()
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then
-				nice $READNICE $CDROMREADER "$FILEPATH" "$WAVDATA" >&2
+				nice $READNICE $CDROMREADER "$FILEPATH" $FILEARG $REDIR
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$WAVDATA" >&2 ;;
+		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] $FILEARG $REDIR
+			;;
 	esac
 	RETURN=$?
-	if [ "$RETURN" != "0" -o ! -s "$WAVDATA" ]; then
+	# If we get some error or we get some missing wav 
+	# (as long as we dont use pipes)
+	if [ "$RETURN" != "0" -o \( ! -s "$WAVDATA" -a X"$USEPIPES" != "Xy" \) ]; then
 		# Thank goodness errors is only machine-parseable up to the
 		# first colon, otherwise this woulda sucked
 		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
@@ -2042,23 +2050,29 @@ else
 	exit 1
 fi
 
-# USEPIPES is not compatible with:
+# USEPIPES pre-tests, before we get into more serious stuff
+# Not compatible with:
 # - multiple outputs
 # - normalize
+# - lowdisk algorithm
 # - anything else?
-if [ "$USEPIPES" = "y" ]; then
+if [ X"$USEPIPES" = "Xy" ]; then
 	if [ $(echo $OUTPUTTYPE | tr , \  | wc -w ) -gt 1 ]; then
 		echo "abcde error: Unix pipes not compatible with multiple outputs"
 		exit 1
 	fi
-	if [ "$DONORMALIZE" = "y" ]; then
+	if [ X"$DONORMALIZE" = "Xy" ]; then
 		echo "abcde error: Unix pipes not compatible with normalizer"
 		# FIXME # Do we need to exit or shall we just disable the mode?
 		exit 1
 	fi
-	if [ "$DOENCODE" = "n" ]; then
+	if [ X"$DOENCODE" = "Xn" ]; then
 		vecho "Disabling Unix pipes since we are not encoding!"
 		USEPIPES=n
+	fi
+	if [ X"$LOWDISK" = "Xy" ]; then
+		vecho "abcde error: Unix pipes not compatible with lowdisk algorithm"
+		exit 1
 	fi
 fi
 
@@ -2205,6 +2219,45 @@ if [ X"$CDSPEEDVALUE" != "X" ]; then
 	esac
 fi
 
+# Rippers with USEPIPE support
+# FIXME # Include here all the rippers we can figure out support pipes
+PIPE_cdparanoia="-"
+
+# Encoders with USEPIPE support
+# FIXME # Include here all the encoders we can figure out support pipes
+PIPE_lame="-"
+PIPE_oggenc="-"
+
+# Figure out if we can use pipes with the ripper/encoder combination
+# exit otherwise
+if [ "$USEPIPES" = "y" ]; then
+	PIPERIPPERSVARCHECK="PIPE_${CDROMREADER}"
+	case "$OUTPUT" in
+		mp3)
+			PIPEENCODERSVARCHECK="PIPE_$MP3ENCODERSYNTAX" ;;
+		ogg)
+			PIPEENCODERSVARCHECK="PIPE_$OGGENCODERSYNTAX" ;;
+		flac)
+			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYTNAX" ;;
+		spx)
+			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
+		mpc)
+			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
+	esac
+	if [ ! -n "${!PIPERIPPERSVARCHECK}" ] ; then
+		echo "abcde error: no support for pipes with given ripper" >&2
+		echo "read the USEPIPES file from the source tarball to help" >&2
+		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
+		exit 1;
+	fi
+	if [ ! -n "${!PIPEENCODERSVARCHECK}" ] ; then
+		echo "abcde error: no support for pipes with given encoder" >&2
+		echo "read the USEPIPES file from the source tarball to help" >&2
+		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
+		exit 1;
+	fi
+fi
+
 
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
@@ -2213,7 +2266,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
-	${NEEDVORBISGAIN+$VORBISGAIN}
+	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMKCUE+$MKCUE}
 do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
@@ -2298,11 +2351,8 @@ if [ "$ONETRACK" = "y" ]; then
 	TRACKS="$FIRSTTRACK"
 	for UTRACKNUM in $TRACKQUEUE; do :;done
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
-		do_cdread_one $UTRACKNUM $FIRSTTRACK
-		# FIXME # Allow ranges of tracks to be encoded in one track
-		# FIXME # do_cdread onetrack $FIRSTTRACK $UTRACKNUM
-		# Until we have it we must use:
-		#do_cdread onetrack $FIRSTTRACK $UTRACKNUM
+		#do_cdread_one $UTRACKNUM $FIRSTTRACK
+		do_cdread onetrack $FIRSTTRACK $UTRACKNUM
 	fi
 else
 	for UTRACKNUM in $TRACKQUEUE
@@ -2507,7 +2557,7 @@ do
 			if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
 		fi
 	fi
-	if [ "$DOENCODE" = "y" ]; then
+	if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 		if checkstatus readtrack-$UTRACKNUM; then
 			#if checkstatus encodetrack-$UTRACKNUM; then :; else do_encode $UTRACKNUM $LOCATION; fi
 			if [ "$DONORMALIZE" = "y" ]; then
@@ -2533,7 +2583,8 @@ do
 done
 # Go through it again and make sure there's no distmp3 stragglers, otherwise
 # we'll delete the files they're working on
-if [ "$DOENCODE" = "y" ]; then
+## FIXME ## Check also for files which are encoded using PIPEs.
+if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 	PROCEED=
 	until [ $PROCEED ]
 	do
