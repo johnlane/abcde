@@ -242,40 +242,40 @@ splitvarious ()
 	if [ "$VARIOUSARTISTS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
 		case "$VARIOUSARTISTSTYLE" in
 		forward)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's- / -~-g')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f1 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f2 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's- / -~-g')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
 			;;
 		forward-dash)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's, - ,~,g')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f1 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f2 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's, - ,~,g')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
 			;;
 		reverse)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's- / -~-g')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f2 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f1 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's- / -~-g')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
 			;;
 		reverse-dash)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's, - ,~,g')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f2 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f1 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's, - ,~,g')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
 			;;
 		colon)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's-: -~-g')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f1 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f2 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's-: -~-g')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
 			;;
 		trailing-paren)
-			DTITLEARTIST="$(echo $TRACKNAME | sed 's,^\(.*\) (\(.*\)),\1~\2,')"
-			TRACKARTIST="$(echo $DTITLEARTIST | cut -f2 -d~)"
-			TRACKNAME="$(echo $DTITLEARTIST | cut -f1 -d~)"
+			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's,^\(.*\) (\(.*\)),\1~\2,')
+			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
 			;;
 		esac
 	elif [ "$ONETRACK" = "y" ]; then
 		TRACKARTIST="Various"
 	else
-		TRACKARTIST=$DARTIST
+		TRACKARTIST="$DARTIST"
 	fi
 }
 
@@ -477,9 +477,9 @@ do_tag ()
 				fi
 				(
 				# These are from http://www.xiph.org/ogg/vorbis/doc/v-comment.html
-				echo ARTIST=$TRACKARTIST
+				echo ARTIST="$TRACKARTIST"
 				echo ALBUM="$DALBUM"
-				echo TITLE=$TRACKNAME
+				echo TITLE="$TRACKNAME"
                			if [ -n "$CDYEAR" ]; then
 					echo DATE="$CDYEAR"
                			fi
@@ -1872,7 +1872,8 @@ fi
 # Custom filename munging:
 mungefilename ()
 {
-	echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
+	#echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
+	echo "$@" | sed s,:,\ -,g | tr \ / __ | tr -d \'\"\?\[:cntrl:\]
 }
 
 # Custom genre munging:
@@ -2740,8 +2741,8 @@ do
 		else
 #			TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${UTRACKNUM} + 0))
 			TRACKNUM=$UTRACKNUM
-		        CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
+			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
+			TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 			splitvarious
 		fi
 	fi
