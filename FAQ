@@ -22,6 +22,11 @@ A. To get abcde you can use a pre-packaged version, available for Debian,
    http://www.hispalinux.es/~data/files/cd-discid/
 
    Read the README files for a complete list of requirements.
+
+Q. I have a problem, and I reported some time ago. When are you going to
+   release a new version?
+A. Try downloading the trunk of the development from 
+   http://svn.hispalinux.es:8080/svn/abcde/trunk
    
 
 2. EXECUTION
