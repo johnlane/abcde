@@ -88,6 +88,10 @@ A. If you do not use cdparanoia, eject is used for setting the speed of the
    Another way to get the same results is using the pre_read function, defined
    in your /etc/abcde.conf file.
 
+Q. Huh! Why is MPPENCODER (with MPP) and .mpc the extension?
+A. Dunno. You must ask the guys who created and defined the format. The 
+   standard is MPEGplus (MPP/MP+) but the files use .mpc extension.
+
 OBSOLETE
 --------
 Q. I set KEEPWAVS to "y" but abcde insists on erasing my directory, along
