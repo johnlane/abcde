@@ -66,9 +66,8 @@ CD\-ROM block device that contains audio tracks to be read.
 Capture debugging information (you'll want to redirect this \- try 'abcde \-D
 2>logfile')
 .TP
-.B \-f
-Force the use of a locally cached CDDB entry and fallback to a template if none
-is found. For faster network-disconnected operation.
+.B \-h
+Get help information.
 .TP
 .B \-j [number]
 Start [number] encoder processes at once. Useful for SMP systems. Overrides
@@ -84,14 +83,14 @@ Use the low-diskspace algorithm. See the LOWDISK configuration variable.
 .B \-L
 Use a local CDDB repository. See CDDBLOCALDIR variable.
 .TP
-.B -n
+.B \-n
 Do not query CDDB database. Create and use a template. Edit the template to
 provide song names, artist(s), ...
 .TP
-.B -N
+.B \-N
 Non interactive mode. Do not ask anything from the user. Just go ahead.
 .TP
-.B -m
+.B \-m
 Create DOS-style playlists, modifying the resulting one by adding CRLF line
 endings. Some hardware players insist on having those to work.
 .TP
@@ -106,6 +105,10 @@ Pads track numbers with 0\'s.
 .B \-r [hosts...]
 Remote encode on this comma-delimited list of machines using distmp3. See
 the REMOTEHOSTS configuration variable.
+.TP
+.B \-R
+Add replaygain information to the id3 or tag information for play
+normalization. Only works with MP3 and Ogg/Vorbis.
 .TP
 .B \-s [number]
 [DEPRECATED: use -t, see below]
@@ -133,8 +136,12 @@ sensation nothins is happening.
 Eject the CD when all tracks have been read. See the EJECTCD configuration
 variable.
 .TP
-.B \-h
-Get help information.
+.B \-w [comment]
+Add a comment to the tracks ripped from the CD.
+.TP
+.B \-W [number]
+Concatenate CD\'s. It uses the number provided to define a comment "CD #" and
+to modify the numbering of the tracks, starting with "#01".
 .TP
 .B [tracks]
 A list of tracks you want abcde to process. If this isn't specified, abcde
@@ -165,6 +172,25 @@ Here is a list of options abcde recognizes:
 .B CDDBURL
 Specifies a server to use for CDDB lookups.
 .TP
+.B HELLOINFO
+Specifies the Hello information to send to the CDDB server. The CDDB
+protocol requires you to send a valid username and hostname each time you
+connect. The format of this is username@hostname.
+.TP
+.B CDDBLOCALDIR
+Specifies a directory where we store a local CDDB repository. The entries must
+be standard CDDB entries, with the filename being the DISCID value. Other
+CD playing and ripping programs (like Grip) store the entries under ~/.cddb
+and we can make use of those entries.
+.TP
+.B CDDBCOPYLOCAL
+Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
+.TP
+.B CDDBUSELOCAL
+Actually use the stored copies of the CDDB entries. Can be overriden using the 
+"-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
+the choice of retrieving a CDDB entry from the internet.
+.TP
 .B OGGENCODERSYNTAX
 Specifies the style of encoder to use for the Ogg/Vorbis encoder. Valid options 
 are \'oggenc\' (default for Ogg/Vorbis) and \'vorbize\'.
@@ -191,26 +217,58 @@ point we only have \'mppenc\' available, from corecodecs.org.
 .TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
-and \'normalize'\ (and both run \'normalize-audio\'), since we only support it, ATM.
+and \'normalize'\ (and both run \'normalize-audio\'), since we only support it,
+ATM.
 .TP
-.B HELLOINFO
-Specifies the Hello information to send to the CDDB server. The CDDB
-protocol requires you to send a valid username and hostname each time you
-connect. The format of this is username@hostname.
+.B CDROMREADERSYNTAX
+Specifies the style of cdrom reader to use. Valid options are \'cdparanoia\'
+and \'debug\'. It is used for querying the CDROM and obtain a list of valid
+tracks and DATA tracks. Right now, only cdparanoia is supported.
 .TP
-.B CDDBLOCALDIR
-Specifies a directory where we store a local CDDB repository. The entries must
-be standard CDDB entries, with the filename being the DISCID value. Other
-CD playing and ripping programs (like Grip) store the entries under ~/.cddb
-and we can make use of those entries.
+.B KEEPWAVS
+It defaults to no, so if you want to keep those wavs ripped from your CD,
+set it to "y". You can use the "-k" switch in the command line. The default
+behaviour with KEEPWAVS set is the keep the temporary directory and the wav
+files even you have requested the "clean" action.
 .TP
-.B CDDBCOPYLOCAL
-Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
+.B PADTRACKS
+If set to "y", it adds 0's to the file numbers to complete a two-number 
+holder. Usefull when encoding tracks 1-9.
 .TP
-.B CDDBUSELOCAL
-Actually use the stored copies of the CDDB entries. Can be overriden using the 
-"-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
-the choice of retrieving a CDDB entry from the internet.
+.B INTERACTIVE
+Set to "n" if you want to perform automatic rips, without user intervention.
+.TP
+.B NICE VALUES
+Define the values for priorities (nice values) for the different CPU-hungry
+processes: encoding (ENCNICE), CDROM read (READNICE) and distributed encoder
+with distmp3 (DISTMP3NICE).
+.TP
+.B PATHNAMES
+The following configuration file options specify the pathnames of their
+respective utilities: LAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC, VORBIZE,
+OGGENC, FLAC, SPEEXENC, MPPENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, CDDAFS,
+CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED
+and HTTPGET.
+.TP
+.B COMMAND-LINE OPTIONS
+If you wish to specify command-line options to any of the programs abcde
+uses, set the following configuration file options: LAMEOPTS, GOGOOPTS,
+BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
+FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, ID3OPTS, ID3V2OPTS, CDPARANOIAOPTS,
+CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS,
+CDSPEEDOPTS and HTTPGETOPTS.
+.TP
+.B CDSPEEDVALUE
+Set the value of the CDROM speed. The default is to read the disc as fast as
+the reading program and the system permits. The steps are defined as 150kB/s
+(1x).
+.TP
+.B ACTIONS
+The default actions to be performed when reading a disc.
+.TP
+.B CDROM
+If set, it points to the CD-Rom device which has to be used for audio
+extraction. Abcde tries to guess the right device, but it may fail.
 .TP
 .B OUTPUTDIR
 Specifies the directory to place completed tracks/playlists in.
@@ -219,6 +277,21 @@ Specifies the directory to place completed tracks/playlists in.
 Specifies the temporary directory to store .wav files in. Abcde may use up
 to 700MB of temporary space for each session (although it is rare to use
 over 100MB for a machine that can encode music as fast as it can read it).
+.TP
+.B OUTPUTTYPE
+Specifies the encoding format to output, as well as the default extension and
+encoder. Defaults to "ogg". Valid settings are "ogg" (Ogg/Vorbis), "mp3"
+(MPEG-1 Audio Layer III), "flac" (Free Lossless Audio Codec), "spx" (Ogg/Speex)
+and "mpc" (MPP/MP+ (Musepack)). Values like "ogg,mp3" encode the tracks in 
+both Ogg/Vorbis and MP3 formats.
+.br
+For each value in OUTPUTTYPE, abcde expands a different process for encoding,
+tagging and moving, so you can use the format placeholder, OUTPUT, to create 
+different subdirectories to hold the different types. The variable OUTPUT will
+be 'ogg', 'mp3', 'flac', 'spx' and/or 'mpc', depending on the OUTPUTTYPE you define.
+For example
+.br
+OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
 .TP
 .B OUTPUTFORMAT
 Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+ 
@@ -231,43 +304,9 @@ Make sure to use single quotes around this variable. TRACKNUM is
 automatically zero-padded, when the number of encoded tracks is higher than
 9. When lower, you can force with '-p' in the command line.
 .TP
-.B OUTPUTTYPE
-Specifies the encoding format to output, as well as the default extension and
-encoder. Defaults to "ogg". Valid settings are "ogg" (Ogg/Vorbis), "mp3"
-(MPEG-1 Audio Layer III), "flac" (Free Lossless Audio Codec), "spx" (Ogg/Speex)
-and "mpc" (MPP/MP+ (Musepack)). Values like "ogg,mp3" encode the tracks in 
-both Ogg/Vorbis and MP3 formats.
-.P
-For each value in OUTPUTTYPE, abcde expands a different process for encoding,
-tagging and moving, so you can use the format placeholder, OUTPUT, to create 
-different subdirectories to hold the different types. The variable OUTPUT will
-be 'ogg', 'mp3', 'flac', 'spx' and/or 'mpc', depending on the OUTPUTTYPE you define.
-For example
-.P
-OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
-.TP
 .B VAOUTPUTFORMAT
 Just like OUTPUTFORMAT but for Various Artists discs. Default is whatever
 OUTPUTFORMAT is set to.
-.TP
-.B PATHNAMES
-The following configuration file options specify the pathnames of their
-respective utilities: LAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEECENC, MPPENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, 
-HTTPGET, CDDISCID, CDDBTOOL, EJECT, NORMALIZE, DISTMP3, VORBISCOMMENT, and 
-CDSPEED.
-.TP
-.B COMMAND-LINE OPTIONS
-If you wish to specify command-line options to any of the programs abcde
-uses, set the following configuration file options: LAMEOPTS, GOGOOPTS,
-BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS,
-OGGENCOPTS, FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, ID3OPTS, ID3V2OPTS, 
-CDPARANOIAOPTS, CDDA2WAVOPTS, HTTPGETOPTS, CDDBTOOLOPTS, EJECTOPTS, 
-DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, and CDSPEEDVALUE.
-.TP
-.B CDROM
-If set, it points to the CD-Rom device which has to be used for audio
-extraction. Abcde tries to guess the right device, but it may fail.
 .TP
 .B MAXPROCS
 Defines how many encoders to run at once. This makes for huge speedups
@@ -286,16 +325,6 @@ quickly as it can read.
 If set to y, enables batch mode normalization, which preserves relative
 volume differences between tracks of an album. Also enables nogap encoding
 when using the \'lame\' encoder.
-.TP
-.B KEEPWAVS
-It defaults to no, so if you want to keep those wavs ripped from your CD,
-set it to "y". You can use the "-k" switch in the command line. The default
-behaviour with KEEPWAVS set is the keep the temporary directory and the wav
-files even you have requested the "clean" action.
-.TP
-.B PADTRACKS
-If set to "y", it adds 0's to the file numbers to complete a two-number 
-holder. Usefull when encoding tracks 1-9.
 .TP
 .B PLAYLISTFORMAT
 Specifies the format for completed playlist filenames. Works like the

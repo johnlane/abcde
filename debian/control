@@ -2,7 +2,7 @@ Source: abcde
 Section: sound
 Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
-Standards-Version: 3.6.0
+Standards-Version: 3.6.1.1
 Build-Depends: debhelper
 
 Package: abcde

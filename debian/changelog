@@ -1,5 +1,8 @@
-abcde (2.1pre2.2.0-1) experimental; urgency=low
+abcde (2.2.0-1) unstable; urgency=low
 
+  * New release! Let's see if abcde 2.2 gets into Sarge.
+  * debian/control
+    - Bumped to 3.6.1.1. No changes needed.
   * Added support for MPP/MP+(Musepack) encoding. Although I am trying to
     get 2.2 for Debian Sarge release, mpc seems safe enough to introduce. See
     corecodec.org for code.
@@ -29,7 +32,6 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
     upper-to-lowercase is done (forced) except if the default is used.
   * Examples added to the tarball and /usr/share/doc/abcde/examples with two
     scripts to make abcde kind-of-a ripper daemon.
-  * Changed to experimental to have an stable 2.1.x version in Sarge.
   * Add CDDB information to Ogg/Vorbis and FLAC files (Closes: #265358).
   * Added INTERACTIVE option. Set it to "n" and there you go, without user
     interaction.
@@ -37,13 +39,30 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
   * Copes with wav files being erased by the ripping tool.
   * Small patch to support ()'s in the path under MacOSX. Thanks to Evan Jones
     for noticing and sending the patch.
-  * Added -w for COMMENT seed. Used to give a comment to a given CD.
-  * Option "-t <number>" added to modify the numbering from a starting point
+  * Added "-w <COMMENT>". Used to give a comment to a given CD.
+  * Added "-W <number>". Used to combine "-T #01 -w CD #".
+  * Added "-t <number>" to modify the numbering from a starting point
     (Closes: #95828). Geez! That is low bug number...
-  * Added -T to modify also the tag entries on the songs. Currently available
-    for FLAC and Ogg/Vorbis.
+  * Added "-T <number>" to modify also the tag entries on the songs. Currently
+    available for FLAC and Ogg/Vorbis.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  2 Oct 2004 10:31:23 +0000
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Nov 2004 03:25:21 +0200
+
+abcde (2.1.21-1) unstable; urgency=low
+
+  * Changed normalize with normalize-audio (Closes: #267053).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 20 Aug 2004 13:16:46 +0000
+
+abcde (2.1.20-1) unstable; urgency=low
+
+  * The "Let's have a good abcde in Sarge" release.
+  * The mungefile() function changes * with + by default to avoid creating
+    directories with the start expanded to the files found in the current
+    directory. abcde2.2 will most likelly contain a better workaround.
+  * Correct default OUTPUTFORMAT in man page (Closes: #250649)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 30 Jul 2004 10:16:46 +0300
 
 abcde (2.1.19-1) unstable; urgency=low
 

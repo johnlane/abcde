@@ -25,17 +25,20 @@ ID3TAGV=1
 
 MAJOR CHANGES
 =============
-Changes in 2.2-pre2:
+Changes in 2.2:
 
-* Support for MPP/MP+(Musepack) format. It can be downloaded from 
+* Support for MPP/MP+(Musepack) format. It can be downloaded from
   corecodecs.org. It is supposed to be Free (not only free), and released under
   the GPL...
-* New "-w <comment>" option to add a comment for a given CD on the command
-  line.
-* New "-t <number>" option for starting the numbering of the output files at 
-  a given starting number. Ideal for albums with more than one CD.
-  New "-T <number>" option, similar to "-s" but also modifies the tag entries
+* New "-t <number>" option for starting the numbering of the output files at a
+  given starting number. Ideal for albums with more than one CD.  
+* New "-T <number>" option, similar to "-t" but also modifies the tag entries
   on the files themselves.
+* New "-w <COMMENT>" to add a comment to the tracks of a given CD rip. Use
+  quotes.
+* New "-W <number>" option to combine both a comment with "CD #number" and a
+  starting number for both the tracks and the tags with "#01" (that is, 101 for
+  the 1st CD, 201 for the second...)
 * Support for keeping an existing playlist (and not add new entries to it),
   erase the existing one (overwrite) or append new entries to the existing
   one.
@@ -46,9 +49,6 @@ Changes in 2.2-pre2:
   system.
 * New mungegenre function to switch off (or modify) the default behaviour of
   transforming uppercase characters to lowercase.
-
-Changes in 2.2-pre1:
-
 * cdparanoia permits performing a query to the CD drive and obtain a list of 
   valid audio tracks. So, now we perform such query and process the results.
 * Support for "None of the above" has been added with the "0" selection. A 
