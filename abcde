@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION=2.2pre2
+VERSION="2.2pre3"
 
 usage ()
 {
@@ -20,6 +20,7 @@ echo "Usage: abcde [options] [tracks]"
 echo "Options:"
 echo "-1    Encode the whole CD in a single file"
 echo "-a    Actions to perform (cddb,read,normalize,encode,tag,move,playlist,clean)"
+echo "-A    Experimental actions (retag, transcode)"
 echo "-b    Batch mode: enable album normalization and nogap encoding"
 echo "-c    Specify a configuration file (overrides system and user config files)"
 echo "-C    Specify discid to resume from (only needed if you no longer have the cd)"
@@ -38,8 +39,9 @@ echo "-m    Modify playlist to include CRLF endings, to comply with some players
 echo "-o    Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p    Pad track numbers with 0's (if less than 10 tracks)"
 echo "-r    [host1,host2...] Also encode on these remote hosts"
+echo "-R    Add replaygain values to the tag info (ogg,flac)"
 echo "-s    Start the track numbering at a given number"
-echo "-S    Set the CD speed (if possible)"
+echo "-S    Set the CD speed"
 #echo "-t    File types to preprocess (wav)"
 #echo "-T    Set postprocessing options"
 echo "-v    Show version number and exit"
@@ -710,7 +712,6 @@ do_playlist ()
 		FINALPLAYLISTDIR=$(dirname "$OUTPUTDIR/$PLAYLISTFILE")
 		mkdir -p "$FINALPLAYLISTDIR"
 		if [ -s "$OUTPUTDIR/$PLAYLISTFILE" ]; then
-			## FIXME ## Erase, Append or Keep the playlist?
 			#echo -n "Erase any existing playlist file? [y/n] (y): " >&2
 			echo -n "Erase, Append to, or Keep the existing playlist file? [e/a/k] (e): " >&2
 			if [ "$INTERACTIVE" = "y" ]; then
@@ -786,6 +787,10 @@ do_playlist ()
 do_discid ()
 {
 	# Query the CD to get the track info, unless the user specified -C
+	# or we are using some actions which do not need the CDDB data at all
+	#if [ ! X"$EXPACTIONS" = "X" ]; then
+	#	:
+	#elif [ -z "$DISCID" ]; then
 	if [ -z "$DISCID" ]; then
 		vecho -n "Getting CD track info... "
 		TRACKINFO=$($CDDISCID $CDROM)
@@ -804,6 +809,9 @@ do_discid ()
 	# it later.
 
 	# get the number of digits to pad TRACKNUM with - we'll use this later
+	# a CD can only hold 99 tracks, but since we support a feature for starting
+	# numbering the tracks from a given number, we might need to set it as a
+	# variable for the user to define... or obtain it somehow.
 	if [ "$PADTRACKS" = "y" ] ; then
 		TRACKNUMPADDING=2
 	fi
@@ -868,7 +876,6 @@ do_discid ()
 	# We have the discid, create a temp directory after it to store all the temp
 	# info
 
-	ABCDETEMPDIR="$WAVOUTPUTDIR/abcde.$(echo $TRACKINFO | cut -f1 -d' ')"
 	if [ -e "$ABCDETEMPDIR" ]; then
 		echo -n "abcde: attempting to resume from $ABCDETEMPDIR"
 		# It already exists, see if it's a directory
@@ -1722,6 +1729,7 @@ VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 NORMALIZE=normalize
 CDSPEED=eject
+VORBISGAIN=vorbisgain
 
 # Options for programs called from abcde
 # mp3
@@ -1851,10 +1859,11 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:bc:C:d:Dhj:klLnNo:pr:s:S:vVx opt ; do
+while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:vVx opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
+		A) EXPACTIONS="$OPTARG";;
 		b) BATCH=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else echo "abcde error: config file \"$OPTARG\" cannot be found." >&2 ; exit 1 ; fi ;;
 		C) DISCID="${OPTARG#abcde.}" ;;
@@ -1873,6 +1882,7 @@ while getopts 1a:bc:C:d:Dhj:klLnNo:pr:s:S:vVx opt ; do
 		o) OUTPUTTYPE="$OPTARG" ;;
 		p) PADTRACKS="y" ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
+		R) REPLAYGAIN=y ;;
 		s) STARTTRACKNUMBER="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
 		t) PREPROCESSFORMATS="$OPTARG"
@@ -1975,6 +1985,7 @@ do
 	case $OUTPUT in
 		ogg)  [ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
 		      echo $ACTIONS | grep tag > /dev/null 2>&1 && NEEDCOMMENTER=y
+		      if [ "$REPLAYGAIN" = "y" ]; then NEEDVORBISGAIN=y; fi
 			;;
 		mp3)  [ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
 		      echo $ACTIONS | grep tag > /dev/null 2>&1 && NEEDTAGGER=y
@@ -2088,7 +2099,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
-	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED}
+	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
+	${NEEDVORBISGAIN+$VORBISGAIN}
 do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
@@ -2105,9 +2117,12 @@ CDROMREADER="$CDROMREADER $CDROMREADEROPTS"
 CDDBTOOL="$CDDBTOOL $CDDBTOOLOPTS"
 HTTPGET="$HTTPGET $HTTPGETOPTS"
 
-# One thousand seven hundred lines in, we can start doing stuff with things
+# Here it used to say:
+# One thousand lines in, we can start doing stuff with things
+# Well, right now we are at line 2116 ;)
 
-# List of valid actions: cddb,playlist,read,normalize,encode,tag,move
+# List of valid actions: cddb,read,normalize,encode,tag,playlist,move,clean
+# List of experimental actions: retag,transcode
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
