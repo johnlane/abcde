@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.2.4"
+VERSION="2.3.0"
 
 usage ()
 {
@@ -279,6 +279,164 @@ splitvarious ()
 	fi
 }
 
+do_getgenreid () {
+local genre=$(echo "${@}" | tr '[A-Z]' '[a-z]')
+local id=""
+	case ${genre} in
+		"blues")                 id=0 ;;
+		"classic rock")          id=1 ;;
+		"country")               id=2 ;;
+		"dance")                 id=3 ;;
+		"disco")                 id=4 ;;
+		"funk")                  id=5 ;;
+		"grunge")                id=6 ;;
+		"hip-hop")               id=7 ;;
+		"jazz")                  id=8 ;;
+		"metal")                 id=9 ;;
+		"new age")               id=10 ;;
+		"oldies")                id=11 ;;
+		"other")                 id=12 ;;
+		"pop")                   id=13 ;;
+		"r&b")                   id=14 ;;
+		"rap")                   id=15 ;;
+		"reggae")                id=16 ;;
+		"rock")                  id=17 ;;
+		"techno")                id=18 ;;
+		"industrial")            id=19 ;;
+		"alternative")           id=20 ;;
+		"ska")                   id=21 ;;
+		"death metal")           id=22 ;;
+		"pranks")                id=23 ;;
+		"soundtrack")            id=24 ;;
+		"euro-techno")           id=25 ;;
+		"ambient")               id=26 ;;
+		"trip-hop")              id=27 ;;
+		"vocal")                 id=28 ;;
+		"jazz+funk")             id=29 ;;
+		"fusion")                id=30 ;;
+		"trance")                id=31 ;;
+		"classical")             id=32 ;;
+		"instrumental")          id=33 ;;
+		"acid")                  id=34 ;;
+		"house")                 id=35 ;;
+		"game")                  id=36 ;;
+		"sound clip")            id=37 ;;
+		"gospel")                id=38 ;;
+		"noise")                 id=39 ;;
+		"alt. rock")             id=40 ;;
+		"bass")                  id=41 ;;
+		"soul")                  id=42 ;;
+		"punk")                  id=43 ;;
+		"space")                 id=44 ;;
+		"meditative")            id=45 ;;
+		"instrum. pop")          id=46 ;;
+		"instrum. rock")         id=47 ;;
+		"ethnic")                id=48 ;;
+		"gothic")                id=49 ;;
+		"darkwave")              id=50 ;;
+		"techno-indust.")        id=51 ;;
+		"electronic")            id=52 ;;
+		"pop-folk")              id=53 ;;
+		"eurodance")             id=54 ;;
+		"dream")                 id=55 ;;
+		"southern rock")         id=56 ;;
+		"comedy")                id=57 ;;
+		"cult")                  id=58 ;;
+		"gangsta")               id=59 ;;
+		"top 40")                id=60 ;;
+		"christian rap")         id=61 ;;
+		"pop/funk")              id=62 ;;
+		"jungle")                id=63 ;;
+		"native american")       id=64 ;;
+		"cabaret")               id=65 ;;
+		"new wave")              id=66 ;;
+		"psychadelic")           id=67 ;;
+		"rave")                  id=68 ;;
+		"showtunes")             id=69 ;;
+		"trailer")               id=70 ;;
+		"lo-fi")                 id=71 ;;
+		"tribal")                id=72 ;;
+		"acid punk")             id=73 ;;
+		"acid jazz")             id=74 ;;
+		"polka")                 id=75 ;;
+		"retro")                 id=76 ;;
+		"musical")               id=77 ;;
+		"rock & roll")           id=78 ;;
+		"hard rock")             id=79 ;;
+		"folk")                  id=80 ;;
+		"folk/rock")             id=81 ;;
+		"national folk")         id=82 ;;
+		"swing")                 id=83 ;;
+		"fusion")                id=84 ;;
+		"bebob")                 id=85 ;;
+		"latin")                 id=86 ;;
+		"revival")               id=87 ;;
+		"celtic")                id=88 ;;
+		"bluegrass")             id=89 ;;
+		"avantgarde")            id=90 ;;
+		"gothic rock")           id=91 ;;
+		"progress. rock")        id=92 ;;
+		"psychadel. rock")       id=93 ;;
+		"symphonic rock")        id=94 ;;
+		"slow rock")             id=95 ;;
+		"big band")              id=96 ;;
+		"chorus")                id=97 ;;
+		"easy listening")        id=98 ;;
+		"acoustic")              id=99 ;;
+		"humour")                id=100 ;;
+		"speech")                id=101 ;;
+		"chanson")               id=102 ;;
+		"opera")                 id=103 ;;
+		"chamber music")         id=104 ;;
+		"sonata")                id=105 ;;
+		"symphony")              id=106 ;;
+		"booty bass")            id=107 ;;
+		"primus")                id=108 ;;
+		"porn groove")           id=109 ;;
+		"satire")                id=110 ;;
+		"slow jam")              id=111 ;;
+		"club")                  id=112 ;;
+		"tango")                 id=113 ;;
+		"samba")                 id=114 ;;
+		"folklore")              id=115 ;;
+		"ballad")                id=116 ;;
+		"power ballad")          id=117 ;;
+		"rhythmic soul")         id=118 ;;
+		"freestyle")             id=119 ;;
+		"duet")                  id=120 ;;
+		"punk rock")             id=121 ;;
+		"drum solo")             id=122 ;;
+		"a capella")             id=123 ;;
+		"euro-house")            id=124 ;;
+		"dance hall")            id=125 ;;
+		"goa")                   id=126 ;;
+		"drum & bass")           id=127 ;;
+		"club-house")            id=128 ;;
+		"hardcore")              id=129 ;;
+		"terror")                id=130 ;;
+		"indie")                 id=131 ;;
+		"britpop")               id=132 ;;
+		"negerpunk")             id=133 ;;
+		"polsk punk")            id=134 ;;
+		"beat")                  id=135 ;;
+		"christian gangsta rap") id=136 ;;
+		"heavy metal")           id=137 ;;
+		"black metal")           id=138 ;;
+		"crossover")             id=139 ;;
+		"contemporary christian")id=140 ;;
+		"christian rock")        id=141 ;;
+		"merengue")              id=142 ;;
+		"salsa")                 id=143 ;;
+		"thrash metal")          id=144 ;;
+		"anime")                 id=145 ;;
+		"jpop")                  id=146 ;;
+		"synthpop")              id=147 ;;
+		*)                       return 1 ;;
+	esac
+echo ${id}
+return 0
+}
+
 # do_tag [tracknumber]
 # id3 tags a filename
 # variables used:
@@ -301,9 +459,12 @@ do_tag ()
 	mp3)
 		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
 		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+		GENREID=$(do_getgenreid "${CDGENRE}")
+
 		run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 			-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
-			-g "$CDGENRE" -T "${TRACKNUM:-$1/$TRACKS}" "$ABCDETEMPDIR/track$1.$OUTPUT"
+			-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
+			"$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	ogg)
 		case "$OGGENCODERSYNTAX" in
@@ -361,7 +522,7 @@ do_tag ()
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-                ) | run_command tagtrack-$1 $METAFLAC --import-tags-from=- --no-utf8-convert "$ABCDETEMPDIR/track$1.$OUTPUT"
+                ) | run_command tagtrack-$1 $METAFLAC --no-utf8-convert --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	spx)
 		run_command tagtrack-$1 true
@@ -1384,12 +1545,18 @@ do_cddbedit ()
 				eval $(echo "$EDITOR") "$CDDBDATA"
 			fi
 		# If that fails, check for a vi
+		elif which vi >/dev/null 2>&1; then
+			vi "$CDDBDATA"
 		elif [ -x /usr/bin/vi ]; then
 			/usr/bin/vi "$CDDBDATA"
 		# nano should be on all (modern, i.e., sarge) debian systems
+		elif which nano >/dev/null 2>&1 ; then
+			nano "$CDDBDATA"
 		elif [ -x /usr/bin/nano ]; then
 			/usr/bin/nano "$CDDBDATA"
 		# mg should be on all OpenBSD systems
+		elif which mg >/dev/null 2>&1 ; then
+			mg "$CDDBDATA"
 		elif [ -x /usr/bin/mg ]; then
 			/usr/bin/mg "$CDDBDATA"
 		# bomb out
