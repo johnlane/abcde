@@ -1,4 +1,4 @@
-VERSION = 2.1pre2.2.0
+VERSION = 2.2.0
 INSTALL = /usr/bin/install -c
 
 # Installation directories

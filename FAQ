@@ -44,10 +44,11 @@ A. abcde can take advantage of SMP systems, just like make. Try 'abcde -j 2' -
    address). Use this in combination with '-j 0' to shift all encoding off the
    local machine.
 
-Having trouble getting cdparanoia to read from your drive as a user?  Add
-yourself to the cdrom group, change the permissions on your cdrom device to 660,
-and if you have a SCSI cdrom drive, check the permissions on
-/dev/sg* as well.
+Q. I am having problems with *my CD reading program* reading the drive as a
+   user.
+A. You might have to add yourself (or the users who want to use abcde) to the
+   cdrom group and change the permissions of the cdrom device to 660. If you
+   have a SCSI cdrom drive, check the permissions of /dev/sg* as well.
 
 Q. I would like to give the trackname and the artist_name directly to the
    encoder (in my case oggenc), but found no documentation.
@@ -120,7 +121,9 @@ A. Set abcde to rip the first CD and give it the option "-t 101". Use a generic
    add a comment about the CD you are ripping (-w "disc #"). Alternatively you
    can use only the "-t ###" option and then move all the files to the same
    directory. If you want the tagged track number to be set to the modified
-   number you should use "-T ###".
+   number you should use "-T ###". Even more! If you use "-W <cd_number>",
+   abcde will put a comment to every CD set ("CD <number>") and use modify the
+   number of the tracks.
 
 Q. I have a live concert. I want to encode it in a single file. How do i do it?
 A. Use "-1" and it will be encoded in a single file.

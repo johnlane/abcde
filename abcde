@@ -1266,6 +1266,7 @@ do_cddbedit ()
 					# I'll take CDDB read #3 for $400, Alex
 					echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
 					read CDDBCHOICE
+					[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
 					# Make sure we get a valid choice
 					CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
 				        while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
