@@ -1,3 +1,11 @@
+0. INTRODUCTION
+   ============
+
+Q. Who created abcde? Who develops it nowadays?
+A. It was originally created by Robert Woodcook. He decided to give up 
+   maintaining it at some point in 2002 and Jesus Climent took over.  Contact
+   jesus.climent@hispalinux.es if you have a problem or a suggestion.
+
 
 1. INSTALLATION
    ============
@@ -12,42 +20,78 @@ A. To get abcde you can use a pre-packaged version, available for Debian,
 
    abcde needs cd-discid. Grab it from:
    http://www.hispalinux.es/~data/files/cd-discid/
+
+   Read the README files for a complete list of requirements.
    
 
 2. EXECUTION
    =========
 
-3. FORMATS
-   =======
+Q. Low on disk space?
+A. abcde has different algorithms to schedule ripping and encoding - to 
+   optimize for disk conservation, use -l. You can also define
+   WAVOUTPUTDIR=/some/other/path to your /etc/abcde.conf or ~/.abcde.conf to
+   store the WAV files on another NFS shared fisk, for example.
 
-4. MISC PROBLEMS
-   ==== ========
+Q. How can i make abcde encode faster? My CD reader is way faster than the pace
+   it can encode my tracks.
+A. abcde can take advantage of SMP systems, just like make. Try 'abcde -j 2' -
+   it'll run two encoder jobs while it rips the next track.
+   You can also make use of systems which are networked, with the help of
+   distmp3. For example, MachineA has a better CPU power and MachineB has a CD
+   drive. Run distmp3host (included in distmp3) on Machine A, and then run
+   abcde -r MachineA from MachineB (where "MachineA" is a dns name or IP
+   address). Use this in combination with '-j 0' to shift all encoding off the
+   local machine.
 
-Q. What happened with normalize?
-A. Normalize has changed its name under Debian, which is the GNU/Linux 
-   distribution for developing abcde (well, is The GNU/Linux Distribution
-   i only use, at the moment). Now it is called normalize-audio.
-   If you are using some other flavour of OS, you need to change the name
-   of the executable in your abcde.conf file.
-
-Q. I am using MacOSX and I am having problems to use abcde.
-A. Well, I have a Mac, but I use linux on it. I have not been able to find
-   a way to make it work there, since I do not have the development tools
-   installed. I have placed a basic support, but some user reports are just
-   complaining about abcde not encoding the ripped tracks, as if 
-   cdda2wav/cdparanoia/cddafs would never end reading them. If you have such
-   a system and experience problems, please, report them, and I will try to
-   work them out with your help.
+Having trouble getting cdparanoia to read from your drive as a user?  Add
+yourself to the cdrom group, change the permissions on your cdrom device to 660,
+and if you have a SCSI cdrom drive, check the permissions on
+/dev/sg* as well.
 
 Q. I would like to give the trackname and the artist_name directly to the
    encoder (in my case oggenc), but found no documentation.
 A. That is not possible, since abcde gets the information from CDDB database.
-   You can create a template and fill it with the option "-n".
+   You can create a template and fill it with the option "-n". Also, you can 
+   get the CDDB entry and edit it yourself. abcde has also an option to drop
+   back to a template if you like none of the CDDB entries, selecting 0 from
+   the CDDB options.
 
-Q. What formats can I encode my music to?
-A. As for version 2.2, abcde includes support for MP3, Ogg/Vorbis, 
-   Ogg/Speex, Flac and MPP/MP+(Musepack). Support for AAC will be added once
-   an FLOSS encoder/decoder is working.
+Q. (Thanks to Amaya) Where are those options and settings defined? Why dont
+   you include a proper abcde.conf as an example?
+A. I do. It should be installed under /etc/abcde.conf and contains more or
+   less all the defaults abcde uses. You can use $(HOME)/.abcde.conf to 
+   override those defaults. More information can be obtained from the man page
+   which can be consulted using "man abcde".
+   
+Q. I keep on getting files with ".ogg.ogg" extension. What am I doing wrong?
+A. The code for multiple-output adds automatically the extension of the
+   different outputs you select with the "-o" extension (or with OUTPUTTYPE
+   variable). Erase the ".${OUTPUTTYPE}" part from the OUTPUTFORMAT variable
+   in /etc/abcde.conf or ~/.abcde.conf
+
+Q. I have modified some of the options, and now CDDB has stopped working.
+A. Check that you have modified everything in the right way. For instance, if
+   you modify the HTTPGET program you might want to set some options of your
+   own. If you use the predefined ones (wget, curl and fetch) abcde will try
+   to use some defaults. Keep in mind that the output should go to the output
+   as standard output, to be saved in a file for later use.
+   
+   If abcde seems to be ignoring your configuration options or not running
+   commands such as the encoder, you may have misquoted something. Config
+   options such as the following do not work:
+
+   LAMEOPTS=-h -k
+
+   Try this instead:
+
+   LAMEOPTS='-h -k'
+
+Q. How can I separate the different output files I get using multiple-output
+   support?
+A. Use the OUTPUT variable in PLAYLISTFORMAT and OUTPUTFORMAT. It holds the 
+   different output file types you passed to abcde (i.e., ogg, mp3, flac) 
+   during playlist creation and file/directory creation.
 
 Q. I have a CD with a data track, and abcde complaints it cannot read/encode
    it.
@@ -59,17 +103,65 @@ A. It is not easy to find a data track on a CD. Right now, I can only think
    Version 2.2 includes some checkings with cdparanoia, to try to get this
    right.
 
-Q. How can I separate the different output files I get using multiple-output
-   support?
-A. Use the OUTPUT variable in PLAYLISTFORMAT and OUTPUTFORMAT. It holds the 
-   different output file types you passed to abcde (i.e., ogg, mp3, flac) 
-   during playlist creation and file/directory creation.
+Q. I am requested to have "eject" when setting the speed although I do not use
+   it for anything.
+A. If you do not use cdparanoia, eject is used for setting the speed of the 
+   cdrom drive. You can substitute it for "setcd" with "-x" as the argument,
+   but you have to install it manually (setcd is, at least, available in 
+   Debian).
+   Another way to get the same results is using the pre_read function, defined
+   in your /etc/abcde.conf file.
    
-Q. I keep on getting files with ".ogg.ogg" extension. What am I doing wrong?
-A. The code for multiple-output adds automatically the extension of the
-   different outputs you select with the "-o" extension (or with OUTPUTTYPE
-   variable). Erase the ".${OUTPUTTYPE}" part from the OUTPUTFORMAT variable
-   in /etc/abcde.conf or ~/.abcde.conf
+Q. I have a CD set with 1+ discs, and want to have them in the same directory,
+   sorted properly. What can abcde do for me?
+A. Set abcde to rip the first CD and give it the option "-t 101". Use a generic
+   name for the CD, and reuse it with the rest of the CDs, editing the CDDB
+   entries. Use "-t 201" for the second CD and so on. Use "-w <comment>" to
+   add a comment about the CD you are ripping (-w "disc #"). Alternatively you
+   can use only the "-t ###" option and then move all the files to the same
+   directory. If you want the tagged track number to be set to the modified
+   number you should use "-T ###".
+
+Q. I have a live concert. I want to encode it in a single file. How do i do it?
+A. Use "-1" and it will be encoded in a single file.
+
+3. CDDB
+   ====
+
+Q. I need to go through an HTTP proxy for CDDB access. 
+A. No problem, just export your http_proxy variable first so wget/fetch/curl 
+   can see it.
+
+Q. I already store CDDB entries in my hard disc. Can I make use of them?
+A. Piece of cake. Just edit CDDBLOCALDIR to point to the repository and give
+   abcde the "-L" flag to make use of it.
+
+Q. Fine, now it uses local CDDB, but I have no network connection. How can I
+   disable CDDB checks?
+A. Use the "-L -n" combination. It will try to use local CDDB entries, and if
+   nothing can be found, it will use a template. You will be also given the
+   choice to edit such template.
+
+Q. How can I use some other CDDB information provider?
+A. abcde now uses FreeDB by default. To use a different FreeDB mirror or 
+   another CDDB service, change the CDDBURL option in your abcde.conf.
+
+
+3. FORMATS
+   =======
+
+Q. What formats can I encode my music to?
+A. As for version 2.2, abcde includes support for MP3, Ogg/Vorbis, 
+   Ogg/Speex, Flac and MPP/MP+(Musepack). Support for AAC will be added once
+   an FLOSS encoder/decoder is working.
+
+Q. I want the new *put the newest and coolest codec there* format to be 
+   supported by abcde. Abcde is so cool but i want to encode also to this
+   new format...
+A. Patches are welcome! ;)
+   No, seriously, if the format is usable, available for Linux and open
+   source/free software, it should be fairly easy to integrate. Support for
+   AAC (m4p) should be the next one to be introduced.
 
 Q. I use Debian/RedHat/(put your Unix flavour here) and MP3 encoding is not 
    working. What am I doing wrong?
@@ -102,60 +194,35 @@ A. Since MP3 is considered non-free (you get it for free, but hardware players
 
    Others : Please, help me here.
 
-Q. I have modified some of the options, and now CDDB has stopped working.
-A. Check that you have modified everything in the right way. For instance, if
-   you modify the HTTPGET program you might want to set some options of your
-   own. If you use the predefined ones (wget, curl and fetch) abcde will try
-   to use some defaults. Keep in mind that the output should go to the output
-   as standard output, to be saved in a file for later use.
+Q. Huh! Why is MPPENCODER (with MPP) and .mpc the extension?
+A. Dunno. You must ask the guys who created and defined the format. The 
+   standard is MPEGplus (MPP/MP+) but the files use .mpc extension.
    
-   If abcde seems to be ignoring your configuration options or not running commands
-   such as the encoder, you may have misquoted something. Config options such as
-   the following do not work:
+   
+4. MISC PROBLEMS
+   ==== ========
 
-   LAMEOPTS=-h -k
+Q. What happened with normalize?
+A. Normalize has changed its name under Debian, which is the GNU/Linux 
+   distribution for developing abcde (well, is The GNU/Linux Distribution
+   i only use, at the moment). Now it is called normalize-audio.
+   If you are using some other flavour of OS, you need to change the name
+   of the executable in your abcde.conf file.
 
-   Try this instead:
-
-   LAMEOPTS='-h -k'
+Q. I am using MacOSX and I am having problems to use abcde.
+A. Well, I have a Mac, but I use linux on it. I have not been able to find
+   a way to make it work there, since I do not have the development tools
+   installed. I have placed a basic support, but some user reports are just
+   complaining about abcde not encoding the ripped tracks, as if 
+   cdda2wav/cdparanoia/cddafs would never end reading them. If you have such
+   a system and experience problems, please, report them, and I will try to
+   work them out with your help.
 
 Q. My hardware player (put it here) does not recognize the playlists created
    with abcde. What I am doing wrong?
 A. Try using "-m" when creating the playlists, or setting DOSPLAYLIST as an
    option in the config file.
 
-Q. I am requested to have eject when setting the speed although I do not use
-   for anything.
-A. If you do not use cdparanoia, eject is used for setting the speed of the 
-   cdrom drive. You can substitute it for "setcd" with "-x" as the argument,
-   but you have to install it manually (setcd is, at least, available in 
-   Debian).
-   Another way to get the same results is using the pre_read function, defined
-   in your /etc/abcde.conf file.
-
-Q. Huh! Why is MPPENCODER (with MPP) and .mpc the extension?
-A. Dunno. You must ask the guys who created and defined the format. The 
-   standard is MPEGplus (MPP/MP+) but the files use .mpc extension.
-
-Q. I want the new *put the newest and coolest codec there* format to be 
-   supported by abcde. Abcde is so cool but i want to encode also to this
-   new format...
-A. Patches are welcome! ;)
-   No, seriously, if the format is usable, available for Linux and open
-   source/free software, it should be fairly easy to integrate. Support for
-   AAC (m4p) should be the next one to be introduced.
-
-Q. (Thanks to Amaya) Where are those options and settings defined? Why dont
-   you include a proper abcde.conf as an example?
-A. I do. It should be installed under /etc/abcde.conf and contains more or
-   less all the defaults abcde uses. You can use $(HOME)/.abcde.conf to 
-   override those defaults. More information can be obtained from the man page
-   which can be consulted using "man abcde".
-
-Q. I am running out of disc space.
-A. You have to options. Use -l or define WAVOUTPUTDIR=/some/other/path to your
-   /etc/abcde.conf or ~/.abcde.conf.
-   
 OBSOLETE
 --------
 Q. I set KEEPWAVS to "y" but abcde insists on erasing my directory, along

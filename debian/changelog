@@ -12,8 +12,6 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
     - On the MacOS X, I still do not know if abcde works correctly. If does
       not, please, drop a note. Or else.
   * DOSPLAYLIST also changes "/" with "\".
-  * Option "-s <number>" added to modify the numbering from a starting point
-    (Closes: #95828). Geez! That is low bug number...
   * DATA tracks are now excluded from the ripping process using internally
     the cdparanoia "-Q" query option. If using another ripper, it does not
     work (at least there is no support for them in abcde)
@@ -21,25 +19,27 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
   * New "0" choice for "None of the above" has been introduced. If selected, a
     template is created and the user encouraged to edit it (Closes: #147683).
   * New options for when the PLAYLIST already exists: erase, append or keep.
-  * Small bug fixes along the code:
+  * Bug fixes along the code:
     - abcde.1 corrections and additions
-    - abcde corrections
+    - abcde corrections and code reorganization. abcde now exits earlier if
+      some of the options are incompatible. Also the actions are set as
+      variables earlier, so we use less calls to external tools.
     - abcde.conf additions
   * The GENRE is munged now in its own mungegenre function, so that no more
     upper-to-lowercase is done (forced) except if the default is used.
   * Examples added to the tarball and /usr/share/doc/abcde/examples with two
     scripts to make abcde kind-of-a ripper daemon.
-  * Changed to experimental to have an stable 2.1.20 version in Sarge.
+  * Changed to experimental to have an stable 2.1.x version in Sarge.
   * Add CDDB information to Ogg/Vorbis and FLAC files (Closes: #265358).
   * Added INTERACTIVE option. Set it to "n" and there you go, without user
     interaction.
   * Changes normalize to normalize-audio (Closes: #267053)
   * Copes with wav files being erased by the ripping tool.
-  * New -f to force local CDDB or fallback to template (no network).
   * Small patch to support ()'s in the path under MacOSX. Thanks to Evan Jones
     for noticing and sending the patch.
   * Added -w for COMMENT seed. Used to give a comment to a given CD.
-  * Added -t as an alias for -s (deprecated in favor of -t)
+  * Option "-t <number>" added to modify the numbering from a starting point
+    (Closes: #95828). Geez! That is low bug number...
   * Added -T to modify also the tag entries on the songs. Currently available
     for FLAC and Ogg/Vorbis.
 
