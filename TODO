@@ -27,3 +27,10 @@ TODO:
   since abcde sees the encoding already finished. Same with tags and moves.
 
 * Support UTF-8 tags
+
+* From slashdot: IMHO the most important aspect of an auto-ripper, is its
+  error-handling: what happens if a CD is too scratched to rip? How should it
+  react if someone tries to rip the exact same CD? make a new rip with another
+  name ? silently overwrite the old rip? etc.
+
+  Review the things that abcde does ;)
