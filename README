@@ -137,8 +137,8 @@ Options added/modified from 2.1.1 to 2.1.3:
 
 Options added/modified from 2.0.3 to 2.1.x:
 
-* -b use batch processing. It uses normalize to adjust the volume of the
-  songs, and a -g gapless option from lame to remove gaps. Only available
+* -b use batch processing. It uses normalize-audio to adjust the volume of 
+  the songs, and a -g gapless option from lame to remove gaps. Only available
   for mp3+lame combination.
 * a new "normalize" option has been added to -a, to normalize the volume.
 * -o works now with a combination of the different outputs: ogg, mp3, flac.
@@ -188,7 +188,7 @@ abcde requires the following backend tools to work:
 * FLAC encoder (flac) or:
 * Ogg/Speex encoder (speexenc) or:
 * MPP/MP+(Musepack) encoder (mppenc)
-* normalize for volume normalization.
+* normalize-audio for volume normalization.
 * CD Paranoia, an audio CD reading utility,
 * Or cdda2wav, the audio CD reading utility cdparanoia was born from,
 * Or dagrab, another audio CD reading utility.

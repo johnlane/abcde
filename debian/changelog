@@ -1,4 +1,4 @@
-abcde (2.1.20-2.2pre2-1) experimental; urgency=low
+abcde (2.1pre2.2.0-1) experimental; urgency=low
 
   * Added support for MPP/MP+(Musepack) encoding. Although I am trying to
     get 2.2 for Debian Sarge release, mpc seems safe enough to introduce. See
@@ -32,8 +32,9 @@ abcde (2.1.20-2.2pre2-1) experimental; urgency=low
   * Add CDDB information to Ogg/Vorbis and FLAC files (Closes: #265358).
   * Added INTERACTIVE option. Set it to "n" and there you go, without user
     interaction.
+  * normalize has changes its name to normalize-audio.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 13 Aug 2004 12:27:33 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 20 Aug 2004 13:09:57 +0000
 
 abcde (2.1.19-1) unstable; urgency=low
 
