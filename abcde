@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.2.1"
+VERSION="2.2.4"
 
 usage ()
 {
@@ -42,7 +42,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-o <type1[,type2]...>"
 echo "       Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
-#echo "-P    Use UNIX pipes to read+encode without wav files"
+echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-R     Add replaygain values to the tag info (only for ogg,flac)"
@@ -764,7 +764,7 @@ do_playlist ()
 				ARTISTFILE=$(mungefilename "$TRACKARTIST")
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
-				if [ -n $STARTTRACKNUMBER ] ; then
+				if [ -n "$STARTTRACKNUMBER" ] ; then
 					# Get the trackpadding from the current track
 					CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
 					TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - 1 ))
@@ -843,7 +843,7 @@ do_discid ()
 				cdparanoia|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
-						TRACKS=$( $CDPARANOIA -Q 2>&1 | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )
+						TRACKS=$( $CDROMREADER -d $CDROM -Q --verbose 2>&1 | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
@@ -1567,12 +1567,27 @@ do_cdread_one ()
 }
 
 # do_cdread [tracknumber]
+# do_cdread onetrack [firsttrack] [lasttrack]
 # 
 do_cdread ()
 {
 	# The commands here don't go through run_command because they're never supposed to be silenced
 	# return codes need to be doublechecked anyway, however
-	UTRACKNUM=$1
+	if [ "$1" = "onetrack" ]; then
+		# FIXME # Add the possibility of grabbing ranges of tracks in onetrack
+		# FIXME # Until then, we grab the whole CD in one track, no matter what the user said
+		# We need the first and last track for cdda2wav
+		FIRSTTRACK=$2
+		LASTTRACK=$3
+		case "$CDROMREADERSYNTAX" in
+			cdparanoia) UTRACKNUM="1-" ;;
+			cdda2wav) UTRACKNUM="1+$LASTRACK" ;;
+			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
+			   exit 1 ;;
+		esac
+	else
+		UTRACKNUM=$1
+	fi
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 	WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
 	OUTDATA="$ABCDETEMPDIR/track$UTRACKNUM.$OUTPUTTYPE"
@@ -1622,7 +1637,7 @@ do_cdread ()
 		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
 			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
 		fi
-                echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 		return $RETURN
 	else
 		echo readtrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
@@ -1864,7 +1879,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:t:T:vVxw:W: opt ; do
+while getopts 1a:A:bc:C:d:Dhj:klLnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -1912,18 +1927,21 @@ done
 
 shift $(($OPTIND - 1))
 
-# Decide if we can continue. TO_REMOVE as soon as we find out about dagrab
-if [ "$ONETRACK" = "y" ] ; then 
+# Decide if we can continue.
+if [ "$ONETRACK" = "y" ]; then 
+	# FIXME # remove check as soon as we find out about the other readers
 	case "$CDROMREADERSYNTAX" in
-		dagrab|debug) echo "abcde error: ONETRACK reading is not suported with "$CDROMREADERSYNTAX" yet"
-			      exit 1 ;;
+		dagrab|cddafs|debug) echo "abcde error: ONETRACK reading is not suported with "$CDROMREADERSYNTAX" yet"
+			                 exit 1 ;;
 	esac
 	if [ "$BATCH" = "y" ]; then
 		echo "abcde error: BATCH mode is not compatible with ONETRACK mode"
+		BATCH=n
 	fi
 	# It does not matter how many tracks we want. In ONETRACK mode we grab them all
+	# FIXME # allow ranges of tracks to be selected for onetrack ripping
 	if [ $# -gt 0 ]; then
-		vecho "ONETRACK mode selected: grabbing all tracks..."
+		vecho "abcde warning: ONETRACK mode selected, grabbing all tracks..."
 	fi
 else
 	while [ $# -gt 0 ]; do
@@ -1991,6 +2009,26 @@ if [ "$CDROM" != "" ] ; then
 else
 	echo "abcde error: CDROM has not been defined or cannot be found" >&2
 	exit 1
+fi
+
+# USEPIPES is not compatible with:
+# - multiple outputs
+# - normalize
+# - anything else?
+if [ "$USEPIPES" = "y" ]; then
+	if [ $(echo $OUTPUTTYPE | tr , \  | wc -w ) -gt 1 ]; then
+		echo "abcde error: Unix pipes not compatible with multiple outputs"
+		exit 1
+	fi
+	if [ "$DONORMALIZE" = "y" ]; then
+		echo "abcde error: Unix pipes not compatible with normalizer"
+		# FIXME # Do we need to exit or shall we just disable the mode?
+		exit 1
+	fi
+	if [ "$DOENCODE" = "n" ]; then
+		vecho "Disabling Unix pipes since we are not encoding!"
+		USEPIPES=n
+	fi
 fi
 
 # Decide which CDROM reader we're gonna use
@@ -2207,42 +2245,11 @@ if [ X"$CDSPEEDVALUE" != "X" ]; then
 	esac
 fi
 
-if [ "$STRIPDATATRACKS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
-	case "$CDROMREADERSYNTAX" in
-		cdparanoia|debug) 
-			# cdparanoia can query the CD, so let's process the TRACKQUEUE list with the results.
-			if checkstatus cdparanoia-audio-tracks; then
-				CDTRACKQUEUE=$( cat $ABCDETEMPDIR/cdparanoia-audio-tracks )
-			else
-				## FIXME ##
-				vecho "Querying the CD to obtain a list of valid audio tracks..."
-				$CDROMREADER -Q > $ABCDETEMPDIR/cdparanoia-query 2>&1
-				# Obtain a list of valid audio tracks from the results of the query
-				CDTRACKQUEUE=$( cat $ABCDETEMPDIR/cdparanoia-query | egrep '^[[:space:]]+[[:digit:]]' | awk '{print $1}' | tr -d "." | tr '\n' ' ' )
-			fi
-			# Obtain the track padding value from the before-processing list and pad the CD list
-			TRACKNUMPADDING=$( echo $TRACKQUEUE | awk '{print $1}' | tr -d " \n" | wc -c )
-			for TRACK in $CDTRACKQUEUE ; do
-				TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${TRACK} + 0 ))
-				PADNEWTRACKQUEUE=$(echo $PADNEWTRACKQUEUE $TRACKNUM)
-			done
-			CDTRACKQUEUE=$PADNEWTRACKQUEUE
-			# Now, compare if the values in the list are valid tracks in the CD
-			for TRACK in $TRACKQUEUE; do
-				if echo $CDTRACKQUEUE | grep $TRACK >/dev/null ; then
-					NEWTRACKQUEUE="$NEWTRACKQUEUE $TRACK"
-				fi
-			done
-			TRACKQUEUE="$NEWTRACKQUEUE"
-		;;
-	esac
-fi
-
 # Create playlist if needed (backgroundable) and start reading in tracks
 
 (
 
-if [ "$ONETRACK" = "y" ]; then :; else
+if [ ! "$ONETRACK" = "y" ]; then
 	if [ "$DOPLAYLIST" = "y" ]; then
 		echo Creating playlist... >&2
 		do_playlist
@@ -2261,6 +2268,10 @@ if [ "$ONETRACK" = "y" ]; then
 	for UTRACKNUM in $TRACKQUEUE; do :;done
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
 		do_cdread_one $UTRACKNUM $FIRSTTRACK
+		# FIXME # Allow ranges of tracks to be encoded in one track
+		# FIXME # do_cdread onetrack $FIRSTTRACK $UTRACKNUM
+		# Until we have it we must use:
+		#do_cdread onetrack $FIRSTTRACK $UTRACKNUM
 	fi
 else
 	for UTRACKNUM in $TRACKQUEUE
@@ -2530,3 +2541,6 @@ else
 fi
 )
 exit 0
+
+# b:is_bash
+# vim:tabstop=4
