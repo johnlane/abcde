@@ -26,7 +26,7 @@ echo "-c    Specify a configuration file (overrides system and user config files
 echo "-C    Specify discid to resume from (only needed if you no longer have the cd)"
 echo "-d    Specify CDROM device to grab"
 echo "-D    Debugging mode (equivalent to sh -x abcde)"
-#echo "-f    Force the use of a local CDDB entry. Otherwise use an empty template"
+echo "-f    Force the use of a local CDDB entry. Use an empty template if not found"
 echo "-h    This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j    Number of encoder processes to run at once"
@@ -1017,36 +1017,41 @@ do_localcddb ()
 		USELOCALRESP="y"
 		
 		# If the user has selected to check a local CDDB repo, we proceed with it
-		if [ "$CDDBUSELOCAL" = "y" ]; then
-			if [ -r "${CDDBLOCALFILE}" ]; then
-				# List out disc title/author and contents
-				do_cddbparse "${CDDBLOCALFILE}"
-				echo -n "Locally cached CDDB entry found, use it? [y/n] (y): "
-				if [ "$INTERACTIVE" = "y" ]; then
+		if [ -r "${CDDBLOCALFILE}" ]; then
+			# List out disc title/author and contents
+			do_cddbparse "${CDDBLOCALFILE}"
+			echo -n "Locally cached CDDB entry found, use it? [y/n] (y): "
+			if [ "$INTERACTIVE" = "y" ]; then
+				read USELOCALRESP
+				while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
+					echo -n 'Invalid selection. Please answer "y" or "n": '
 					read USELOCALRESP
-					while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
-						echo -n 'Invalid selection. Please answer "y" or "n": '
-						read USELOCALRESP
-					done
-					[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
-				else
-					echo "y" >&2
-				fi
-				if [ "$USELOCALRESP" = "y" ]; then
-				#echo "Using local copy of CDDB data"
-					cp "${CDDBLOCALFILE}" "$ABCDETEMPDIR/cddbread.1"
-					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
-					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
-					do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
-					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-					CDDBLOCALSUCCESS="y"
-				else
-					#echo "Not using local copy of CDDB data"
-					CDDBLOCALSUCCESS="n"
-				fi
+				done
+				[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
 			else
+				echo "y" >&2
+			fi
+			if [ "$USELOCALRESP" = "y" ]; then
+			#echo "Using local copy of CDDB data"
+				cp "${CDDBLOCALFILE}" "$ABCDETEMPDIR/cddbread.1"
+				echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
+				echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
+				do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
+				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+				CDDBLOCALSUCCESS="y"
+			else
+				#echo "Not using local copy of CDDB data"
 				CDDBLOCALSUCCESS="n"
 			fi
+		elif [ "$FORCECDDBUSELOCAL"= "y" ]; then
+			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
+			echo 998 > "$ABCDETEMPDIR/cddbquery" # Assuming 998 isn't used by CDDB
+			echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
+			do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
+			echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
+			CDDBLOCALSUCCESS="y"
+		else
+			CDDBLOCALSUCCESS="n"
 		fi
 	fi
 }
@@ -1308,6 +1313,10 @@ do_cddbedit ()
 				if [ "$USELOCALRESP" = "y" ]; then :; else
 					if [ -n "$CHOICE" ] ; then
 						case $CDDBCHOICES in
+							0) 
+							UNKNOWNDISK=y
+							echo "Selected template."
+							;;
 							1) cat "$ABCDETEMPDIR/cddbchoices" ;;
 							*)
 							echo "Selected: #$CHOICE"
@@ -1867,7 +1876,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dhj:klLnNo:pr:Rs:S:vVx opt ; do
+while getopts 1a:A:bc:C:d:Dfhj:klLnNo:pr:Rs:S:vVx opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2127,7 +2136,7 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 2116 ;)
+# Well, right now we are at line 2139 ;)
 
 # List of valid actions: cddb,read,normalize,encode,tag,playlist,move,clean
 # List of experimental actions: retag,transcode
