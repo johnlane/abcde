@@ -29,8 +29,11 @@ abcde (2.1.20-2.2pre2-1) experimental; urgency=low
   * Examples added to the tarball and /usr/share/doc/abcde/examples with two
     scripts to make abcde kind-of-a ripper daemon.
   * Changed to experimental to have an stable 2.1.20 version in Sarge.
+  * Add CDDB information to Ogg/Vorbis and FLAC files (Closes: #265358).
+  * Added INTERACTIVE option. Set it to "n" and there you go, without user
+    interaction.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 30 Jul 2004 18:27:22 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 13 Aug 2004 12:27:33 +0300
 
 abcde (2.1.19-1) unstable; urgency=low
 
