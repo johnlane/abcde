@@ -1621,7 +1621,7 @@ do_cdread ()
 		cddafs)
 			# Find the track's mounted path
 			REALTRACKNUM=$(expr $UTRACKNUM + 0)
-			FILEPATH=$(mount | grep "$CDROM on" | sed 's/^[^ ]* on \([^(]*\) (.*/\1/')
+			FILEPATH=$(mount | grep "$CDROM on" | sed 's/^[^ ]* on \(.*\) (.*/\1/')
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then

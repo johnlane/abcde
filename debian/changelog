@@ -36,8 +36,10 @@ abcde (2.1pre2.2.0-1) experimental; urgency=low
   * Changes normalize to normalize-audio (Closes: #267053)
   * Copes with wav files being erased by the ripping tool.
   * New -f to force local CDDB or fallback to template (no network).
+  * Small patch to support ()'s in the path under MacOSX. Thanks to Evan Jones
+    for noticing and sending the patch.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 30 Aug 2004 06:22:35 +0000
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 25 Sep 2004 20:26:03 +0000
 
 abcde (2.1.19-1) unstable; urgency=low
 
