@@ -219,6 +219,7 @@ relpath ()
 			FR="$(echo "$FR" | cut -d/ -f2-)"
 			TO="../$TO"
 		done
+		;;
 	esac
 
 	echo $TO
@@ -299,9 +300,10 @@ do_tag ()
 	case "$OUTPUT" in
 	mp3)
 		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
+		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
 		run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 			-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
-			-g "$CDGENRE" -T "$1/$TRACKS" "$ABCDETEMPDIR/track$1.$OUTPUT"
+			-g "$CDGENRE" -T "${TRACKNUM:-$1/$TRACKS}" "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	ogg)
 		case "$OGGENCODERSYNTAX" in
@@ -321,7 +323,7 @@ do_tag ()
 		               	if [ -n "$CDGENRE" ]; then
 					echo GENRE="$CDGENRE"
 		                fi	
-				echo TRACKNUMBER=$1
+				echo TRACKNUMBER=${TRACKNUM:-$1}
 				echo CDDB=$CDDBDISCID
 				if [ "$(eval echo ${COMMENT})" != "" ]; then
 					case "$COMMENTOUTPUT" in
@@ -843,12 +845,12 @@ do_discid ()
 				cdparanoia|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
-						CDPARANOIAOUTPUT=$( $CDROMREADER -d $CDROM -Q --verbose 2>&1 )
+						CDPARANOIAOUTPUT="$( $CDROMREADER -d $CDROM -Q --verbose 2>&1 )"
 						RET=$?
 						if [ ! "$RET" = "0" ];then
 							echo "Warning: Something went wrong while querying the CD... Maybe a DATA CD?"
 						fi
-						TRACKS=$( echo $CDPARANOIAOUTPUT | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )
+						TRACKS="$( echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
@@ -1984,7 +1986,7 @@ done
 # Sanity checks:
 
 # At this point a CDROM has to be defined, so we check it exists.
-if [ "$CDROM" != "" ] ; then 
+if [ X"$CDROM" != "X" ] ; then 
 	if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] && [ "$NEEDCDROMID" = "y" ] ; then
 		if [ "$OSFLAVOUR" = "FBSD" ]; then
 			if ! echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then
@@ -1993,11 +1995,12 @@ if [ "$CDROM" != "" ] ; then
 				exit 1
 			fi
 		fi
-	elif [ ! -e $CDROM ] ; then
+	elif [ ! -e "$CDROM" -a X"$DOREAD" = "y" ]; then
 		echo "abcde error: CDROM device cannot be found." >&2
 		exit 1
 	fi
-else
+# avoid processing if we are not going to hit the CDROM.
+elif [ X"$DOREAD" = "y" ]; then
 	echo "abcde error: CDROM has not been defined or cannot be found" >&2
 	exit 1
 fi
@@ -2216,7 +2219,7 @@ if [ "$USEPIPES" = "y" ]; then
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYTNAX" ;;
 		spx)
-			IPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
+			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
