@@ -506,6 +506,7 @@ do_tag ()
 		esac
 		;;
 	flac)
+## FIXME ##		[ "$FLACONOGG" = "y" ] && OUTPUT=ogg
                 (
 		echo ARTIST="$TRACKARTIST"
 		echo ALBUM="$DALBUM"
@@ -1616,7 +1617,7 @@ do_cddbedit ()
 
 	# Some heuristics first. Look at Disc Title, and if it starts with
 	# "Various", then we'll assume Various Artists
-	if [ "$(grep ^DTITLE= "$CDDBDATA" | cut -f2 -d= | egrep -ci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
+	if [ "$(grep ^DTITLE= "$CDDBDATA" | cut -f2- -d= | egrep -ci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
 		echo "Looks like a Multi-Artist CD" >&2
 		VARIOUSARTISTS=y
 	else
@@ -2208,12 +2209,12 @@ if [ X"$CDROM" != "X" ] ; then
 				exit 1
 			fi
 		fi
-	elif [ ! -e "$CDROM" -a X"$DOREAD" = "y" ]; then
+	elif [ ! -e "$CDROM" -a X"$DOREAD" = "Xy" ]; then
 		echo "abcde error: CDROM device cannot be found." >&2
 		exit 1
 	fi
 # avoid processing if we are not going to hit the CDROM.
-elif [ X"$DOREAD" = "y" ]; then
+elif [ X"$DOREAD" = "Xy" ]; then
 	echo "abcde error: CDROM has not been defined or cannot be found" >&2
 	exit 1
 fi
@@ -2359,7 +2360,11 @@ esac
 case "$FLACENCODERSYNTAX" in
 	flac)
 		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
-		FLACENCODER="$FLAC"
+		FLACENCODER="$FLAC"	
+		## FIXME ## FLAC streams can be encapsulated on a Ogg transport layer
+		if echo "$FLACENCODEROPTS" | egrep -q -- "(^| )--ogg($| )" ;then
+			FLACONOGG=y
+		fi
 		;;
 esac
 case "$SPEEXENCODERSYNTAX" in
@@ -2736,7 +2741,7 @@ do
 #			TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${UTRACKNUM} + 0))
 			TRACKNUM=$UTRACKNUM
 		        CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
+			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
 			splitvarious
 		fi
 	fi
