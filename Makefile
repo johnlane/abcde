@@ -24,5 +24,5 @@ install:
 
 tarball:
 	@cd .. && tar czvf abcde_$(VERSION).orig.tar.gz \
-		abcde-$(VERSION)/{Makefile,COPYING,README,TODO,FAQ,abcde,abcde.1,abcde.conf,changelog,cddb-tool,cddb-tool.1}
+		abcde-$(VERSION)/{Makefile,COPYING,README,TODO,FAQ,abcde,abcde.1,abcde.conf,changelog,cddb-tool,cddb-tool.1,examples/}
 

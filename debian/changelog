@@ -1,4 +1,4 @@
-abcde (2.1.20-2.2pre2-1) unstable; urgency=low
+abcde (2.1.20-2.2pre2-1) experimental; urgency=low
 
   * Added support for MPP/MP+(Musepack) encoding. Although I am trying to
     get 2.2 for Debian Sarge release, mpc seems safe enough to introduce. See
@@ -20,12 +20,14 @@ abcde (2.1.20-2.2pre2-1) unstable; urgency=low
   * New "0" choice for "None of the above" has been introduced. If selected, a
     template is created and the user encouraged to edit it (Closes: #147683).
   * New options for when the PLAYLIST already exists: erase, append or keep.
-  * Small bug fixes along the code: 
-    - abcde.1 corrections
+  * Small bug fixes along the code:
+    - abcde.1 corrections and additions
     - abcde corrections
     - abcde.conf additions
+  * The GENRE is munged now in its own mungegenre function, so that no more
+    upper-to-lowercase is done (forced) except if the default is used.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 10 Jul 2004 10:42:12 -0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 30 Jul 2004 15:14:18 +0300
 
 abcde (2.1.19-1) unstable; urgency=low
 

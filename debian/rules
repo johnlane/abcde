@@ -35,6 +35,8 @@ install-stamp: build-stamp
 
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install DESTDIR=`pwd`/debian/tmp
+	install -d `pwd`/debian/tmp/usr/share/doc/abcde/examples
+	install -m 644 examples/* `pwd`/debian/tmp/usr/share/doc/abcde/examples
 
 	touch install-stamp
 

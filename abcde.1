@@ -321,6 +321,17 @@ slash munging (UNIX cannot store a file with a '/' char in it) as well as
 the control character munging (NULs can't be in a filename either, and
 newlines and such in filenames are typically not desirable).
 .TP
+.B mungegenre
+mungegenre () is a shell function used to modify the $GENRE variable. As
+a default action, it takes $GENRE as $1 and outputs the resulting value
+to stdout converting all UPPERCASE characters to lowercase.
+.TP
+.B pre_read
+pre_read () is a shell function which is executed before the CDROM is read
+for the first time, during abcde execution. It can be used to close the CDROM
+tray, to set its speed (via "setcd" or via "eject", if available) and other
+preparation actions. The default function is empty.
+.TP
 .B EJECTCD
 If set to "y", abcde will call eject(1) to eject the cdrom from the drive
 after all tracks have been read.
