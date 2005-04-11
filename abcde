@@ -2422,6 +2422,7 @@ PIPE_cdparanoia="-"
 # Encoders with USEPIPE support
 # FIXME # Include here all the encoders we can figure out support pipes
 PIPE_lame="-"
+PIPE_bladeenc="-"
 PIPE_oggenc="-"
 
 # Figure out if we can use pipes with the ripper/encoder combination
