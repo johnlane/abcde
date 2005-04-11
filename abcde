@@ -458,11 +458,9 @@ do_tag ()
 	case "$OUTPUT" in
 	mp3)
 		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
-      GENREID=$(do_getgenreid "${CDGENRE}")
-
-		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
 		GENREID=$(do_getgenreid "${CDGENRE}")
 
+		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
 		run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 			-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
 			-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
@@ -2139,7 +2137,7 @@ shift $(($OPTIND - 1))
 if [ "$ONETRACK" = "y" ]; then 
 	# FIXME # remove check as soon as we find out about the other readers
 	case "$CDROMREADERSYNTAX" in
-		dagrab|cddafs|debug) echo "abcde error: ONETRACK reading is not suported with "$CDROMREADERSYNTAX" yet"
+		dagrab|cddafs|debug) echo "abcde error: ONETRACK reading is not suported with $CDROMREADERSYNTAX yet"
 			                 exit 1 ;;
 	esac
 	if [ "$BATCH" = "y" ]; then
