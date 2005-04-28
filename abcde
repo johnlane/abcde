@@ -492,7 +492,7 @@ do_tag ()
 						*)   echo COMMENT="$COMMENTOUTPUT";;
 					esac	
 				fi
-				) | run_command tagtrack-$1 $VORBISCOMMENT -w \
+				) | run_command tagtrack-$1 $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
 					"$ABCDETEMPDIR/track$1.uncommented.$OUTPUT" "$ABCDETEMPDIR/track$1.$OUTPUT"
 				# Doublecheck that the commented file was created successfully before wiping the original
 				if [ -f "$ABCDETEMPDIR/track$1.$OUTPUT" ]; then
@@ -523,7 +523,7 @@ do_tag ()
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-                ) | run_command tagtrack-$1 $METAFLAC --no-utf8-convert --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
+                ) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	spx)
 		run_command tagtrack-$1 true
@@ -2005,6 +2005,8 @@ NORMALIZEOPTS=
 CDSPEEDOPTS="-x"
 CDSPEEDVALUE=
 MKCUEOPTS=
+VORBISCOMMENTOPTS="-R"
+METAFLACOPTS="--no-utf8-convert"
 
 # Default to one process if -j isn't specified
 MAXPROCS=1
@@ -2095,6 +2097,7 @@ while getopts 1a:A:bc:C:d:Dhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
 		h) usage; exit ;;
+		e) ERASEENCODEDSTATUS=y ;;
 #		f) FORCECDDBUSELOCAL=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
@@ -2766,8 +2769,6 @@ do
 			fi
 		fi
 	fi
-	if [ "$DOTAG" = "y" ]; then
-		if checkstatus encodetrack-$UTRACKNUM; then
 			if checkstatus tagtrack-$UTRACKNUM; then :; else do_tag $UTRACKNUM; fi
 		fi
 	fi
