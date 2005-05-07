@@ -1,3 +1,61 @@
+abcde (2.3.0-1) unstable; urgency=low
+
+  * New upstream release!
+  * 
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  1 May 2005 23:57:18 +0300
+
+abcde (2.2.6-1) unstable; urgency=low
+
+  * Double quotation added to solve parsing * as a wildcard (Closes: #302904).
+    Thanks to Christian Grigis for the patch. Also (Closes: #268088).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  3 Apr 2005 18:18:03 +0000
+
+abcde (2.2.5-1) unstable; urgency=low
+
+  * CDPARANOIAOUTPUT missed some quotes.
+  * Removed some useless lines.
+  * If BATCH is used with ONETRACK, disable BATCH.
+  * Small typos with CDROM comparisons.
+  * Logic for CDROM variable improved.
+  * Version bumped to 2.2.5 and targeted to Sarge.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  2 Apr 2005 21:05:18 +0300
+
+abcde (2.2.4-1) unstable; urgency=low
+
+  * Changed the way we call flac, to adapt to the new times:
+    --import-vc-from= to --import-tags-from.
+  * DOSPLAYLIST was not included in the list of options.
+  * Options passed to the encoder by using <-o ogg:"-b 192"> are now
+    supported. One can modify the way abcde encodes just for the current CD.
+  * Unfortunatelly I forgot to add the starting number for tags in Ogg. For
+    MP3 is a bit more difficult, since it needs changing the X/YY code.
+  * Also, the order of the tags in metaflac is important for the utf8 names.
+    Thanks to Frederik Juul Christiani (Closes: #297482)
+  * Added CDROMID in the .conf file, for reader programs that need it
+    (Closes: #297005)
+  * Added a check for cdparanoia when encountering data-only CDs.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue,  1 Mar 2005 15:14:24 +0200
+
+abcde (2.2.3-1) unstable; urgency=low
+
+  * debian/control
+    - suggest normalize-audio, since it changed its name (Closes: #287674).
+  * Use the default while erasing an existing playlist (Closes: #288835).
+  * Does not destroy track information when a track contains "=" in the name
+    (Closes: #290709).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 22 Jan 2005 15:35:46 +0200
+
+abcde (2.2.2-1) unstable; urgency=low
+
+  * Quotes missing when evaluating a value (Closes: #284018).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  3 Dec 2004 09:20:18 +0200
+
 abcde (2.2.1-1) unstable; urgency=low
 
   * Spotted and solved a problem with the way the data tracks were detected
