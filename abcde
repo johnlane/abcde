@@ -30,6 +30,7 @@ echo "       Specify discid to resume from (only needed if you no longer have th
 echo "-d <device>"
 echo "       Specify CDROM device to grab"
 echo "-D     Debugging mode (equivalent to sh -x abcde)"
+echo "-e     Erase encoded track information from status file"
 echo "-h     This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j <#> Number of encoder processes to run at once (localhost)"
@@ -83,6 +84,31 @@ f_seq_line ()
 		i=`expr $i + 1`
 	done
 	echo
+}
+
+# Functions to replace the need of awk {print $1} and {print $NF}
+get_first()
+{
+if [ X"$1" = "X" ]; then
+	for first in `cat`; do
+		break
+	done
+else
+	first=$1
+fi
+echo $first
+}
+
+get_last()
+{
+if [ X"$1" = "X" ]; then
+	for stdin in `cat`; do
+		last=$stdin
+	done
+else
+	for last in $@ ; do :; done
+fi
+echo $last
 }
 
 # checkstatus [blurb]
@@ -451,7 +477,7 @@ do_tag ()
 	if [ -n "$STARTTRACKNUMBER" -a -n "$STARTTRACKNUMBERTAG" ] ; then
 		# Get the trackpadding from the current track
 		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - 1 ))
+		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
 	fi
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
@@ -505,16 +531,16 @@ do_tag ()
 		;;
 	flac)
 ## FIXME ##		[ "$FLACONOGG" = "y" ] && OUTPUT=ogg
-                (
+		(
 		echo ARTIST="$TRACKARTIST"
 		echo ALBUM="$DALBUM"
 		echo TITLE="$TRACKNAME"
-               	if [ -n "$CDYEAR" ]; then
+		if [ -n "$CDYEAR" ]; then
 			echo DATE="$CDYEAR"
-               	fi
-               	if [ -n "$CDGENRE" ]; then
+		fi
+		if [ -n "$CDGENRE" ]; then
 			echo GENRE="$CDGENRE"
-                fi	
+		fi	
 		echo TRACKNUMBER=${TRACKNUM:-$1}
 		echo CDDB=$CDDBDISCID
 		if [ "$(eval echo ${COMMENT})" != "" ]; then
@@ -523,7 +549,7 @@ do_tag ()
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-                ) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
+		) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
 	spx)
 		run_command tagtrack-$1 true
@@ -898,7 +924,7 @@ do_move ()
 		if [ -n "$STARTTRACKNUMBER" ] ; then
 			# Get the trackpadding from the current track
 			CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-			TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - 1 ))
+			TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
 		else
 			TRACKNUM=${UTRACKNUM}
 		fi
@@ -974,7 +1000,7 @@ do_playlist ()
 				if [ -n "$STARTTRACKNUMBER" ] ; then
 					# Get the trackpadding from the current track
 					CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-					TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - 1 ))
+					TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
 				else
 					TRACKNUM=${UTRACKNUM}
 				fi
@@ -1055,7 +1081,7 @@ do_discid ()
 						if [ ! "$RET" = "0" ];then
 							echo "Warning: Something went wrong while querying the CD... Maybe a DATA CD?"
 						fi
-						TRACKS="$( echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 |  awk '{print $1}' | tr -d "." | tr '\n' ' ' )"
+						TRACKS="$( echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ' )"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
@@ -1070,7 +1096,7 @@ do_discid ()
 		else
 			TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 		fi
-		if echo "$TRACKS" | grep [[:digit:]] > /dev/null 2>&1 ;then :;else
+		if echo "$TRACKS" | grep "[[:digit:]]" > /dev/null 2>&1 ;then :;else
 			echo "The disc does not contain any tracks. Giving up..."
 			exit 0
 		fi
@@ -1104,8 +1130,6 @@ do_discid ()
 		TRACKQUEUE=$PADTRACKQUEUE
 		echo Grabbing tracks: "$TRACKQUEUE"
 	fi
-
-#	for LASTTRACK in $TRACKQUEUE; do :; done
 
 	QUEUEDTRACKS=$(echo $TRACKQUEUE | wc -w | tr -d ' ')
 
@@ -2086,7 +2110,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2096,6 +2120,7 @@ while getopts 1a:A:bc:C:d:Dhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		C) DISCID="${OPTARG#abcde.}" ;;
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
+		e) ERASEENCODEDSTATUS=y ;;
 		h) usage; exit ;;
 		e) ERASEENCODEDSTATUS=y ;;
 #		f) FORCECDDBUSELOCAL=y ;;
@@ -2129,7 +2154,13 @@ while getopts 1a:A:bc:C:d:Dhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		V) EXTRAVERBOSE="y" ;;
 		x) EJECTCD="y" ;;
 		w) COMMENT="$OPTARG" ;;
-		W) STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}" ;;
+		W) if echo $OPTARG | grep -q "[[:digit:]]" ; then 
+		     STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}"
+		   else
+		     echo "abcde error: argument of -W must be integer"
+			 exit 1
+		   fi
+		   ;;
 		?) usage; exit ;;
 	esac
 done
@@ -2209,7 +2240,6 @@ if [ X"$CDROM" != "X" ] ; then
 				echo "abcde error: CDROMID not in the right format for $CDROMREADERSYNTAX"
 				echo "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
 				exit 1
-			fi
 		fi
 	elif [ ! -e "$CDROM" -a X"$DOREAD" = "Xy" ]; then
 		echo "abcde error: CDROM device cannot be found." >&2
@@ -2405,11 +2435,21 @@ if [ "$DISTMP3NICE" ]; then
 fi
 
 # Don't check for stuff if it's not needed
-if [ "$REMOTEHOSTS" ]; then NEEDDISTMP3=y; fi
-[ "$DONORMALIZE" = "y" ] && NEEDNORMALIZER=y
-[ "$EJECTCD" = "y" ] && NEEDEJECT=y
-[ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ] && NEEDHTTPGET=y
-[ "$CUEFILE" = "y" ] && NEEDMKCUE=y
+if [ "$REMOTEHOSTS" ]; then 
+	NEEDDISTMP3=y
+fi
+if [ "$DONORMALIZE" = "y" ]; then
+	NEEDNORMALIZER=y
+fi
+if [ "$EJECTCD" = "y" ]; then
+	NEEDEJECT=y
+fi
+if [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ]; then
+	NEEDHTTPGET=y
+fi
+if [ "$CUEFILE" = "y" ]; then
+	NEEDMKCUE=y
+fi
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
@@ -2529,6 +2569,16 @@ if [ X"$CDSPEEDVALUE" != "X" ]; then
 	esac
 fi
 
+# Define the first and last track, since we might need them later in several places
+FIRSTTRACK=$( get_first $TRACKQUEUE )
+LASTTRACK=$( get_last $TRACKQUEUE )
+
+if [ -f "$ABCDETEMPDIR/status" ] && [ X"$ERASEENCODEDSTATUS" = "Xy" ]; then
+	mv "$ABCDETEMPDIR/status" "$ABCDETEMPDIR/status.old"
+	grep -v ^encodetracklocation- < "$ABCDETEMPDIR/status.old" \
+		| grep -v ^encode-output > "$ABCDETEMPDIR/status"
+fi
+
 # Create playlist if needed (backgroundable) and start reading in tracks
 
 (
@@ -2547,11 +2597,9 @@ if [ "$LOWDISK" = "y" ] || [ "$ONETRACK" = "y" ]; then
 fi
 
 if [ "$ONETRACK" = "y" ]; then 
-	FIRSTTRACK=$( echo $TRACKQUEUE | awk '{print $1}' )
 	TRACKS="$FIRSTTRACK"
-	for UTRACKNUM in $TRACKQUEUE; do :;done
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
-		do_cdread onetrack $FIRSTTRACK $UTRACKNUM
+		do_cdread onetrack $FIRSTTRACK $LASTTRACK
 	fi
 else
 	for UTRACKNUM in $TRACKQUEUE
@@ -2673,8 +2721,7 @@ fi
 
 # If we are using ONETRACK, we can proceed with the normal encoding using just the $FIRSTTRACK as TRACKQUEUE
 if [ "$ONETRACK" = "y" ] ; then
-	FIRSTTRACK=$( echo $TRACKQUEUE | awk '{print $1}')
-	TRACKQUEUE=$FIRSTTRACK
+	TRACKQUEUE="$FIRSTTRACK"
 	TRACKS="$FIRSTTRACK"
 fi
 
