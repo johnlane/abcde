@@ -1267,7 +1267,7 @@ do_localcddb ()
 				echo "y" >&2
 			fi
 			if [ "$USELOCALRESP" = "y" ]; then
-			#echo "Using local copy of CDDB data"
+				#echo "Using local copy of CDDB data"
 				cp "${CDDBLOCALFILE}" "$ABCDETEMPDIR/cddbread.1"
 				echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
 				echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
@@ -1278,7 +1278,6 @@ do_localcddb ()
 				#echo "Not using local copy of CDDB data"
 				CDDBLOCALSUCCESS="n"
 			fi
-			CDDBLOCALSUCCESS="y"
 		else
 			CDDBLOCALSUCCESS="n"
 		fi
