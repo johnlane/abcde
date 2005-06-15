@@ -2244,6 +2244,7 @@ if [ X"$CDROM" != "X" ] ; then
 				echo "abcde error: CDROMID not in the right format for $CDROMREADERSYNTAX"
 				echo "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
 				exit 1
+			fi
 		fi
 	elif [ ! -e "$CDROM" -a X"$DOREAD" = "Xy" ]; then
 		echo "abcde error: CDROM device cannot be found." >&2
