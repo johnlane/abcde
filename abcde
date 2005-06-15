@@ -1775,7 +1775,7 @@ do_cdread ()
 		FIRSTTRACK=$2
 		LASTTRACK=$3
 		case "$CDROMREADERSYNTAX" in
-			cdparanoia) UTRACKNUM="$FIRSTTRACK-$LASTTRACK"
+			cdparanoia) UTRACKNUM="$FIRSTTRACK-$LASTTRACK" ;;
 			cdda2wav) UTRACKNUM="$FIRSTTRACK+$LASTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 			   exit 1 ;;
