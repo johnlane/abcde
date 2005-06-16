@@ -1774,9 +1774,10 @@ do_cdread ()
 		# We need the first and last track for cdda2wav
 		FIRSTTRACK=$2
 		LASTTRACK=$3
+		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
-			cdparanoia) UTRACKNUM="$FIRSTTRACK-$LASTTRACK" ;;
-			cdda2wav) UTRACKNUM="$FIRSTTRACK+$LASTRACK" ;;
+			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
+			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 			   exit 1 ;;
 		esac
@@ -1803,7 +1804,7 @@ do_cdread ()
 		REDIR=">&2"
 	fi
 	if [ "$1" = "onetrack" ]; then
-		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM..." >&2
+		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK ..." >&2
 	else
 		if [ -r "$CDDBDATA" ]; then
 			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
@@ -1813,7 +1814,8 @@ do_cdread ()
 		fi
 	fi
 	case "$CDROMREADERSYNTAX" in
-		cdparanoia) nice $READNICE $CDROMREADER -d $CDROM $UTRACKNUM $FILEARG $REDIR ;;
+		cdparanoia) 
+			nice $READNICE $CDROMREADER -d $CDROM ${READTRACKNUMS:-$UTRACKNUM} $FILEARG $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -1829,7 +1831,7 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t $UTRACKNUM $FILEARG $REDIR
+			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} $FILEARG $REDIR
 			;;
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
