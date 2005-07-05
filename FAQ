@@ -192,8 +192,8 @@ A. Since MP3 is considered non-free (you get it for free, but hardware players
    
    If you are among those individuals, you might need to add support for MP3
    encoding to your system:
-   Debian : check http://marillat.free.fr to install lame in your system.
-            others prefer bladeenc. Check www.apt-get.org or google.
+   Debian : check http://ftp.nerim.net/debian-marillat to install lame in your
+            system. Others prefer bladeenc. Check www.apt-get.org or google.
    RedHat : search on rpmfind.net
    FreeBSD: By default includes LAME support.
    OpenBSD: Available by specifying you want to install the port with LAME
