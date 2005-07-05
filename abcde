@@ -505,12 +505,12 @@ do_tag ()
 				echo ARTIST="$TRACKARTIST"
 				echo ALBUM="$DALBUM"
 				echo TITLE="$TRACKNAME"
-               			if [ -n "$CDYEAR" ]; then
+				if [ -n "$CDYEAR" ]; then
 					echo DATE="$CDYEAR"
-               			fi
-		               	if [ -n "$CDGENRE" ]; then
+				fi
+				if [ -n "$CDGENRE" ]; then
 					echo GENRE="$CDGENRE"
-		                fi	
+				fi	
 				echo TRACKNUMBER=${TRACKNUM:-$1}
 				echo CDDB=$CDDBDISCID
 				if [ "$(eval echo ${COMMENT})" != "" ]; then
@@ -1047,7 +1047,13 @@ do_discid ()
 	#elif [ -z "$DISCID" ]; then
 	if [ -z "$DISCID" ]; then
 		vecho -n "Getting CD track info... "
+		if [ "$OSFLAVOUR" = "OSX" ]; then
+			disktool -u ${CDROM#/dev/}
+		fi
 		TRACKINFO=$($CDDISCID $CDROM)
+		if [ "$OSFLAVOUR" = "OSX" ]; then
+			disktool -m ${CDROM#/dev/}
+		fi
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ "$?" = "1" ]; then
 			echo "abcde error: CD could not be read. Perhaps there's no CD in the drive?" >&2
@@ -1204,9 +1210,10 @@ do_discid ()
 		cat /dev/null > "$ABCDETEMPDIR/status"
 	fi
 	if [ X"$CUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
-		if checkstatus cuefile ; then :; else
-			$MKCUE $MKCUEOPTS > $ABCDETEMPDIR/cue-$(echo $TRACKINFO | cut -f1 -d' ').txt
-			echo cuefile >> "$ABCDETEMPDIR/status"
+		if checkstatus cuefile >/dev/null ; then :; else
+			CUEFILE=cue-$(echo $TRACKINFO | cut -f3 -d' ').txt
+			$MKCUE $MKCUEOPTS > $ABCDETEMPDIR/$CUEFILE
+			echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
 		fi
 	fi
 	# If we got the CDPARANOIA status and it is not recorded, save it now
@@ -1220,6 +1227,13 @@ do_discid ()
 	
 	# Create the discid file
 	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
+}
+
+# do_mkcue
+
+do_mkcue()
+{
+
 }
 
 # do_cddbparse
@@ -2055,6 +2069,7 @@ elif [ X$(uname) = "XDarwin" ] ; then
 	OSFLAVOUR=OSX
 	# We should have disktool in OSX, but let's be sure...
 	NEEDDISKTOOL=y
+	CDROMREADERSYNTAX=cddafs
 elif [ X$(uname) = "XOpenBSD" ] ; then
 	HTTPGET=wget
 	MD5SUM=md5
@@ -2835,6 +2850,10 @@ do
 	fi
 	) &
 done
+# Lets move the cue file
+if checkstatus cuefile >/dev/null ; then 
+	do_movecue
+fi
 # Go through it again and make sure there's no distmp3 stragglers, otherwise
 # we'll delete the files they're working on
 ## FIXME ## Check also for files which are encoded using PIPEs.

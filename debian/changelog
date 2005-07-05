@@ -1,9 +1,12 @@
 abcde (2.3.0-1) unstable; urgency=low
 
   * New upstream release!
-  * 
+  * Defining the tracknumber now resets the first track if given a number
+    different to 1 (that is: abcde -T 1 2-10 creates songs 1 to 9).
+  * Modified the FAQ to reflect the changes on Marillat's repo 
+    (Closes: #315724).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  1 May 2005 23:57:18 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon,  4 Jul 2005 19:58:14 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 
