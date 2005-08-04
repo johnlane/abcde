@@ -968,6 +968,7 @@ do_playlist ()
 		ALBUMFILE=$(mungefilename "$DALBUM")
 		ARTISTFILE=$(mungefilename "$DARTIST")
 		GENRE=$(mungegenre "$GENRE")
+		YEAR=${CDYEAR:-$CDYEAR}
 		if [ "$VARIOUSARTISTS" = "y" ] ; then
 			PLAYLISTFILE=$(eval echo $VAPLAYLISTFORMAT)
 		else
