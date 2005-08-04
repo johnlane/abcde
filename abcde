@@ -823,9 +823,18 @@ do_encode ()
 #	done
 #}
 
+# do_single_gain
+# variables used:
+# FIXME #
+do_single_gain ()
+{
+:
+}
+
 # do_batch_gain
 # variables used:
 # MP3GAIN, MP3GAINOPTS, VORBISGAIN, VORBISGAINOPTS
+# FIXME #
 do_batch_gain ()
 {
 	# The commands here don't go through run_command because they're never supposed to be silenced
@@ -1229,11 +1238,17 @@ do_discid ()
 	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
 }
 
-# do_mkcue
-
-do_mkcue()
+# do_cleancue
+# Create a proper CUE file based on the CUE file we created before.
+do_cleancue()
 {
-
+	if checkstatus cuefile; then :; else
+		$CUEFILE_INPUT="$ABCDETEMPDIR/cue-$(echo $TRACKINFO | cut -f1 -d' ').txt"
+		### FIXME ### checkstatus cddb
+		if [ "$DOCDDB" = "y" ]; then
+		MARKER	
+		fi
+	fi
 }
 
 # do_cddbparse
@@ -1930,6 +1945,9 @@ pre_read ()
 {
 :
 }
+
+# do_movecue
+# Standalone function to move the CUE file to the final location
 
 ###############################################################################
 # End of functions
@@ -2850,10 +2868,12 @@ do
 	fi
 	) &
 done
+
 # Lets move the cue file
 if checkstatus cuefile >/dev/null ; then 
 	do_movecue
 fi
+
 # Go through it again and make sure there's no distmp3 stragglers, otherwise
 # we'll delete the files they're working on
 ## FIXME ## Check also for files which are encoded using PIPEs.
