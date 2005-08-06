@@ -42,12 +42,12 @@ echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
 echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (ogg,mp3,flac,spx,mpc). Defaults to ogg"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
-echo "-R     Add replaygain values to the tag info (only for ogg,flac)"
+echo "-R     Add replaygain values to the tag info (only for vorbis,flac)"
 echo "-S <#> Set the CD speed"
 #echo "-t    File types to preprocess (wav)"
 #echo "-T    Set postprocessing options"
@@ -493,12 +493,12 @@ do_tag ()
 			-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
 			"$ABCDETEMPDIR/track$1.$OUTPUT"
 		;;
-	ogg)
+	vorbis|ogg)
 		case "$OGGENCODERSYNTAX" in
 			vorbize|oggenc)
 				# vorbiscomment can't do in-place modification, mv the file first
-				if [ -f "$ABCDETEMPDIR/track$1.$OUTPUT" -a ! -f "$ABCDETEMPDIR/track$1.uncommented.$OUTPUT" ]; then
-					mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$ABCDETEMPDIR/track$1.uncommented.$OUTPUT"
+				if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" -a ! -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
+					mv "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
 				fi
 				(
 				# These are from http://www.xiph.org/ogg/vorbis/doc/v-comment.html
@@ -520,18 +520,17 @@ do_tag ()
 					esac	
 				fi
 				) | run_command tagtrack-$1 $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
-					"$ABCDETEMPDIR/track$1.uncommented.$OUTPUT" "$ABCDETEMPDIR/track$1.$OUTPUT"
+					"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
 				# Doublecheck that the commented file was created successfully before wiping the original
-				if [ -f "$ABCDETEMPDIR/track$1.$OUTPUT" ]; then
-					rm -f "$ABCDETEMPDIR/track$1.uncommented.$OUTPUT"
+				if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
+					rm -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
 				else
-					mv "$ABCDETEMPDIR/track$1.uncommented.$OUTPUT" "$ABCDETEMPDIR/track$1.$OUTPUT"
+					mv "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
 				fi
 				;;
 		esac
 		;;
 	flac)
-## FIXME ##		[ "$FLACONOGG" = "y" ] && OUTPUT=ogg
 		(
 		echo ARTIST="$TRACKARTIST"
 		echo ALBUM="$DALBUM"
@@ -550,7 +549,7 @@ do_tag ()
 				*)   echo COMMENT="$COMMENTOUTPUT";;
 			esac	
 		fi
-		) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$OUTPUT"
+		) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 		;;
 	spx)
 		run_command tagtrack-$1 true
@@ -611,7 +610,7 @@ do_encode ()
 			mp3)
 				TEMPARG="PIPE_$MP3ENCODERSYNTAX"
 				;;
-			ogg)
+			vorbis|ogg)
 				TEMPARG="PIPE_$OGGENCODERSYNTAX"
 				;;
 			flac)
@@ -648,7 +647,17 @@ do_encode ()
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
-			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+			case "$OUTPUT" in
+				vorbis|ogg)
+					OUT="$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+					;;
+				flac)
+					OUT="$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+					;;
+				*)
+					OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+					;;
+			esac
 			if [ X"$USEPIPES" = "Xy" ]; then
 				RUN_COMMAND=""
 			else
@@ -672,7 +681,7 @@ do_encode ()
 					;;
 				esac
 				;;
-			ogg)
+			vorbis|ogg)
 				case "$2" in
 				%local*%)
 					case "$OGGENCODERSYNTAX" in
@@ -917,6 +926,14 @@ do_move ()
 {
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
+		case $OUTPUT in
+			vorbis|ogg)
+				OUTPUT=$OGGOUTPUTCONTAINER
+				;;
+			flac)
+				OUTPUT=$FLACOUTPUTCONTAINER
+				;;
+		esac
 		# Create ALBUMFILE, ARTISTFILE, TRACKFILE
 		# Munge filenames as follows:
 		# ' ' -> '_'
@@ -949,7 +966,17 @@ do_move ()
 		OUTPUTFILEDIR=$(dirname "$OUTPUTDIR/$OUTPUTFILE")
 		# mkdir -p shouldn't return an error if the directory already exists
 		mkdir -p "$OUTPUTFILEDIR"
+		vecho "Moving $ABCDETEMPDIR/track$1.$OUTPUT to $OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 		run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+		# Lets move the cue file
+		if CUEFILE=$(checkstatus cuefile) >/dev/null ; then 
+			if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
+				if checkstatus movecue-$OUTPUT; then :; else
+					vecho "Copying cue file to its destination directory..."
+					run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/"
+				fi
+			fi
+		fi
 	done
 }
 
@@ -1057,17 +1084,19 @@ do_discid ()
 	#elif [ -z "$DISCID" ]; then
 	if [ -z "$DISCID" ]; then
 		vecho -n "Getting CD track info... "
+		# In OSX, unmount the disc before a query
 		if [ "$OSFLAVOUR" = "OSX" ]; then
 			disktool -u ${CDROM#/dev/}
 		fi
 		TRACKINFO=$($CDDISCID $CDROM)
-		if [ "$OSFLAVOUR" = "OSX" ]; then
-			disktool -m ${CDROM#/dev/}
-		fi
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ "$?" = "1" ]; then
 			echo "abcde error: CD could not be read. Perhaps there's no CD in the drive?" >&2
 			exit 1
+		fi
+		# In OSX, remount the disc again
+		if [ "$OSFLAVOUR" = "OSX" ]; then
+			disktool -m ${CDROM#/dev/}
 		fi
 		WEHAVEACD=y
 	else
@@ -1102,7 +1131,7 @@ do_discid ()
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
-							TRACKS=$( cat $ABCDETEMPDIR/cdparanoia-audio-tracks )
+							TRACKS=$( cat "$ABCDETEMPDIR/cdparanoia-audio-tracks" )
 						else
 							TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 						fi
@@ -1219,10 +1248,11 @@ do_discid ()
 		fi
 		cat /dev/null > "$ABCDETEMPDIR/status"
 	fi
-	if [ X"$CUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
-		if checkstatus cuefile >/dev/null ; then :; else
-			CUEFILE=cue-$(echo $TRACKINFO | cut -f3 -d' ').txt
-			$MKCUE $MKCUEOPTS > $ABCDETEMPDIR/$CUEFILE
+	if [ X"$MAKECUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
+		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
+			CUEFILE=cue-$(echo "$TRACKINFO" | cut -f1 -d' ').txt
+			vecho "Creating cue file..."
+			$MKCUE $MKCUEOPTS > "$ABCDETEMPDIR/$CUEFILE"
 			echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
 		fi
 	fi
@@ -1243,11 +1273,29 @@ do_discid ()
 # Create a proper CUE file based on the CUE file we created before.
 do_cleancue()
 {
-	if checkstatus cuefile; then :; else
-		$CUEFILE_INPUT="$ABCDETEMPDIR/cue-$(echo $TRACKINFO | cut -f1 -d' ').txt"
+	# FIXME # we can get the name of the cuefile from the status file
+	if CUEFILE_IN="$ABCDETEMPDIR"/$(checkstatus cuefile); then
+		CUEFILE_OUT=$CUEFILE_IN.out
 		### FIXME ### checkstatus cddb
-		if [ "$DOCDDB" = "y" ]; then
-		MARKER	
+		if [ -e "$CDDBDATA" ]; then
+			vecho "Adding metadata to the cue file..."
+			# FIXME It doesn't preserve spaces! Why?
+			# FIXME parse $track into PERFORMER and TITLE - abcde already has code for this?
+			n=1
+			echo "PERFORMER \"$DARTIST\"" >> "$CUEFILE_OUT"
+			echo "TITLE \"$DALBUM\"" >> "$CUEFILE_OUT"
+			cat "$CUEFILE_IN" | while read line
+			do
+				if echo "$line" | grep -q "INDEX"
+				then
+					eval track="\$TRACK$n"
+					n=$(expr $n + 1)
+					echo "TITLE \"$track\"" >> "$CUEFILE_OUT"
+				fi
+				echo "$line" >> "$CUEFILE_OUT"
+			done
+			mv "$CUEFILE_OUT" "$CUEFILE_IN"
+			echo "cleancuefile" >> "$ABCDETEMPDIR/status"
 		fi
 	fi
 }
@@ -1444,7 +1492,7 @@ do_cddbread ()
 			# Multiple exact, (possibly multiple) inexact matches
 			IN=
 			if [ "$RESPONSECODE" = "211" ]; then IN=in; fi
-			if [ "$(wc -l < $ABCDETEMPDIR/cddbquery | tr -d ' ')" -eq 3 ]; then
+			if [ "$(wc -l < "$ABCDETEMPDIR/cddbquery" | tr -d ' ')" -eq 3 ]; then
 				echo "One ${IN}exact match:" >> "$ABCDETEMPDIR/cddbchoices"
 				tail -n +2 "$ABCDETEMPDIR/cddbquery" | head -n 1 >> "$ABCDETEMPDIR/cddbchoices"
 	                        echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
@@ -1554,7 +1602,7 @@ do_cddbedit ()
 					if [ "$CDCHOICENUM" = "0" ]; then
 						vecho "Creating empty CDDB template..."
 						UNKNOWNDISK=y
-						$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > $ABCDETEMPDIR/cddbread.0
+						$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
 					else
 						echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 						do_cddbparse "$ABCDETEMPDIR/cddbread.$CDCHOICENUM"
@@ -1834,7 +1882,7 @@ do_cdread ()
 		REDIR=">&2"
 	fi
 	if [ "$1" = "onetrack" ]; then
-		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK ..." >&2
+		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
 	else
 		if [ -r "$CDDBDATA" ]; then
 			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
@@ -1947,9 +1995,6 @@ pre_read ()
 :
 }
 
-# do_movecue
-# Standalone function to move the CUE file to the final location
-
 ###############################################################################
 # End of functions
 #
@@ -1963,7 +2008,6 @@ CDDBPROTO=5
 HELLOINFO="$(whoami)@$(hostname)"
 INTERACTIVE=y
 CDROMREADERSYNTAX=cdparanoia
-OUTPUTTYPE=ogg
 ENCODERSYNTAX=default
 
 MP3ENCODERSYNTAX=default
@@ -2077,6 +2121,10 @@ MAXPROCS=1
 # List of actions to perform - by default, run to completion
 ACTIONS=cddb,read,encode,tag,move,clean
 
+# List of prefered outputs - by default, run with whatever we have in the path
+# This option is basicaly for Debian package dependencies
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex
+
 # Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for Linux/OpenBSD/NetBSD.
 # Let's use these checkings to determine the OS flavour, which will be used later
 if [ X$(uname) = "XFreeBSD" ] ; then
@@ -2172,7 +2220,7 @@ while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		n) CDDBAVAIL=n ;;
 		N) INTERACTIVE=n ;;
 		m) DOSPLAYLIST=y ;;
-		M) CUEFILE=y ;;
+		M) MAKECUEFILE=y ;;
 		o) OUTPUTTYPE="$OPTARG" ;;
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
@@ -2211,8 +2259,10 @@ shift $(($OPTIND - 1))
 if [ "$ONETRACK" = "y" ]; then 
 	# FIXME # remove check as soon as we find out about the other readers
 	case "$CDROMREADERSYNTAX" in
-		dagrab|cddafs|debug) echo "abcde error: ONETRACK reading is not suported with $CDROMREADERSYNTAX yet"
-			                 exit 1 ;;
+		cdparanoia) ;;
+		cdda2wav) ;;
+		*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
+		   exit 1 ;;
 	esac
 	if [ "$BATCH" = "y" ]; then
 		echo "abcde error: BATCH mode is not compatible with ONETRACK mode"
@@ -2272,6 +2322,24 @@ done
 
 # Sanity checks:
 
+# Check the encoding format, if nothing has been configured in the system, from the ones available in the system
+if [ X"$OUTPUTTYPE" = "X" ]; then
+	for DEFAULT_OUTPUT in $( echo "$DEFAULT_OUTPUT_BINARIES" | tr , \ ); do
+		DEFAULT_OUTPUT_FORMAT="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 1)"
+		DEFAULT_OUTPUT_BINARY="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 2)"
+		if which $DEFAULT_OUTPUT_BINARY > /dev/null 2>&1 ; then
+			OUTPUTTYPE=$DEFAULT_OUTPUT_FORMAT
+			vecho "No default output type defined. Autoselecting $OUTPUTTYPE..." >&2
+			break
+		fi
+	done
+	if [ X"$OUTPUTTYPE" = "X" ]; then
+		echo "abcde error: no encoder found in the PATH" >&2
+		echo "hits: are all dependencies installed? has the \$PATH been modified?" >&2
+		exit 1
+	fi
+fi
+
 # At this point a CDROM has to be defined, so we check it exists.
 if [ X"$CDROM" != "X" ] ; then 
 	if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] && [ "$NEEDCDROMID" = "y" ] ; then
@@ -2299,8 +2367,8 @@ fi
 # - lowdisk algorithm
 # - anything else?
 if [ X"$USEPIPES" = "Xy" ]; then
-	if [ $(echo $OUTPUTTYPE | tr , \  | wc -w ) -gt 1 ]; then
-		echo "abcde error: Unix pipes not compatible with multiple outputs"
+	if [ $(echo "$OUTPUTTYPE" | tr , \  | wc -w ) -gt 1 ]; then
+		echo "abcde error: Unix pipes not compatible with multiple outputs" >&2
 		exit 1
 	fi
 	if [ X"$DONORMALIZE" = "Xy" ]; then
@@ -2347,26 +2415,21 @@ case "$NORMALIZERSYNTAX" in
 esac
 
 # Allow -o OUTPUT(1):OPTIONS(1),...,OUTPUT(N):OPTIONS(N) mode of operation
-if echo $OUTPUTTYPE | grep ":" > /dev/null 2>&1 ; then
-	OLDFS="$FS"
-	export FS=","
-	for OUTPUT in "$OUTPUTTYPE"
-	do
+if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
+	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ ); do
 		case "$OUTPUT" in
-			ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPPENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
-	for OUTPUT in "$OUTPUTTYPE"
-	do
+	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ ); do
 		TEMPOUTPUT=$( echo "$OUTPUT" | cut -d: -f1 )
 		TEMPOUTPUTTYPE="${TEMPOUTPUTTYPE:+$TEMPOUTPUTTYPE,}$TEMPOUTPUT"
 	done
 	OUTPUTTYPE="$TEMPOUTPUTTYPE"
-	FS="$OLDFS"
 fi
 
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac for flacs and speexenc for speex and mppenc for mpps
@@ -2375,18 +2438,26 @@ fi
 for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 do
 	case $OUTPUT in
-		ogg)	[ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
-				[ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
-				[ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
-				;;
-		mp3)	[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
-				[ "$DOTAG" = "y" ] && NEEDTAGGER=y
-				;;
-		flac)	[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
-				[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
-				;;
-		spx) 	[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc ;;
-		mpc) 	[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc ;;
+		vorbis|ogg)
+			[ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
+			[ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
+			[ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
+			OGGOUTPUTCONTAINER=ogg
+			;;
+		mp3)
+			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
+			[ "$DOTAG" = "y" ] && NEEDTAGGER=y
+			;;
+		flac)
+			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
+			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
+			;;
+		spx)
+			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
+			;;
+		mpc)
+			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
+			;;
 		*)	echo "abcde error: Invalid OUTPUTTYPE defined" >&2
 			exit 1
 			;;
@@ -2434,9 +2505,14 @@ case "$FLACENCODERSYNTAX" in
 	flac)
 		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
 		FLACENCODER="$FLAC"	
-		## FIXME ## FLAC streams can be encapsulated on a Ogg transport layer
+		# FLAC streams can be encapsulated on a Ogg transport layer
 		if echo "$FLACENCODEROPTS" | egrep -q -- "(^| )--ogg($| )" ;then
-			FLACONOGG=y
+			echo "abcde error: FLAC on an Ogg container is not yet supported" >&2
+			echo "             due to problem with adding comments to such files" >&2
+			exit 1
+			FLACOUTPUTCONTAINER=ogg
+		else
+			FLACOUTPUTCONTAINER=flac
 		fi
 		;;
 esac
@@ -2461,6 +2537,16 @@ if [ "$ID3TAGV" = "1" ]; then
 else
 	TAGGER="$ID3V2"
 	TAGGEROPTS="$ID3V2OPTS"
+fi
+
+# Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
+if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
+	echo "abcde error: FLAC on an Ogg container is not yet supported" >&2
+	echo "             due to problem with adding comments to such files" >&2
+	exit 1
+	OGGOUTPUTCONTAINER=ogg.ogg
+	FLACOUTPUTCONTAINER=flac.ogg
+	vecho "abcde warning: modified file endings due to conflicting transport layers in Ogg/Vorbis and Ogg/FLAC"
 fi
 
 # Clean up nice options (either use '-n NICELEVEL or -NICELEVEL')
@@ -2516,7 +2602,7 @@ if [ "$USEPIPES" = "y" ]; then
 	case "$OUTPUT" in
 		mp3)
 			PIPEENCODERSVARCHECK="PIPE_$MP3ENCODERSYNTAX" ;;
-		ogg)
+		vorbis|ogg)
 			PIPEENCODERSVARCHECK="PIPE_$OGGENCODERSYNTAX" ;;
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYTNAX" ;;
@@ -2538,7 +2624,6 @@ if [ "$USEPIPES" = "y" ]; then
 		exit 1;
 	fi
 fi
-
 
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
@@ -2861,6 +2946,12 @@ do
 		if checkstatus encodetrack-$UTRACKNUM; then
 			if checkstatus tagtrack-$UTRACKNUM; then :; else do_tag $UTRACKNUM; fi
 		fi
+		# Lets tag the cue file
+		if checkstatus cleancuefile >/dev/null; then :; else
+			if checkstatus cuefile >/dev/null ; then 
+				do_cleancue
+			fi
+		fi
 	fi
 	if [ "$DOMOVE" = "y" ]; then
 		if checkstatus tagtrack-$UTRACKNUM; then
@@ -2870,10 +2961,6 @@ do
 	) &
 done
 
-# Lets move the cue file
-if checkstatus cuefile >/dev/null ; then 
-	do_movecue
-fi
 
 # Go through it again and make sure there's no distmp3 stragglers, otherwise
 # we'll delete the files they're working on

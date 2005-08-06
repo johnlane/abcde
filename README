@@ -25,13 +25,15 @@ ID3TAGV=1
 
 MAJOR CHANGES
 =============
-Changes in 2.4:
+Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure.
 * New -o <output(1)>:<options(1)>,... way of passing specific options to an
   output. Now we can pass specific options without having to modify a config
   file. This feature was already present in the last versions of the 2.2 cycle.
 * Unix PIPEs, as a second way to encode files with a tight disc space.
 * Option to erase the "encoded" entries from the status file. Allows 
+* The "ogg" output mode will be substituted for "vorbis" in the near future.
+  This release adds a compatibility layer so that both entries work.
 
 Changes in 2.2:
 
