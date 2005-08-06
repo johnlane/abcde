@@ -2,13 +2,21 @@ abcde (2.3.0-1) unstable; urgency=low
 
   * New upstream release!
   * Defining the tracknumber now resets the first track if given a number
-    different to 1 (that is: abcde -T 1 2-10 creates songs 1 to 9).
+    different than 1 (that is: abcde -T 1 2-10 creates songs 1 to 9).
   * Modified the FAQ to reflect the changes on Marillat's repo
     (Closes: #315724).
   * Should be "space" safe: works properly when the working directory contains
     a space (Closes: #147493).
+  * Repared the CD query for the discid code. When failing to read a disc,
+    actually report that there might be no disc in the drive.
+  * Right now, walk over the different encoders we Depends: in Debian and use
+    the one available: if a user has a FLAC encoder, abcde will no install
+    vorbis-tools, so it will fail to run out of the box (Closes: #321216)
+  * Added CUE support. Still experimental...
+  * Added FLAC on Ogg. Still not activated, since we cannot get comments added
+    as a post-process action.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  5 Aug 2005 00:02:40 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Aug 2005 01:57:11 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 
