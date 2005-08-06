@@ -147,7 +147,7 @@ checkerrors ()
 	fi
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(:.*)?$"
-	BLURB="$(egrep $PATTERN $ABCDETEMPDIR/errors | tail -n 1)"
+	BLURB="$(egrep $PATTERN "$ABCDETEMPDIR/errors" | tail -n 1)"
 
 	if [ -z "$BLURB" ]; then
 		# negative, we did not have a negative...
@@ -635,12 +635,12 @@ do_encode ()
 						FILEARG="-if $IN"
 						;;
 					*)
-						FILEARG=$IN
+						FILEARG="$IN"
 						;;
 				esac
 				;;
 			*)
-				FILEARG=$IN
+				FILEARG="$IN"
 				;;
 		esac
 	fi
@@ -1556,7 +1556,7 @@ do_cddbedit ()
 						UNKNOWNDISK=y
 						$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > $ABCDETEMPDIR/cddbread.0
 					else
-						echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= $ABCDETEMPDIR/cddbread.$CDCHOICENUM | cut -f2- -d= | tr -d \\r\\n))" >&2
+						echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 						do_cddbparse "$ABCDETEMPDIR/cddbread.$CDCHOICENUM"
 					fi
 					echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
@@ -1605,7 +1605,7 @@ do_cddbedit ()
 				CDCHOICENUM=1
 				echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
 			fi
-			echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= $ABCDETEMPDIR/cddbread.$CDCHOICENUM | cut -f2- -d= | tr -d \\r\\n))" >&2
+			echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 		fi
 	fi
 
@@ -1640,7 +1640,7 @@ do_cddbedit ()
 			if [ -x $(which "${EDITOR%%\ *}") ]; then
 				# That failed, try to load the preferred editor, starting
 				# with their EDITOR variable
-				eval $(echo "$EDITOR") "$CDDBDATA"
+				eval $(echo "$EDITOR") \"$CDDBDATA\"
 			fi
 		# If that fails, check for a vi
 		elif which vi >/dev/null 2>&1; then
@@ -1817,7 +1817,7 @@ do_cdread ()
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 	if [ "$USEPIPES" = "y" ]; then
 		TEMPARG="PIPE_$CDROMREADERSYNTAX"
-		FILEARG=${!TEMPARG}
+		FILEARG="${!TEMPARG}"
 		REDIR=""
 		PIPE_MESSAGE="and encoding "
 	else
@@ -1828,7 +1828,7 @@ do_cdread ()
 				FILEARG="-f $WAVDATA"
 				;;
 			*)
-				FILEARG=$WAVDATA
+				FILEARG="$WAVDATA"
 				;;
 		esac
 		REDIR=">&2"
@@ -1845,7 +1845,7 @@ do_cdread ()
 	fi
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia) 
-			nice $READNICE $CDROMREADER -d $CDROM ${READTRACKNUMS:-$UTRACKNUM} $FILEARG $REDIR ;;
+			nice $READNICE $CDROMREADER -d $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -1861,11 +1861,11 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} $FILEARG $REDIR
+			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR
 			;;
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
-		dagrab) nice $READNICE $CDROMREADER -d $CDROM -v $UTRACKNUM $FILEARG $REDIR
+		dagrab) nice $READNICE $CDROMREADER -d $CDROM -v $UTRACKNUM "$FILEARG" $REDIR
 			;;
 		cddafs)
 			# Find the track's mounted path
@@ -1874,11 +1874,11 @@ do_cdread ()
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then
-				nice $READNICE $CDROMREADER "$FILEPATH" $FILEARG $REDIR
+				nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" $REDIR
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] $FILEARG $REDIR
+		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
 			;;
 	esac
 	RETURN=$?
