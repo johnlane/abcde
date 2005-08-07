@@ -122,7 +122,7 @@ parse)	# takes 1 argument, a filename, and dumps out a sh parseable version
 	DARTISTALBUM=$(grep ^DTITLE= "$CDDBFILE" | cut -f2- -d= | tr -d \\n | sed 's- / -~-g' | tr -d \[:cntrl:\])
 	DARTIST=$(echo "$DARTISTALBUM" | cut -f1 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])
 	DALBUM=$(echo "$DARTISTALBUM" | cut -f2 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])
-	CDDBGENRE=$(grep '^#CATEGORY=' "$CDDBFILE" | cut -f2- -d=)
+	CDDBGENRE=$(grep '^#CATEGORY=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
 	if grep "^DYEAR" "$CDDBFILE" 2>&1 > /dev/null ; then
 		CDYEAR=$(grep "^DYEAR" "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
 	elif grep YEAR "$CDDBFILE" 2>&1 > /dev/null ; then
@@ -192,7 +192,7 @@ send) # cddb-tool send filename email@address
 	FILE="$1"
 	ADDRESS="$2"
 	DISCID=$(grep ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
-	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d=)
+	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d= | tr -d \[:cntrl:\])
 	grep -v "^#CATEGORY=" "$FILE" | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
 	;;
 

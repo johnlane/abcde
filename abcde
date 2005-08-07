@@ -1708,8 +1708,12 @@ do_cddbedit ()
 		# If that fails, check for a vi
 		elif which vi >/dev/null 2>&1; then
 			vi "$CDDBDATA"
+		elif [ -x /usr/bin/vim ]; then
+			/usr/bin/vim "$CDDBDATA"
 		elif [ -x /usr/bin/vi ]; then
 			/usr/bin/vi "$CDDBDATA"
+		elif [ -x /bin/vi ]; then
+			/bin/vi "$CDDBDATA"
 		# nano should be on all (modern, i.e., sarge) debian systems
 		elif which nano >/dev/null 2>&1 ; then
 			nano "$CDDBDATA"

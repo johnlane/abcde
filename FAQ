@@ -16,18 +16,21 @@ A. To get abcde you can use a pre-packaged version, available for Debian,
    In case you want to install your own release, you need to download the
    sources and install the complementary programs (abcde is just a frontend
    and its functionality is provided by other programs).
-   Read 
 
    abcde needs cd-discid. Grab it from:
    http://www.hispalinux.es/~data/files/cd-discid/
 
    Read the README files for a complete list of requirements.
 
-Q. I have a problem, and I reported some time ago. When are you going to
-   release a new version?
-A. Try downloading the trunk of the development from 
-   http://svn.hispalinux.es:8080/svn/abcde/trunk
+Q. I have a problem, and I reported some time ago. Have you solved it already?
+A. Maybe. Try downloading the trunk of the development from 
+   http://svn.hispalinux.es/svn/abcde/trunk
    
+Q. When are you going to release a new version?
+A. When it is ready. I keep on having new ideas and adding them to the trunk
+   (stored in the URL above), so I dont release until all the ideas are
+   finished.
+
 
 2. EXECUTION
    =========
@@ -37,6 +40,9 @@ A. abcde has different algorithms to schedule ripping and encoding - to
    optimize for disk conservation, use -l. You can also define
    WAVOUTPUTDIR=/some/other/path to your /etc/abcde.conf or ~/.abcde.conf to
    store the WAV files on another NFS shared fisk, for example.
+   Also, UNIX pipes have also been implemented, using "-P", so abcde reads and
+   encodes the tracks from the CD at once. However, it has the drawback that
+   only one format can be encoded at a time.
 
 Q. How can i make abcde encode faster? My CD reader is way faster than the pace
    it can encode my tracks.
@@ -106,8 +112,8 @@ A. It is not easy to find a data track on a CD. Right now, I can only think
    a "data" track name is found. But the solution is far from been optimal.
    For now, if you find a "data" track and you know the number, restart abcde
    specifying the tracks to be encoded, leaving out the data one.
-   Version 2.2 includes some checkings with cdparanoia, to try to get this
-   right.
+   From version 2.2 onwards, abcde includes some checkings with cdparanoia, to
+   try to get this right.
 
 Q. I am requested to have "eject" when setting the speed although I do not use
    it for anything.
@@ -125,13 +131,16 @@ A. Set abcde to rip the first CD and give it the option "-t 101". Use a generic
    entries. Use "-t 201" for the second CD and so on. Use "-w <comment>" to
    add a comment about the CD you are ripping (-w "disc #"). Alternatively you
    can use only the "-t ###" option and then move all the files to the same
-   directory. If you want the tagged track number to be set to the modified
-   number you should use "-T ###". Even more! If you use "-W <cd_number>",
-   abcde will put a comment to every CD set ("CD <number>") and use modify the
-   number of the tracks.
+   directory, but the tag/comment information on the files will differ. If you
+   want the tagged track number to be set to the modified number you should use
+   "-T ###". 
+   Even better! If you use "-W <cd_number>", abcde will put a comment to every
+   CD set ("CD <number>") and modify the number of the tracks both in the file
+   name and the tag/comment information.
 
 Q. I have a live concert. I want to encode it in a single file. How do i do it?
-A. Use "-1" and it will be encoded in a single file.
+A. Use "-1" and it will be encoded in a single file. Use "-M" to make a CUE
+   sheet file where the information about the tracks is stored.
 
 3. CDDB
    ====
@@ -186,8 +195,8 @@ A. Since MP3 is considered non-free (you get it for free, but hardware players
    now. For that reason some people prefer to encode to MP3.
 
    UPDATE *** UPDATE
-   There are at least 3 known brands already selling Ogg/Vorbis portable
-   players: Rio, iRiver and Neuros.
+   There are known brands already selling Ogg/Vorbis portable players: Rio,
+   iRiver, Neuros, iAudio,...
    Go buy one and you have no more reasons to use MP3.
    
    If you are among those individuals, you might need to add support for MP3

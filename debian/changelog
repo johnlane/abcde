@@ -15,8 +15,10 @@ abcde (2.3.0-1) unstable; urgency=low
   * Added CUE support. Still experimental...
   * Added FLAC on Ogg. Still not activated, since we cannot get comments added
     as a post-process action.
+  * Applied patches from Fedora Core (Credit goes to Nils Philippsen
+    <nphilipp@redhat.com>)
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Aug 2005 01:57:11 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Aug 2005 18:26:48 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 
