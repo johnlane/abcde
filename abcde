@@ -973,7 +973,18 @@ do_move ()
 			if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
 				if checkstatus movecue-$OUTPUT; then :; else
 					vecho "Copying cue file to its destination directory..."
-					run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/"
+					if checkstatus onetrack >/dev/null ; then
+						case $OUTPUT in
+							mp3)
+								run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
+								;;
+							*)
+								run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT.cue"
+								;;
+						esac
+					else
+						run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
+					fi
 				fi
 			fi
 		fi
@@ -1949,6 +1960,9 @@ do_cdread ()
 			echo readencodetrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
 		else
 			echo readtrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+			if [ "$1" = "onetrack" ]; then
+				echo onetrack >> "$ABCDETEMPDIR/status"
+			fi
 		fi
 	fi
 }
@@ -2605,7 +2619,7 @@ if [ "$USEPIPES" = "y" ]; then
 		vorbis|ogg)
 			PIPEENCODERSVARCHECK="PIPE_$OGGENCODERSYNTAX" ;;
 		flac)
-			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYTNAX" ;;
+			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYNTAX" ;;
 		spx)
 			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
 		mpc)
