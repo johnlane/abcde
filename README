@@ -26,14 +26,21 @@ ID3TAGV=1
 MAJOR CHANGES
 =============
 Changes in 2.3:
-* Support for mkcue, to create a CUE sheet of the CD structure.
+* Support for mkcue, to create a CUE sheet of the CD structure. It can be used
+  with "-1" to create a backup, so that later on the original CD can be
+  recreated.
 * New -o <output(1)>:<options(1)>,... way of passing specific options to an
   output. Now we can pass specific options without having to modify a config
   file. This feature was already present in the last versions of the 2.2 cycle.
-* Unix PIPEs, as a second way to encode files with a tight disc space.
-* Option to erase the "encoded" entries from the status file. Allows 
+* Unix PIPEs, as a second way to encode files with a low disc space.
+* Option to erase the "encoded" entries from the status file. Allows one to
+  encode the wav files (in case they were not erased) into another format. This
+  is needed until status information is stored for each format.
 * The "ogg" output mode will be substituted for "vorbis" in the near future.
   This release adds a compatibility layer so that both entries work.
+* The FLAC encoder forces the files to be overwritten, in case they previously
+  exists. This avoids a half-through abcde run to continue without errors in
+  case it was cancelled during the FLAC encoding.
 
 Changes in 2.2:
 

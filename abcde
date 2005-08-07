@@ -61,7 +61,8 @@ echo "       Add a comment to the CD tracks"
 echo "-W <#> Contatenate CDs: -T #01 -w \"CD #\"" 
 echo ""
 echo "Tracks is a space-delimited list of tracks to grab."
-echo "Ranges specified with hyphens are allowed."
+echo "Ranges specified with hyphens are allowed (i.e., 1-5)."
+echo ""
 #echo "Double hyphens are used to concatenate tracks"
 }
 
@@ -698,7 +699,7 @@ do_encode ()
 				case "$2" in
 	                        %local*%)
 					case "$FLACENCODERSYNTAX" in
-					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER  $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
+					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
 					;;
 	
@@ -975,7 +976,9 @@ do_move ()
 					vecho "Copying cue file to its destination directory..."
 					if checkstatus onetrack >/dev/null ; then
 						case $OUTPUT in
-							mp3)
+							# NOTE: Creating a cue file with the 3-char-extension files is to comply with
+							# http://brianvictor.tripod.com/mp3cue.htm#details
+							[a-z0-9][a-z0-9][a-z0-9])
 								run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
 								;;
 							*)
@@ -985,6 +988,7 @@ do_move ()
 					else
 						run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
 					fi
+					echo movecue-$OUTPUT >> "$ABCDETEMPDIR/status"
 				fi
 			fi
 		fi
@@ -2107,7 +2111,7 @@ MP3ENCOPTS=
 VORBIZEOPTS=
 OGGENCOPTS=
 # flac
-FLACOPTS=
+FLACOPTS="-f"
 # speex
 SPEEXENCOPTS=
 # mpc
