@@ -94,6 +94,10 @@ Non interactive mode. Do not ask anything from the user. Just go ahead.
 Create DOS-style playlists, modifying the resulting one by adding CRLF line
 endings. Some hardware players insist on having those to work.
 .TP
+.B \-M
+Create a CUE file with information about the CD. Together with the possibility
+of creating a single file (see option "\-1"), one can recreate the original CD.
+.TP
 .B \-o [filetype][:filetypeoptions]
 Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx" or "mpc".
 Specify a comma-delimited list of output types to obtain all specified types.
@@ -111,9 +115,6 @@ the REMOTEHOSTS configuration variable.
 .B \-R
 Add replaygain information to the id3 or tag information for play
 normalization. Only works with MP3 and Ogg/Vorbis.
-.TP
-.B \-s [number]
-[DEPRECATED: use -t, see below]
 .TP
 .B \-S [speed]
 Set the speed of the CD drive. Needs CDSPEED and CDSPEEDOPTS set properly
@@ -158,6 +159,9 @@ its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', or '.mpc'.
 .SH CONFIGURATION
 abcde sources two configuration files on startup - /etc/abcde.conf and
 $HOME/.abcde.conf, in that order. 
+.TP
+The configuration options stated on those files can ba overriden by providing
+the appropiate flags at runtime.
 .TP
 The configuration variables have to be set as follows:
 .TP
@@ -249,8 +253,8 @@ with distmp3 (DISTMP3NICE).
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC, VORBIZE,
 OGGENC, FLAC, SPEEXENC, MPPENC, ID3, ID3V2, CDPARANOIA, CDDA2WAV, CDDAFS,
-CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED
-and HTTPGET.
+CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED,
+VORBISGAIN, MKCUE and HTTPGET.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs abcde
@@ -258,7 +262,7 @@ uses, set the following configuration file options: LAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
 FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, ID3OPTS, ID3V2OPTS, CDPARANOIAOPTS,
 CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS,
-CDSPEEDOPTS and HTTPGETOPTS.
+CDSPEEDOPTS, MKCUEOPTS,VORBISCOMMMENTOPTS, METAFLACOPTS and HTTPGETOPTS.
 .TP
 .B CDSPEEDVALUE
 Set the value of the CDROM speed. The default is to read the disc as fast as
