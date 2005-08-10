@@ -17,8 +17,10 @@ abcde (2.3.0-1) unstable; urgency=low
     as a post-process action.
   * Applied patches from Fedora Core (Credit goes to Nils Philippsen
     <nphilipp@redhat.com>)
+  * Added a post_read() function to be executed before ejecting the CD.
+  * Typos reported by A Costa corrected (Closes: #311463)
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  7 Aug 2005 18:26:48 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue,  9 Aug 2005 06:12:36 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 
