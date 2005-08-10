@@ -1,5 +1,8 @@
 TODO:
 ----
+* ReplyGain support
+* flacdecode (to extract files from a -1 flac file)
+
 * Get the echo instances to behave consistently
 
 * move the wav files to a different dir if the user wants to keep the tracks
