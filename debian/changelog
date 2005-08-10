@@ -9,8 +9,8 @@ abcde (2.3.0-1) unstable; urgency=low
     a space (Closes: #147493).
   * Repared the CD query for the discid code. When failing to read a disc,
     actually report that there might be no disc in the drive.
-  * Right now, walk over the different encoders we Depends: in Debian and use
-    the one available: if a user has a FLAC encoder, abcde will no install
+  * Right now, walk over the different encoders we Depends: on in Debian and
+    use the one available: if a user has a FLAC encoder, abcde will no install
     vorbis-tools, so it will fail to run out of the box (Closes: #321216)
   * Added CUE support. Still experimental...
   * Added FLAC on Ogg. Still not activated, since we cannot get comments added
@@ -19,8 +19,16 @@ abcde (2.3.0-1) unstable; urgency=low
     <nphilipp@redhat.com>)
   * Added a post_read() function to be executed before ejecting the CD.
   * Typos reported by A Costa corrected (Closes: #311463)
+  * Problem with abcde being run in a directory with files containing only
+    numbers solved (Closes: #313628).
+  * vorbiscomment uses now "-R" (Closes: #303566).
+  * "-t" and "-T" use the first track as a starter for the track list.
+    (Closes: #305749).
+  * Added CDPARANOIACDROMBUS option to define -d in case of using IDE and SCSI
+    in case of using ide-scsi emulation layer (Closes: #290768).
+  * Define metaflac in abcde.conf (Closes: #303555)
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Tue,  9 Aug 2005 06:12:36 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Wed, 10 Aug 2005 07:00:26 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 

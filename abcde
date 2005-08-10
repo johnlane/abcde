@@ -1137,7 +1137,7 @@ do_discid ()
 				cdparanoia|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
-						CDPARANOIAOUTPUT="$( $CDROMREADER -d $CDROM -Q --verbose 2>&1 )"
+						CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -Q --verbose 2>&1 )"
 						RET=$?
 						if [ ! "$RET" = "0" ];then
 							echo "Warning: Something went wrong while querying the CD... Maybe a DATA CD?"
@@ -1912,7 +1912,7 @@ do_cdread ()
 	fi
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia) 
-			nice $READNICE $CDROMREADER -d $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
+			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -1945,7 +1945,7 @@ do_cdread ()
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -d $CDROM -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
+		debug) nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
 			;;
 	esac
 	RETURN=$?
@@ -2073,6 +2073,9 @@ CDDBUSELOCAL="n"
 # If using scsi devices, cdda2wav needs a CDROMID, instead of a device node
 # i.e. CDROMID="1,0,0"
 CDROMID=""
+# If we are using the IDE bus, we need CDPARANOIACDROMBUS defined as "d"
+# If we are using the ide-scsi emulation layer, we need to define a "g"
+CDPARANOIACDROMBUS="d"
 
 # program paths - defaults to checking your $PATH
 # mp3
