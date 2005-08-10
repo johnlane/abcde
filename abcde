@@ -2017,6 +2017,13 @@ pre_read ()
 :
 }
 
+# post_read
+# Empty post_read function, to be defined in the configuration file.
+post_read ()
+{
+:
+}
+
 ###############################################################################
 # End of functions
 #
@@ -2799,6 +2806,9 @@ fi
 if [ "$BATCH" = "y" ] || [ "$ONETRACK" = "y" ]; then
 	echo NEXTTRACK
 fi
+
+# Execute the user-defined post_read funtion before ejecting CD
+post_read
 
 # We are now finished with the cdrom - it can be safely ejected. Note that
 # abcde will not have completed yet.
