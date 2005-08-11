@@ -27,8 +27,10 @@ abcde (2.3.0-1) unstable; urgency=low
   * Added CDPARANOIACDROMBUS option to define -d in case of using IDE and SCSI
     in case of using ide-scsi emulation layer (Closes: #290768).
   * Define metaflac in abcde.conf (Closes: #303555)
+  * Added the default "-f" option to the configuration file, to represent the
+    actual default option.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Wed, 10 Aug 2005 07:00:26 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 11 Aug 2005 00:47:27 +0300
 
 abcde (2.2.6-1) unstable; urgency=low
 
