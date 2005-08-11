@@ -967,13 +967,15 @@ do_move ()
 		OUTPUTFILEDIR=$(dirname "$OUTPUTDIR/$OUTPUTFILE")
 		# mkdir -p shouldn't return an error if the directory already exists
 		mkdir -p "$OUTPUTFILEDIR"
-		run_command '' vecho "Moving track$1.$OUTPUT to $OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+		# Silence the Moving output since it overlaps with encoding processes...
+		#run_command '' vecho "Moving track$1.$OUTPUT to $OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 		run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 		# Lets move the cue file
 		if CUEFILE=$(checkstatus cuefile) >/dev/null ; then 
 			if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
 				if checkstatus movecue-$OUTPUT; then :; else
-					run_command '' vecho "Copying cue file to its destination directory..."
+					# Silence the Copying output since it overlaps with encoding processes...
+					#run_command '' vecho "Copying cue file to its destination directory..."
 					if checkstatus onetrack >/dev/null ; then
 						case $OUTPUT in
 							# NOTE: Creating a cue file with the 3-char-extension files is to comply with
