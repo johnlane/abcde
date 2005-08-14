@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1998-2001 Robert Woodcock <rcw@debian.org>
-# Copyright (c) 2003-2004 Jesus Climent <jesus.climent@hispalinux.es>
+# Copyright (c) 2003-2005 Jesus Climent <jesus.climent@hispalinux.es>
 # This code is hereby licensed for public consumption under either the
 # GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
 #
@@ -2735,7 +2735,7 @@ fi
 
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 2695 ;)
+# Well, right now we are at line 2736 ;)
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
