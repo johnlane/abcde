@@ -8,9 +8,6 @@ TODO:
 * move the wav files to a different dir if the user wants to keep the tracks
 * read the TOC and CDTEXT files and store them
 
-* storing TOC seems a good idea to recreate the index entries if we decide to
-  burn the cd.
-
 * read_and_encode_and_tag? :)
 * Customizable post-read/encode/tag hooks
   (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=114851)

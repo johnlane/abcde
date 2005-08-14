@@ -1,3 +1,11 @@
+abcde (2.3.99-1) unstable; urgency=low
+
+  * Added diff choice to CDDB entries ("1,4").
+  * Added SHOWCDDBFIELDS to allow the user to show YEAR and GENRE in the
+    parsed CDDB output.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 13 Aug 2005 03:26:59 +0300
+
 abcde (2.3.0-1) unstable; urgency=low
 
   * New upstream release!
