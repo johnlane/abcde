@@ -2268,7 +2268,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:vVxw:W: opt ; do
+while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
