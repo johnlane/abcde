@@ -197,6 +197,10 @@ Actually use the stored copies of the CDDB entries. Can be overriden using the
 "-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
 the choice of retrieving a CDDB entry from the internet.
 .TP
+.B SHOWCDDBFIELDS
+Coma-separated list of fields we want to parse during the CDDB parsing.
+Defaults to "year,genre".
+.TP
 .B OGGENCODERSYNTAX
 Specifies the style of encoder to use for the Ogg/Vorbis encoder. Valid options 
 are \'oggenc\' (default for Ogg/Vorbis) and \'vorbize\'.
@@ -381,6 +385,12 @@ pre_read () is a shell function which is executed before the CDROM is read
 for the first time, during abcde execution. It can be used to close the CDROM
 tray, to set its speed (via "setcd" or via "eject", if available) and other
 preparation actions. The default function is empty.
+.TP
+.B post_read
+post_read () is a shell function which is executed after the CDROM is read
+(and, if applies, before the CDROM is ejected). It can be used to read a TOC
+from the CDROM, or to try to read the DATA areas from the CD (if any exist).
+The default function is empty.
 .TP
 .B EJECTCD
 If set to "y", abcde will call eject(1) to eject the cdrom from the drive

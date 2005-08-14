@@ -25,6 +25,13 @@ ID3TAGV=1
 
 MAJOR CHANGES
 =============
+Changes in 2.4:
+* Read TOC entries from the CD. The default uses cdrdao.
+* Possibility to use CDDBCHOICE1,CDDBCHOICE2 (i.e., 1,3) to get a diff of two
+  parsed CDDB entries.
+* Added SHOWCDDBFIELDS to define wether to show the YEAR and GENRE fields from
+  the CDDB output.
+
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
   with "-1" to create a backup, so that later on the original CD can be

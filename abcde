@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.3.0"
+VERSION="2.3.99"
 
 usage ()
 {
@@ -48,6 +48,8 @@ echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-R     Add replaygain values to the tag info (only for vorbis,flac)"
+echo "-s <field>"
+echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
 #echo "-t    File types to preprocess (wav)"
 #echo "-T    Set postprocessing options"
@@ -1328,6 +1330,18 @@ do_cddbparse ()
 		vecho "ONETRACK mode selected: displaying only the title of the CD..."
 	fi
 	echo "---- $(grep DTITLE "${CDDBPARSEFILE}" | cut '-d=' -f2- | tr -d \\r\\n ) ----"
+	if [ X"$SHOWCDDBYEAR" = "Xy" ]; then
+		PARSEDYEAR=$(grep DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
+		if [ X"$PARSEDYEAR" = "X" ]; then
+			echo "YEAR=$PARSEDYEAR"
+		fi
+	fi
+	if [ X"$SHOWCDDBGENRE" = "Xy" ]; then
+		PARSEDGENRE=$(grep DGENRE "${CDDBPARSEFILE}" | cut '-d=' -f2-)
+		if [ X"$PARSEDGENRE" = "X" ]; then
+			echo "GENRE=$PARSEDGENRE"
+		fi
+	fi
 	if [ ! "$ONETRACK" = "y" ]; then
 		for TRACK in $(f_seq_row 1 $TRACKS)
 		do
@@ -1604,17 +1618,32 @@ do_cddbedit ()
 						cat "$ABCDETEMPDIR/cddbchoices" >&2
 					fi
 					
+					CDDBCHOICENUM=""
 					# I'll take CDDB read #3 for $400, Alex
-					echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
-					read CDDBCHOICE
-					[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
-					# Make sure we get a valid choice
-					CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
-				        while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
-						echo "Invalid selection. Please choose a number between 1 and $CDDBCHOICES." >&2
-						echo -n "Selection [0-$CDDBCHOICES]: " >&2
+					while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
+						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
 						read CDDBCHOICE
-						CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
+						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
+						if echo $CDDBCHOICE | egrep -q "[[:digit:]]+,[[:digit:]]+" ; then
+							if [ ! X"$DIFF" = "X" ]; then
+								# We parse the 2 choices to diff, store them in temporary files and diff them.
+								for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
+									do_cddbparse "$ABCDETEMPDIR/cddbread.$PARSECHOICE" > "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE"
+								done
+								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1)
+								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2)
+								echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..."
+								$DIFF $DIFFOPTS "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE2"
+							else
+								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
+							fi
+						else
+							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; then
+								# Make sure we get a valid choice
+								CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
+								echo "Invalid selection. Please choose a number between 0 and $CDDBCHOICES." >&2
+							fi
+						fi
 					done
 					if [ "$CDCHOICENUM" = "0" ]; then
 						vecho "Creating empty CDDB template..."
@@ -2037,6 +2066,13 @@ CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
 CDDBSUBMIT=freedb-submit@freedb.org
 CDDBPROTO=5
 HELLOINFO="$(whoami)@$(hostname)"
+CDDBCOPYLOCAL="n"
+CDDBLOCALDIR="$HOME/.cddb"
+CDDBUSELOCAL="n"
+
+# List of fields we parse and show during the CDDB parsing...
+SHOWCDDBFIELDS="year,genre"
+
 INTERACTIVE=y
 CDROMREADERSYNTAX=cdparanoia
 ENCODERSYNTAX=default
@@ -2068,9 +2104,6 @@ VARIOUSARTISTS=n
 VARIOUSARTISTSTYLE=forward
 KEEPWAVS=n
 PADTRACKS=n
-CDDBCOPYLOCAL="n"
-CDDBLOCALDIR="$HOME/.cddb"
-CDDBUSELOCAL="n"
 
 # If using scsi devices, cdda2wav needs a CDROMID, instead of a device node
 # i.e. CDROMID="1,0,0"
@@ -2114,6 +2147,8 @@ NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
 MKCUE=mkcue
+MKTOC=cdrdao
+DIFF=diff
 
 # Options for programs called from abcde
 # mp3
@@ -2146,6 +2181,7 @@ NORMALIZEOPTS=
 CDSPEEDOPTS="-x"
 CDSPEEDVALUE=
 MKCUEOPTS=
+MKTOCOPTS=""
 VORBISCOMMENTOPTS="-R"
 METAFLACOPTS="--no-utf8-convert"
 
@@ -2231,8 +2267,8 @@ if [ "$CDROM" = "" ] ; then
 fi
 
 # Parse command line options
-#while getopts 1a:bc:C:d:Dhj:klLnNo:pr:S:t:T:vVx opt ; do
-while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+#while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2260,7 +2296,7 @@ while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		P) USEPIPES=y ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
 		R) REPLAYGAIN=y ;;
-		s) STARTTRACKNUMBER="$OPTARG" ;;
+		s) SHOWCDDBFIELDS="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
 #		t) PREPROCESSFORMATS="$OPTARG"
 #		   PREPROCESS=y ;;
@@ -2354,25 +2390,15 @@ do
 	esac
 done
 
-# Sanity checks:
+for SHOWCDDBFIELD in $(echo $SHOWCDDBFIELDS | tr , \ ); do
+	case $SHOWCDDBFIELD in
+		y*|Y*) SHOWCDDBYEAR="y";;
+		g*|G*) SHOWCDDBGENRE="y";;
+		*) ;;
+	esac
+done
 
-# Check the encoding format, if nothing has been configured in the system, from the ones available in the system
-if [ X"$OUTPUTTYPE" = "X" ]; then
-	for DEFAULT_OUTPUT in $( echo "$DEFAULT_OUTPUT_BINARIES" | tr , \ ); do
-		DEFAULT_OUTPUT_FORMAT="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 1)"
-		DEFAULT_OUTPUT_BINARY="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 2)"
-		if which $DEFAULT_OUTPUT_BINARY > /dev/null 2>&1 ; then
-			OUTPUTTYPE=$DEFAULT_OUTPUT_FORMAT
-			vecho "No default output type defined. Autoselecting $OUTPUTTYPE..." >&2
-			break
-		fi
-	done
-	if [ X"$OUTPUTTYPE" = "X" ]; then
-		echo "abcde error: no encoder found in the PATH" >&2
-		echo "hits: are all dependencies installed? has the \$PATH been modified?" >&2
-		exit 1
-	fi
-fi
+# Sanity checks:
 
 # At this point a CDROM has to be defined, so we check it exists.
 if [ X"$CDROM" != "X" ] ; then 
@@ -2416,6 +2442,24 @@ if [ X"$USEPIPES" = "Xy" ]; then
 	fi
 	if [ X"$LOWDISK" = "Xy" ]; then
 		vecho "abcde error: Unix pipes not compatible with lowdisk algorithm"
+		exit 1
+	fi
+fi
+
+# Check the encoding format from the ones available in the system, if nothing has been configured in the system.
+if [ X"$OUTPUTTYPE" = "X" ]; then
+	for DEFAULT_OUTPUT in $( echo "$DEFAULT_OUTPUT_BINARIES" | tr , \ ); do
+		DEFAULT_OUTPUT_FORMAT="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 1)"
+		DEFAULT_OUTPUT_BINARY="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 2)"
+		if [ -x $(which $DEFAULT_OUTPUT_BINARY) ] ; then
+			OUTPUTTYPE=$DEFAULT_OUTPUT_FORMAT
+			vecho "No default output type defined. Autoselecting $OUTPUTTYPE..." >&2
+			break
+		fi
+	done
+	if [ X"$OUTPUTTYPE" = "X" ]; then
+		echo "abcde error: no encoder found in the PATH" >&2
+		echo "hits: are all dependencies installed? has the \$PATH been modified?" >&2
 		exit 1
 	fi
 fi
@@ -2683,9 +2727,15 @@ CDROMREADER="$CDROMREADER $CDROMREADEROPTS"
 CDDBTOOL="$CDDBTOOL $CDDBTOOLOPTS"
 HTTPGET="$HTTPGET $HTTPGETOPTS"
 
+# And last but not least, check if we can diff between files
+if [ -x $(which $DIFF) ]; then :; else
+	vecho "[WAR] Disabling diff since we cannot find it in the \$PATH..."
+	DIFF=""
+fi
+
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 2157 ;)
+# Well, right now we are at line 2695 ;)
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
