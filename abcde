@@ -1333,13 +1333,13 @@ do_cddbparse ()
 	if [ X"$SHOWCDDBYEAR" = "Xy" ]; then
 		PARSEDYEAR=$(grep DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
 		if [ X"$PARSEDYEAR" = "X" ]; then
-			echo "YEAR=$PARSEDYEAR"
+			echo "Year: $PARSEDYEAR"
 		fi
 	fi
 	if [ X"$SHOWCDDBGENRE" = "Xy" ]; then
 		PARSEDGENRE=$(grep DGENRE "${CDDBPARSEFILE}" | cut '-d=' -f2-)
 		if [ X"$PARSEDGENRE" = "X" ]; then
-			echo "GENRE=$PARSEDGENRE"
+			echo "Genre: $PARSEDGENRE"
 		fi
 	fi
 	if [ ! "$ONETRACK" = "y" ]; then
@@ -1619,6 +1619,7 @@ do_cddbedit ()
 					fi
 					
 					CDDBCHOICENUM=""
+					CDCHOICENUM=-1
 					# I'll take CDDB read #3 for $400, Alex
 					while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
 						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
