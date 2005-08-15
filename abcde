@@ -161,6 +161,31 @@ checkerrors ()
 	fi
 }
 
+# page [file]
+# Finds the right pager in the system to display a file
+page ()
+{
+	PAGEFILE="$1"
+	# Use the debian sensible-pager wrapper to pick the pager
+	# user has requested via their $PAGER environment variable
+	if [ -x "/usr/bin/sensible-pager" ]; then
+		/usr/bin/sensible-pager "$PAGEFILE"
+	elif [ -x "$PAGER" ]; then
+		# That failed, try to load the preferred editor, starting
+		# with their PAGER variable
+		$PAGER "$PAGEFILE"
+		# If that fails, check for less
+	elif [ -x /usr/bin/less ]; then
+		/usr/bin/less -f "$PAGEFILE"
+		# more should be on all UNIX systems
+	elif [ -x /bin/more ]; then
+		/bin/more "$PAGEFILE"
+	else
+		# No bananas, just cat the thing
+		cat "$PAGEFILE" >&2
+	fi
+}
+
 # run_command [blurb] [command...]
 # Runs a command, silently if necessary, and updates the status file
 run_command ()
@@ -1332,13 +1357,13 @@ do_cddbparse ()
 	echo "---- $(grep DTITLE "${CDDBPARSEFILE}" | cut '-d=' -f2- | tr -d \\r\\n ) ----"
 	if [ X"$SHOWCDDBYEAR" = "Xy" ]; then
 		PARSEDYEAR=$(grep DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
-		if [ X"$PARSEDYEAR" = "X" ]; then
+		if [ ! X"$PARSEDYEAR" = "X" ]; then
 			echo "Year: $PARSEDYEAR"
 		fi
 	fi
 	if [ X"$SHOWCDDBGENRE" = "Xy" ]; then
 		PARSEDGENRE=$(grep DGENRE "${CDDBPARSEFILE}" | cut '-d=' -f2-)
-		if [ X"$PARSEDGENRE" = "X" ]; then
+		if [ ! X"$PARSEDGENRE" = "X" ]; then
 			echo "Genre: $PARSEDGENRE"
 		fi
 	fi
@@ -1595,30 +1620,14 @@ do_cddbedit ()
 				else
 					# The user has a choice to make, display the info in a pager if necessary
 					if [ $(cat "$ABCDETEMPDIR/cddbchoices" | wc -l) -ge 24 ]; then
-						# Use the debian sensible-pager wrapper to pick the pager
-						# user has requested via their $PAGER environment variable
-						if [ -x "/usr/bin/sensible-pager" ]; then
-							/usr/bin/sensible-pager "$ABCDETEMPDIR/cddbchoices"
-						elif [ -x "$PAGER" ]; then
-							# That failed, try to load the preferred editor, starting
-							# with their PAGER variable
-							$PAGER "$ABCDETEMPDIR/cddbchoices"
-							# If that fails, check for less
-						elif [ -x /usr/bin/less ]; then
-							/usr/bin/less -f "$ABCDETEMPDIR/cddbchoices"
-							# more should be on all UNIX systems
-						elif [ -x /bin/more ]; then
-							/bin/more "$ABCDETEMPDIR/cddbchoices"
-						else
-							# No bananas, just cat the thing
-							cat "$ABCDETEMPDIR/cddbchoices" >&2
-						fi
+						page "$ABCDETEMPDIR/cddbchoices"
 					else
 						# It's all going to fit in one page, cat it
 						cat "$ABCDETEMPDIR/cddbchoices" >&2
 					fi
 					
 					CDDBCHOICENUM=""
+					# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 					CDCHOICENUM=-1
 					# I'll take CDDB read #3 for $400, Alex
 					while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
@@ -1627,14 +1636,26 @@ do_cddbedit ()
 						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
 						if echo $CDDBCHOICE | egrep -q "[[:digit:]]+,[[:digit:]]+" ; then
 							if [ ! X"$DIFF" = "X" ]; then
-								# We parse the 2 choices to diff, store them in temporary files and diff them.
-								for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
-									do_cddbparse "$ABCDETEMPDIR/cddbread.$PARSECHOICE" > "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE"
-								done
 								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1)
 								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2)
-								echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..."
-								$DIFF $DIFFOPTS "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE2"
+								if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBCHOICES ] || \
+								   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBCHOICES ] || \
+								   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then 
+									echo "Invalid diff range. Please select two coma-separated numbers between 1 and $CDDBCHOICES" >&2
+								else
+
+									# We parse the 2 choices to diff, store them in temporary files and diff them.
+									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
+										do_cddbparse "$ABCDETEMPDIR/cddbread.$PARSECHOICE" > "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE"
+									done
+									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/cddbread.diff"
+									$DIFF $DIFFOPTS "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/cddbread.diff"
+									if [ $(cat "$ABCDETEMPDIR/cddbread.diff" | wc -l) -ge 24 ]; then
+										page "$ABCDETEMPDIR/cddbread.diff"
+									else
+										cat "$ABCDETEMPDIR/cddbread.diff" >&2
+									fi
+								fi
 							else
 								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
 							fi
