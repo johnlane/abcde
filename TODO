@@ -1,5 +1,7 @@
 TODO:
 ----
+* Change cdparanoia-tracks to = in the status file
+
 * ReplyGain support
 * flacdecode (to extract files from a -1 flac file)
 
@@ -33,3 +35,52 @@ TODO:
   name ? silently overwrite the old rip? etc.
 
   Review the things that abcde does ;)
+
+* When cdparanoia encounters a problem (disk full, data track) when abcde
+  is run in batch mode, abcde still continues, but batch mode is disabled.
+  I.e. instead of normalizing all tracks together, they are normalized
+  seperately, instead of running "lame --nogap" on all wavs, lame is
+  invoked once per wav.
+
+  Abcde should halt when a problem occurs, so it can be manually resolved.
+
+* Support UTF-8
+
+* AAC support (faac should be free?)
+
+* I used abcde to rip a cd in batch normalizing mode to mp3 (mp2
+  actually) format with toolame. The first part went fine, until toolame
+  started. That resulted in an error. Here is the relevant part of the
+  logfile made by 'abcde -D 2>logfile':
+
+  -----
+  + TRACKFILES= track1.wav track2.wav track3.wav track4.wav
+  + nice -n 10 toolame --nogap track1.wav track2.wav track3.wav track4.wav
+  toolame: unrec option -
+  toolame: unrec option n
+  toolame: -p model must be 1 or 2, not track1.wav
+  + RETURN=1
+  + '[' 1 '!=' 0 ']'
+  + echo 'batch-encode:  returned code 1'
+  -----
+  
+  In my abcde.conf I have "BATCH=y". Setting this to "BATCH=n" solves
+  this. "BATCH=y" is responsible for inserting '--nogap'. I don't know
+  what that is supposed to be doing, but it is only meant for use with
+  lame, and I am using toolame as that is free software: "LAME=toolame"
+  in abcde.conf.
+  
+  I see two possible solutions:
+  
+  1. Check if LAME really is lame and not toolame or some other mp3
+  encoder. If so, then go ahead and insert '--nogap' in the generated
+  command. Else don't.
+  
+  2. Don't tie the '--nogap' insertion to the setting of BATCH. Make a
+  new option NOGAP or something for that.
+  
+  Other than that, abcde is a brilliant time saver. Thanks!
+  
+  BTW, dpkg -l toolame:
+  ii  toolame        02i-2          MPEG-1 layer 2 audio encoder
+

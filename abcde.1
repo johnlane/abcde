@@ -116,6 +116,10 @@ the REMOTEHOSTS configuration variable.
 Add replaygain information to the id3 or tag information for play
 normalization. Only works with MP3 and Ogg/Vorbis.
 .TP
+.B \-s [fields...]
+List, separated by comas, the fields to be shown in the CDDB parsed entries.
+Right now it only uses "year" and "genre".
+.TP
 .B \-S [speed]
 Set the speed of the CD drive. Needs CDSPEED and CDSPEEDOPTS set properly
 and both the program and device must support the capability.
@@ -401,7 +405,7 @@ If set to "y", some operations which are usually now shown to the end user
 are visible, such as CDDB queries. Useful for initial debug and if your
 network/CDDB server is slow.
 .SH EXAMPLES
-Possible ways one can call abcde—
+Possible ways one can call abcde
 .TP
 .B abcde
 Will work in most systems
