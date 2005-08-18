@@ -1296,8 +1296,13 @@ do_discid ()
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
 			CUEFILE=cue-$(echo "$TRACKINFO" | cut -f1 -d' ').txt
 			vecho "Creating cue file..."
-			$MKCUE $MKCUEOPTS > "$ABCDETEMPDIR/$CUEFILE"
-			echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+			if $CUEREADER $CUEREADEROPTS > "$ABCDETEMPDIR/$CUEFILE"; then
+				echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+			else
+				echo "abcde: reading the CUE sheet with mkcue is still considered experimental"
+				echo "abcde: and there was a problem with the CD reading. abcde will continue,"
+				echo "abcde: but consider reporting the problem to the abcde author"
+			fi
 		fi
 	fi
 	# If we got the CDPARANOIA status and it is not recorded, save it now
@@ -2105,6 +2110,7 @@ FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPPENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
+CUEREADERSYNTAX=default
 
 OUTPUTFORMAT='${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}.${TRACKFILE}'
 # Use the following VAOUTPUTFORMAT to revert to 2.0.x VA format:
@@ -2639,6 +2645,14 @@ else
 	TAGGEROPTS="$ID3V2OPTS"
 fi
 
+# Options for mkcue
+case "$CUEREADERSYNTAX" in
+	default|mkcue)
+		CUEREADEROPTS="${CDROM}"
+		CUEREADER="$MKCUE"
+		;;
+esac
+
 # Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
 if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
 	echo "abcde error: FLAC on an Ogg container is not yet supported" >&2
@@ -2674,8 +2688,8 @@ fi
 if [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ]; then
 	NEEDHTTPGET=y
 fi
-if [ "$CUEFILE" = "y" ]; then
-	NEEDMKCUE=y
+if [ "$MAKECUEFILE" = "y" ]; then
+	NEEDCUEREADER=y
 fi
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
@@ -2732,7 +2746,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
-	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMKCUE+$MKCUE}
+	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDCUEREADER+$CUEREADER}
 do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
