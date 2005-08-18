@@ -239,6 +239,10 @@ Specifies the style of cdrom reader to use. Valid options are \'cdparanoia\'
 and \'debug\'. It is used for querying the CDROM and obtain a list of valid
 tracks and DATA tracks. Right now, only cdparanoia is supported.
 .TP
+.B CUEREADERSYNTAX
+Specifies the syntax of the program we use to read the CD CUE sheet. Right now
+we only support \'mkcue\', but in the future other readers might be used.
+.TP
 .B KEEPWAVS
 It defaults to no, so if you want to keep those wavs ripped from your CD,
 set it to "y". You can use the "-k" switch in the command line. The default
