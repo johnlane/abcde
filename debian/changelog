@@ -6,6 +6,22 @@ abcde (2.3.99-1) unstable; urgency=low
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 13 Aug 2005 03:26:59 +0300
 
+abcde (2.3.3-1) unstable; urgency=low
+
+  * Some patches from Tom Spindler <dogcow () babymeat ! com>
+    - Added some quoting to the md5sum checkings, since the variables could be
+      null. 
+    - NetBSD bits to use ftp instead on anything else to fetch stuff.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 22 Aug 2005 12:14:54 +0300
+
+abcde (2.3.2-1) unstable; urgency=low
+
+  * Too fast... I forgot to make the tarball and change the version strings in
+    several places. Fixed.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 19 Aug 2005 00:44:37 +0300
+
 abcde (2.3.1-1) unstable; urgency=low
 
   * The new "I knew there were going to be bugs" upstream release!

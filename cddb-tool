@@ -21,7 +21,7 @@
 #  - Submitted via: line is created by template, when it really should be in send.
 #    Oh well.
 
-VERSION=0.4.5
+VERSION=0.4.6
 NAME=cddb-tool
 
 #return codes
@@ -35,6 +35,9 @@ EMPTY_QUERY_RESPONSE=14	# query response = "", (probably no net connection)
 if [ "$HTTPGET" = "" ]; then
 	if [ X"$(uname)" = X"FreeBSD" ] ; then
 		HTTPGET=fetch
+		HTTPGETOPTS=${HTTPGETOPTS:="-q -o -"}
+	elif [ X"$(uname)" = X"NetBSD" ] ; then
+		HTTPGET=ftp
 		HTTPGETOPTS=${HTTPGETOPTS:="-q -o -"}
 	elif [ X"$(uname)" = X"Darwin" ] ; then
 		HTTPGET=curl
