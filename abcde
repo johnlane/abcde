@@ -31,6 +31,7 @@ echo "-d <device>"
 echo "       Specify CDROM device to grab"
 echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
+#echo "-E     Set the encoding information for the tags"
 echo "-h     This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j <#> Number of encoder processes to run at once (localhost)"
@@ -327,7 +328,7 @@ splitvarious ()
 			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
 			;;
 		esac
-	elif [ "$ONETRACK" = "y" ]; then
+	elif [ "$VARIOUSARTISTS" = "y" ] && [ "$ONETRACK" = "y" ]; then
 		TRACKARTIST="Various"
 	else
 		TRACKARTIST="$DARTIST"
@@ -400,7 +401,7 @@ local id=""
 		"gangsta")               id=59 ;;
 		"top 40")                id=60 ;;
 		"christian rap")         id=61 ;;
-		"pop/funk")              id=62 ;;
+		"pop/funk"|"pop / funk") id=62 ;;
 		"jungle")                id=63 ;;
 		"native american")       id=64 ;;
 		"cabaret")               id=65 ;;
@@ -486,6 +487,7 @@ local id=""
 		"anime")                 id=145 ;;
 		"jpop")                  id=146 ;;
 		"synthpop")              id=147 ;;
+		"rock/pop"|"rock / pop") id=148 ;;
 		*)                       return 1 ;;
 	esac
 echo ${id}
@@ -515,11 +517,24 @@ do_tag ()
 		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
 		GENREID=$(do_getgenreid "${CDGENRE}")
 
-		# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
-		run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
-			-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
-			-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
-			"$ABCDETEMPDIR/track$1.$OUTPUT"
+		case "$ID3SYNTAX" in
+			id3);;
+			eyed3)
+				# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+				run_command tagtrack-$1 $TAGGER $TAGGEROPTS --commen=::"$COMMENTOUTPUT" \
+					-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
+					-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
+					"${ENCODING:+--set-encoding=$ENCODING}"
+					"$ABCDETEMPDIR/track$1.$OUTPUT"
+				;;
+			*)
+				# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+				run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+					-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
+					-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
+					"$ABCDETEMPDIR/track$1.$OUTPUT"
+				;;
+		esac
 		;;
 	vorbis|ogg)
 		case "$OGGENCODERSYNTAX" in
@@ -651,7 +666,7 @@ do_encode ()
 				TEMPARG="PIPE_$MPPENCODER"
 				;;
 		esac
-		IN=${!TEMPARG}
+		IN="$( eval echo "\$$TEMPARG" )"
 	else
 		IN="$ABCDETEMPDIR/track$1.wav"
 		case "$OUTPUT" in
@@ -1877,7 +1892,7 @@ do_cddbedit ()
 	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "$ABCDETEMPDIR/status"
 
 	if [ "$EDITCDDB" = "y" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
-		if [ $CDDBDATAMD5SUM != "" ]  && [ $CDDBDATAMD5SUM != $($MD5SUM "$CDDBDATA" | cut -d " " -f 1) ]; then
+		if [ "$CDDBDATAMD5SUM" != "" ]  && [ "$CDDBDATAMD5SUM" != "$($MD5SUM "$CDDBDATA" | cut -d " " -f 1)" ]; then
 			# This works but does not have the necessary error checking
 			# yet. If you are familiar with the CDDB spec
 			# (see http://www.freedb.org/src/latest/DBFORMAT) 
@@ -1942,7 +1957,7 @@ do_cdread ()
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 	if [ "$USEPIPES" = "y" ]; then
 		TEMPARG="PIPE_$CDROMREADERSYNTAX"
-		FILEARG="${!TEMPARG}"
+		FILEARG="$( eval echo "\$$TEMPARG" )"
 		REDIR=""
 		PIPE_MESSAGE="and encoding "
 	else
@@ -2160,6 +2175,7 @@ MPPENC=mppenc
 
 ID3=id3
 ID3V2=id3v2
+EYED3=eyeD3
 CDPARANOIA=cdparanoia
 CDDA2WAV=cdda2wav
 DAGRAB=dagrab
@@ -2227,6 +2243,7 @@ DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex
 # Let's use these checkings to determine the OS flavour, which will be used later
 if [ X$(uname) = "XFreeBSD" ] ; then
 	HTTPGET=fetch
+	MD5SUM=md5
 	NEEDCDROMID=y
 	OSFLAVOUR=FBSD
 elif [ X$(uname) = "XDarwin" ] ; then
@@ -2237,6 +2254,9 @@ elif [ X$(uname) = "XDarwin" ] ; then
 	CDROMREADERSYNTAX=cddafs
 elif [ X$(uname) = "XOpenBSD" ] ; then
 	HTTPGET=wget
+	MD5SUM=md5
+elif [ X$(uname) = "XNetBSD" ] ; then
+	HTTPGET=ftp
 	MD5SUM=md5
 else
 	HTTPGET=wget
@@ -2273,6 +2293,7 @@ if [ "$HTTPGETOPTS" = "" ] ; then
 		wget) HTTPGETOPTS="-q -O -";;
 		curl) HTTPGETOPTS="-f -s";;
 		fetch)HTTPGETOPTS="-q -o -";;
+		ftp)  HTTPGETOPTS="-q -o -";;
 		*) echo "abcde warning: HTTPGET in non-standard and HTTPGETOPTS are not defined." >&2 ;;
 	esac
 fi
@@ -2300,7 +2321,7 @@ while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
-		A) EXPACTIONS="$OPTARG";;
+		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCH=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else echo "abcde error: config file \"$OPTARG\" cannot be found." >&2 ; exit 1 ; fi ;;
 		C) DISCID="${OPTARG#abcde.}" ;;
@@ -2309,6 +2330,7 @@ while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 		e) ERASEENCODEDSTATUS=y ;;
 		h) usage; exit ;;
 		e) ERASEENCODEDSTATUS=y ;;
+		E) ENCODING="$OPTARG" ;;
 #		f) FORCECDDBUSELOCAL=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
@@ -2725,13 +2747,13 @@ if [ "$USEPIPES" = "y" ]; then
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
-	if [ ! -n "${!PIPERIPPERSVARCHECK}" ] ; then
+	if [ ! -n "$( eval echo "\$$PIPERIPPERSVARCHECK" )" ] ; then
 		echo "abcde error: no support for pipes with given ripper" >&2
 		echo "read the USEPIPES file from the source tarball to help" >&2
 		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
 		exit 1;
 	fi
-	if [ ! -n "${!PIPEENCODERSVARCHECK}" ] ; then
+	if [ ! -n "$( eval echo "\$$PIPEENCODERSVARCHECK" )" ] ; then
 		echo "abcde error: no support for pipes with given encoder" >&2
 		echo "read the USEPIPES file from the source tarball to help" >&2
 		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
