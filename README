@@ -48,6 +48,8 @@ Changes in 2.3:
 * The FLAC encoder forces the files to be overwritten, in case they previously
   exists. This avoids a half-through abcde run to continue without errors in
   case it was cancelled during the FLAC encoding.
+* Added a post_read() function so that we can do things with the CD before we
+  eject it.
 
 Changes in 2.2:
 
