@@ -281,6 +281,18 @@ relpath ()
 	echo $TO
 }
 
+# do_getcddbinfo
+# Finds an specific field from cddbinfo
+# 
+#	TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
+#	TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+#	TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+
+do_getcddbinfo ()
+{
+	:
+}
+
 # This code splits the a Various Artist track name from one of the following
 # forms:
 #
