@@ -290,7 +290,59 @@ relpath ()
 
 do_getcddbinfo ()
 {
-	:
+	case $1 in
+	TRACKNAME1)
+		TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+		;;
+	TRACKNAME)
+		TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+		;;
+	esac
+}
+
+# do_gettracknum
+# Get the track number we are going to use for different actions
+do_gettracknum
+{
+	if [ -n "$STARTTRACKNUMBER" ] ; then
+		# Get the trackpadding from the current track
+		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
+	else
+		TRACKNUM=${UTRACKNUM}
+	fi
+}
+
+do_replaygain
+{
+	run-command "" echo "Adding reply-gain information..."
+	for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
+	do
+		OUTPUTFILES=""
+		for UTRACKNUM in $TRACKQUEUE
+		do
+			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
+			do_getcddbinfo TRACKNAME
+			splitvarious
+			TRACKFILE=$(mungefilename "$TRACKNAME")
+			ARTISTFILE=$(mungefilename "$TRACKARTIST")
+			ALBUMFILE=$(mungefilename "$DALBUM")
+			do_gettrucknum
+			if [ "$VARIOUSARTISTS" = "y" ]; then
+				OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
+			else
+				OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
+			fi
+			OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
+		done
+		case "$OUTPUT" in
+			flac);;
+			ogg);;
+			*);;
+		esac
+		echo vorbisgain-$OUTPUT >> "$ABCDETEMPDIR/status"
+	done
+	echo vorbisgain >> "$ABCDETEMPDIR/status"
 }
 
 # This code splits the a Various Artist track name from one of the following
@@ -517,10 +569,13 @@ do_tag ()
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
 	# If we want to start the tracks with a given number, we need to modify the
 	# TRACKNUM value before evaluation
-	if [ -n "$STARTTRACKNUMBER" -a -n "$STARTTRACKNUMBERTAG" ] ; then
-		# Get the trackpadding from the current track
-		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
+#	if [ -n "$STARTTRACKNUMBER" -a -n "$STARTTRACKNUMBERTAG" ] ; then
+#		# Get the trackpadding from the current track
+#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
+#	fi
+	if [ -n "$STARTTRACKNUMBERTAG" ] ; then
+		do_gettracknum
 	fi
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
@@ -635,7 +690,7 @@ do_batch_encode ()
 			do
 				TRACKFILES="$TRACKFILES track$UTRACKNUM.wav"
 			done
-			nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS --nogap $TRACKFILES
+			nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS `[ "$MP3ENCODER" = "lame" ] && echo "--nogap"` $TRACKFILES
 			RETURN=$?
 			if [ "$RETURN" != "0" ]; then
 				echo "batch-encode: $ENCODER returned code $RETURN" >> errors
@@ -1003,13 +1058,14 @@ do_move ()
 		YEAR=$(echo $CDYEAR)
 		# If we want to start the tracks with a given number, we need to modify the
 		# TRACKNUM value before evaluation
-		if [ -n "$STARTTRACKNUMBER" ] ; then
-			# Get the trackpadding from the current track
-			CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-			TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
-		else
-			TRACKNUM=${UTRACKNUM}
-		fi
+	#	if [ -n "$STARTTRACKNUMBER" ] ; then
+	#		# Get the trackpadding from the current track
+	#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+	#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
+	#	else
+	#		TRACKNUM=${UTRACKNUM}
+	#	fi
+		do_gettracknum
 		# Supported variables for OUTPUTFORMAT are GENRE, ALBUMFILE, ARTISTFILE,
 		# TRACKFILE, and TRACKNUM.
 		if [ "$VARIOUSARTISTS" = "y" ]; then
@@ -1100,19 +1156,22 @@ do_playlist ()
 			do
 				# Shares some code with do_move since the filenames have to match
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-				TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
+				#TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
+				do_getcddbinfo TRACKNAME
 				splitvarious
 				TRACKFILE=$(mungefilename "$TRACKNAME")
 				ARTISTFILE=$(mungefilename "$TRACKARTIST")
+				ALBUMFILE=$(mungefilename "$DALBUM")
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
-				if [ -n "$STARTTRACKNUMBER" ] ; then
-					# Get the trackpadding from the current track
-					CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-					TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
-				else
-					TRACKNUM=${UTRACKNUM}
-				fi
+			#	if [ -n "$STARTTRACKNUMBER" ] ; then
+			#		# Get the trackpadding from the current track
+			#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+			#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
+			#	else
+			#		TRACKNUM=${UTRACKNUM}
+			#	fi
+				do_gettrucknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
 				else
@@ -1989,7 +2048,8 @@ do_cdread ()
 		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
 	else
 		if [ -r "$CDDBDATA" ]; then
-			TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+			#TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
+			do_getcddbinfo TRACKNAME
 			echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM: $TRACKNAME..." >&2
 		else
 			echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM..." >&2
@@ -3074,7 +3134,8 @@ do
 #			TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${UTRACKNUM} + 0))
 			TRACKNUM=$UTRACKNUM
 			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+			#TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+			do_getcddbinfo TRACKNAME
 			splitvarious
 		fi
 	fi
@@ -3145,6 +3206,9 @@ if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 fi
 # If the above didn't catch the stragglers, this will
 wait
+if checkstatus replaygain; then :; else
+	do_replaygain
+fi
 # Check to see if run_command logged any errors
 if [ -f "$ABCDETEMPDIR/errors" ]; then
 	echo "The following commands failed to run:"
