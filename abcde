@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.3.99"
+VERSION="2.3.99-$Id$"
 
 usage ()
 {
