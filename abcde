@@ -288,7 +288,7 @@ relpath ()
 #	TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
 #	TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 
-do_getcddbinfo ()
+do_getcddbinfo()
 {
 	case $1 in
 	TRACKNAME1)
@@ -302,7 +302,7 @@ do_getcddbinfo ()
 
 # do_gettracknum
 # Get the track number we are going to use for different actions
-do_gettracknum
+do_gettracknum()
 {
 	if [ -n "$STARTTRACKNUMBER" ] ; then
 		# Get the trackpadding from the current track
@@ -313,9 +313,9 @@ do_gettracknum
 	fi
 }
 
-do_replaygain
+do_replaygain()
 {
-	run-command "" echo "Adding reply-gain information..."
+	run_command "" echo "Adding reply-gain information..."
 	for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
 	do
 		OUTPUTFILES=""
