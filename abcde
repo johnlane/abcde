@@ -83,12 +83,17 @@ f_seq_row ()
 f_seq_line ()
 {
 	i=$1
-	while [ $i -ne `expr $2 + 1` ]
-	do
-		printf $i" "
-		i=`expr $i + 1`
-	done
-	echo
+	if echo i | grep -q "[[:digit:]]" ; then
+		while [ $i -ne `expr $2 + 1` ]
+		do
+			printf $i" "
+			i=`expr $i + 1`
+		done
+		echo
+	else
+		echo "abcde: syntax error while processing track numbers" >&2
+		exit 1
+	fi
 }
 
 # Functions to replace the need of awk {print $1} and {print $NF}
@@ -315,34 +320,37 @@ do_gettracknum()
 
 do_replaygain()
 {
-	run_command "" echo "Adding reply-gain information..."
-	for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
-	do
-		OUTPUTFILES=""
-		for UTRACKNUM in $TRACKQUEUE
+	if checkstatus replaygain; then :; else
+		run_command "" echo "Adding reply-gain information..."
+		for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
+		# THE OUTPUT NEEDS TO BE CORRECTED WITH THE CONTAINER?
 		do
-			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			do_getcddbinfo TRACKNAME
-			splitvarious
-			TRACKFILE=$(mungefilename "$TRACKNAME")
-			ARTISTFILE=$(mungefilename "$TRACKARTIST")
-			ALBUMFILE=$(mungefilename "$DALBUM")
-			do_gettrucknum
-			if [ "$VARIOUSARTISTS" = "y" ]; then
-				OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
-			else
-				OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
-			fi
-			OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
+			OUTPUTFILES=""
+			for UTRACKNUM in $TRACKQUEUE
+			do
+				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
+				do_getcddbinfo TRACKNAME
+				splitvarious
+				TRACKFILE=$(mungefilename "$TRACKNAME")
+				ARTISTFILE=$(mungefilename "$TRACKARTIST")
+				ALBUMFILE=$(mungefilename "$DALBUM")
+				do_gettracknum
+				if [ "$VARIOUSARTISTS" = "y" ]; then
+					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
+				else
+					OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
+				fi
+				OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
+			done
+			case "$OUTPUT" in
+				flac);;
+				ogg);;
+				*);;
+			esac
+			echo vorbisgain-$OUTPUT >> "$ABCDETEMPDIR/status"
 		done
-		case "$OUTPUT" in
-			flac);;
-			ogg);;
-			*);;
-		esac
-		echo vorbisgain-$OUTPUT >> "$ABCDETEMPDIR/status"
-	done
-	echo vorbisgain >> "$ABCDETEMPDIR/status"
+		echo vorbisgain >> "$ABCDETEMPDIR/status"
+	fi
 }
 
 # This code splits the a Various Artist track name from one of the following
@@ -1176,7 +1184,7 @@ do_playlist ()
 			#	else
 			#		TRACKNUM=${UTRACKNUM}
 			#	fi
-				do_gettrucknum
+				do_gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
 				else
@@ -2498,6 +2506,7 @@ DOENCODE=n
 DOPOSTPROCESS=n
 DOTAG=n
 DOMOVE=n
+DOREPLAYGAIN=n
 DOPLAYLIST=n
 DOCLEAN=n
 
@@ -2512,6 +2521,7 @@ do
 #		postprocess) DOPREPROCESS=y; DOENCODE=y; DOREAD=y;;
 		tag) DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
 		move) DOMOVE=y; DOTAG=y; DOREAD=y; DOENCODE=y; DOCDDB=y;;
+		replaygain) DOCDDB=y; DOREAD=y; DOENCODE=y; DOTAG=y; DOMOVE=y; DOREPLAYGAIN=y;;
 		playlist) DOCDDB=y; DOPLAYLIST=y;;
 		clean) DOCLEAN=y;;
 	esac
@@ -3211,7 +3221,7 @@ if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 fi
 # If the above didn't catch the stragglers, this will
 wait
-if checkstatus replaygain; then :; else
+if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
 # Check to see if run_command logged any errors
