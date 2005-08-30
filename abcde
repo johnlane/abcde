@@ -209,7 +209,7 @@ run_command ()
 		fi
 	fi
 	case "$1" in
-	normalize)
+	normalize|normalize-audio)
 		if [ "$RETURN" = "2" ]; then
 			# File was already normalized.
 			RETURN=0
@@ -579,96 +579,102 @@ do_tag ()
 	fi
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
-	case "$OUTPUT" in
-	mp3)
-		# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
-		GENREID=$(do_getgenreid "${CDGENRE}")
-
-		case "$ID3SYNTAX" in
-			id3);;
-			eyed3)
-				# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
-				run_command tagtrack-$1 $TAGGER $TAGGEROPTS --commen=::"$COMMENTOUTPUT" \
-					-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
-					-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
-					"${ENCODING:+--set-encoding=$ENCODING}"
-					"$ABCDETEMPDIR/track$1.$OUTPUT"
-				;;
-			*)
-				# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
-				run_command tagtrack-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
-					-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
-					-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
-					"$ABCDETEMPDIR/track$1.$OUTPUT"
-				;;
+		case "$OUTPUT" in
+		mp3)
+			# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
+			GENREID=$(do_getgenreid "${CDGENRE}")
+	
+			case "$ID3SYNTAX" in
+				id3);;
+				eyed3)
+					# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS --commen=::"$COMMENTOUTPUT" \
+						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
+						-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
+						"${ENCODING:+--set-encoding=$ENCODING}"
+						"$ABCDETEMPDIR/track$1.$OUTPUT"
+					;;
+				*)
+					# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
+						-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
+						"$ABCDETEMPDIR/track$1.$OUTPUT"
+					;;
+			esac
+			;;
+		vorbis|ogg)
+			case "$OGGENCODERSYNTAX" in
+				vorbize|oggenc)
+					# vorbiscomment can't do in-place modification, mv the file first
+					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" -a ! -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
+						mv "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
+					fi
+					(
+					# These are from http://www.xiph.org/ogg/vorbis/doc/v-comment.html
+					echo ARTIST="$TRACKARTIST"
+					echo ALBUM="$DALBUM"
+					echo TITLE="$TRACKNAME"
+					if [ -n "$CDYEAR" ]; then
+						echo DATE="$CDYEAR"
+					fi
+					if [ -n "$CDGENRE" ]; then
+						echo GENRE="$CDGENRE"
+					fi	
+					echo TRACKNUMBER=${TRACKNUM:-$1}
+					echo CDDB=$CDDBDISCID
+					if [ "$(eval echo ${COMMENT})" != "" ]; then
+						case "$COMMENTOUTPUT" in
+							*=*) echo "$COMMENTOUTPUT";;
+							*)   echo COMMENT="$COMMENTOUTPUT";;
+						esac	
+					fi
+					) | run_command tagtrack-$OUTPUT-$1 $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
+						"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+					# Doublecheck that the commented file was created successfully before wiping the original
+					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
+						rm -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
+					else
+						mv "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+					fi
+					;;
+			esac
+			;;
+		flac)
+			(
+			echo ARTIST="$TRACKARTIST"
+			echo ALBUM="$DALBUM"
+			echo TITLE="$TRACKNAME"
+			if [ -n "$CDYEAR" ]; then
+				echo DATE="$CDYEAR"
+			fi
+			if [ -n "$CDGENRE" ]; then
+				echo GENRE="$CDGENRE"
+			fi	
+			echo TRACKNUMBER="${TRACKNUM:-$1}"
+			echo CDDB="$CDDBDISCID"
+			if [ "$(eval echo ${COMMENT})" != "" ]; then
+				case "$COMMENTOUTPUT" in
+					*=*) echo "$COMMENTOUTPUT";;
+					*)   echo COMMENT="$COMMENTOUTPUT";;
+				esac	
+			fi
+			) | run_command tagtrack-$OUTPUT-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+			;;
+		spx)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
+		mpc)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
 		esac
-		;;
-	vorbis|ogg)
-		case "$OGGENCODERSYNTAX" in
-			vorbize|oggenc)
-				# vorbiscomment can't do in-place modification, mv the file first
-				if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" -a ! -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
-					mv "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
-				fi
-				(
-				# These are from http://www.xiph.org/ogg/vorbis/doc/v-comment.html
-				echo ARTIST="$TRACKARTIST"
-				echo ALBUM="$DALBUM"
-				echo TITLE="$TRACKNAME"
-				if [ -n "$CDYEAR" ]; then
-					echo DATE="$CDYEAR"
-				fi
-				if [ -n "$CDGENRE" ]; then
-					echo GENRE="$CDGENRE"
-				fi	
-				echo TRACKNUMBER=${TRACKNUM:-$1}
-				echo CDDB=$CDDBDISCID
-				if [ "$(eval echo ${COMMENT})" != "" ]; then
-					case "$COMMENTOUTPUT" in
-						*=*) echo "$COMMENTOUTPUT";;
-						*)   echo COMMENT="$COMMENTOUTPUT";;
-					esac	
-				fi
-				) | run_command tagtrack-$1 $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
-					"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
-				# Doublecheck that the commented file was created successfully before wiping the original
-				if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
-					rm -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
-				else
-					mv "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
-				fi
-				;;
-		esac
-		;;
-	flac)
-		(
-		echo ARTIST="$TRACKARTIST"
-		echo ALBUM="$DALBUM"
-		echo TITLE="$TRACKNAME"
-		if [ -n "$CDYEAR" ]; then
-			echo DATE="$CDYEAR"
-		fi
-		if [ -n "$CDGENRE" ]; then
-			echo GENRE="$CDGENRE"
-		fi	
-		echo TRACKNUMBER=${TRACKNUM:-$1}
-		echo CDDB=$CDDBDISCID
-		if [ "$(eval echo ${COMMENT})" != "" ]; then
-			case "$COMMENTOUTPUT" in
-				*=*) echo "$COMMENTOUTPUT";;
-				*)   echo COMMENT="$COMMENTOUTPUT";;
-			esac	
-		fi
-		) | run_command tagtrack-$1 $METAFLAC $METAFLACOPTS --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
-		;;
-	spx)
-		run_command tagtrack-$1 true
-		;;
-	mpc)
-		run_command tagtrack-$1 true
-		;;
-	esac
 	done
+	if checkerrors "tagtrack-(.{3,4})-$1"; then
+		run_command tagtrack-$1 false
+	else
+		run_command tagtrack-$1 true
+	fi
+
 }
 
 # do_batch_encode
@@ -855,10 +861,8 @@ do_encode ()
 			fi
 		fi
 	else
-		if [ "$(checkstatus encode-output)" = "loud" ]; then
-			echo "HEH! The file we were about to encode disappeared:"
-			echo ">> $IN"
-		fi
+		run_command "" echo "HEH! The file we were about to encode disappeared:"
+		run_command "" echo ">> $IN"
 		run_command encodetrack-$1 false
 	fi
 }
@@ -1036,14 +1040,6 @@ do_move ()
 {
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
-		case $OUTPUT in
-			vorbis|ogg)
-				OUTPUT=$OGGOUTPUTCONTAINER
-				;;
-			flac)
-				OUTPUT=$FLACOUTPUTCONTAINER
-				;;
-		esac
 		# Create ALBUMFILE, ARTISTFILE, TRACKFILE
 		# Munge filenames as follows:
 		# ' ' -> '_'
@@ -1073,34 +1069,43 @@ do_move ()
 			else
 			OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
 		fi
-		# Check that the directory for OUTPUTFILE exists, if it doesn't, create it
-		OUTPUTFILEDIR=$(dirname "$OUTPUTDIR/$OUTPUTFILE")
-		# mkdir -p shouldn't return an error if the directory already exists
-		mkdir -p "$OUTPUTFILEDIR"
-		# Silence the Moving output since it overlaps with encoding processes...
-		#run_command '' vecho "Moving track$1.$OUTPUT to $OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
-		run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
-		# Lets move the cue file
-		if CUEFILE=$(checkstatus cuefile) >/dev/null ; then 
-			if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
-				if checkstatus movecue-$OUTPUT; then :; else
-					# Silence the Copying output since it overlaps with encoding processes...
-					#run_command '' vecho "Copying cue file to its destination directory..."
-					if checkstatus onetrack >/dev/null ; then
-						case $OUTPUT in
-							# NOTE: Creating a cue file with the 3-char-extension files is to comply with
-							# http://brianvictor.tripod.com/mp3cue.htm#details
-							[a-z0-9][a-z0-9][a-z0-9])
-								run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
-								;;
-							*)
-								run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT.cue"
-								;;
-						esac
-					else
-						run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
+		if checkerrors "tagtrack-$OUTPUT-$1"; then :; else
+			# Once we know the specific output was successful, we can change the OUTPUT to the value containing the container
+			case $OUTPUT in
+				vorbis|ogg)
+					OUTPUT=$OGGOUTPUTCONTAINER
+					;;
+				flac)
+					OUTPUT=$FLACOUTPUTCONTAINER
+					;;
+			esac
+			# Check that the directory for OUTPUTFILE exists, if it doesn't, create it
+			OUTPUTFILEDIR=$(dirname "$OUTPUTDIR/$OUTPUTFILE")
+			# mkdir -p shouldn't return an error if the directory already exists
+			mkdir -p "$OUTPUTFILEDIR"
+			run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+			# Lets move the cue file
+			if CUEFILE=$(checkstatus cuefile) >/dev/null ; then 
+				if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
+					if checkstatus movecue-$OUTPUT; then :; else
+						# Silence the Copying output since it overlaps with encoding processes...
+						#run_command '' vecho "Copying cue file to its destination directory..."
+						if checkstatus onetrack >/dev/null ; then
+							case $OUTPUT in
+								# NOTE: Creating a cue file with the 3-char-extension files is to comply with
+								# http://brianvictor.tripod.com/mp3cue.htm#details
+								[a-z0-9][a-z0-9][a-z0-9])
+									run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
+									;;
+								*)
+									run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT.cue"
+									;;
+							esac
+						else
+							run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
+						fi
+						echo movecue-$OUTPUT >> "$ABCDETEMPDIR/status"
 					fi
-					echo movecue-$OUTPUT >> "$ABCDETEMPDIR/status"
 				fi
 			fi
 		fi
