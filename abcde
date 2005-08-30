@@ -347,9 +347,17 @@ do_replaygain()
 				ogg);;
 				*);;
 			esac
-			echo vorbisgain-$OUTPUT >> "$ABCDETEMPDIR/status"
+			if [ "$RETURN" = "0" ]; then
+				run_command replaygain-$OUTPUT true
+			else
+				runcommand replaygain-$OUTPUT false
+			fi
 		done
-		echo vorbisgain >> "$ABCDETEMPDIR/status"
+		if checkerrors replaygain-.{3,4}; then
+			run_command replaygain false
+		else
+			run_command replaygain true
+		fi
 	fi
 }
 
@@ -2526,6 +2534,11 @@ do
 		clean) DOCLEAN=y;;
 	esac
 done
+
+if [ "$DONORMALIZE" = "y" ] && [ "$DOREPLAYGAIN" = "y" ]; then
+	# FIXME # should we abort on error or just inform the user?
+	:
+fi
 
 for SHOWCDDBFIELD in $(echo $SHOWCDDBFIELDS | tr , \ ); do
 	case $SHOWCDDBFIELD in
