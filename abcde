@@ -325,6 +325,14 @@ do_replaygain()
 		for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
 		# THE OUTPUT NEEDS TO BE CORRECTED WITH THE CONTAINER?
 		do
+			case $OUTPUT in
+				vorbis|ogg)
+					OUTPUT=$OGGOUTPUTCONTAINER
+					;;
+				flac)
+					OUTPUT=$FLACOUTPUTCONTAINER
+					;;
+			esac
 			OUTPUTFILES=""
 			for UTRACKNUM in $TRACKQUEUE
 			do
@@ -343,17 +351,16 @@ do_replaygain()
 				OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
 			done
 			case "$OUTPUT" in
-				flac);;
-				ogg);;
+				flac)
+					run_command replaygain-flac $METAFLAC --add-replay-gain $OUTPUTFILES
+					;;
+				vorbis|ogg)
+					run_command replaygain-vorbis $VORBISGAIN --album $OUTPUTFILES
+					;;
 				*);;
 			esac
-			if [ "$RETURN" = "0" ]; then
-				run_command replaygain-$OUTPUT true
-			else
-				runcommand replaygain-$OUTPUT false
-			fi
 		done
-		if checkerrors replaygain-.{3,4}; then
+		if checkerrors replaygain-.{3,6}; then
 			run_command replaygain false
 		else
 			run_command replaygain true
@@ -685,7 +692,7 @@ do_tag ()
 			;;
 		esac
 	done
-	if checkerrors "tagtrack-(.{3,4})-$1"; then
+	if checkerrors "tagtrack-(.{3,6})-$1"; then
 		run_command tagtrack-$1 false
 	else
 		run_command tagtrack-$1 true
@@ -868,7 +875,7 @@ do_encode ()
 			esac
 		done
 		# Only remove .wav if the encoding succeeded
-		if checkerrors "encodetrack-(.{3,4})-$1"; then 
+		if checkerrors "encodetrack-(.{3,6})-$1"; then 
 			run_command encodetrack-$1 false
 		else
 			run_command encodetrack-$1 true
