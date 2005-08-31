@@ -2644,7 +2644,7 @@ esac
 
 # Allow -o OUTPUT(1):OPTIONS(1),...,OUTPUT(N):OPTIONS(N) mode of operation
 if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
-	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ ); do
+	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
 		case "$OUTPUT" in
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -2653,7 +2653,7 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 			mpc:*)	MPPENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
-	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ ); do
+	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
 		TEMPOUTPUT=$( echo "$OUTPUT" | cut -d: -f1 )
 		TEMPOUTPUTTYPE="${TEMPOUTPUTTYPE:+$TEMPOUTPUTTYPE,}$TEMPOUTPUT"
 	done
