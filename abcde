@@ -331,9 +331,9 @@ do_replaygain()
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 				do_getcddbinfo TRACKNAME
 				splitvarious
-				TRACKFILE=$(mungefilename "$TRACKNAME")
-				ARTISTFILE=$(mungefilename "$TRACKARTIST")
-				ALBUMFILE=$(mungefilename "$DALBUM")
+				TRACKFILE="$(mungefilename "$TRACKNAME")"
+				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+				ALBUMFILE="$(mungefilename "$DALBUM")"
 				do_gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
@@ -378,34 +378,34 @@ splitvarious ()
 	if [ "$VARIOUSARTISTS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
 		case "$VARIOUSARTISTSTYLE" in
 		forward)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's- / -~-g')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's- / -~-g')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
 			;;
 		forward-dash)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's, - ,~,g')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's, - ,~,g')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
 			;;
 		reverse)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's- / -~-g')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's- / -~-g')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
 			;;
 		reverse-dash)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's, - ,~,g')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's, - ,~,g')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
 			;;
 		colon)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's-: -~-g')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f1 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f2 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's-: -~-g')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
 			;;
 		trailing-paren)
-			DTITLEARTIST=$(echo "$TRACKNAME" | sed 's,^\(.*\) (\(.*\)),\1~\2,')
-			TRACKARTIST=$(echo "$DTITLEARTIST" | cut -f2 -d~)
-			TRACKNAME=$(echo "$DTITLEARTIST" | cut -f1 -d~)
+			DTITLEARTIST="$(echo "$TRACKNAME" | sed 's,^\(.*\) (\(.*\)),\1~\2,')"
+			TRACKARTIST="$(echo "$DTITLEARTIST" | cut -f2 -d~)"
+			TRACKNAME="$(echo "$DTITLEARTIST" | cut -f1 -d~)"
 			;;
 		esac
 	elif [ "$VARIOUSARTISTS" = "y" ] && [ "$ONETRACK" = "y" ]; then
@@ -1063,11 +1063,11 @@ do_move ()
 		# ''' -> ''
 		# '?' -> ''
 		# Eat control characters
-		ALBUMFILE=$(mungefilename "$DALBUM")
-		ARTISTFILE=$(mungefilename "$TRACKARTIST")
-		TRACKFILE=$(mungefilename "$TRACKNAME")
-		GENRE=$(mungegenre "$GENRE")
-		YEAR=$(echo $CDYEAR)
+		ALBUMFILE="$(mungefilename "$DALBUM")"
+		ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+		TRACKFILE="$(mungefilename "$TRACKNAME")"
+		GENRE="$(mungegenre "$GENRE")"
+		YEAR="$(echo $CDYEAR)"
 		# If we want to start the tracks with a given number, we need to modify the
 		# TRACKNUM value before evaluation
 	#	if [ -n "$STARTTRACKNUMBER" ] ; then
@@ -1081,9 +1081,9 @@ do_move ()
 		# Supported variables for OUTPUTFORMAT are GENRE, ALBUMFILE, ARTISTFILE,
 		# TRACKFILE, and TRACKNUM.
 		if [ "$VARIOUSARTISTS" = "y" ]; then
-			OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
-			else
-			OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
+			OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
+		else
+			OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
 		fi
 		if checkerrors "tagtrack-$OUTPUT-$1"; then :; else
 			# Once we know the specific output was successful, we can change the OUTPUT to the value containing the container
@@ -1096,7 +1096,7 @@ do_move ()
 					;;
 			esac
 			# Check that the directory for OUTPUTFILE exists, if it doesn't, create it
-			OUTPUTFILEDIR=$(dirname "$OUTPUTDIR/$OUTPUTFILE")
+			OUTPUTFILEDIR="$(dirname "$OUTPUTDIR/$OUTPUTFILE")"
 			# mkdir -p shouldn't return an error if the directory already exists
 			mkdir -p "$OUTPUTFILEDIR"
 			run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
@@ -1140,8 +1140,8 @@ do_playlist ()
 		# Create a playlist file for the playlist data to go into.
 		# We used to wipe it out if it existed. Now we request permision if interactive.
 		for LASTTRACK in $TRACKQUEUE; do :; done
-		ALBUMFILE=$(mungefilename "$DALBUM")
-		ARTISTFILE=$(mungefilename "$DARTIST")
+		ALBUMFILE="$(mungefilename "$DALBUM")"
+		ARTISTFILE="$(mungefilename "$DARTIST")"
 		GENRE=$(mungegenre "$GENRE")
 		YEAR=${CDYEAR:-$CDYEAR}
 		if [ "$VARIOUSARTISTS" = "y" ] ; then
@@ -1180,9 +1180,9 @@ do_playlist ()
 				#TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
 				do_getcddbinfo TRACKNAME
 				splitvarious
-				TRACKFILE=$(mungefilename "$TRACKNAME")
-				ARTISTFILE=$(mungefilename "$TRACKARTIST")
-				ALBUMFILE=$(mungefilename "$DALBUM")
+				TRACKFILE="$(mungefilename "$TRACKNAME")"
+				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+				ALBUMFILE="$(mungefilename "$DALBUM")"
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
 			#	if [ -n "$STARTTRACKNUMBER" ] ; then
@@ -2925,7 +2925,7 @@ if [ "$DOCDDB" = "y" ]; then
 	fi
 	do_cddbedit
 
-	eval $($CDDBTOOL parse "$CDDBDATA")
+	eval "$($CDDBTOOL parse "$CDDBDATA")"
 fi
 
 # Before reading tracks, we set the speed of the device
