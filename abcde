@@ -360,9 +360,7 @@ do_replaygain()
 				*);;
 			esac
 		done
-		if checkerrors replaygain-.{3,6}; then
-			run_command replaygain false
-		else
+		if checkerrors replaygain-.{3,6}; then :; else
 			run_command replaygain true
 		fi
 	fi
@@ -692,9 +690,7 @@ do_tag ()
 			;;
 		esac
 	done
-	if checkerrors "tagtrack-(.{3,6})-$1"; then
-		run_command tagtrack-$1 false
-	else
+	if checkerrors "tagtrack-(.{3,6})-$1"; then :; else
 		run_command tagtrack-$1 true
 	fi
 
@@ -726,7 +722,7 @@ do_batch_encode ()
 			else
 				for UTRACKNUM in $TRACKQUEUE
 				do
-					echo encodetrack-$UTRACKNUM >> status
+					run_command encodetrack-$UTRACKNUM true
 				done
 			fi
 			)
@@ -875,9 +871,7 @@ do_encode ()
 			esac
 		done
 		# Only remove .wav if the encoding succeeded
-		if checkerrors "encodetrack-(.{3,6})-$1"; then 
-			run_command encodetrack-$1 false
-		else
+		if checkerrors "encodetrack-(.{3,6})-$1"; then :; else
 			run_command encodetrack-$1 true
 			if [ ! "$KEEPWAVS" = "y" ] ; then
 				rm -f "$IN"
