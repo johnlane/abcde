@@ -1138,6 +1138,14 @@ do_playlist ()
 {
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
+		case $OUTPUT in
+			vorbis|ogg)
+				OUTPUT=$OGGOUTPUTCONTAINER
+				;;
+			flac)
+				OUTPUT=$FLACOUTPUTCONTAINER
+				;;
+		esac
 		# Create a playlist file for the playlist data to go into.
 		# We used to wipe it out if it existed. Now we request permision if interactive.
 		for LASTTRACK in $TRACKQUEUE; do :; done
