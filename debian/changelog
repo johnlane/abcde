@@ -3,17 +3,20 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added diff choice to CDDB entries ("1,4").
   * Added SHOWCDDBFIELDS to allow the user to show YEAR and GENRE in the
     parsed CDDB output.
+  * Changed cdparanoia-audio-tracks to use the status file to save the data.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 13 Aug 2005 03:26:59 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  3 Sep 2005 19:26:44 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 
   * Some patches from Tom Spindler <dogcow () babymeat ! com>
     - Added some quoting to the md5sum checkings, since the variables could be
-      null. 
+      null.
     - NetBSD bits to use ftp instead on anything else to fetch stuff.
+  * do_playlist needs to convert the OUTPUT to the CONTAINERS to avoid ending
+    with playlists pointing to .vorbis files (Closes: #326487).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 22 Aug 2005 12:14:54 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  3 Sep 2005 16:50:07 +0300
 
 abcde (2.3.3-1) unstable; urgency=low
 

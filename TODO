@@ -1,8 +1,5 @@
 TODO:
 ----
-* Change cdparanoia-tracks to = in the status file
-
-* ReplyGain support
 * flacdecode (to extract files from a -1 flac file)
 
 * Get the echo instances to behave consistently
@@ -43,8 +40,6 @@ TODO:
   invoked once per wav.
 
   Abcde should halt when a problem occurs, so it can be manually resolved.
-
-* Support UTF-8
 
 * AAC support (faac should be free?)
 

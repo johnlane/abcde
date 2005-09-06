@@ -1287,11 +1287,11 @@ do_discid ()
 						if [ ! "$RET" = "0" ];then
 							echo "Warning: Something went wrong while querying the CD... Maybe a DATA CD?"
 						fi
-						TRACKS="$( echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ' )"
+						TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
-							TRACKS=$( cat "$ABCDETEMPDIR/cdparanoia-audio-tracks" )
+							TRACKS=$(checkstatus cdparanoia-audio-tracks)
 						else
 							TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 						fi
@@ -1424,9 +1424,7 @@ do_discid ()
 	# If we got the CDPARANOIA status and it is not recorded, save it now
 	if [ -n "$CDPARANOIAAUDIOTRACKS" ]; then
 		if checkstatus cdparanoia-audio-tracks; then :; else
-			if echo "$CDPARANOIAAUDIOTRACKS" >> "$ABCDETEMPDIR/cdparanoia-audio-tracks"; then
-				echo "cdparanoia-audio-tracks" >> "$ABCDETEMPDIR/status"
-			fi
+			echo cdparanoia-audio-tracks=$CDPARANOIAAUDIOTRACKS >> "$ABCDETEMPDIR/status"
 		fi
 	fi
 	
