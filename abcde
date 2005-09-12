@@ -11,7 +11,7 @@
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
 
-VERSION="2.3.99-$Id$"
+VERSION="2.3.99-$Id $"
 
 usage ()
 {
@@ -1290,9 +1290,7 @@ do_discid ()
 						TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
-						if [ -f "$ABCDETEMPDIR/status" ] && checkstatus cdparanoia-audio-tracks ; then
-							TRACKS=$(checkstatus cdparanoia-audio-tracks)
-						else
+						if [ -f "$ABCDETEMPDIR/status" ] && TRACKS=$(checkstatus cdparanoia-audio-tracks); then :; else
 							TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 						fi
 					fi
@@ -1423,7 +1421,7 @@ do_discid ()
 	fi
 	# If we got the CDPARANOIA status and it is not recorded, save it now
 	if [ -n "$CDPARANOIAAUDIOTRACKS" ]; then
-		if checkstatus cdparanoia-audio-tracks; then :; else
+		if checkstatus cdparanoia-audio-tracks > /dev/null 2>&1; then :; else
 			echo cdparanoia-audio-tracks=$CDPARANOIAAUDIOTRACKS >> "$ABCDETEMPDIR/status"
 		fi
 	fi
