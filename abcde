@@ -2854,8 +2854,8 @@ if [ "$USEPIPES" = "y" ]; then
 	esac
 	if [ ! -n "$( eval echo "\$$PIPERIPPERSVARCHECK" )" ] ; then
 		echo "abcde error: no support for pipes with given ripper" >&2
-		echo "read the USEPIPES file from the source tarball to help" >&2
-		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
+		echo "read the USEPIPES file from the source tarball to get help." >&2
+		echo "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz" >&2
 		exit 1;
 	fi
 	if [ ! -n "$( eval echo "\$$PIPEENCODERSVARCHECK" )" ] ; then
