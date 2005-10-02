@@ -2,8 +2,9 @@ ABCDE
 =====
 
 abcde is a frontend command-line utility (actually, a shell script) that
-grabs tracks off a CD, encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or
-MPP/MP+(Musepack) format, and tags them, all in one go.
+grabs tracks off a CD or a singletrack flac file with an embeded cuesheet,
+encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack)
+format, and tags them, all in one go.
 
 Your finished Ogg/MP3/FLAC/Speex/MPP's are, by default, stored in a subdirectory
 of the current directory (named after the artist) with a filename based on the
@@ -15,13 +16,7 @@ abcde.conf to change it.
 
 Many of the questions related of problems executing abcde have been moved to the
 FAQ, which should be distributed along with this package. Reffer to that file 
-for help.
-
-To make abcde 2.x work more like 1.x, put these options in your abcde.conf:
-
-INTERACTIVE=n
-OUTPUTTYPE=mp3
-ID3TAGV=1
+for more help.
 
 MAJOR CHANGES
 =============
@@ -31,7 +26,9 @@ Changes in 2.4:
   parsed CDDB entries.
 * Added SHOWCDDBFIELDS to define wether to show the YEAR and GENRE fields from
   the CDDB output.
-
+* Added the possibility of using a singletrack flac file with an embeded
+  cuesheet as a source to extract tracks from.
+ 
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
   with "-1" to create a backup, so that later on the original CD can be

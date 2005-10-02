@@ -4,8 +4,10 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added SHOWCDDBFIELDS to allow the user to show YEAR and GENRE in the
     parsed CDDB output.
   * Changed cdparanoia-audio-tracks to use the status file to save the data.
+  * Added the possibility of using a singletrack flac file with an embeded
+    cuesheet as a source of tracks.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  3 Sep 2005 19:26:44 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  1 Oct 2005 14:44:03 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 
