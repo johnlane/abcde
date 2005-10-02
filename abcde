@@ -28,7 +28,7 @@ echo "       Specify a configuration file (overrides system and user config file
 echo "-C <discid#>"
 echo "       Specify discid to resume from (only needed if you no longer have the cd)"
 echo "-d <device>"
-echo "       Specify CDROM device to grab"
+echo "       Specify CDROM device to grab (flac uses a single-track flac file)"
 echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
 #echo "-E     Set the encoding information for the tags"
@@ -321,7 +321,7 @@ do_gettracknum()
 do_replaygain()
 {
 	if checkstatus replaygain; then :; else
-		run_command "" echo "Adding reply-gain information..."
+		run_command "" echo "Adding replygain information..."
 		for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
 		# THE OUTPUT NEEDS TO BE CORRECTED WITH THE CONTAINER?
 		do
@@ -1248,11 +1248,21 @@ do_discid ()
 		if [ "$OSFLAVOUR" = "OSX" ]; then
 			disktool -u ${CDROM#/dev/}
 		fi
-		TRACKINFO=$($CDDISCID $CDROM)
+		if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
+			TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
+		else
+			TRACKINFO=$($CDDISCID $CDROM)
+		fi
 		# Make sure there's a CD in there by checking cd-discid's return code
-		if [ "$?" = "1" ]; then
-			echo "abcde error: CD could not be read. Perhaps there's no CD in the drive?" >&2
-			exit 1
+		if [ ! "$?" = "0" ]; then
+			if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
+				echo "abcde error: cuesheet information from the flac file could not be read." >&2
+				echo "abcde error: Perhaps the flac file does not contain a cuesheet?." >&2
+				exit 1
+			else
+				echo "abcde error: CD could not be read. Perhaps there's no CD in the drive?" >&2
+				exit 1
+			fi
 		fi
 		# In OSX, remount the disc again
 		if [ "$OSFLAVOUR" = "OSX" ]; then
@@ -2043,6 +2053,8 @@ do_cdread ()
 		LASTTRACK=$3
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
+			### FIXME ### How are we calculating the tracks in flac mode?
+			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
 			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
 			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
@@ -2060,7 +2072,10 @@ do_cdread ()
 	else
 		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
 		case "$CDROMREADERSYNTAX" in
-		## FIXME ## Find the case for dagrab, to avoid exceptions
+		## FIXME ## Find the cases for dagrab and flac, to avoid exceptions
+			flac)
+				FILEARG="--output-name=$WAVDATA"
+				;;
 			dagrab)
 				FILEARG="-f $WAVDATA"
 				;;
@@ -2082,6 +2097,10 @@ do_cdread ()
 		fi
 	fi
 	case "$CDROMREADERSYNTAX" in
+		### FIXME ### use an exception for flac, since it uses -o
+		### FIXME ### Shall we just use -o $FILEARG ??
+		flac)
+			nice $READNICE $FLAC -d --cue=${READTRACKNUMS:-$UTRACKNUM.1-$(($UTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
 			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav)
@@ -2291,6 +2310,7 @@ VORBISGAIN=vorbisgain
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
+CUE2DISCID=cue2discid
 
 # Options for programs called from abcde
 # mp3
@@ -2415,7 +2435,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2467,16 +2487,28 @@ while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 			 exit 1
 		   fi
 		   ;;
+		z) echo "Placeholder for a future autodebug option" ;;
 		?) usage; exit ;;
 	esac
 done
 
 shift $(($OPTIND - 1))
 
+# If the user specified a flac file, then switch to special flac mode
+if echo $CDROM | grep -i -q '.flac$'; then
+	vecho "abcde: switching to flac CDROMREADERSYNTAX..."
+	CDROMREADERSYNTAX=flac
+	if [ "$EJECTCD" = "y" ];then
+		vecho "abcde: CDROM flac mode, deactivating EJECTCD..."
+		EJECTCD=n
+	fi
+fi
+
 # Decide if we can continue.
 if [ "$ONETRACK" = "y" ]; then 
 	# FIXME # remove check as soon as we find out about the other readers
 	case "$CDROMREADERSYNTAX" in
+		flac) ;;
 		cdparanoia) ;;
 		cdda2wav) ;;
 		*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
@@ -2637,6 +2669,10 @@ case "$CDROMREADERSYNTAX" in
 		CDROMREADER="$CDDAFS"
 		CDROMREADEROPTS="$CDDAFSOPTS"
 		;;
+	flac)
+		CDROMREADER="$FLAC"
+		CDROMREADEROPTS="$FLACOPTS"
+		;;
 esac
 
 # There's only one normalize...
@@ -2683,6 +2719,7 @@ do
 			;;
 		flac)
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
+			[ "$REPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 			;;
 		spx)
@@ -2822,6 +2859,8 @@ fi
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
+		### FIXME ### translate "cue2discid" from python to bash
+		flac) NEEDMETAFLAC=y ; NEEDCUE2DISCID=y ;;
 		*) NEEDCDSPEED=y ;;
 	esac
 fi
@@ -2829,6 +2868,7 @@ fi
 # Rippers with USEPIPE support
 # FIXME # Include here all the rippers we can figure out support pipes
 PIPE_cdparanoia="-"
+PIPE_flac="-c "
 
 # Encoders with USEPIPE support
 # FIXME # Include here all the encoders we can figure out support pipes
@@ -2873,7 +2913,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
-	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDCUEREADER+$CUEREADER}
+	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDCUEREADER+$CUEREADER} \
+	${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
@@ -2937,7 +2978,8 @@ fi
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
-		cdparanoia|debug) : ;;
+		cdparanoia|debug) ;;
+		flac) ;;
 		*) do_cdspeed ;;
 	esac
 fi
@@ -3239,7 +3281,7 @@ if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 fi
 # If the above didn't catch the stragglers, this will
 wait
-if [ "$DOREPLAYGAIN" = "y" ]; then
+if [ "$REPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
 # Check to see if run_command logged any errors

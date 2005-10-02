@@ -35,6 +35,13 @@ A. When it is ready. I keep on having new ideas and adding them to the trunk
 2. EXECUTION
    =========
 
+Q. I want to force abcde 2.x to behave more like 1.x. How do I do it?
+A. Put these options in your abcde.conf:
+
+   INTERACTIVE=n
+   OUTPUTTYPE=mp3
+   ID3TAGV=1
+
 Q. Low on disk space?
 A. abcde has different algorithms to schedule ripping and encoding - to 
    optimize for disk conservation, use -l. You can also define
