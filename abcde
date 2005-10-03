@@ -43,7 +43,7 @@ echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
 echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -590,11 +590,6 @@ do_tag ()
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
 	# If we want to start the tracks with a given number, we need to modify the
 	# TRACKNUM value before evaluation
-#	if [ -n "$STARTTRACKNUMBER" -a -n "$STARTTRACKNUMBERTAG" ] ; then
-#		# Get the trackpadding from the current track
-#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
-#	fi
 	if [ -n "$STARTTRACKNUMBERTAG" ] ; then
 		do_gettracknum
 	fi
@@ -686,6 +681,9 @@ do_tag ()
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
 		mpc)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
+		wav)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
 		esac
@@ -868,13 +866,19 @@ do_encode ()
 				## FIXME ## to the encoder ends up empty.
 				$RUN_COMMAND nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
+			wav)
+				# In case of wav output we need nothing. Just keep the wavs.
+				run_command encodetrack-$OUTPUT-$1 true
+				;;
 			esac
 		done
 		# Only remove .wav if the encoding succeeded
 		if checkerrors "encodetrack-(.{3,6})-$1"; then :; else
 			run_command encodetrack-$1 true
 			if [ ! "$KEEPWAVS" = "y" ] ; then
-				rm -f "$IN"
+				if [ ! "$KEEPWAVS" = "move" ] ; then
+					rm -f "$IN"
+				fi
 			fi
 		fi
 	else
@@ -1071,13 +1075,6 @@ do_move ()
 		YEAR="$(echo $CDYEAR)"
 		# If we want to start the tracks with a given number, we need to modify the
 		# TRACKNUM value before evaluation
-	#	if [ -n "$STARTTRACKNUMBER" ] ; then
-	#		# Get the trackpadding from the current track
-	#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-	#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
-	#	else
-	#		TRACKNUM=${UTRACKNUM}
-	#	fi
 		do_gettracknum
 		# Supported variables for OUTPUTFORMAT are GENRE, ALBUMFILE, ARTISTFILE,
 		# TRACKFILE, and TRACKNUM.
@@ -1194,13 +1191,6 @@ do_playlist ()
 				ALBUMFILE="$(mungefilename "$DALBUM")"
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
-			#	if [ -n "$STARTTRACKNUMBER" ] ; then
-			#		# Get the trackpadding from the current track
-			#		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
-			#		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
-			#	else
-			#		TRACKNUM=${UTRACKNUM}
-			#	fi
 				do_gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
@@ -2727,6 +2717,10 @@ do
 			;;
 		mpc)
 			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
+			;;
+		wav)
+			vecho "Unsetting the KEEPWAVS option, since the resulting wav files were requested..."
+			KEEPWAVS=move
 			;;
 		*)	echo "abcde error: Invalid OUTPUTTYPE defined" >&2
 			exit 1
