@@ -1,10 +1,9 @@
 TODO:
 ----
-* flacdecode (to extract files from a -1 flac file)
+* flacdecode (to extract files from a -1 flac file) (ALMOST READY!)
 
 * Get the echo instances to behave consistently
 
-* move the wav files to a different dir if the user wants to keep the tracks
 * read the TOC and CDTEXT files and store them
 
 * read_and_encode_and_tag? :)
@@ -78,4 +77,15 @@ TODO:
   
   BTW, dpkg -l toolame:
   ii  toolame        02i-2          MPEG-1 layer 2 audio encoder
+
+*
+
+abcde -a read,encode -o ogg,flac,wav (it creates and encodes the 3 formats)
+
+abcde -a tag,move,clean (it tags and moves Ogg/Vorbis and erases everything
+                        else...)
+
+I will have to add a "-f" as force to erase the directory if we have encoded
+something else than what we have already moved, so that we dont destroy
+formats that we want to keep.
 
