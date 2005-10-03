@@ -2720,7 +2720,9 @@ do
 			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
 			;;
 		wav)
-			vecho "Unsetting the KEEPWAVS option, since the resulting wav files were requested..."
+			if [ "$KEEPWAVS" = "y" ]; then
+				vecho "Unsetting the KEEPWAVS option, since the resulting wav files were requested..."
+			fi
 			KEEPWAVS=move
 			;;
 		*)	echo "abcde error: Invalid OUTPUTTYPE defined" >&2
