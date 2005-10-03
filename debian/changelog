@@ -3,6 +3,7 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added diff choice to CDDB entries ("1,4").
   * Added SHOWCDDBFIELDS to allow the user to show YEAR and GENRE in the
     parsed CDDB output.
+  * Suggests mkcue, and erase old cdgrab info since sarge is out.
   * Changed cdparanoia-audio-tracks to use the status file to save the data.
   * Added the possibility of using a singletrack flac file with an embeded
     cuesheet as a source of tracks.
