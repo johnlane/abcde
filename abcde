@@ -32,6 +32,7 @@ echo "       Specify CDROM device to grab (flac uses a single-track flac file)"
 echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
 #echo "-E     Set the encoding information for the tags"
+echo "-f     Force operations that otherwise are considered harmful. Read \"man abcde\""
 echo "-h     This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j <#> Number of encoder processes to run at once (localhost)"
@@ -1096,9 +1097,29 @@ do_move ()
 			esac
 			# Check that the directory for OUTPUTFILE exists, if it doesn't, create it
 			OUTPUTFILEDIR="$(dirname "$OUTPUTDIR/$OUTPUTFILE")"
-			# mkdir -p shouldn't return an error if the directory already exists
-			mkdir -p "$OUTPUTFILEDIR"
-			run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+			case $OUTPUT in
+				wav)
+					if [ "$DOCLEAN" != "y" ] && [ "$FORCE" != "y" ]; then
+						### FIXME ### introduce warnings?
+						:
+					else
+						# mkdir -p shouldn't return an error if the directory already exists
+						mkdir -p "$OUTPUTFILEDIR"
+						run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+						if checkstatus movetrack-output-$OUTPUT; then :; else
+							run_command movetrack-output-$OUTPUT true
+						fi
+					fi
+					;;
+				*)
+					# mkdir -p shouldn't return an error if the directory already exists
+					mkdir -p "$OUTPUTFILEDIR"
+					run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+					if checkstatus movetrack-output-$OUTPUT; then :; else
+						run_command movetrack-output-$OUTPUT true
+					fi
+					;;
+			esac
 			# Lets move the cue file
 			if CUEFILE=$(checkstatus cuefile) >/dev/null ; then 
 				if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
@@ -1107,6 +1128,14 @@ do_move ()
 						#run_command '' vecho "Copying cue file to its destination directory..."
 						if checkstatus onetrack >/dev/null ; then
 							case $OUTPUT in
+								wav)
+									if [ "$DOCLEAN" != "y" ] && [ "$FORCE" != "y" ]; then
+										# We dont have the dir, since it was not created before.
+										:
+									else
+										run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
+									fi
+									;;
 								# NOTE: Creating a cue file with the 3-char-extension files is to comply with
 								# http://brianvictor.tripod.com/mp3cue.htm#details
 								[a-z0-9][a-z0-9][a-z0-9])
@@ -2426,7 +2455,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
+while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2440,7 +2469,7 @@ while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 		h) usage; exit ;;
 		e) ERASEENCODEDSTATUS=y ;;
 		E) ENCODING="$OPTARG" ;;
-#		f) FORCECDDBUSELOCAL=y ;;
+		f) FORCE=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
 		k) KEEPWAVS=y ;;
@@ -3291,6 +3320,14 @@ fi
 if [ "$KEEPWAVS" = "y" ];then
 	# Don't clean up
 	DOCLEAN=n
+fi
+# Check if we have moved all the formats we had previously encoded, if we are not using the FORCE.
+if [ ! "$FORCE" = "y" ]; then
+	ENCODED_FORMATS=$(egrep ^encodetrack-(.{3,6})-(.{1,2})$ "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	MOVED_FORMATS=$(egrep ^movetrack-output-(.{3,6})$ "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
+		echo "Not all encoded formats have been requested to be moved."
+		echo "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
 fi
 if [ "$DOCLEAN" = "y" ]; then
 	# Wipe all the evidence
