@@ -63,6 +63,7 @@ echo "-x     Eject CD after all tracks are read"
 echo "-w <comment>"
 echo "       Add a comment to the CD tracks"
 echo "-W <#> Contatenate CDs: -T #01 -w \"CD #\"" 
+echo "-z     Use debug CDROMREADERSYNTAX option (needs cdparanoia)"
 echo ""
 echo "Tracks is a space-delimited list of tracks to grab."
 echo "Ranges specified with hyphens are allowed (i.e., 1-5)."
@@ -141,6 +142,29 @@ checkstatus ()
 		if [ "$(echo $BLURB | grep -c =)" != "0" ]; then
 			echo "$(echo $BLURB | cut -f2- -d=)"
 		fi
+		return 0
+	fi
+}
+
+# chechwarnings [blurb]
+# Returns "0" if the blurb was found (meaning there was an warning),
+# returns 1 if it wasn't (yes this is a little backwards).
+# Does not print the blurb on stdout.
+# Otherwise, returns "".
+checkwarnings ()
+{
+	if [ -e "$ABCDETEMPDIR/warnings" ]; then :; else
+		return 1
+	fi
+	# Take the last line in the status file if there's multiple matches
+	PATTERN="^$1(:.*)?$"
+	BLURB="$(egrep $PATTERN "$ABCDETEMPDIR/warnings" | tail -n 1)"
+
+	if [ -z "$BLURB" ]; then
+		# negative, we did not have a negative...
+		return 1
+	else
+		# affirmative, we had a negative...
 		return 0
 	fi
 }
@@ -765,6 +789,7 @@ do_encode ()
 			mp3)
 				case "$MP3ENCODERSYNTAX" in
 					# FIXME # check if mp3enc needs -if for pipes
+					# FIXME # I have not been able to find a working mp3enc binary
 					mp3enc)
 						FILEARG="-if $IN"
 						;;
@@ -993,7 +1018,7 @@ do_batch_gain ()
 	do
 		MP3FILES="$TRACKFILES track$UTRACKNUM.mp3"
 	done
-	# XXX: Hard-coded batch option!
+	# FIXME # Hard-coded batch option!
 	$NORMALIZER -b $NORMALIZEROPTS $TRACKFILES
 	RETURN=$?
 	if [ "$RETURN" != "0" ]; then
@@ -1100,7 +1125,7 @@ do_move ()
 			case $OUTPUT in
 				wav)
 					if [ "$DOCLEAN" != "y" ] && [ "$FORCE" != "y" ]; then
-						### FIXME ### introduce warnings?
+						# FIXME # introduce warnings?
 						:
 					else
 						# mkdir -p shouldn't return an error if the directory already exists
@@ -1464,7 +1489,6 @@ do_discid ()
 # Create a proper CUE file based on the CUE file we created before.
 do_cleancue()
 {
-	# FIXME # we can get the name of the cuefile from the status file
 	if CUEFILE_IN="$ABCDETEMPDIR"/$(checkstatus cuefile); then
 		CUEFILE_OUT=$CUEFILE_IN.out
 		### FIXME ### checkstatus cddb
@@ -2507,7 +2531,7 @@ while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 			 exit 1
 		   fi
 		   ;;
-		z) echo "Placeholder for a future autodebug option" ;;
+		z) CDROMREADERSYNTAX=debug ;;
 		?) usage; exit ;;
 	esac
 done
@@ -3323,11 +3347,12 @@ if [ "$KEEPWAVS" = "y" ];then
 fi
 # Check if we have moved all the formats we had previously encoded, if we are not using the FORCE.
 if [ ! "$FORCE" = "y" ]; then
-	ENCODED_FORMATS=$(egrep ^encodetrack-(.{3,6})-(.{1,2})$ "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
-	MOVED_FORMATS=$(egrep ^movetrack-output-(.{3,6})$ "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	ENCODED_FORMATS=$(egrep "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		echo "Not all encoded formats have been requested to be moved."
 		echo "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
+	fi
 fi
 if [ "$DOCLEAN" = "y" ]; then
 	# Wipe all the evidence
