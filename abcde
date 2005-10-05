@@ -2531,7 +2531,7 @@ while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 			 exit 1
 		   fi
 		   ;;
-		z) CDROMREADERSYNTAX=debug ;;
+		z) CDROMREADERSYNTAX=debug ; EJECTCD="n" ;;
 		?) usage; exit ;;
 	esac
 done
@@ -3346,12 +3346,13 @@ if [ "$KEEPWAVS" = "y" ];then
 	DOCLEAN=n
 fi
 # Check if we have moved all the formats we had previously encoded, if we are not using the FORCE.
-if [ ! "$FORCE" = "y" ]; then
+if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 	ENCODED_FORMATS=$(egrep "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
-	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		echo "Not all encoded formats have been requested to be moved."
 		echo "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
+		DOCLEAN=n
 	fi
 fi
 if [ "$DOCLEAN" = "y" ]; then
