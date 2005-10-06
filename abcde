@@ -20,9 +20,10 @@ echo "Usage: abcde [options] [tracks]"
 echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
-echo "       Actions to perform (cddb,read,normalize,encode,tag,move,playlist,clean)"
+echo "       Actions to perform (cddb,read,normalize,encode,tag,move,replaygain,playlist,clean)"
 #echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Enable batch normalization"
+#echo "-B     Disable batch replaygain (do file by file)"
 echo "-c <file>"
 echo "       Specify a configuration file (overrides system and user config files)"
 echo "-C <discid#>"
@@ -50,7 +51,7 @@ echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
-echo "-R     Add replaygain values to the tag info (only for vorbis,flac)"
+#echo "-R     Add replaygain values to the tag info (only for vorbis,flac,mp3)"
 echo "-s <field>"
 echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
@@ -366,7 +367,6 @@ do_replaygain()
 	if checkstatus replaygain; then :; else
 		run_command "" echo "Adding replygain information..."
 		for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
-		# THE OUTPUT NEEDS TO BE CORRECTED WITH THE CONTAINER?
 		do
 			case $OUTPUT in
 				vorbis|ogg)
@@ -400,10 +400,13 @@ do_replaygain()
 				vorbis|ogg)
 					run_command replaygain-vorbis $VORBISGAIN --album $OUTPUTFILES
 					;;
+				mp3)
+					run_command replaygain-mp3 $MP3GAIN -a $OUTPUTFILES
+					;;
 				*);;
 			esac
 		done
-		if checkerrors replaygain-.{3,6}; then :; else
+		if checkerrors "replaygain-.{3,6}"; then :; else
 			run_command replaygain true
 		fi
 	fi
@@ -2399,6 +2402,7 @@ METAFLAC=metaflac
 NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
+MP3GAIN=mp3gain
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
@@ -2528,12 +2532,13 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
+while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:vVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
 		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCHNORM=y ;;
+		B) NOBATCHREPLAYGAIN=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
 		C) DISCID="${OPTARG#abcde.}" ;;
 		d) CDROM="$OPTARG" ;;
@@ -2557,7 +2562,7 @@ while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
-		R) REPLAYGAIN=y ;;
+		R) DOREPLAYGAIN=y ;;
 		s) SHOWCDDBFIELDS="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
 #		t) PREPROCESSFORMATS="$OPTARG"
@@ -2672,7 +2677,7 @@ done
 
 if [ "$DONORMALIZE" = "y" ] && [ "$DOREPLAYGAIN" = "y" ]; then
 	# FIXME # should we abort on error or just inform the user?
-	:
+	log warning "selected both normalize and replaygain actions"
 fi
 
 for SHOWCDDBFIELD in $(echo $SHOWCDDBFIELDS | tr , \ ); do
@@ -2838,17 +2843,18 @@ do
 		vorbis|ogg)
 			[ "$OGGENCODERSYNTAX" = "default" ] && OGGENCODERSYNTAX=oggenc
 			[ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
-			[ "$REPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
 			OGGOUTPUTCONTAINER=ogg
 			;;
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
 			[ "$DOTAG" = "y" ] && NEEDTAGGER=y
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDMP3GAIN=y
 			;;
 		flac)
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
-			[ "$REPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
@@ -3043,7 +3049,6 @@ if [ "$USEPIPES" = "y" ]; then
 		log error "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz"
 		exit 1;
 	fi
-	vecho PIPES: "$( eval echo "\$$PIPEENCODERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "$" ] ; then
 		log error "no support for pipes with given encoder"
 		log error "read the USEPIPES file from the source tarball to help"
@@ -3059,8 +3064,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
-	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDCUEREADER+$CUEREADER} \
-	${NEEDCUE2DISCID+$CUE2DISCID}
+	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
+	${NEEDCUEREADER+$CUEREADER} ${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
@@ -3440,7 +3445,7 @@ if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
 fi
 # If the above didn't catch the stragglers, this will
 wait
-if [ "$REPLAYGAIN" = "y" ]; then
+if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
 # Check to see if run_command logged any errors
