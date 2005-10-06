@@ -16,16 +16,22 @@ Audio Codec (FLAC), Ogg/Speex or MPP/MP+(Musepack). With one command, it will:
 Do a CDDB query over the Internet to look up your CD or use a locally stored CDDB entry
 .TP
 .B *
-Grab a track from your CD
+Grab an audio track (or all the audio CD tracks) from your CD
 .TP
 .B *
-Compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format
+Normalize the volume of the individual file (or the album as a single unit)
 .TP
 .B *
-Comment or ID3 tag it
+Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format(s), all in one CD read
 .TP
 .B *
-Give it an intelligible filename
+Comment or ID3/ID3v2 tag
+.TP
+.B *
+Give an intelligible filename
+.TP
+.B *
+Calculate replaygain values for the individual file (or the album as a single unit)
 .TP
 .B *
 Delete the intermediate WAV file (or save it for later use)
@@ -41,13 +47,18 @@ the file can be used as a source for creating other formats.
 .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of:
-cddb, read, normalize, encode, tag, move, playlist, clean. Normalize
+cddb, read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize
 and encode imply read. Tag implies cddb, read, encode. Move implies
-cddb, read, encode, tag. Playlist implies cddb. The default is to
-do all actions except normalize and playlist.
+cddb, read, encode, tag. Replaygain implies cddb, read, encode, tag and move.
+Playlist implies cddb. The default is to do all actions except normalize,
+replaygain and playlist.
 .TP
 .B \-b
 Enable batch mode normalization. See the BATCHNORM configuration variable.
+.TP
+.B \-B
+Disable batch mode replaygain. It processes file by file to add the replaygain
+information. See the NOBATCHREPLAYGAIN configuration vatiable.
 .TP
 .B \-c [filename]
 Specifies an additional configuration file to parse. Configuration options
@@ -112,11 +123,11 @@ If the cuesheet is embeded in a flac single file it can be used as source for
 encoding other formats.
 .TP
 .B \-o [filetype][:filetypeoptions]
-Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx" or "mpc".
-Specify a comma-delimited list of output types to obtain all specified types.
-See the OUTPUTTYPE configuration variable. One can pass options to the encoder
-for a specific filetype on the command line separating them with a colon. The
-options must be escaped with double-quotes.
+Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc" or
+"wav".  Specify a comma-delimited list of output types to obtain all specified
+types.  See the OUTPUTTYPE configuration variable. One can pass options to the
+encoder for a specific filetype on the command line separating them with a
+colon. The options must be escaped with double-quotes.
 .TP
 .B \-p
 Pads track numbers with 0\'s.
@@ -124,10 +135,6 @@ Pads track numbers with 0\'s.
 .B \-r [hosts...]
 Remote encode on this comma-delimited list of machines using distmp3. See
 the REMOTEHOSTS configuration variable.
-.TP
-.B \-R
-Add replaygain information to the id3 or tag information for play
-normalization. Only works with Ogg/FLAC and Ogg/Vorbis.
 .TP
 .B \-s [fields...]
 List, separated by comas, the fields to be shown in the CDDB parsed entries.
@@ -172,7 +179,7 @@ Each track is, by default, placed in a separate file named after the track
 in a subdirectory named after the artist under the current directory. 
 This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
 variables in your abcde.conf. Each file is given an extension identifying 
-its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', or '.mpc'.
+its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', or '.wav'.
 .SH CONFIGURATION
 abcde sources two configuration files on startup - /etc/abcde.conf and
 $HOME/.abcde.conf, in that order. 
@@ -260,7 +267,7 @@ we only support \'mkcue\', but in the future other readers might be used.
 .B KEEPWAVS
 It defaults to no, so if you want to keep those wavs ripped from your CD,
 set it to "y". You can use the "-k" switch in the command line. The default
-behaviour with KEEPWAVS set is the keep the temporary directory and the wav
+behaviour with KEEPWAVS set is to keep the temporary directory and the wav
 files even you have requested the "clean" action.
 .TP
 .B PADTRACKS
@@ -319,8 +326,9 @@ over 100MB for a machine that can encode music as fast as it can read it).
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
-Codec), "spx" (Ogg/Speex) and "mpc" (MPP/MP+ (Musepack)). Values like
-"vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats.
+Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)) or "wav" (Microsoft
+Waveform). Values like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and
+MP3 formats.
 .br
 For each value in OUTPUTTYPE, abcde expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
@@ -476,7 +484,10 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 (optional) distmp3, a client/server for distributed mp3 encoding.
 .TP
 .B *
-(optional) normalize, a WAV file volume normalizer.
+(optional) normalize-audio, a WAV file volume normalizer.
+.TP
+.B *
+(optional) a replaygain file volume modifier (vorbisgain, metaflac, mp3gain),
 .TP
 .B *
 (optional) mkcue, a CD cuesheet extractor.
@@ -488,16 +499,20 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 .BR oggenc (1),
 .BR vorbize (1),
 .BR flac (1),
+.BR toolame (1),
 .BR speexenc (1),
 .BR mppenc (1),
 .BR id3 (1),
+.BR id3v2 (1),
 .BR wget (1),
 .BR fetch (1),
 .BR cd-discid (1),
 .BR distmp3 (1),
 .BR distmp3host (1),
-.BR curl (1)
+.BR curl (1),
 .BR mkcue (1),
+.BR vorbisgain (1),
+.BR mp3gain (1)
 .SH AUTHORS
 Robert Woodcock <rcw@debian.org>,
 Jesus Climent <jesus.climent@hispalinux.es> and contributions from many others.

@@ -12,8 +12,10 @@ abcde (2.3.99-1) unstable; urgency=low
     -b, to use the -a normalize in all the files at once, and NOGAP, that by
     using -g, introduces the lame's --nogap extension.
   * Added replygain using the appropiate tags with Ogg/Vorbis and Ogg/FLAC.
+  * Replaygain is an action, not a flag, since it can be performed individualy
+    in the chain of events.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  6 Oct 2005 15:38:04 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  7 Oct 2005 00:59:07 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 
