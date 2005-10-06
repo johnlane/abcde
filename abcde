@@ -2140,7 +2140,7 @@ do_cdread ()
 	fi
 	CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 	if [ "$USEPIPES" = "y" ]; then
-		TEMPARG="PIPE_$CDROMREADERSYNTAX"
+		TEMPARG="PIPERIPPER_$CDROMREADERSYNTAX"
 		FILEARG="$( eval echo "\$$TEMPARG" )"
 		REDIR=""
 		PIPE_MESSAGE="and encoding "
@@ -3011,19 +3011,20 @@ fi
 
 # Rippers with USEPIPE support
 # FIXME # Include here all the rippers we can figure out support pipes
-PIPE_cdparanoia="-"
-PIPE_flac="-c "
+PIPERIPPER_cdparanoia="-"
+PIPERIPPER_flac="-c "
 
 # Encoders with USEPIPE support
 # FIXME # Include here all the encoders we can figure out support pipes
 PIPE_lame="-"
 PIPE_bladeenc="-"
 PIPE_oggenc="-"
+PIPE_flac="-"
 
 # Figure out if we can use pipes with the ripper/encoder combination
 # exit otherwise
 if [ "$USEPIPES" = "y" ]; then
-	PIPERIPPERSVARCHECK="PIPE_${CDROMREADER}"
+	PIPERIPPERSVARCHECK="PIPERIPPER_${CDROMREADERSYNTAX}"
 	case "$OUTPUT" in
 		mp3)
 			PIPEENCODERSVARCHECK="PIPE_$MP3ENCODERSYNTAX" ;;
@@ -3036,13 +3037,14 @@ if [ "$USEPIPES" = "y" ]; then
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
-	if [ ! -n "$( eval echo "\$$PIPERIPPERSVARCHECK" )" ] ; then
+	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] ; then
 		log error "no support for pipes with given ripper"
 		log error "read the USEPIPES file from the source tarball to get help."
 		log error "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz"
 		exit 1;
 	fi
-	if [ ! -n "$( eval echo "\$$PIPEENCODERSVARCHECK" )" ] ; then
+	vecho PIPES: "$( eval echo "\$$PIPEENCODERSVARCHECK" )"
+	if [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "$" ] ; then
 		log error "no support for pipes with given encoder"
 		log error "read the USEPIPES file from the source tarball to help"
 		log error "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz"
@@ -3158,7 +3160,11 @@ fi
 if [ "$ONETRACK" = "y" ]; then 
 	TRACKS="$FIRSTTRACK"
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
-		do_cdread onetrack $FIRSTTRACK $LASTTRACK
+		if [ "$USEPIPES" = "y" ]; then
+			do_cdread onetrack $FIRSTTRACK $LASTTRACK | do_encode $FIRSTTRACK %local0% > /dev/null 2>&1
+		else
+			do_cdread onetrack $FIRSTTRACK $LASTTRACK
+		fi
 	fi
 else
 	for UTRACKNUM in $TRACKQUEUE
