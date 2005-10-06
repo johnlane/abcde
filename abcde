@@ -70,6 +70,25 @@ echo ""
 #echo "Double hyphens are used to concatenate tracks"
 }
 
+addstatus ()
+{
+	echo "$@" >> "$ABCDETEMPDIR/status"
+}
+
+# log [level] [message]
+# 
+# log outputs the right message in a common format
+log ()
+{
+	BLURB="$1"
+	shift
+	case $BLURB in
+		error)   echo "[ERR] abcde: $@" >&2 ;;
+		warning) echo "[WAR] $@" >&2 ;;
+		info)    echo "[INF] $@" ;;
+	esac
+}
+
 # Funtions to replace the need of seq, which is too distribution dependant.
 f_seq_row ()
 {
@@ -92,7 +111,7 @@ f_seq_line ()
 		done
 		echo
 	else
-		echo "abcde: syntax error while processing track numbers" >&2
+		log error "syntax error while processing track numbers"
 		exit 1
 	fi
 }
@@ -868,16 +887,15 @@ do_encode ()
 				;;
 			flac)
 				case "$2" in
-	                        %local*%)
+				%local*%)
 					case "$FLACENCODERSYNTAX" in
 					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
-					;;
-	
-				*)
-					echo -n "DISTMP3:"
-					echo "$DISTMP3 $DISTMP3OPTS $2 $IN $OUT >/dev/null 2>&1"
-					$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" > /dev/null 2>&1
+						;;
+					*)
+						vecho -n "DISTMP3:"
+						vecho "$DISTMP3 $DISTMP3OPTS $2 $IN $OUT >/dev/null 2>&1"
+						$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" > /dev/null 2>&1
 					;;
 				esac
 				;;
@@ -1313,11 +1331,11 @@ do_discid ()
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ ! "$?" = "0" ]; then
 			if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-				echo "abcde error: cuesheet information from the flac file could not be read." >&2
-				echo "abcde error: Perhaps the flac file does not contain a cuesheet?." >&2
+				log error "cuesheet information from the flac file could not be read."
+				log error "Perhaps the flac file does not contain a cuesheet?."
 				exit 1
 			else
-				echo "abcde error: CD could not be read. Perhaps there's no CD in the drive?" >&2
+				log error "CD could not be read. Perhaps there's no CD in the drive?"
 				exit 1
 			fi
 		fi
@@ -1352,7 +1370,7 @@ do_discid ()
 						CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -Q --verbose 2>&1 )"
 						RET=$?
 						if [ ! "$RET" = "0" ];then
-							echo "Warning: Something went wrong while querying the CD... Maybe a DATA CD?"
+							log warning "something went wrong while querying the CD... Maybe a DATA CD?"
 						fi
 						TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
@@ -1368,7 +1386,7 @@ do_discid ()
 			TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 		fi
 		if echo "$TRACKS" | grep "[[:digit:]]" > /dev/null 2>&1 ;then :;else
-			echo "The disc does not contain any tracks. Giving up..."
+			log info "The disc does not contain any tracks. Giving up..."
 			exit 0
 		fi
 		echo -n "Grabbing entire CD - tracks: "
@@ -1480,9 +1498,9 @@ do_discid ()
 			if $CUEREADER $CUEREADEROPTS > "$ABCDETEMPDIR/$CUEFILE"; then
 				echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
 			else
-				echo "abcde: reading the CUE sheet with mkcue is still considered experimental"
-				echo "abcde: and there was a problem with the CD reading. abcde will continue,"
-				echo "abcde: but consider reporting the problem to the abcde author"
+				log warning "reading the CUE sheet with mkcue is still considered experimental"
+				log warning "and there was a problem with the CD reading. abcde will continue,"
+				log warning "but consider reporting the problem to the abcde author"
 			fi
 		fi
 	fi
@@ -1963,7 +1981,7 @@ do_cddbedit ()
 			/usr/bin/mg "$CDDBDATA"
 		# bomb out
 		else
-			echo "No editor available. Check your EDITOR environment variable." >&2
+			log warning "no editor available. Check your EDITOR environment variable."
 		fi
 		# delete editor backup file if it exists
 		if [ -w "$CDDBDATA~" ]; then
@@ -2114,7 +2132,7 @@ do_cdread ()
 			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
 			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
 			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
-			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
+			*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
 			   exit 1 ;;
 		esac
 	else
@@ -2239,7 +2257,10 @@ do_cdspeed ()
 vecho ()
 {
 if [ x"$EXTRAVERBOSE" != "x" ]; then
-	echo $@
+	case $1 in
+		warning) log warning "$@" ;;
+		*) echo "$@" ;;
+	esac
 fi
 }
 
@@ -2484,7 +2505,7 @@ if [ "$HTTPGETOPTS" = "" ] ; then
 		curl) HTTPGETOPTS="-f -s";;
 		fetch)HTTPGETOPTS="-q -o -";;
 		ftp)  HTTPGETOPTS="-q -o -";;
-		*) echo "abcde warning: HTTPGET in non-standard and HTTPGETOPTS are not defined." >&2 ;;
+		*) log warning "HTTPGET in non-standard and HTTPGETOPTS are not defined." ;;
 	esac
 fi
 
@@ -2513,7 +2534,7 @@ while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 		a) ACTIONS="$OPTARG" ;;
 		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCHNORM=y ;;
-		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else echo "abcde error: config file \"$OPTARG\" cannot be found." >&2 ; exit 1 ; fi ;;
+		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
 		C) DISCID="${OPTARG#abcde.}" ;;
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
@@ -2556,7 +2577,7 @@ while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 		W) if echo $OPTARG | grep -q "[[:digit:]]" ; then 
 		     STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}"
 		   else
-		     echo "abcde error: argument of -W must be integer"
+		     log error "argument of -W must be integer"
 			 exit 1
 		   fi
 		   ;;
@@ -2584,21 +2605,21 @@ if [ "$ONETRACK" = "y" ]; then
 		flac) ;;
 		cdparanoia) ;;
 		cdda2wav) ;;
-		*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
+		*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
 		   exit 1 ;;
 	esac
 	if [ "$BATCHNORM" = "y" ]; then
-		echo "abcde warning: BATCHNORM mode is not compatible with ONETRACK mode. Disabling..."
+		log warning "BATCHNORM mode is not compatible with ONETRACK mode. Disabling..."
 		BATCHNORM=n
 	fi
 	if [ "$NOGAP" = "y" ]; then
-		echo "abcde warning: NOGAP mode is not compatible with ONETRACK mode. Disabling..."
+		log warning "NOGAP mode is not compatible with ONETRACK mode. Disabling..."
 		NOGAP=n
 	fi
 	# It does not matter how many tracks we want. In ONETRACK mode we grab them all
 	# FIXME # allow ranges of tracks to be selected for onetrack ripping
 	if [ $# -gt 0 ]; then
-		vecho "abcde warning: ONETRACK mode selected, grabbing all tracks..."
+		log warning "ONETRACK mode selected, grabbing all tracks..."
 	fi
 else
 	while [ $# -gt 0 ]; do
@@ -2669,18 +2690,18 @@ if [ X"$CDROM" != "X" ] ; then
 	if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] && [ "$NEEDCDROMID" = "y" ] ; then
 		if [ "$OSFLAVOUR" = "FBSD" ]; then
 			if ! echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then
-				echo "abcde error: CDROMID not in the right format for $CDROMREADERSYNTAX"
-				echo "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
+				log error "CDROMID not in the right format for $CDROMREADERSYNTAX"
+				log error "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
 				exit 1
 			fi
 		fi
 	elif [ ! -e "$CDROM" -a X"$DOREAD" = "Xy" ]; then
-		echo "abcde error: CDROM device cannot be found." >&2
+		log error "CDROM device cannot be found."
 		exit 1
 	fi
 # avoid processing if we are not going to hit the CDROM.
 elif [ X"$DOREAD" = "Xy" ]; then
-	echo "abcde error: CDROM has not been defined or cannot be found" >&2
+	log error "CDROM has not been defined or cannot be found"
 	exit 1
 fi
 
@@ -2692,28 +2713,28 @@ fi
 # - anything else?
 if [ X"$USEPIPES" = "Xy" ]; then
 	if [ $(echo "$OUTPUTTYPE" | tr , \  | wc -w ) -gt 1 ]; then
-		echo "abcde error: Unix pipes not compatible with multiple outputs" >&2
+		log error "Unix pipes not compatible with multiple outputs"
 		exit 1
 	fi
 	if [ X"$DONORMALIZE" = "Xy" ]; then
-		echo "abcde error: Unix pipes not compatible with normalizer"
+		log error "Unix pipes not compatible with normalizer"
 		# FIXME # Do we need to exit or shall we just disable the mode?
 		exit 1
 	fi
 	if [ X"$BATCHNORM" = "Xy" ]; then
-		echo "abcde error: Unix pipes not compatible with BATCHNORM encoding"
+		log error "Unix pipes not compatible with BATCHNORM encoding"
 		exit 1
 	fi
 	if [ X"$NOGAP" = "Xy" ]; then
-		echo "abcde error: Unix pipes not compatible with NOGAP encoding"
+		log error "Unix pipes not compatible with NOGAP encoding"
 		exit 1
 	fi
 	if [ X"$DOENCODE" = "Xn" ]; then
-		vecho "Disabling Unix pipes since we are not encoding!"
+		vecho warning "Disabling Unix pipes since we are not encoding!"
 		USEPIPES=n
 	fi
 	if [ X"$LOWDISK" = "Xy" ]; then
-		vecho "abcde error: Unix pipes not compatible with lowdisk algorithm"
+		log error "Unix pipes not compatible with lowdisk algorithm"
 		exit 1
 	fi
 fi
@@ -2724,13 +2745,20 @@ fi
 # - NOGAP lame mode
 if [ X"$LOWDISK" = "Xy" ]; then
 	if [ X"$BATCHNORM" = "Xy" ]; then
-		echo "abcde error: Unix pipes not compatible with BATCHNORM encoding"
+		log error "Unix pipes not compatible with BATCHNORM encoding"
 		exit 1
 	fi
 	if [ X"$NOGAP" = "Xy" ]; then
-		echo "abcde error: Unix pipes not compatible with NOGAP encoding"
+		log error "Unix pipes not compatible with NOGAP encoding"
 		exit 1
 	fi
+fi
+
+# BATCHNORM pre-tests, before we get into serious problems
+# Not compatible with 
+if [ "$BATCHNORM" = "y" ] && [ "$DONORMALIZE" = "n" ]; then
+	vecho warning "Disabling BATCHNORM since we are not normalizing!"
+	BATCHNORM=n
 fi
 
 # Check the encoding format from the ones available in the system, if nothing has been configured in the system.
@@ -2745,8 +2773,8 @@ if [ X"$OUTPUTTYPE" = "X" ]; then
 		fi
 	done
 	if [ X"$OUTPUTTYPE" = "X" ]; then
-		echo "abcde error: no encoder found in the PATH" >&2
-		echo "hits: are all dependencies installed? has the \$PATH been modified?" >&2
+		log error "no encoder found in the PATH"
+		log error "hints: are all dependencies installed? has the \$PATH been modified?"
 		exit 1
 	fi
 fi
@@ -2816,7 +2844,6 @@ do
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
 			[ "$DOTAG" = "y" ] && NEEDTAGGER=y
-			#[ "$NOGAP" = "y" ]
 			;;
 		flac)
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
@@ -2835,7 +2862,7 @@ do
 			fi
 			KEEPWAVS=move
 			;;
-		*)	echo "abcde error: Invalid OUTPUTTYPE defined" >&2
+		*)	log error "Invalid OUTPUTTYPE defined"
 			exit 1
 			;;
 	esac
@@ -2888,8 +2915,8 @@ case "$FLACENCODERSYNTAX" in
 		FLACENCODER="$FLAC"	
 		# FLAC streams can be encapsulated on a Ogg transport layer
 		if echo "$FLACENCODEROPTS" | egrep -q -- "(^| )--ogg($| )" ;then
-			echo "abcde error: FLAC on an Ogg container is not yet supported" >&2
-			echo "             due to problem with adding comments to such files" >&2
+			log error "FLAC on an Ogg container is not yet supported"
+			log error "due to problem with adding comments to such files"
 			exit 1
 			FLACOUTPUTCONTAINER=ogg
 		else
@@ -2922,7 +2949,7 @@ fi
 
 # Specific for NOGAP is the use of lame. Another encoder fails...
 if [ "$NOGAP" = "y" ] && [ ! "$MP3ENCODER" = "lame" ]; then
-	"abcde warning: the NOGAP option is specific of lame. Deactivating..."
+	log warning "the NOGAP option is specific of lame. Deactivating..."
 	NOGAP=n
 fi
 
@@ -2936,12 +2963,12 @@ esac
 
 # Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
 if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
-	echo "abcde error: FLAC on an Ogg container is not yet supported" >&2
-	echo "             due to problem with adding comments to such files" >&2
+	log error "FLAC on an Ogg container is not yet supported"
+	log error "due to problem with adding comments to such files"
 	exit 1
 	OGGOUTPUTCONTAINER=ogg.ogg
 	FLACOUTPUTCONTAINER=flac.ogg
-	vecho "abcde warning: modified file endings due to conflicting transport layers in Ogg/Vorbis and Ogg/FLAC"
+	vecho warning "modified file endings due to conflicting transport layers in Ogg/Vorbis and Ogg/FLAC"
 fi
 
 # Clean up nice options (either use '-n NICELEVEL or -NICELEVEL')
@@ -3010,15 +3037,15 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
 	if [ ! -n "$( eval echo "\$$PIPERIPPERSVARCHECK" )" ] ; then
-		echo "abcde error: no support for pipes with given ripper" >&2
-		echo "read the USEPIPES file from the source tarball to get help." >&2
-		echo "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz" >&2
+		log error "no support for pipes with given ripper"
+		log error "read the USEPIPES file from the source tarball to get help."
+		log error "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz"
 		exit 1;
 	fi
 	if [ ! -n "$( eval echo "\$$PIPEENCODERSVARCHECK" )" ] ; then
-		echo "abcde error: no support for pipes with given encoder" >&2
-		echo "read the USEPIPES file from the source tarball to help" >&2
-		echo "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz" >&2
+		log error "no support for pipes with given encoder"
+		log error "read the USEPIPES file from the source tarball to help"
+		log error "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz"
 		exit 1;
 	fi
 fi
@@ -3036,10 +3063,10 @@ do
 	# Cut off the command-line options we just added in
 	X=$(echo $X | cut -d' ' -f2)
 	if [ "$(which $X)" = "" ]; then
-		echo "abcde error: $X is not in your path." >&2
+		log error "$X is not in your path." >&2
 		exit 1
 	elif [ ! -x $(which $X) ]; then
-		echo "abcde error: $X is not executable." >&2
+		log error "$X is not executable." >&2
 		exit 1
 	fi
 done
@@ -3050,7 +3077,7 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 
 # And last but not least, check if we can diff between files
 if [ -x $(which $DIFF) ]; then :; else
-	vecho "[WAR] Disabling diff since we cannot find it in the \$PATH..."
+	vecho warning "Disabling diff since we cannot find it in the \$PATH..."
 	DIFF=""
 fi
 
@@ -3256,10 +3283,9 @@ if [ "$BATCHNORM" = "y" ] || [ "$NOGAP" = "y" ]; then
 						if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
 					fi
 				done
-			else
-				if checkstatus encodetrack-$LASTTRACK; then :; else do_nogap_encode; fi
-				if checkerrors nogap-encode; then exit 1; fi
 			fi
+			if checkstatus encodetrack-$LASTTRACK; then :; else do_nogap_encode; fi
+			if checkerrors nogap-encode; then exit 1; fi
 		fi
 	fi
 fi
@@ -3413,7 +3439,7 @@ if [ "$REPLAYGAIN" = "y" ]; then
 fi
 # Check to see if run_command logged any errors
 if [ -f "$ABCDETEMPDIR/errors" ]; then
-	echo "The following commands failed to run:"
+	log error "The following commands failed to run:"
 	cat "$ABCDETEMPDIR/errors"
 	# Don't clean up
 	DOCLEAN=n
@@ -3429,8 +3455,8 @@ if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 	decho [ENCODED_FORMATS]
 	decho [MOVED_FORMATS]
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
-		echo "Not all encoded formats have been requested to be moved."
-		echo "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
+		log warning "Not all encoded formats have been requested to be moved."
+		log warning "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
 		DOCLEAN=n
 	fi
 fi
