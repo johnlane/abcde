@@ -7,8 +7,13 @@ abcde (2.3.99-1) unstable; urgency=low
   * Changed cdparanoia-audio-tracks to use the status file to save the data.
   * Added the possibility of using a singletrack flac file with an embeded
     cuesheet as a source of tracks.
+  * Added -z for easy and quick debug.
+  * BATCH has been splitted into two options: BATCHNORM which allows, by using
+    -b, to use the -a normalize in all the files at once, and NOGAP, that by
+    using -g, introduces the lame's --nogap extension.
+  * Added replygain using the appropiate tags with Ogg/Vorbis and Ogg/FLAC.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  1 Oct 2005 14:44:03 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  6 Oct 2005 15:38:04 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 

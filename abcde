@@ -22,7 +22,7 @@ echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
 echo "       Actions to perform (cddb,read,normalize,encode,tag,move,playlist,clean)"
 #echo "-A     Experimental actions (retag, transcode)"
-echo "-b     Batch mode: enable album normalization and nogap encoding"
+echo "-b     Enable batch normalization"
 echo "-c <file>"
 echo "       Specify a configuration file (overrides system and user config files)"
 echo "-C <discid#>"
@@ -33,6 +33,7 @@ echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
 #echo "-E     Set the encoding information for the tags"
 echo "-f     Force operations that otherwise are considered harmful. Read \"man abcde\""
+#echo "-g     "
 echo "-h     This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j <#> Number of encoder processes to run at once (localhost)"
@@ -53,8 +54,6 @@ echo "-R     Add replaygain values to the tag info (only for vorbis,flac)"
 echo "-s <field>"
 echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
-#echo "-t    File types to preprocess (wav)"
-#echo "-T    Set postprocessing options"
 echo "-t <#> Start the track numbering at a given number"
 echo "-T <#> Same as -t but modifies tag numbering"
 echo "-v     Show version number and exit"
@@ -720,40 +719,50 @@ do_tag ()
 
 }
 
-# do_batch_encode
+# do_nogap_encode
 # variables used:
 # OUTPUTTYPE, {FOO}ENCODERSYNTAX, ENCNICE, ENCODER, ENCODEROPTS
-do_batch_encode ()
+do_nogap_encode ()
 {
 	# The commands here don't go through run_command because they're never supposed to be silenced
-	echo "Batch encoding tracks: $TRACKQUEUE"
-	OUTPUT=$(echo $OUTPUTTYPE | grep "mp3" )
-	case "$OUTPUT" in
-	mp3)
-		case "$MP3ENCODERSYNTAX" in
-		lame)
-			(
-			cd "$ABCDETEMPDIR"
-			TRACKFILES=
-			for UTRACKNUM in $TRACKQUEUE
-			do
-				TRACKFILES="$TRACKFILES track$UTRACKNUM.wav"
-			done
-			nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS `[ "$MP3ENCODER" = "lame" ] && echo "--nogap"` $TRACKFILES
-			RETURN=$?
-			if [ "$RETURN" != "0" ]; then
-				echo "batch-encode: $ENCODER returned code $RETURN" >> errors
-			else
+	echo "Encoding gapless MP3 tracks: $TRACKQUEUE"
+	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+	do
+		case "$OUTPUT" in
+		mp3)
+			case "$MP3ENCODERSYNTAX" in
+			lame)
+				(
+				cd "$ABCDETEMPDIR"
+				TRACKFILES=
 				for UTRACKNUM in $TRACKQUEUE
 				do
-					run_command encodetrack-$UTRACKNUM true
+					TRACKFILES="$TRACKFILES track$UTRACKNUM.wav"
 				done
-			fi
-			)
+				nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS --nogap $TRACKFILES
+				RETURN=$?
+				if [ "$RETURN" != "0" ]; then
+					echo "nogap-encode: $ENCODER returned code $RETURN" >> errors
+				else
+					for UTRACKNUM in $TRACKQUEUE
+					do
+						run_command encodetrack-$OUTPUT-$UTRACKNUM true
+						#run_command encodetrack-$UTRACKNUM true
+					done
+				fi
+				)
+				;;
+			esac
 			;;
 		esac
-		;;
-	esac
+	done		
+	if checkerrors "nogap-encode"; then :; else
+		if [ ! "$KEEPWAVS" = "y" ] ; then
+			if [ ! "$KEEPWAVS" = "move" ] ; then
+				rm -f "$IN"
+			fi
+		fi
+	fi
 	# Other encoders fall through to normal encoding as the tracks
 	# have not been entered in the status file.
 }
@@ -807,6 +816,9 @@ do_encode ()
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
+			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then 
+				continue
+			fi
 			case "$OUTPUT" in
 				vorbis|ogg)
 					OUT="$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
@@ -1368,7 +1380,7 @@ do_discid ()
 		while [ "$X" -ne "$TRACKS" ]
 		do
 			X=$(printf "%0.${TRACKNUMPADDING}d" $(expr $X + 1))
-			TRACKQUEUE=$(echo "$TRACKQUEUE" $X)
+			TRACKQUEUE=$(echo $TRACKQUEUE $X)
 		done
 		echo $TRACKQUEUE
 	else
@@ -1574,7 +1586,8 @@ do_localcddb ()
 			fi
 			if [ "$USELOCALRESP" = "y" ]; then
 				#echo "Using local copy of CDDB data"
-				cp "${CDDBLOCALFILE}" "$ABCDETEMPDIR/cddbread.1"
+				echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
+				cat "${CDDBLOCALFILE}" >> "$ABCDETEMPDIR/cddbread.1"
 				echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
 				echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
 				do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
@@ -2230,6 +2243,17 @@ if [ x"$EXTRAVERBOSE" != "x" ]; then
 fi
 }
 
+# decho [message]
+#
+# decho outputs a debug message if DEBUG is selected
+decho ()
+{
+if [ x"$DEBUG" != "x" ]; then
+	DEBUGECHO=$(echo "$@" | tr -d '[]')
+	echo "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
+fi
+}
+
 # User-redefinable functions
 # Custom filename munging:
 mungefilename ()
@@ -2308,6 +2332,8 @@ VARIOUSARTISTS=n
 VARIOUSARTISTSTYLE=forward
 KEEPWAVS=n
 PADTRACKS=n
+NOGAP=n
+BATCHNORM=n
 
 # If using scsi devices, cdda2wav needs a CDROMID, instead of a device node
 # i.e. CDROMID="1,0,0"
@@ -2319,6 +2345,7 @@ CDPARANOIACDROMBUS="d"
 # program paths - defaults to checking your $PATH
 # mp3
 LAME=lame
+TOOLAME=toolame
 GOGO=gogo
 BLADEENC=bladeenc
 L3ENC=l3enc
@@ -2359,6 +2386,7 @@ CUE2DISCID=cue2discid
 # Options for programs called from abcde
 # mp3
 LAMEOPTS=
+TOOLAMEOPTS=
 GOGOOPTS=
 BLADEENCOPTS=
 L3ENCOPTS=
@@ -2479,12 +2507,12 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
+while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
 		A) EXPACTIONS="$OPTARG" ;;
-		b) BATCH=y ;;
+		b) BATCHNORM=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else echo "abcde error: config file \"$OPTARG\" cannot be found." >&2 ; exit 1 ; fi ;;
 		C) DISCID="${OPTARG#abcde.}" ;;
 		d) CDROM="$OPTARG" ;;
@@ -2494,6 +2522,7 @@ while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 		e) ERASEENCODEDSTATUS=y ;;
 		E) ENCODING="$OPTARG" ;;
 		f) FORCE=y ;;
+		g) NOGAP=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
 		k) KEEPWAVS=y ;;
@@ -2531,7 +2560,7 @@ while getopts 1a:bc:C:d:Defhj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W:z opt ; do
 			 exit 1
 		   fi
 		   ;;
-		z) CDROMREADERSYNTAX=debug ; EJECTCD="n" ;;
+		z) DEBUG=y ; CDROMREADERSYNTAX=debug ; EJECTCD="n" ;;
 		?) usage; exit ;;
 	esac
 done
@@ -2558,9 +2587,13 @@ if [ "$ONETRACK" = "y" ]; then
 		*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 		   exit 1 ;;
 	esac
-	if [ "$BATCH" = "y" ]; then
-		echo "abcde error: BATCH mode is not compatible with ONETRACK mode"
-		BATCH=n
+	if [ "$BATCHNORM" = "y" ]; then
+		echo "abcde warning: BATCHNORM mode is not compatible with ONETRACK mode. Disabling..."
+		BATCHNORM=n
+	fi
+	if [ "$NOGAP" = "y" ]; then
+		echo "abcde warning: NOGAP mode is not compatible with ONETRACK mode. Disabling..."
+		NOGAP=n
 	fi
 	# It does not matter how many tracks we want. In ONETRACK mode we grab them all
 	# FIXME # allow ranges of tracks to be selected for onetrack ripping
@@ -2667,12 +2700,35 @@ if [ X"$USEPIPES" = "Xy" ]; then
 		# FIXME # Do we need to exit or shall we just disable the mode?
 		exit 1
 	fi
+	if [ X"$BATCHNORM" = "Xy" ]; then
+		echo "abcde error: Unix pipes not compatible with BATCHNORM encoding"
+		exit 1
+	fi
+	if [ X"$NOGAP" = "Xy" ]; then
+		echo "abcde error: Unix pipes not compatible with NOGAP encoding"
+		exit 1
+	fi
 	if [ X"$DOENCODE" = "Xn" ]; then
 		vecho "Disabling Unix pipes since we are not encoding!"
 		USEPIPES=n
 	fi
 	if [ X"$LOWDISK" = "Xy" ]; then
 		vecho "abcde error: Unix pipes not compatible with lowdisk algorithm"
+		exit 1
+	fi
+fi
+
+# LOWDISK pre-tests, before we get into more problematic stuff
+# Not compatible with anything that needs all the files in the hard disc:
+# - BATCHNORM
+# - NOGAP lame mode
+if [ X"$LOWDISK" = "Xy" ]; then
+	if [ X"$BATCHNORM" = "Xy" ]; then
+		echo "abcde error: Unix pipes not compatible with BATCHNORM encoding"
+		exit 1
+	fi
+	if [ X"$NOGAP" = "Xy" ]; then
+		echo "abcde error: Unix pipes not compatible with NOGAP encoding"
 		exit 1
 	fi
 fi
@@ -2760,6 +2816,7 @@ do
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
 			[ "$DOTAG" = "y" ] && NEEDTAGGER=y
+			#[ "$NOGAP" = "y" ]
 			;;
 		flac)
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
@@ -2789,6 +2846,10 @@ case "$MP3ENCODERSYNTAX" in
 	lame)
 		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$LAMEOPTS}"
 		MP3ENCODER="$LAME"
+		;;
+	toolame)
+		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$TOOLAMEOPTS}"
+		MP3ENCODER="$TOOLAME"
 		;;
 	gogo)
 		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$GOGOOPTS}"
@@ -2857,6 +2918,12 @@ if [ "$ID3TAGV" = "1" ]; then
 else
 	TAGGER="$ID3V2"
 	TAGGEROPTS="$ID3V2OPTS"
+fi
+
+# Specific for NOGAP is the use of lame. Another encoder fails...
+if [ "$NOGAP" = "y" ] && [ ! "$MP3ENCODER" = "lame" ]; then
+	"abcde warning: the NOGAP option is specific of lame. Deactivating..."
+	NOGAP=n
 fi
 
 # Options for mkcue
@@ -3087,7 +3154,7 @@ else
 				fi
 			fi
 		fi
-		if [ "$BATCH" = "y" ]; then
+		if [ "$NOGAP" = "y" ] || [ "$BATCHNORM" = "y" ]; then
 		    :
 		else
 			echo NEXTTRACK # Get the encoder machine churning again
@@ -3113,7 +3180,7 @@ if [ "$MAXPROCS" = "1" ]; then
 fi
 
 # All tracks read, start encoding.
-if [ "$BATCH" = "y" ] || [ "$ONETRACK" = "y" ]; then
+if [ "$NOGAP" = "y" ] || [ "$BATCHNORM" = "y" ] || [ "$ONETRACK" = "y" ]; then
 	echo NEXTTRACK
 fi
 
@@ -3170,19 +3237,29 @@ fi
 #
 #) | (
 
-# In batch mode, we want all tracks to be read first.
-if [ "$BATCH" = "y" ]; then
+# In BATCHNORM and/or NOGAP modes, we want all tracks to be read first.
+#BACK
+if [ "$BATCHNORM" = "y" ] || [ "$NOGAP" = "y" ]; then
 	read GOAHEAD # For blocking - will contain either "NO" or "NEXTTRACK"
 	if [ "$GOAHEAD" = "NO" ]; then break; fi
 	for LASTTRACK in $TRACKQUEUE; do :; done
 	if checkstatus readtrack-$LASTTRACK; then
-		if [ "$DONORMALIZE" = "y" ]; then
+		if [ "$DONORMALIZE" = "y" ] && [ "$BATCHNORM" = "y" ]; then
 			if checkstatus normalizetrack-$LASTTRACK; then :; else do_batch_normalize; fi
-			if checkerrors batch-normalize; then exit; fi
+			if checkerrors batch-normalize; then exit 1; fi
 		fi
-		if [ "$DOENCODE" = "y" ]; then
-			if checkstatus encodetrack-$LASTTRACK; then :; else do_batch_encode; fi
-			if checkerrors batch-encode; then exit; fi
+		if [ "$DOENCODE" = "y" ] && [ "$NOGAP" = "y" ]; then
+			if [ "$DONORMALIZE" = "y" ]; then
+				for UTRACKNUM in $TRACKQUEUE
+				do
+					if checkstatus readtrack-$UTRACKNUM; then
+						if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
+					fi
+				done
+			else
+				if checkstatus encodetrack-$LASTTRACK; then :; else do_nogap_encode; fi
+				if checkerrors nogap-encode; then exit 1; fi
+			fi
 		fi
 	fi
 fi
@@ -3349,6 +3426,8 @@ fi
 if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 	ENCODED_FORMATS=$(egrep "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
 	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
+	decho [ENCODED_FORMATS]
+	decho [MOVED_FORMATS]
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		echo "Not all encoded formats have been requested to be moved."
 		echo "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
