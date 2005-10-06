@@ -47,7 +47,7 @@ cddb, read, encode, tag. Playlist implies cddb. The default is to
 do all actions except normalize and playlist.
 .TP
 .B \-b
-Enable batch mode normalization. See the BATCH configuration variable.
+Enable batch mode normalization. See the BATCHNORM configuration variable.
 .TP
 .B \-c [filename]
 Specifies an additional configuration file to parse. Configuration options
@@ -67,6 +67,15 @@ single-track flac file with embeded cuesheet.
 .B \-D
 Capture debugging information (you'll want to redirect this \- try 'abcde \-D
 2>logfile')
+.TP
+.B \-e
+Erase information about encoded tracks from the internal status file, to enable
+other encodings if the wav files have been kept.
+.TP
+.B \-g
+Enable lame's \-\-nogap option.  See the NOGAP variable. WARNING: lame's
+\-\-nogap disables the Xing mp3 tag.  This tag is required for mp3 players to
+correctly display track lengths when playing variable-bit-rate mp3 files.
 .TP
 .B \-h
 Get help information.
@@ -349,10 +358,17 @@ requires several hundred MB less space to complete the encoding of an
 entire CD. Use only if your system is low on space and cannot encode as
 quickly as it can read.
 .TP
-.B BATCH
+.B BATCHNORM
 If set to y, enables batch mode normalization, which preserves relative
 volume differences between tracks of an album. Also enables nogap encoding
 when using the \'lame\' encoder.
+.TP
+.B NOGAP
+Activate the lame's \-\-nogap option, that allows files found in CDs with no
+silence between songs (such as live concerts) to be encoded without noticeable
+gaps. WARNING: lame's \-\-nogap disables the Xing mp3 tag.  This tag is
+required for mp3 players to correctly display track lengths when playing
+variable-bit-rate mp3 files.
 .TP
 .B PLAYLISTFORMAT
 Specifies the format for completed playlist filenames. Works like the
@@ -421,17 +437,17 @@ Possible ways one can call abcde
 .B abcde
 Will work in most systems
 .TP
-.B abcde -d /dev/cdrom2
+.B abcde \-d /dev/cdrom2
 If the CDROM you are reding from is not the standard /dev/cdrom (in GNU/Linux systems)
 .TP
-.B abcde -o vorbis,flac
+.B abcde \-o vorbis,flac
 Will create both Ogg/Vorbis and Ogg/FLAC files.
 .TP
-.B abcde -o vorbis:"-b 192"
+.B abcde \-o vorbis:"-b 192"
 Will pass "-b 192" to the Ogg/Vorbis encoder, without having to modify the
 config file
 .TP
-.B abcde -W 1
+.B abcde \-W 1
 For double+ CD settings: will create the 1st CD starting with the track number
 101, and will add a comment "CD 1" to the tracks, the second starting with 201
 and so on.
