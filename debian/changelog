@@ -14,8 +14,12 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added replygain using the appropiate tags with Ogg/Vorbis and Ogg/FLAC.
   * Replaygain is an action, not a flag, since it can be performed individualy
     in the chain of events.
+  * debian/{rules,control}:
+    - Changed the target directory from tmp to abcde, to accomodate to compat
+    mode 4.
+    - Bump standards to 3.6.2.1. No changes needed.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  7 Oct 2005 00:59:07 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri,  7 Oct 2005 21:13:12 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 
