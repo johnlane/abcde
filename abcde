@@ -854,6 +854,8 @@ do_encode ()
 			esac
 			if [ X"$USEPIPES" = "Xy" ]; then
 				RUN_COMMAND=""
+				# We need a way to store the creation of the files when using PIPES
+				RUN_COMMAND_PIPES="run_command encodetrack-$OUTPUT-$1 true"
 			else
 				run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
 				RUN_COMMAND="run_command encodetrack-$OUTPUT-$1"
@@ -928,9 +930,9 @@ do_encode ()
 				;;
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
-				run_command encodetrack-$OUTPUT-$1 true
 				;;
 			esac
+			$RUN_COMMAND_PIPES
 		done
 		# Only remove .wav if the encoding succeeded
 		if checkerrors "encodetrack-(.{3,6})-$1"; then :; else
