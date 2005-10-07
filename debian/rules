@@ -33,10 +33,10 @@ install-stamp: build-stamp
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install DESTDIR=`pwd`/debian/tmp
-	install -d `pwd`/debian/tmp/usr/share/doc/abcde/examples
-	install -m 644 examples/* `pwd`/debian/tmp/usr/share/doc/abcde/examples
+	# Add here commands to install the package into debian/abcde.
+	$(MAKE) install DESTDIR=`pwd`/debian/abcde
+	install -d `pwd`/debian/abcde/usr/share/doc/abcde/examples
+	install -m 644 examples/* `pwd`/debian/abcde/usr/share/doc/abcde/examples
 
 	touch install-stamp
 
