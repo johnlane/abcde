@@ -1,0 +1,57 @@
+An approach for reading and encoding taken in abcde is the use of Unix pipes.
+
+By this way, a program sends as output what another programs expects as input,
+without writing the information in the hard disk.
+
+For it to work with abcde, a ripper must send the data of the CD tracks which
+are ripped to the standard output, while sending the information and error
+messages to another "stream", so that the encoder does not get confused. This
+second stream is called "standard error".
+
+The encoder program needs to be able to encode the information send to it by
+reading from the standard input (which is what the ripper sends to the standard
+output).
+
+Usually Unix/Linux programs deal with the standard input/output by using the
+special file name "-", as in the following example:
+
+cdripper -o - | audioencoder -i - -o file.ext
+
+The "cdripper" program uses the flag "-o" to identify the file it will output
+the data to. For the "audioencoder" program to be able to read the output
+through a Unix pipe (the "|" symbol), the output needs to be sent to the
+standard output using the "-" special filename.
+
+Once the output has been pipped to "audioencoder" we use the same special
+filename to read the information as input with the "-i" flag and output it to
+"file.ext" with the "-o" flag.
+
+Keep in mind that the example above is only that, an example, and every ripper
+and encoder differs from in each other in the way they interact with pipes. 
+
+For one reason, not all the rippers and encoders are supported by abcde: the
+author (or the users) have not included support for them.
+
+If you plan to use a ripper or encoder which is not supported, you need to know
+how to use the ripper/encoder. For example, cdparanoia just uses "-" as the
+output filename and works. The program used to decode FLAC files (yes, abcde
+supports "ripping" from a FLAC file :) uses "-c ".
+
+To add support for a ripper called "cdripper" which uses the "-" special flag
+for outputting to the standard output, you need to open the config file (either
+/etc/abcde.conf or ~/.abcde.conf) and add the line:
+
+PIPERIPPER_cdripper="-"
+
+For an encoder called "audioencoder" which uses "--stdin" to read the pipe
+input, you need to add:
+
+PIPE_audioencoder="--stdin"
+
+Of course, you should try your configuration and report it so that it can be
+included in future versions of abcde.
+
+If you are familiar with POSIX shell programing, please open "abcde" and take a
+look at the lines below the one marked with "###USEPIPESSUPPORT###".
+
+Thanks for your time!

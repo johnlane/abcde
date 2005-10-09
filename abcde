@@ -2275,8 +2275,12 @@ fi
 decho ()
 {
 if [ x"$DEBUG" != "x" ]; then
-	DEBUGECHO=$(echo "$@" | tr -d '[]')
-	echo "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
+	if echo $1 | grep -q "^\[" ; then
+		DEBUGECHO=$(echo "$@" | tr -d '[]')
+		echo "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
+	else
+		echo "[DEBUG] $1"
+	fi
 fi
 }
 
@@ -2445,6 +2449,7 @@ MKCUEOPTS=
 MKTOCOPTS=""
 VORBISCOMMENTOPTS="-R"
 METAFLACOPTS="--no-utf8-convert"
+DIFFOPTS=
 
 # Default to one process if -j isn't specified
 MAXPROCS=1
@@ -3017,9 +3022,12 @@ if [ X"$CDSPEEDVALUE" != "X" ]; then
 	esac
 fi
 
+###USEPIPESSUPPORT###
+
 # Rippers with USEPIPE support
 # FIXME # Include here all the rippers we can figure out support pipes
 PIPERIPPER_cdparanoia="-"
+PIPERIPPER_debug="-"
 PIPERIPPER_flac="-c "
 
 # Encoders with USEPIPE support
@@ -3045,13 +3053,17 @@ if [ "$USEPIPES" = "y" ]; then
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
 	esac
-	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] ; then
+	decho "PIPERIPPERSVARCHECK: $( eval echo "\$$PIPERIPPERSVARCHECK" )"
+	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \
+	   [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "" ] ; then
 		log error "no support for pipes with given ripper"
 		log error "read the USEPIPES file from the source tarball to get help."
 		log error "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz"
 		exit 1;
 	fi
-	if [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "$" ] ; then
+	decho "PIPEENCODERSVARCHECK: $( eval echo "\$$PIPEENCODERSVARCHECK" )"
+	if [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "$" ] || \
+	   [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "" ] ; then
 		log error "no support for pipes with given encoder"
 		log error "read the USEPIPES file from the source tarball to help"
 		log error "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz"
