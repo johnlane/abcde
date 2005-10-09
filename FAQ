@@ -14,7 +14,7 @@ Q. How can I install abcde on my system?
 A. To get abcde you can use a pre-packaged version, available for Debian, 
    FreeBSD, OpenBSD, NetBSD and others.
    In case you want to install your own release, you need to download the
-   sources and install the complementary programs (abcde is just a frontend
+   source and install the complementary programs (abcde is just a frontend
    and its functionality is provided by other programs).
 
    abcde needs cd-discid. Grab it from:
@@ -169,6 +169,11 @@ A. Use the "-L -n" combination. It will try to use local CDDB entries, and if
 Q. How can I use some other CDDB information provider?
 A. abcde now uses FreeDB by default. To use a different FreeDB mirror or 
    another CDDB service, change the CDDBURL option in your abcde.conf.
+
+Q. After requesting CDDB data, I received several answers which seem to be
+   quite alike. Can I find out the difference between some of them?
+A. Yes. When asked which one you want to select, use "X,Y" where X and Y are
+   the numbers of the selections you want to find the difference between.
 
 
 3. FORMATS
