@@ -3462,6 +3462,11 @@ wait
 if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
+
+# FIXME #
+# Check if all the encoded formats have been actually moved to the final destination
+# ...
+
 # Check to see if run_command logged any errors
 if [ -f "$ABCDETEMPDIR/errors" ]; then
 	log error "The following commands failed to run:"
