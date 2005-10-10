@@ -1,5 +1,10 @@
 TODO:
 ----
+* Set loud after reading, so that the 1st encoding is visible.
+* flac with force.
+* no eject when we dont read a CD.
+
+
 * flacdecode (to extract files from a -1 flac file) (ALMOST READY!)
 
 * Get the echo instances to behave consistently
