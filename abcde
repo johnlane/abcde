@@ -2610,6 +2610,9 @@ if echo $CDROM | grep -i -q '.flac$'; then
 	fi
 fi
 
+# If the user provided a DISCID, disable eject
+if [ -n "$DISCID" ]; then EJECTCD=n ; fi
+
 # Decide if we can continue.
 if [ "$ONETRACK" = "y" ]; then 
 	# FIXME # remove check as soon as we find out about the other readers
@@ -3209,6 +3212,11 @@ else
 		if [ "$NOGAP" = "y" ] || [ "$BATCHNORM" = "y" ]; then
 		    :
 		else
+			# If we are not reading, set the encode output to loud already, so
+			# that we can see the output of the first track.
+			if [ "$MAXPROCS" = "1" ] && [ ! "$DOREAD" = "y" ]; then
+				echo "encode-output=loud" >> "$ABCDETEMPDIR/status"
+			fi
 			echo NEXTTRACK # Get the encoder machine churning again
 			if [ "$DOREAD" = "y" ]; then
 				if [ "$LOWDISK" = "y" ] && [ "$DOENCODE" = "y" ]; then
