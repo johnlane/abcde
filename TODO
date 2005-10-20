@@ -1,13 +1,10 @@
 TODO:
 ----
-* Set loud after reading, so that the 1st encoding is visible.
 * flac with force.
-* no eject when we dont read a CD.
+* Get the echo instances to behave consistently
 
 
 * flacdecode (to extract files from a -1 flac file) (ALMOST READY!)
-
-* Get the echo instances to behave consistently
 
 * read the TOC and CDTEXT files and store them
 
@@ -46,51 +43,4 @@ TODO:
   Abcde should halt when a problem occurs, so it can be manually resolved.
 
 * AAC support (faac should be free?)
-
-* I used abcde to rip a cd in batch normalizing mode to mp3 (mp2
-  actually) format with toolame. The first part went fine, until toolame
-  started. That resulted in an error. Here is the relevant part of the
-  logfile made by 'abcde -D 2>logfile':
-
-  -----
-  + TRACKFILES= track1.wav track2.wav track3.wav track4.wav
-  + nice -n 10 toolame --nogap track1.wav track2.wav track3.wav track4.wav
-  toolame: unrec option -
-  toolame: unrec option n
-  toolame: -p model must be 1 or 2, not track1.wav
-  + RETURN=1
-  + '[' 1 '!=' 0 ']'
-  + echo 'batch-encode:  returned code 1'
-  -----
-  
-  In my abcde.conf I have "BATCH=y". Setting this to "BATCH=n" solves
-  this. "BATCH=y" is responsible for inserting '--nogap'. I don't know
-  what that is supposed to be doing, but it is only meant for use with
-  lame, and I am using toolame as that is free software: "LAME=toolame"
-  in abcde.conf.
-  
-  I see two possible solutions:
-  
-  1. Check if LAME really is lame and not toolame or some other mp3
-  encoder. If so, then go ahead and insert '--nogap' in the generated
-  command. Else don't.
-  
-  2. Don't tie the '--nogap' insertion to the setting of BATCH. Make a
-  new option NOGAP or something for that.
-  
-  Other than that, abcde is a brilliant time saver. Thanks!
-  
-  BTW, dpkg -l toolame:
-  ii  toolame        02i-2          MPEG-1 layer 2 audio encoder
-
-*
-
-abcde -a read,encode -o ogg,flac,wav (it creates and encodes the 3 formats)
-
-abcde -a tag,move,clean (it tags and moves Ogg/Vorbis and erases everything
-                        else...)
-
-I will have to add a "-f" as force to erase the directory if we have encoded
-something else than what we have already moved, so that we dont destroy
-formats that we want to keep.
 

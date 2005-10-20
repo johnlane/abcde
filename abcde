@@ -57,6 +57,7 @@ echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
 echo "-t <#> Start the track numbering at a given number"
 echo "-T <#> Same as -t but modifies tag numbering"
+echo "-u     Use UNICODE tags and comments"
 echo "-v     Show version number and exit"
 echo "-V     Be a bit more verbose about what is happening behind the scenes"
 echo "-x     Eject CD after all tracks are read"
@@ -387,21 +388,21 @@ do_replaygain()
 				ALBUMFILE="$(mungefilename "$DALBUM")"
 				do_gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
+					OUTPUTFILE="$(eval echo $VAOUTPUTFORMAT)"
 				else
-					OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
+					OUTPUTFILE="$(eval echo $OUTPUTFORMAT)"
 				fi
 				OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
 			done
 			case "$OUTPUT" in
 				flac)
-					run_command replaygain-flac $METAFLAC --add-replay-gain $OUTPUTFILES
+					run_command replaygain-flac $METAFLAC --add-replay-gain "$OUTPUTFILES"
 					;;
 				vorbis|ogg)
-					run_command replaygain-vorbis $VORBISGAIN --album $OUTPUTFILES
+					run_command replaygain-vorbis $VORBISGAIN --album "$OUTPUTFILES"
 					;;
 				mp3)
-					run_command replaygain-mp3 $MP3GAIN -a $OUTPUTFILES
+					run_command replaygain-mp3 $MP3GAIN -a "$OUTPUTFILES"
 					;;
 				*);;
 			esac
@@ -2539,7 +2540,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:vVxw:W:z opt ; do
+while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2572,11 +2573,9 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:vVxw:W:z opt ; do
 		R) DOREPLAYGAIN=y ;;
 		s) SHOWCDDBFIELDS="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
-#		t) PREPROCESSFORMATS="$OPTARG"
-#		   PREPROCESS=y ;;
-#		T) POSTPROCESSFORMATS="$OPTARG" ;;
 		t) STARTTRACKNUMBER="$OPTARG" ;;
 		T) STARTTRACKNUMBER="$OPTARG" ; STARTTRACKNUMBERTAG="y" ;;
+		u) CDDBPROTO=6 ;;
 		v) 
 		   echo "This is abcde v$VERSION."
 		   echo "Usage: abcde [options] [tracks]"
