@@ -378,6 +378,7 @@ do_replaygain()
 					;;
 			esac
 			OUTPUTFILES=""
+			REPLAYINDEX=0
 			for UTRACKNUM in $TRACKQUEUE
 			do
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
@@ -392,17 +393,18 @@ do_replaygain()
 				else
 					OUTPUTFILE="$(eval echo $OUTPUTFORMAT)"
 				fi
-				OUTPUTFILES="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT $OUTPUTFILES"
+				OUTPUTFILES[$REPLAYINDEX]="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+				(( REPLAYINDEX = $REPLAYINDEX + 1 ))
 			done
 			case "$OUTPUT" in
 				flac)
-					run_command replaygain-flac $METAFLAC --add-replay-gain "$OUTPUTFILES"
+					run_command replaygain-flac $METAFLAC --add-replay-gain "${OUTPUTFILES[@]}"
 					;;
 				vorbis|ogg)
-					run_command replaygain-vorbis $VORBISGAIN --album "$OUTPUTFILES"
+					run_command replaygain-vorbis $VORBISGAIN --album "${OUTPUTFILES[@]}"
 					;;
 				mp3)
-					run_command replaygain-mp3 $MP3GAIN -a "$OUTPUTFILES"
+					run_command replaygain-mp3 $MP3GAIN -a "${OUTPUTFILES[@]}"
 					;;
 				*);;
 			esac
