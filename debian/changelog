@@ -23,8 +23,11 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added one more checking for PIPES*_* unset variables (which means support
     is not added to abcde).
   * Added toolame as an optional MP3 encoder.
+  * Added a "-u" flag to set the FreeDB/whatever-cddb-server-you-use to use
+    th 6th step of the protocol and request the entries in UTF-8, which
+    hopefully will add the expected UTF-8 tags and comments.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  8 Oct 2005 17:05:32 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 22 Oct 2005 22:53:37 +0300
 
 abcde (2.3.4-1) unstable; urgency=low
 

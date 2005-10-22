@@ -152,6 +152,12 @@ filenames and the playlist. Internal (tag) numbering remains the same.
 Same as \-t but changes also the internal (tag) numbering. Keep in mind that
 the default TRACK tag for MP3 is $T/$TRACKS so it is changed to simply $T.
 .TP
+.B \-u
+Set CDDBPROTOCOL to version 6, so that we retrieve UTF-8 encoded CDDB
+information, and we tag and add comments with a proper encoding. This flag will
+be removed and -U will be added to set it to version 5 once version 6 becomes
+the default.
+.TP
 .B \-v
 Show the version and exit
 .TP
