@@ -406,6 +406,9 @@ do_replaygain()
 				mp3)
 					run_command replaygain-mp3 $MP3GAIN -a "${OUTPUTFILES[@]}"
 					;;
+				mpc)
+					run_command replaygain-mpc $MPPGAIN --auto "${OUTPUTFILES[@]}"
+					;;
 				*);;
 			esac
 		done
@@ -897,7 +900,7 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$FLACENCODERSYNTAX" in
-					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
+					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER -f $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
 						;;
 					*)
@@ -1042,7 +1045,7 @@ do_single_gain ()
 
 # do_batch_gain
 # variables used:
-# MP3GAIN, MP3GAINOPTS, VORBISGAIN, VORBISGAINOPTS
+# MP3GAIN, MP3GAINOPTS, VORBISGAIN, VORBISGAINOPTS, MPPGAIN, MPPGAINOPTS
 # FIXME #
 do_batch_gain ()
 {
@@ -2412,6 +2415,7 @@ NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
 MP3GAIN=mp3gain
+MPPGAIN=replaygain
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
@@ -2430,7 +2434,7 @@ MP3ENCOPTS=
 VORBIZEOPTS=
 OGGENCOPTS=
 # flac
-FLACOPTS="-f"
+FLACOPTS=
 # speex
 SPEEXENCOPTS=
 # mpc
@@ -2869,9 +2873,11 @@ do
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
+#			[ "$DOREPLAYGAIN" = "y" ] &&
 			;;
 		mpc)
 			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -3083,6 +3089,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
+	${NEEDMPPGAIN+$MPPGAIN} \
 	${NEEDCUEREADER+$CUEREADER} ${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	# Cut off the command-line options we just added in
