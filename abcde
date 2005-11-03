@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION="2.3.99-$revision$"
+VERSION="2.3.99-$Revision$"
 
 usage ()
 {
@@ -34,7 +34,6 @@ echo "-d <device>"
 echo "       Specify CDROM device to grab (flac uses a single-track flac file)"
 echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
-#echo "-E     Set the encoding information for the tags"
 echo "-f     Force operations that otherwise are considered harmful. Read \"man abcde\""
 echo "-g     Use \"lame --nogap\" for MP3 encoding. Disables low disk and pipes flags"
 echo "-h     This help information"
@@ -335,11 +334,6 @@ relpath ()
 
 # do_getcddbinfo
 # Finds an specific field from cddbinfo
-# 
-#	TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
-#	TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
-#	TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
-
 do_getcddbinfo()
 {
 	case $1 in
@@ -2547,7 +2541,7 @@ if [ "$CDROM" = "" ] ; then
 fi
 
 # Parse command line options
-#while getopts 1a:A:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+#while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
 while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
@@ -3402,10 +3396,8 @@ do
 			TRACKNUM="$FIRSTTRACK"
 			splitvarious
 		else
-#			TRACKNUM=$(printf %0.${TRACKNUMPADDING}d $(expr ${UTRACKNUM} + 0))
 			TRACKNUM=$UTRACKNUM
 			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			#TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 			do_getcddbinfo TRACKNAME
 			splitvarious
 		fi
@@ -3480,10 +3472,6 @@ wait
 if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
-
-# FIXME #
-# Check if all the encoded formats have been actually moved to the final destination
-# ...
 
 # Check to see if run_command logged any errors
 if [ -f "$ABCDETEMPDIR/errors" ]; then
