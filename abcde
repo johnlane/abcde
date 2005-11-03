@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION="2.3.99"
+VERSION="2.3.99-$revision$"
 
 usage ()
 {
