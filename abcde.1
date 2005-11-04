@@ -176,6 +176,12 @@ Add a comment to the tracks ripped from the CD.
 Concatenate CD\'s. It uses the number provided to define a comment "CD #" and
 to modify the numbering of the tracks, starting with "#01".
 .TP
+.B \-z
+DEBUG mode: it will rip, using cdparanoia, the very first second of each track
+and proceed with the actions requested very quickly, also providing some
+"hidden" information about what happens on the background. CAUTION: IT WILL
+ERASE ANY EXISTING RIPS WITHOUT WARNING!
+.TP
 .B [tracks]
 A list of tracks you want abcde to process. If this isn't specified, abcde
 will process the entire CD. Accepts ranges of track numbers -
