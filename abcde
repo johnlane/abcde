@@ -86,9 +86,9 @@ log ()
 	BLURB="$1"
 	shift
 	case $BLURB in
-		error)   echo "[ERR] abcde: $@" >&2 ;;
-		warning) echo "[WAR] $@" >&2 ;;
-		info)    echo "[INF] $@" ;;
+		error)   echo "[ERROR] abcde: $@" >&2 ;;
+		warning) echo "[WARNING] $@" >&2 ;;
+		info)    echo "[INFO] $@" ;;
 	esac
 }
 
