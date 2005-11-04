@@ -840,20 +840,22 @@ do_encode ()
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
-			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then 
-				continue
-			fi
 			case "$OUTPUT" in
 				vorbis|ogg)
 					OUT="$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
 				flac)
 					OUT="$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
 				*)
 					OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 			esac
+			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then 
+				continue
+			fi
 			if [ X"$USEPIPES" = "Xy" ]; then
 				RUN_COMMAND=""
 				# We need a way to store the creation of the files when using PIPES
