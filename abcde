@@ -1353,6 +1353,7 @@ do_discid ()
 			disktool -m ${CDROM#/dev/}
 		fi
 		WEHAVEACD=y
+		DISCID=$(echo $TRACKINFO | cut -f1 -d' ')
 	else
 		TRACKINFO=$(cat "$WAVOUTPUTDIR/abcde.$DISCID/discid")
 	fi
@@ -2552,7 +2553,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		b) BATCHNORM=y ;;
 		B) NOBATCHREPLAYGAIN=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
-		C) DISCID="${OPTARG#abcde.}" ;;
+		C) DISCID="$( echo ${OPTARG#abcde.} | tr -d /)" ;;
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
 		e) ERASEENCODEDSTATUS=y ;;
@@ -3493,8 +3494,10 @@ if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 	decho [ENCODED_FORMATS]
 	decho [MOVED_FORMATS]
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
-		log warning "Not all encoded formats have been requested to be moved."
-		log warning "Use \"-a clean -f -C $DISCID\" to force the removal of the remaining data."
+		log warning "The encoded formats does not match with the moved ones"
+		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
+		log warning "Formats moved: $( echo $MOVED_FORMATS | tr "|" " " )"
+		log warning "Use \"abcde -a clean -f -C $DISCID\" to force the removal of the remaining data."
 		DOCLEAN=n
 	fi
 fi
