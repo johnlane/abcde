@@ -3491,8 +3491,6 @@ fi
 if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 	ENCODED_FORMATS=$(egrep "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
 	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
-	decho [ENCODED_FORMATS]
-	decho [MOVED_FORMATS]
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		log warning "The encoded formats does not match with the moved ones"
 		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
