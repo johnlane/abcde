@@ -1277,7 +1277,6 @@ do_playlist ()
 			do
 				# Shares some code with do_move since the filenames have to match
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-				#TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2 -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')
 				do_getcddbinfo TRACKNAME
 				splitvarious
 				TRACKFILE="$(mungefilename "$TRACKNAME")"
@@ -2137,14 +2136,6 @@ do_cdread ()
 		FIRSTTRACK=$2
 		LASTTRACK=$3
 		UTRACKNUM=$FIRSTTRACK
-		case "$CDROMREADERSYNTAX" in
-			### FIXME ### How are we calculating the tracks in flac mode?
-			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
-			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
-			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
-			*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
-			   exit 1 ;;
-		esac
 	else
 		UTRACKNUM=$1
 	fi
@@ -2174,7 +2165,6 @@ do_cdread ()
 		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
 	else
 		if [ -r "$CDDBDATA" ]; then
-			#TRACKNAME=$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2 -d= | tr -d \[:cntrl:\])
 			do_getcddbinfo TRACKNAME
 			echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM: $TRACKNAME..." >&2
 		else
