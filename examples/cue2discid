@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+"""Outputs a long-form cddb discid given a cue file as input"""
+
+import fileinput
+import re
+
+FRAMES_PER_SECOND = 75
+SAMPLES_PER_SECOND = 44100
+SAMPLES_PER_FRAME = SAMPLES_PER_SECOND // FRAMES_PER_SECOND
+
+pregap = 0
+currentTrackFrame = 0
+pregapRegex = re.compile(r'PREGAP (?P<min>\d+):(?P<sec>\d\d):(?P<frame>\d\d)')
+startTrackRegex = re.compile(r'INDEX 01 (?P<min>\d+):(?P<sec>\d\d):(?P<frame>\d\d)')
+leadInRegex = re.compile(r'REM FLAC__lead-in (?P<sample>\d+)')
+leadOutRegex = re.compile(r'REM FLAC__lead-out 170 (?P<sample>\d+)')
+raw_framelist = list()
+
+numTracks = 0
+
+def cddb_sum(trackseconds):
+    def digits(number):
+        tmp = number
+        while tmp:
+            yield tmp % 10
+            tmp = tmp // 10
+
+    return sum(digits(trackseconds))
+
+for line in fileinput.input():
+    pregapMatch = pregapRegex.search(line)
+    if pregapMatch:
+        pregap = (int((pregapMatch.group('min')) * 60) + int(pregapMatch.group('sec'))) * FRAMES_PER_SECOND + int(pregapMatch.group('frame'))
+        continue
+
+    startTrackMatch = startTrackRegex.search(line)
+    if startTrackMatch:
+        numTracks += 1
+        currentTrackFrame = ((int(startTrackMatch.group('min')) * 60) + int(startTrackMatch.group('sec'))) * FRAMES_PER_SECOND + int(startTrackMatch.group('frame'))
+        raw_framelist.append(currentTrackFrame)
+        continue
+
+    leadInMatch = leadInRegex.search(line)
+    if leadInMatch:
+        leadInFrame = long(leadInMatch.group('sample')) // SAMPLES_PER_FRAME
+        continue
+
+    leadOutMatch = leadOutRegex.search(line)
+    if leadOutMatch:
+        leadOutFrame_raw = long(leadOutMatch.group('sample')) // SAMPLES_PER_FRAME
+        continue
+
+leadOutFrame = leadOutFrame_raw + leadInFrame
+
+framelist = [i + leadInFrame + pregap for i in raw_framelist]
+
+secondslist = [i//FRAMES_PER_SECOND for i in framelist]
+
+n = long(sum(map(cddb_sum, secondslist)))
+t = leadOutFrame/FRAMES_PER_SECOND - framelist[0]/FRAMES_PER_SECOND
+print "%08x" % (((n % 0xff) << 24) | (t << 8) | numTracks), numTracks, 
+print " ".join([str(i) for i in framelist]), leadOutFrame/FRAMES_PER_SECOND
