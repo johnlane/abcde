@@ -1,3 +1,22 @@
+abcde 2.3.99.1
+
+  * Both -z and -C unset EJECTCD to avoid ejecting the CD when a) we are
+    debuging and b) we are not using the CD.
+  * If we are not reading the CD, set "loud" to see all the output messages
+    (that is, in most of the cases, the first encoding).
+  * Added -f to force some events that otherwise would erase files from our
+    current run. In the standard configuration ("OUTPUT=vorbis") the following
+    actions will need a "-f" to force the last one:
+      abcde -a read,encode -o ogg,flac
+      abcde -a tag,move,clean
+    During the second run abcde should complain that it is trying to erase the
+    working directory while the it has not performed any action on the FLAC
+    files, which we encoded previously.
+  * Convert the old cdparanoia-audio-tracks file into a status entry to avoid
+    eating files from previous rounds using an early version (Closes: #341050)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Tue, 29 Nov 2005 23:27:20 +0200
+
 abcde 2.3.99
 
   * Added diff choice to CDDB entries ("1,4").

@@ -1384,6 +1384,11 @@ do_discid ()
 						TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
+						# Previous versions of abcde would store the tracks on a file, instead of the status record.
+						if [ -f "$ABCDETEMPDIR/cdparanoia-audio-tracks" ]; then
+							echo cdparanoia-audio-tracks=$( cat "$ABCDETEMPDIR/cdparanoia-audio-tracks" ) >> "$ABCDETEMPDIR/status"
+							rm -f "$ABCDETEMPDIR/cdparanoia-audio-tracks"
+						fi
 						if [ -f "$ABCDETEMPDIR/status" ] && TRACKS=$(checkstatus cdparanoia-audio-tracks); then :; else
 							TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
 						fi
@@ -1499,6 +1504,8 @@ do_discid ()
 			exit 1
 		fi
 		cat /dev/null > "$ABCDETEMPDIR/status"
+		# Store the abcde version in the status file.
+		echo "abcde-version=$VERSION" >> "$ABCDETEMPDIR/status"
 	fi
 	if [ X"$MAKECUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
