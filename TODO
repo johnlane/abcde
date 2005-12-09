@@ -4,6 +4,8 @@ TODO:
 * Get the echo instances to behave consistently
 
 
+* Add musicbrainz support: http://www.rupamsunyata.org/~decklin/musicbrainz-get-tracks
+
 * flacdecode (to extract files from a -1 flac file) (ALMOST READY!)
 
 * read the TOC and CDTEXT files and store them
