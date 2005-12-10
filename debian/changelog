@@ -1,3 +1,14 @@
+abcde (2.3.99.2-1) unstable; urgency=low
+
+  * Missing bits in the 2.3.99.1 changelog:
+    - Man page: added information about -z (Debug option).
+    - Corrected config file with the BATCHNORM/NOGAP split
+      (Closes: #337622).
+    - Uses /bin/bash for the time being... We need to get some substitution
+      functions/operations for the bashisms we have: Closes: #337139.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu,  1 Dec 2005 16:45:07 +0200
+
 abcde (2.3.99.1-1) unstable; urgency=low
 
   * Both -z and -C unset EJECTCD to avoid ejecting the CD when a) we are
