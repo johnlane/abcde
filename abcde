@@ -1852,16 +1852,15 @@ do_cddbedit ()
 						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
 						read CDDBCHOICE
 						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
-						if echo $CDDBCHOICE | egrep -q "[[:digit:]]+,[[:digit:]]+" ; then
+						if echo $CDDBCHOICE | egrep -q "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" ; then
 							if [ ! X"$DIFF" = "X" ]; then
-								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1)
-								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2)
+								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1 | xargs printf %d 2>/dev/null)
+								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2 | xargs printf %d 2>/dev/null)
 								if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBCHOICES ] || \
 								   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBCHOICES ] || \
 								   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then 
 									echo "Invalid diff range. Please select two coma-separated numbers between 1 and $CDDBCHOICES" >&2
 								else
-
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
 										do_cddbparse "$ABCDETEMPDIR/cddbread.$PARSECHOICE" > "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE"
@@ -1877,10 +1876,10 @@ do_cddbedit ()
 							else
 								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
 							fi
-						else
+						elif echo $CDDBCHOICE | egrep -q "[[:space:]]*[[:digit:]]+[[:space:]]*" ; then
+							# Make sure we get a valid choice
+							CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
 							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; then
-								# Make sure we get a valid choice
-								CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
 								echo "Invalid selection. Please choose a number between 0 and $CDDBCHOICES." >&2
 							fi
 						fi
