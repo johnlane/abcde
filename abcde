@@ -22,7 +22,8 @@ echo "Usage: abcde [options] [tracks]"
 echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
-echo "       Actions to perform (cddb,read,normalize,encode,tag,move,replaygain,playlist,clean)"
+echo "       Actions to perform:"
+echo "       cddb,musicbrainz,read,normalize,encode,tag,move,replaygain,playlist,clean"
 #echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Enable batch normalization"
 #echo "-B     Disable batch replaygain (do file by file)"
@@ -2657,6 +2658,7 @@ fi
 # Determine what actions are to be done from $ACTIONS and set the
 # following environment variables for them:
 DOCDDB=n
+DOMUSICBRAINZ=n
 DOREAD=n
 DONORMALIZE=n
 DOPREPROCESS=n
@@ -2672,6 +2674,7 @@ for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
 		cddb) DOCDDB=y;;
+		musicbrainz) DOMUSICBRAINZ=y;;
 		read) DOREAD=y;;
 		normalize) DONORMALIZE=y; DOREAD=y;;
 #		preprocess) DOPREPROCESS=y; DOREAD=y;;
