@@ -23,7 +23,7 @@ echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
 echo "       Actions to perform:"
-echo "       cddb,musicbrainz,read,normalize,encode,tag,move,replaygain,playlist,clean"
+echo "       cddb,read,normalize,encode,tag,move,replaygain,playlist,clean"
 #echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Enable batch normalization"
 #echo "-B     Disable batch replaygain (do file by file)"
@@ -48,7 +48,7 @@ echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
 echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -733,6 +733,9 @@ do_tag ()
 		mpc)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
+		m4a)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
@@ -813,6 +816,9 @@ do_encode ()
 				TEMPARG="PIPE_$SPEEXENCODER"
 				;;
 			mpc)
+				TEMPARG="PIPE_$MPPENCODER"
+				;;
+			m4a)
 				TEMPARG="PIPE_$MPPENCODER"
 				;;
 		esac
@@ -932,6 +938,15 @@ do_encode ()
 				## FIXME ## Needs some cleanup to determine if an empty tag sent
 				## FIXME ## to the encoder ends up empty.
 				$RUN_COMMAND nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				;;
+			m4a)
+				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
+				if [ ! "$DOTAG" = "y" ]; then
+					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
+					
+				else
+					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
+				fi
 				;;
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
@@ -1335,7 +1350,11 @@ do_discid ()
 		if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
 			TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
 		else
-			TRACKINFO=$($CDDISCID $CDROM)
+			case "$CDDBMETHOD" in
+				cddb) TRACKINFO=$($CDDISCID $CDROM) ;;
+				# FIXME # musicbrainz needs a cleanup
+				musicbrainz) TRACKINFO=$($MUSICBRAINZ -c $CDROM ) ;;
+			esac
 		fi
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ ! "$?" = "0" ]; then
@@ -1530,6 +1549,9 @@ do_discid ()
 	
 	# Create the discid file
 	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
+	if checkstatus cddbmethod > /dev/null 2>&1 ; then :; else
+		echo "cddbmethod=$CDDBMETHOD" >> "$ABCDETEMPDIR/status"
+	fi
 }
 
 # do_cleancue
@@ -1636,6 +1658,16 @@ do_localcddb ()
 			CDDBLOCALSUCCESS="n"
 		fi
 	fi
+}
+
+do_musicbrainzstat ()
+{
+	:
+}
+
+do_musizbrainz ()
+{
+	:
 }
 
 # do_cddbstat
@@ -1830,6 +1862,9 @@ do_cddbedit ()
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
 					case $CDDBCHOICES in
+						-1) log error "CDDB query failed!" 
+							exit 1
+							;;
 						1) cat "$ABCDETEMPDIR/cddbchoices" ;;
 						*)
 						echo "Selected: #$CHOICE"
@@ -2143,6 +2178,13 @@ do_cdread ()
 		FIRSTTRACK=$2
 		LASTTRACK=$3
 		UTRACKNUM=$FIRSTTRACK
+		case "$CDROMREADERSYNTAX" in
+			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
+			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
+			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
+			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
+				exit 1 ;;
+		esac
 	else
 		UTRACKNUM=$1
 	fi
@@ -2184,6 +2226,7 @@ do_cdread ()
 		flac)
 			nice $READNICE $FLAC -d --cue=${READTRACKNUMS:-$UTRACKNUM.1-$(($UTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
+			echo "nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;" > /tmp/log
 			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
@@ -2321,6 +2364,10 @@ post_read ()
 ###############################################################################
 
 # Builtin defaults
+
+# CDDB
+# Defaults to FreeDB, but a python musicbrainz can be used
+CDDBMETHOD=cddb
 CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
 CDDBSUBMIT=freedb-submit@freedb.org
 CDDBPROTO=5
@@ -2333,7 +2380,7 @@ CDDBUSELOCAL="n"
 SHOWCDDBFIELDS="year,genre"
 
 INTERACTIVE=y
-CDROMREADERSYNTAX=cdparanoia
+#CDROMREADERSYNTAX=cdparanoia
 ENCODERSYNTAX=default
 
 MP3ENCODERSYNTAX=default
@@ -2341,6 +2388,7 @@ OGGENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPPENCODERSYNTAX=default
+AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
 
@@ -2392,6 +2440,8 @@ FLAC=flac
 SPEEXENC=speexenc
 # mpp (Musepack)
 MPPENC=mppenc
+# m4a
+AACENC=faac
 
 ID3=id3
 ID3V2=id3v2
@@ -2402,6 +2452,7 @@ DAGRAB=dagrab
 CDDAFS=cp
 CDDISCID=cd-discid
 CDDBTOOL=cddb-tool
+MUSICBRAINZ=musicbrainz-get-tracks
 EJECT=eject
 MD5SUM=md5sum
 DISTMP3=distmp3
@@ -2435,6 +2486,8 @@ FLACOPTS=
 SPEEXENCOPTS=
 # mpc
 MPPENCOPTS=
+# m4a
+AACENCOPTS=
 
 ID3OPTS=
 ID3V2OPTS=
@@ -2460,9 +2513,12 @@ MAXPROCS=1
 # List of actions to perform - by default, run to completion
 ACTIONS=cddb,read,encode,tag,move,clean
 
+# This option is basicaly for Debian package dependencies: 
 # List of prefered outputs - by default, run with whatever we have in the path
-# This option is basicaly for Debian package dependencies
 DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex
+
+# List of prefered cdromreaders - by default, run whichever we have in the path
+DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
 
 # Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for Linux/OpenBSD/NetBSD.
 # Let's use these checkings to determine the OS flavour, which will be used later
@@ -2614,6 +2670,21 @@ fi
 # If the user provided a DISCID, disable eject
 if [ -n "$DISCID" ]; then EJECTCD=n ; fi
 
+# Check the available cd rippers in the system, from the ones we know.
+if [ "$CDROMREADERSYNTAX" = "" ]; then
+	for DEFAULT_CDROMREADER in $DEFAULT_CDROMREADERS; do
+		if [ -x $( which $DEFAULT_CDROMREADER ) ]; then
+			CDROMREADERSYNTAX=$DEFAULT_CDROMREADER
+			break
+		fi
+	done
+	if [ "$CDROMREADERSYNTAX" = "" ]; then
+		log error "no cdreader found in your PATH"
+		log error "hints: are all dependencies installed? has the \$PATH been modified?"
+		exit 1
+	fi
+fi
+
 # Decide if we can continue.
 if [ "$ONETRACK" = "y" ]; then 
 	# FIXME # remove check as soon as we find out about the other readers
@@ -2658,7 +2729,6 @@ fi
 # Determine what actions are to be done from $ACTIONS and set the
 # following environment variables for them:
 DOCDDB=n
-DOMUSICBRAINZ=n
 DOREAD=n
 DONORMALIZE=n
 DOPREPROCESS=n
@@ -2674,7 +2744,6 @@ for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
 		cddb) DOCDDB=y;;
-		musicbrainz) DOMUSICBRAINZ=y;;
 		read) DOREAD=y;;
 		normalize) DONORMALIZE=y; DOREAD=y;;
 #		preprocess) DOPREPROCESS=y; DOREAD=y;;
@@ -2838,6 +2907,7 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPPENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			m4a:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
 	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
@@ -2847,7 +2917,8 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 	OUTPUTTYPE="$TEMPOUTPUTTYPE"
 fi
 
-# If nothing has been specified, use oggenc for oggs and lame for mp3s and flac for flacs and speexenc for speex and mppenc for mpps
+# If nothing has been specified, use oggenc for oggs and lame for mp3s and flac
+# for flacs and speexenc for speex and mppenc for mpps and faac for m4as
 
 # Getting ready for multiple output changes
 for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
@@ -2876,6 +2947,9 @@ do
 		mpc)
 			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
+			;;
+		m4a)
+			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -2957,7 +3031,12 @@ case "$MPPENCODERSYNTAX" in
 		MPPENCODER="$MPPENC"
 		;;
 esac
-		
+case "$AACENCODERSYNTAX" in
+	faac)
+		AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+		AACENCODER="$AACENC"
+		;;
+esac
 # and which tagger
 
 if [ "$ID3TAGV" = "1" ]; then
@@ -3015,7 +3094,11 @@ if [ "$EJECTCD" = "y" ]; then
 	NEEDEJECT=y
 fi
 if [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ]; then
-	NEEDHTTPGET=y
+	if [ "$CDDBMETHOD" = "cddb" ]; then
+		NEEDHTTPGET=y
+	elif [ "$CDDBMETHOD" = "musicbrainz" ]; then
+		:
+	fi
 fi
 if [ "$MAKECUEFILE" = "y" ]; then
 	NEEDCUEREADER=y
@@ -3128,7 +3211,14 @@ pre_read # Execute the user-defined pre-read funtion. Close the CD with it.
 
 vecho "done."
 
-do_discid # Get ABCDETEMPDIR created and status file initialized
+case "$CDDBMETHOD" in
+	cddb)
+		do_discid # Get ABCDETEMPDIR created and status file initialized
+		;;
+	musicbrainz)
+		do_musicbrainz
+		;;
+esac
 
 if [ "$DOCDDB" = "y" ]; then
 	if [ $CDDBUSELOCAL = "y" ]; then
@@ -3138,9 +3228,16 @@ if [ "$DOCDDB" = "y" ]; then
 		:
 	else 
 		if [ ! "$CDDBLOCALSUCCESS" = "y" ] ; then
-			do_cddbstat
-			do_cddbquery
-			do_cddbread
+			case "$CDDBMETHOD" in
+				cddb)
+					do_cddbstat
+					do_cddbquery
+					do_cddbread
+					;;
+				musicbrainz)
+					do_musicbrainz
+					;;
+			esac
 		fi
 	fi
 	do_cddbedit
