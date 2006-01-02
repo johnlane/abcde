@@ -107,7 +107,7 @@ f_seq_row ()
 f_seq_line ()
 {
 	i=$1
-	if echo i | grep -q "[[:digit:]]" ; then
+	if echo $i | grep -q "[[:digit:]]" ; then
 		while [ $i -ne `expr $2 + 1` ]
 		do
 			printf $i" "
@@ -1495,7 +1495,7 @@ do_discid ()
 				exit 1
 			fi
 			rm -rf "$ABCDETEMPDIR" || exit 1
-			mkdir "$ABCDETEMPDIR"
+			mkdir -p "$ABCDETEMPDIR"
 			if [ "$?" -gt "0" ]; then
 				# Directory already exists or could not be created
 				echo "abcde: Temp directory $ABCDETEMPDIR could not be created." >&2
@@ -1517,7 +1517,7 @@ do_discid ()
 		fi
 	else
 		# We are starting from scratch
-		mkdir "$ABCDETEMPDIR"
+		mkdir -p "$ABCDETEMPDIR"
 		if [ "$?" -gt "0" ]; then
 			# Directory already exists or could not be created
 			echo "abcde: Temp directory $ABCDETEMPDIR could not be created." >&2
