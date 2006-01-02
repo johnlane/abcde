@@ -3,8 +3,10 @@ abcde (2.3.99.3-1) unstable; urgency=low
   * The "Mao es nuestro indiscutible lider" release.
   * Check the CDROMREADER options we have in Debian which we depend on. Thanks
     to Jose Carlos Garcia Sogo for finding the error.
+  * Added a missing $ in a variable (Closes: #345629).
+  * Added -p to the mkdir's for $ABCDETEMPDIR (Closes: #345630).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 18 Dec 2005 14:41:57 +0200
+ -- Jesus Climent <jesus.climent@nokia.com>  Mon,  2 Jan 2006 18:52:49 +0200
 
 abcde (2.3.99.2-1) unstable; urgency=low
 
