@@ -9,43 +9,22 @@ import musicbrainz.queries as mq
 
 DEF_CD_DEV = '/dev/cdrom'
 
-# TODO:
-#
-# * --cdrom should take an argument, e.g. /dev/cdrom1. musicbrainz.queries
-#   doesn't seem to provide for this.
-
-def get_toc_discid(mb):
-    mb.Query(mq.MBQ_GetCDTOC)
-    return mb.GetResultData(mq.MBE_TOCGetCDIndexId)
+def get_toc_discid(mb, dev):
+    mb.SetDevice(dev)
+    try:
+        mb.Query(mq.MBQ_GetCDTOC)
+        return mb.GetResultData(mq.MBE_TOCGetCDIndexId)
+    except musicbrainz.MusicBrainzError:
+        print >>sys.stderr, "error: could not read TOC from disc"
+        sys.exit(1)
 
 def lookup_discid(mb, id):
     mb.QueryWithArgs(mq.MBQ_GetCDInfoFromCDIndexId, [id])
 
-if __name__ == "__main__":
-    shortopts = 'cd:'
-    longopts = ['cdrom', 'discid=']
-
-    mb = musicbrainz.mb()
-    mb.SetDepth(2)
-
-    opts, args = getopt.getopt(sys.argv[1:], shortopts, longopts)
-
-    id = None
-    if opts:
-        for opt, arg in opts:
-            if opt in ('--cdrom', '-c'):
-                id = get_toc_discid(mb)
-                lookup_discid(mb, id)
-            if opt in ('--discid', '-d'):
-                id = arg
-                lookup_discid(mb, id)
-    else:
-        id = get_toc_discid(mb)
-        lookup_discid(mb, id)
-
+def fake_cddb(mb):
     matches = mb.GetResultInt(mq.MBE_GetNumAlbums)
     if matches == 0:
-        print >>sys.stderr, "could not find an entry for this CD"
+        print >>sys.stderr, "error: could not find an entry for this disc"
         sys.exit(1)
     if matches > 1:
         print >>sys.stderr, "warning: multiple matches, using first"
@@ -121,3 +100,31 @@ if __name__ == "__main__":
 
     print "PLAYORDER="
     print "."
+
+if __name__ == "__main__":
+    shortopts = 'nd:i:'
+    longopts = ['no-lookup', 'device=', 'id=']
+
+    mb = musicbrainz.mb()
+    mb.SetDepth(2)
+
+    opts, args = getopt.getopt(sys.argv[1:], shortopts, longopts)
+
+    id = None
+    lookup = True
+    if opts:
+        for opt, arg in opts:
+            if opt in ('--no-lookup', '-n'):
+                lookup = False
+            if opt in ('--device', '-d'):
+                id = get_toc_discid(mb, arg)
+            if opt in ('--id', '-i'):
+                id = arg
+    if not id:
+        id = get_toc_discid(mb, DEF_CD_DEV)
+
+    if lookup:
+        lookup_discid(mb, id)
+        fake_cddb(mb)
+    else:
+        print id

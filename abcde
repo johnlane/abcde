@@ -53,6 +53,7 @@ echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
+echo "-R     Use local CDDB in recursive mode"
 #echo "-R     Add replaygain values to the tag info (only for vorbis,flac,mp3)"
 echo "-s <field>"
 echo "       Show dielfs from the CDDB info (year,genre)"
@@ -1623,40 +1624,59 @@ do_localcddb ()
 	
 		CDDBLOCALSUCCESS="n"
 		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
-		CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBDISCID}"
 		USELOCALRESP="y"
+
+		if [ "$CDDBLOCALRECURSIVE" = "y" ]; then
+			CDDBLOCALRESULTS="$(find ${CDDBLOCALDIR} -name "${CDDBDISCID}" -type f 2> /dev/null)"
+			if [ "$(echo "${CDDBLOCALRESULTS}" | wc -l)" = "1" ]; then
+				CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBLOCALRESULTS}"
+				CDDBLOCALMATCH=single
+			elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
+				CDDBLOCALMATCH=multiple
+			else
+				CDDBLOCALMATCH=none
+			fi
+		elif [ -r "${CDDBLOCALDIR}/${CDDBDISCID}" ]; then
+			CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBDISCID}"
+			CDDBLOCALMATCH=single
+		else
+			CDDBLOCALMATCH=none
+		fi
 		
 		# If the user has selected to check a local CDDB repo, we proceed with it
-		if [ -r "${CDDBLOCALFILE}" ]; then
-			# List out disc title/author and contents
-			do_cddbparse "${CDDBLOCALFILE}"
-			echo -n "Locally cached CDDB entry found, use it? [y/n] (y): "
-			if [ "$INTERACTIVE" = "y" ]; then
-				read USELOCALRESP
-				while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
-					echo -n 'Invalid selection. Please answer "y" or "n": '
+		case $CDDBLOCALMATCH in
+			single)
+				# List out disc title/author and contents
+				do_cddbparse "${CDDBLOCALFILE}"
+				echo -n "Locally cached CDDB entry found, use it? [y/n] (y): "
+				if [ "$INTERACTIVE" = "y" ]; then
 					read USELOCALRESP
-				done
-				[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
-			else
-				echo "y" >&2
-			fi
-			if [ "$USELOCALRESP" = "y" ]; then
-				#echo "Using local copy of CDDB data"
-				echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
-				cat "${CDDBLOCALFILE}" >> "$ABCDETEMPDIR/cddbread.1"
-				echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
-				echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
-				do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
-				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-				CDDBLOCALSUCCESS="y"
-			else
-				#echo "Not using local copy of CDDB data"
+					while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
+						echo -n 'Invalid selection. Please answer "y" or "n": '
+						read USELOCALRESP
+					done
+					[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
+				else
+					echo "y" >&2
+				fi
+				if [ "$USELOCALRESP" = "y" ]; then
+					#echo "Using local copy of CDDB data"
+					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
+					cat "${CDDBLOCALFILE}" >> "$ABCDETEMPDIR/cddbread.1"
+					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
+					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
+					do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
+					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+					CDDBLOCALSUCCESS="y"
+				else
+					#echo "Not using local copy of CDDB data"
+					CDDBLOCALSUCCESS="n"
+				fi
+				;;
+			none)
 				CDDBLOCALSUCCESS="n"
-			fi
-		else
-			CDDBLOCALSUCCESS="n"
-		fi
+				;;
+		esac
 	fi
 }
 
@@ -1862,8 +1882,12 @@ do_cddbedit ()
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
 					case $CDDBCHOICES in
-						-1) log error "CDDB query failed!" 
-							exit 1
+						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep -q "^$" ; then
+								log error "CDDB query failed!" 
+								exit 1
+							else
+								cat "$ABCDETEMPDIR/cddbchoices"
+							fi
 							;;
 						1) cat "$ABCDETEMPDIR/cddbchoices" ;;
 						*)
@@ -3061,6 +3085,12 @@ case "$CUEREADERSYNTAX" in
 		;;
 esac
 
+# which information retrieval tool are we using?
+case "$CDDBTOOL" in
+	cddb) ;;
+	musicbrainz) ;;
+esac
+
 # Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
 if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
 	log error "FLAC on an Ogg container is not yet supported"
@@ -3202,14 +3232,16 @@ fi
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
 export CDROM CDDBDATA REMOTEHOSTS MAXPROCS HTTPGET MD5SUM
 
-# User-definable function to set some things. Use it for
-#  - closing the CD tray with eject -t
-#  - set the CD speed value with eject -x
-vecho -n "Executing customizable pre-read function... "
+if [ "$DOREAD" = "y" ]; then
+	# User-definable function to set some things. Use it for
+	#  - closing the CD tray with eject -t
+	#  - set the CD speed value with eject -x
+	vecho -n "Executing customizable pre-read function... "
 
-pre_read # Execute the user-defined pre-read funtion. Close the CD with it.
+	pre_read # Execute the user-defined pre-read funtion. Close the CD with it.
 
-vecho "done."
+	vecho "done."
+fi
 
 case "$CDDBMETHOD" in
 	cddb)
