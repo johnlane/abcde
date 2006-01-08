@@ -136,6 +136,10 @@ Pads track numbers with 0\'s.
 Remote encode on this comma-delimited list of machines using distmp3. See
 the REMOTEHOSTS configuration variable.
 .TP
+.B \-R
+When CDDBLOCALDIR and CDDBUSELOCAL are defined, search recursively under the
+defined directory for matches of the CDDB entry.
+.TP
 .B \-s [fields...]
 List, separated by comas, the fields to be shown in the CDDB parsed entries.
 Right now it only uses "year" and "genre".
@@ -224,6 +228,24 @@ Specifies a directory where we store a local CDDB repository. The entries must
 be standard CDDB entries, with the filename being the DISCID value. Other
 CD playing and ripping programs (like Grip) store the entries under ~/.cddb
 and we can make use of those entries.
+.TP
+.B CDDBLOCALRECURSIVE
+Specifies if the CDDBLOCALDIR has to be searched recursively trying to find a
+match for the CDDB entry. If a match is found and selected, and CDDBCOPYLOCAL
+is selected, it will be copied to the root of the CDDBLOCALDIR if
+CDDBLOCALPOLICY is "modified" or "new".
+.TP
+.B CDDBLOCALPOLICY
+Defines when a CDDB entry should be stored in the defined CDDBLOCALDIR. The
+possible policies are: "net" for a CDDB entry which has been received from the
+net (overwriting any possible local CDDB entry); "new" for a CDDB entry which
+was received from the net, but will request confirmation to overwrite a local
+CDDB entry found in the root of the CDDBLOCALDIR directory; "modified" for a
+CDDB entry found in the local repository but which has been modified by the
+user; and "always" which forces the CDDB entry to be stored back in the root of
+the CDDBLOCALDIR no matter where it was found, and no matter it was not edited.
+This last option will always overwrite the one found in the root of the local
+repository (if any).
 .TP
 .B CDDBCOPYLOCAL
 Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.

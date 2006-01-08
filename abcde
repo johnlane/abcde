@@ -1622,13 +1622,13 @@ do_localcddb ()
 {
 	if checkstatus cddb-readcomplete && checkstatus cddb-choice >/dev/null; then :; else
 	
-		CDDBLOCALSUCCESS="n"
+		CDDBLOCALSTATUS="notfound"
 		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
 		USELOCALRESP="y"
 
 		if [ "$CDDBLOCALRECURSIVE" = "y" ]; then
 			CDDBLOCALRESULTS="$(find ${CDDBLOCALDIR} -name "${CDDBDISCID}" -type f 2> /dev/null)"
-			if [ "$(echo "${CDDBLOCALRESULTS}" | wc -l)" = "1" ]; then
+			if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) = 1 )); then
 				CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBLOCALRESULTS}"
 				CDDBLOCALMATCH=single
 			elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
@@ -1645,14 +1645,52 @@ do_localcddb ()
 		
 		# If the user has selected to check a local CDDB repo, we proceed with it
 		case $CDDBLOCALMATCH in
+			multiple)
+				X=0
+				cat "$CDDBLOCALRESULTS" | while read RESULT ; do
+					X=$(expr $X + 1)
+					# List out disc title/author and contents
+					CDDBLOCALREAD="$ABCDETEMPDIR/cddblocalread.$X"
+					cat "$RESULT" >> "${CDDBLOCALREAD}"
+					{	
+						echo -n "\#$X: "
+						do_cddbparse "${CDDBLOCALREAD}" 
+					} >> "$ABCDETEMPDIR/cddblocalchoices"
+				done
+				CDDBLOCALCHOICES=$X
+				if [ "$INTERACTIVE" = "y" ]; then
+					while [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; do
+						echo -n "Locally cached CDDB entries found. Which one would you like to use (0 for none)? [0-$CDDBLOCALCHOICES]: " >&2
+						read CDDBLOCALRESP
+						[ x"$CDDBLOCALRESP" = "x" ] && CDDBLOCALRESP="1"
+					done
+				else
+					### FIXME ###
+					echo "Selected ..."
+					CDDBLOCALRESP=y
+				fi
+				if [ ! "$CDDBLOCALRESP" = "0" ]; then
+					#echo "Using local copy of CDDB data"
+					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
+					cat "$ABCDETEMPDIR/cddblocalread.$CDDBLOCALRESP" >> "$ABCDETEMPDIR/cddbread.1"
+					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
+					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
+					do_cddbparse "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbchoices"
+					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+					CDDBLOCALSTATUS="found"
+				else
+					#echo "Not using local copy of CDDB data"
+					CDDBLOCALSTATUS="notfound"
+				fi
+				;;
 			single)
 				# List out disc title/author and contents
 				do_cddbparse "${CDDBLOCALFILE}"
-				echo -n "Locally cached CDDB entry found, use it? [y/n] (y): "
+				echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
 				if [ "$INTERACTIVE" = "y" ]; then
 					read USELOCALRESP
 					while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
-						echo -n 'Invalid selection. Please answer "y" or "n": '
+						echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
 						read USELOCALRESP
 					done
 					[ x"$USELOCALRESP" = "x" ] && USELOCALRESP="y"
@@ -1667,14 +1705,14 @@ do_localcddb ()
 					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
 					do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
 					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-					CDDBLOCALSUCCESS="y"
+					CDDBLOCALSTATUS="single"
 				else
 					#echo "Not using local copy of CDDB data"
-					CDDBLOCALSUCCESS="n"
+					CDDBLOCALSTATUS="notfound"
 				fi
 				;;
 			none)
-				CDDBLOCALSUCCESS="n"
+				CDDBLOCALSTATUS="notfound"
 				;;
 		esac
 	fi
@@ -1735,7 +1773,7 @@ do_cddbquery ()
 		if [ "$CDDBAVAIL" = "n" ]; then
 			ERRORCODE=no_query
 			echo 503 > "$ABCDETEMPDIR/cddbquery"
-		# The default CDDBLOCALSUCCESS is "n"
+		# The default CDDBLOCALSTATUS is "notfound"
 		# This part will be triggered if the user CDDB repo does not 
 		# contain the entry, or if we are not trying to use the repo.
 		else
@@ -1874,7 +1912,7 @@ do_cddbedit ()
 	if [ "$INTERACTIVE" = "y" ]; then
 		# We should show the CDDB results both when we are not using the local CDDB repo
 		# or when we are using it but we could not find a proper match
-		if [ "$CDDBUSELOCAL" = "y" ] && [ ! "$CDDBLOCALSUCCESS" = "y" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
+		if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSTATUS" = "notfound" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
 			# Display the $ABCDETEMPDIR/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
@@ -1987,7 +2025,7 @@ do_cddbedit ()
 			# Show the choice if we are not using the locally stored one
 			# or when the local search failed to find a match.
 			PREVIOUSCHOICE=$(checkstatus cddb-choice)
-			if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSUCCESS" = "n" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
+			if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSTATUS" = "notfound" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
 				#if [ "$PREVIOUSCHOICE" ]; then
 					cat "$ABCDETEMPDIR/cddbchoices"
 				#fi
@@ -2177,10 +2215,12 @@ do_cddbedit ()
 			fi
 		fi
 	fi
-	# Make sure the cache directory exists
-	mkdir -p $CDDBLOCALDIR
+	### FIXME ###
+	# User CDDBLOCALPOLICY to find out if we store the file or not...
 	# Cache edited CDDB entry in the user's cddb dir
-	if [ "$CDDBCOPYLOCAL" = "y" ] || [ "$COPYCDDBLOCAL" = "Y" ]; then
+	if [ "$CDDBCOPYLOCAL" = "y" ]; then
+		# Make sure the cache directory exists
+		mkdir -p $CDDBLOCALDIR
 		cat "$CDDBDATA" | tail -n $(expr $(cat "$CDDBDATA" | wc -l ) - 1 ) > ${CDDBLOCALDIR}/$(echo "$TRACKINFO" | cut -d' ' -f1)
 	fi
 
@@ -2397,6 +2437,8 @@ CDDBSUBMIT=freedb-submit@freedb.org
 CDDBPROTO=5
 HELLOINFO="$(whoami)@$(hostname)"
 CDDBCOPYLOCAL="n"
+CDDBLOCALPOLICY="always"
+CDDBLOCALRECURSIVE="y"
 CDDBLOCALDIR="$HOME/.cddb"
 CDDBUSELOCAL="n"
 
@@ -3259,7 +3301,7 @@ if [ "$DOCDDB" = "y" ]; then
 	if checkstatus cddb-choice > /dev/null; then
 		:
 	else 
-		if [ ! "$CDDBLOCALSUCCESS" = "y" ] ; then
+		if [ "$CDDBLOCALSTATUS" = "notfound" ] ; then
 			case "$CDDBMETHOD" in
 				cddb)
 					do_cddbstat
