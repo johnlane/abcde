@@ -22,7 +22,7 @@ Grab an audio track (or all the audio CD tracks) from your CD
 Normalize the volume of the individual file (or the album as a single unit)
 .TP
 .B *
-Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format(s), all in one CD read
+Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) and/or M4A format(s), all in one CD read
 .TP
 .B *
 Comment or ID3/ID3v2 tag
@@ -83,6 +83,14 @@ Capture debugging information (you'll want to redirect this \- try 'abcde \-D
 Erase information about encoded tracks from the internal status file, to enable
 other encodings if the wav files have been kept.
 .TP
+.B \-f
+Force the removal of the temporary ABCDETEMPDIR directory, even when we have
+not finished. For example, one can read and encode several formats, including
+\'.ogg\', and later on execute a \'move\' action with only one of the given
+formats. On a normal situation it would erase the rest of those encoded
+formats. In this case, abcde will refuse to execute such command, except if \-f
+is used.
+.TP
 .B \-g
 Enable lame's \-\-nogap option.  See the NOGAP variable. WARNING: lame's
 \-\-nogap disables the Xing mp3 tag.  This tag is required for mp3 players to
@@ -123,14 +131,18 @@ If the cuesheet is embeded in a flac single file it can be used as source for
 encoding other formats.
 .TP
 .B \-o [filetype][:filetypeoptions]
-Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc" or
-"wav".  Specify a comma-delimited list of output types to obtain all specified
-types.  See the OUTPUTTYPE configuration variable. One can pass options to the
-encoder for a specific filetype on the command line separating them with a
-colon. The options must be escaped with double-quotes.
+Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc",
+"m4a" or "wav".  Specify a comma-delimited list of output types to obtain all
+specified types.  See the OUTPUTTYPE configuration variable. One can pass
+options to the encoder for a specific filetype on the command line separating
+them with a colon. The options must be escaped with double-quotes.
 .TP
 .B \-p
 Pads track numbers with 0\'s.
+.TP
+.B \-P
+Use Unix PIPES to read and encode in one step. It disables multiple encodings,
+since the WAV audio file is never stored in the disc.
 .TP
 .B \-r [hosts...]
 Remote encode on this comma-delimited list of machines using distmp3. See
@@ -195,12 +207,12 @@ Each track is, by default, placed in a separate file named after the track
 in a subdirectory named after the artist under the current directory. 
 This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
 variables in your abcde.conf. Each file is given an extension identifying 
-its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', or '.wav'.
+its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac' or '.wav'.
 .SH CONFIGURATION
 abcde sources two configuration files on startup - /etc/abcde.conf and
 $HOME/.abcde.conf, in that order. 
 .TP
-The configuration options stated on those files can ba overriden by providing
+The configuration options stated on those files can be overriden by providing
 the appropiate flags at runtime.
 .TP
 The configuration variables have to be set as follows:
@@ -214,6 +226,12 @@ expanded upon use (for example OUTPUTFORMAT) then single quotes must be used.
 All sh escaping/quoting rules apply.
 .TP
 Here is a list of options abcde recognizes:
+.TP
+.B CDDBMETHOD
+Specifies the method we want to use to retrieve the track information. Two
+values are recognized: "cddb" and "musicbrainz". The "cddb" value needs the
+CDDBURL and HELLOINFO variables described below. The "musicbrainz" value uses
+Python to stablish a conversation with the server for information retrieval.
 .TP
 .B CDDBURL
 Specifies a server to use for CDDB lookups.
@@ -283,6 +301,10 @@ Specifies the style of encoder to use for Speex encoder. At this point only
 Specifies the style of encoder to use for MPP/MP+ (Musepack) encoder. At this
 point we only have \'mppenc\' available, from corecodecs.org.
 .TP
+.B AACENCODERSYNTAX
+Specifies the style of encoder to use for M4A (AAC) encoder. At this point we
+only support \'faac\', so \'default\' points to it.
+.TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
 and \'normalize'\ (and both run \'normalize-audio\'), since we only support it,
@@ -319,7 +341,7 @@ with distmp3 (DISTMP3NICE).
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEEXENC, MPPENC, ID3, ID3V2, EYED3, METAFLAC,
+VORBIZE, OGGENC, FLAC, SPEEXENC, MPPENC, AACEND, ID3, ID3V2, EYED3, METAFLAC,
 CDPARANOIA, CDDA2WAV, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
 VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
 DIFF and HTTPGET.
@@ -328,10 +350,10 @@ DIFF and HTTPGET.
 If you wish to specify command-line options to any of the programs abcde uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
-FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, ID3OPTS, ID3V2OPTS, CDPARANOIAOPTS,
-CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS,
-CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS, DIFFOPTS and
-HTTPGETOPTS.
+FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, AACENCOPTS, ID3OPTS, ID3V2OPTS,
+CDPARANOIAOPTS, CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS,
+NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS,
+DIFFOPTS and HTTPGETOPTS.
 .TP
 .B CDSPEEDVALUE
 Set the value of the CDROM speed. The default is to read the disc as fast as
@@ -362,28 +384,27 @@ over 100MB for a machine that can encode music as fast as it can read it).
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
-Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)) or "wav" (Microsoft
-Waveform). Values like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and
-MP3 formats.
+Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)) or
+"wav" (Microsoft Waveform). Values like "vorbis,mp3" encode the tracks in both
+Ogg/Vorbis and MP3 formats.
 .br
 For each value in OUTPUTTYPE, abcde expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
 different subdirectories to hold the different types. The variable OUTPUT will
-be 'vorbis', 'mp3', 'flac', 'spx' and/or 'mpc', depending on the OUTPUTTYPE you define.
-For example
+be 'vorbis', 'mp3', 'flac', 'spx', 'mpc', 'm4a' and/or 'wav', depending on the
+OUTPUTTYPE you define. For example
 .br
 OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
 .TP
 .B OUTPUTFORMAT
-Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+ 
-(Musepack) filenames.
-Variables are included
-using standard shell syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE,
-TRACKFILE, TRACKNUM, and YEAR. Default is
-\'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'.
-Make sure to use single quotes around this variable. TRACKNUM is
-automatically zero-padded, when the number of encoded tracks is higher than
-9. When lower, you can force with '-p' in the command line.
+Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+
+(Musepack) or M4A filenames. Variables are included using standard shell
+syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE, TRACKFILE,
+TRACKNUM, and YEAR. Default is \'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'. 
+Make sure to use single quotes around this variable. TRACKNUM is automatically
+zero-padded, when the number of encoded tracks is higher than 9. When lower,
+you can force with
+'-p' in the command line.
 .TP
 .B VAOUTPUTFORMAT
 Just like OUTPUTFORMAT but for Various Artists discs. Default is whatever
@@ -502,7 +523,7 @@ Will extract the files contained in singletrack using the embeded cuesheet.
 abcde requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC, Ogg/Speex or MPP/MP+(Musepack) encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mppenc)
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) or M4A encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mppenc, faac)
 .TP
 .B *
 An audio CD reading utility (cdparanoia, cdda2wav, dagrab)
@@ -511,7 +532,7 @@ An audio CD reading utility (cdparanoia, cdda2wav, dagrab)
 cd-discid, a CDDB DiscID reading program.
 .TP
 .B *
-An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others).
+An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others). Alternatively, musicbrainz-get-tracks (which depends on Python) can be used to retrieve CDDB information about the CD.
 .TP
 .B *
 (for MP3s) id3 or id3v2, id3 v1 and v2 tagging programs.
@@ -523,7 +544,7 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 (optional) normalize-audio, a WAV file volume normalizer.
 .TP
 .B *
-(optional) a replaygain file volume modifier (vorbisgain, metaflac, mp3gain),
+(optional) a replaygain file volume modifier (vorbisgain, metaflac, mp3gain, replaygain),
 .TP
 .B *
 (optional) mkcue, a CD cuesheet extractor.
@@ -538,6 +559,7 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 .BR toolame (1),
 .BR speexenc (1),
 .BR mppenc (1),
+.BR faac (1),
 .BR id3 (1),
 .BR id3v2 (1),
 .BR wget (1),
