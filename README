@@ -21,13 +21,22 @@ for more help.
 MAJOR CHANGES
 =============
 Changes in 2.4:
-* Read TOC entries from the CD. The default uses cdrdao.
+* Read TOC entries from the CD. The default uses cdrdao. The program mkcue is
+  also optional.
 * Possibility to use CDDBCHOICE1,CDDBCHOICE2 (i.e., 1,3) to get a diff of two
   parsed CDDB entries.
 * Added SHOWCDDBFIELDS to define wether to show the YEAR and GENRE fields from
   the CDDB output.
 * Added the possibility of using a singletrack flac file with an embeded
   cuesheet as a source to extract tracks from.
+* Added replaygain for Ogg/Vorbis and Ogg/FLAC.
+* Added M4A encoding.
+* Uses the default found $CDROMREADER instead of forcing cdparanoia when
+  cdda2wav is installed.
+* BATCH mode has been splitted into two options: BATCHNORM and NOGAP.
+* Added -u option for UNICODE (UTF-8) tag encoding.
+* Added -z for debug.
+* Added -f to force the removal of left files.
  
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
