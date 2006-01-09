@@ -1628,7 +1628,7 @@ do_localcddb ()
 
 		if [ "$CDDBLOCALRECURSIVE" = "y" ]; then
 			CDDBLOCALRESULTS="$(find ${CDDBLOCALDIR} -name "${CDDBDISCID}" -type f 2> /dev/null)"
-			if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) = 1 )); then
+			if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) == 1 )); then
 				CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBLOCALRESULTS}"
 				CDDBLOCALMATCH=single
 			elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
@@ -1647,32 +1647,34 @@ do_localcddb ()
 		case $CDDBLOCALMATCH in
 			multiple)
 				X=0
-				cat "$CDDBLOCALRESULTS" | while read RESULT ; do
+				echo "$CDDBLOCALRESULTS" | while read RESULT ; do
 					X=$(expr $X + 1)
 					# List out disc title/author and contents
 					CDDBLOCALREAD="$ABCDETEMPDIR/cddblocalread.$X"
 					cat "$RESULT" >> "${CDDBLOCALREAD}"
 					{	
-						echo -n "\#$X: "
+						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}" 
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
-				CDDBLOCALCHOICES=$X
+				CDDBLOCALCHOICES=$( echo "$CDDBLOCALRESULTS" | wc -l )
+				cat "$ABCDETEMPDIR/cddblocalchoices"
+				CDDBLOCALCHOICENUM=-1
 				if [ "$INTERACTIVE" = "y" ]; then
 					while [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; do
 						echo -n "Locally cached CDDB entries found. Which one would you like to use (0 for none)? [0-$CDDBLOCALCHOICES]: " >&2
-						read CDDBLOCALRESP
-						[ x"$CDDBLOCALRESP" = "x" ] && CDDBLOCALRESP="1"
+						read CDDBLOCALCHOICENUM
+						[ x"$CDDBLOCALCHOICENUM" = "x" ] && CDDBLOCALCHOICENUM="1"
 					done
 				else
 					### FIXME ###
 					echo "Selected ..."
 					CDDBLOCALRESP=y
 				fi
-				if [ ! "$CDDBLOCALRESP" = "0" ]; then
+				if [ ! "$CDDBLOCALCHOICENUM" = "0" ]; then
 					#echo "Using local copy of CDDB data"
 					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
-					cat "$ABCDETEMPDIR/cddblocalread.$CDDBLOCALRESP" >> "$ABCDETEMPDIR/cddbread.1"
+					cat "$ABCDETEMPDIR/cddblocalread.$CDDBLOCALCHOICENUM" >> "$ABCDETEMPDIR/cddbread.1"
 					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
 					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
 					do_cddbparse "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbchoices"
