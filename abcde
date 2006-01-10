@@ -1628,15 +1628,19 @@ do_localcddb ()
 
 		if [ "$CDDBLOCALRECURSIVE" = "y" ]; then
 			CDDBLOCALRESULTS="$(find ${CDDBLOCALDIR} -name "${CDDBDISCID}" -type f 2> /dev/null)"
-			if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) == 1 )); then
-				CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBLOCALRESULTS}"
-				CDDBLOCALMATCH=single
-			elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
-				CDDBLOCALMATCH=multiple
+			if [ ! "${CDDBLOCALRESULTS}" = "" ]; then
+				if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) == 1 )); then
+					CDDBLOCALFILE="${CDDBLOCALRESULTS}"
+					CDDBLOCALMATCH=single
+					echo "${CDDBLOCALRESULTS}" : $(echo "${CDDBLOCALRESULTS}" | wc -l )
+					echo CDDBLOCALMATCH=single
+				elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
+					CDDBLOCALMATCH=multiple
+				fi
 			else
 				CDDBLOCALMATCH=none
 			fi
-		elif [ -r "${CDDBLOCALDIR}/${CDDBDISCID}" ]; then
+		elif [ "$CDDBLOCALMATCH" = "none" ] && [ -r "${CDDBLOCALDIR}/${CDDBDISCID}" ]; then
 			CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBDISCID}"
 			CDDBLOCALMATCH=single
 		else
@@ -1646,6 +1650,7 @@ do_localcddb ()
 		# If the user has selected to check a local CDDB repo, we proceed with it
 		case $CDDBLOCALMATCH in
 			multiple)
+				echo "Processing multiple matching CDDB entries..." >> "$ABCDETEMPDIR/cddblocalchoices"
 				X=0
 				echo "$CDDBLOCALRESULTS" | while read RESULT ; do
 					X=$(expr $X + 1)
@@ -1655,6 +1660,7 @@ do_localcddb ()
 					{	
 						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}" 
+						echo ""
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
 				CDDBLOCALCHOICES=$( echo "$CDDBLOCALRESULTS" | wc -l )
