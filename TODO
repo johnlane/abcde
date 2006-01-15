@@ -1,8 +1,9 @@
 TODO:
 ----
 * flac with force.
-* Get the echo instances to behave consistently
 
+* Get the multiple choices in both local and remote CDDB to use the same
+  functions.
 
 * Add musicbrainz support: http://www.rupamsunyata.org/~decklin/musicbrainz-get-tracks
 
