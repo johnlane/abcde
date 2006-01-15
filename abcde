@@ -334,6 +334,21 @@ relpath ()
 	echo $TO
 }
 
+checkexec ()
+{
+	if [ ! "$@" = "" ]; then
+		# Cut off the command-line options we just added in
+		X=$(echo $@ | cut -d' ' -f2)
+		if [ "$(which $X)" = "" ]; then
+			log error "$X is not in your path." >&2
+			exit 1
+		elif [ ! -x $(which $X) ]; then
+			log error "$X is not executable." >&2
+			exit 1
+		fi
+	fi
+}
+
 # do_getcddbinfo
 # Finds an specific field from cddbinfo
 do_getcddbinfo()
@@ -1349,7 +1364,14 @@ do_discid ()
 			disktool -u ${CDROM#/dev/}
 		fi
 		if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-			TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
+			if [ "$TRACKINFO" = "" ]; then
+				TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
+			else
+				if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM > /dev/null 2>&1 ; then :; else
+					log error "the input flac file does not contain a cuesheet."
+					exit 1
+				fi
+			fi
 		else
 			case "$CDDBMETHOD" in
 				cddb) TRACKINFO=$($CDDISCID $CDROM) ;;
@@ -2743,10 +2765,8 @@ if echo $CDROM | grep -i -q '.flac$'; then
 	CDROMREADERSYNTAX=flac
 	# Added a need on CUE2DISCID until we manage to convert the python script to bash.
 	NEEDCUE2DISCID=y
-	if [ "$EJECTCD" = "y" ];then
-		vecho "abcde: CDROM flac mode, deactivating EJECTCD..."
-		EJECTCD=n
-	fi
+	NEEDMETAFLAC=y
+	EJECTCD=n
 fi
 
 # If the user provided a DISCID, disable eject
@@ -3195,11 +3215,11 @@ if [ "$MAKECUEFILE" = "y" ]; then
 	NEEDCUEREADER=y
 fi
 
-if [ X"$CDSPEEDVALUE" != "X" ]; then
+if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y"]; then
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
 		### FIXME ### translate "cue2discid" from python to bash
-		flac) NEEDMETAFLAC=y ; NEEDCUE2DISCID=y ;;
+		flac) NEEDMETAFLAC=y ; NEEDCUE2DISCID=y ; CDSPEEDVALUE="" ;;
 		*) NEEDCDSPEED=y ;;
 	esac
 fi
@@ -3262,22 +3282,10 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
 	${NEEDMPPGAIN+$MPPGAIN} \
-	${NEEDCUEREADER+$CUEREADER} ${NEEDCUE2DISCID+$CUE2DISCID}
+	${NEEDCUEREADER+$CUEREADER}
 do
-	# Cut off the command-line options we just added in
-	X=$(echo $X | cut -d' ' -f2)
-	if [ "$(which $X)" = "" ]; then
-		log error "$X is not in your path." >&2
-		exit 1
-	elif [ ! -x $(which $X) ]; then
-		log error "$X is not executable." >&2
-		exit 1
-	fi
+	checkexec "$X"
 done
-
-CDROMREADER="$CDROMREADER $CDROMREADEROPTS"
-CDDBTOOL="$CDDBTOOL $CDDBTOOLOPTS"
-HTTPGET="$HTTPGET $HTTPGETOPTS"
 
 # And last but not least, check if we can diff between files
 if [ -x $(which $DIFF) ]; then :; else
@@ -3285,9 +3293,23 @@ if [ -x $(which $DIFF) ]; then :; else
 	DIFF=""
 fi
 
+# Now that we have metaflac, check if we need cue2discid
+case $CDROMREADERSYNTAX in
+	flac)
+		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | egrep "[a-f0-9]{8}")
+		if [ "$TRACKINFO" = "" ]; then 
+			checkexec ${NEEDCUE2DISCID+$CUE2DISCID}
+		fi
+		;;
+esac
+
+CDROMREADER="$CDROMREADER $CDROMREADEROPTS"
+CDDBTOOL="$CDDBTOOL $CDDBTOOLOPTS"
+HTTPGET="$HTTPGET $HTTPGETOPTS"
+
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 2736 ;)
+# Well, right now we are at line 3306 ;)
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
