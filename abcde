@@ -906,7 +906,7 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$FLACENCODERSYNTAX" in
-					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER -f $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
+					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER -f ${IMPORTCUESHEET:+--cuesheet="$ABCDETEMPDIR/$CUEFILE"} $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
 						;;
 					*)
@@ -3021,6 +3021,9 @@ do
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
+			if [ "$ONETRACK" = "y" ]; then
+				[ "$MAKECUEFILE" = "y" ] && IMPORTCUESHEET=y
+			fi
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
@@ -3373,6 +3376,10 @@ if [ "$LOWDISK" = "y" ] || [ "$ONETRACK" = "y" ]; then
 fi
 
 if [ "$ONETRACK" = "y" ]; then 
+	# Reuse the CUEFILE in case we created it in a previous run
+	if CUEFILE=$(checkstatus cuefile) >/dev/null ; then
+		IMPORTCUESHEET=y
+	fi
 	TRACKS="$FIRSTTRACK"
 	if checkstatus readtrack-$FIRSTTRACK; then :; else
 		if [ "$USEPIPES" = "y" ]; then

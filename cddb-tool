@@ -21,7 +21,7 @@
 #  - Submitted via: line is created by template, when it really should be in send.
 #    Oh well.
 
-VERSION=0.4.6
+VERSION=0.4.7
 NAME=cddb-tool
 
 #return codes
@@ -209,7 +209,7 @@ query) # cddb-tool query serverurl proto user host discid...
 	TRACKINFO="$@"
 	TRACKINFOPLUS=$(echo $TRACKINFO | tr ' ' '+')
 	RESULTS=$($HTTPGET "$SERVER?cmd=cddb+query+$TRACKINFOPLUS\&hello=$HELLOINFO\&proto=$PROTO") || exit $LOOKUP_ERR
-	echo $RESULTS | tr '\r' '\n' | tr -s '\n' | sed 's/^ //g'
+	echo "$RESULTS" | tr '\r' '\n' | tr -s '\n' | sed 's/^ //g'
 	;;
 
 read) # cddb-tool read serverurl proto user host genre discnumber
