@@ -1694,7 +1694,11 @@ do_localcddb ()
 			single)
 				# List out disc title/author and contents
 				do_cddbparse "${CDDBLOCALFILE}"
-				echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
+				if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
+					echo -n "Embedded cuesheet entry found, use ut? [y/n] (y): " >&2
+				else
+					echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
+				fi
 				if [ "$INTERACTIVE" = "y" ]; then
 					read USELOCALRESP
 					while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
@@ -2296,6 +2300,9 @@ do_cdread ()
 		### FIXME ### use an exception for flac, since it uses -o
 		### FIXME ### Shall we just use -o $FILEARG ??
 		flac)
+			# Avoid problems wit math expressions by unpadding the given UTRACKNUM
+			_TRACKNUM=$UTRACKNUM
+			UTRACKNUM=$(expr $_TRACKNUM + 0)
 			nice $READNICE $FLAC -d --cue=${READTRACKNUMS:-$UTRACKNUM.1-$(($UTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
 			echo "nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;" > /tmp/log
@@ -2380,7 +2387,7 @@ vecho ()
 {
 if [ x"$EXTRAVERBOSE" != "x" ]; then
 	case $1 in
-		warning) log warning "$@" ;;
+		warning) shift ; log warning "$@" ;;
 		*) echo "$@" ;;
 	esac
 fi
@@ -2733,8 +2740,10 @@ shift $(($OPTIND - 1))
 
 # If the user specified a flac file, then switch to special flac mode
 if echo $CDROM | grep -i -q '.flac$'; then
-	vecho "abcde: switching to flac CDROMREADERSYNTAX..."
+	vecho warning "abcde: switching to flac CDROMREADERSYNTAX..."
 	CDROMREADERSYNTAX=flac
+	# Added a need on CUE2DISCID until we manage to convert the python script to bash.
+	NEEDCUE2DISCID=y
 	if [ "$EJECTCD" = "y" ];then
 		vecho "abcde: CDROM flac mode, deactivating EJECTCD..."
 		EJECTCD=n
@@ -2742,7 +2751,7 @@ if echo $CDROM | grep -i -q '.flac$'; then
 fi
 
 # If the user provided a DISCID, disable eject
-if [ -n "$DISCID" ]; then EJECTCD=n ; fi
+if [ -n "$DISCID" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
 
 # Check the available cd rippers in the system, from the ones we know.
 if [ "$CDROMREADERSYNTAX" = "" ]; then
