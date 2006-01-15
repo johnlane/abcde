@@ -1717,7 +1717,7 @@ do_localcddb ()
 				# List out disc title/author and contents
 				do_cddbparse "${CDDBLOCALFILE}"
 				if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-					echo -n "Embedded cuesheet entry found, use ut? [y/n] (y): " >&2
+					echo -n "Embedded cuesheet entry found, use it? [y/n] (y): " >&2
 				else
 					echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
 				fi
@@ -3277,8 +3277,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
-	${NEEDMPPGAIN+$MPPGAIN} \
-	${NEEDCUEREADER+$CUEREADER}
+	${NEEDMPPGAIN+$MPPGAIN} ${NEEDCUEREADER+$CUEREADER} \
+	${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	checkexec "$X"
 done
@@ -3289,15 +3289,15 @@ if [ -x $(which $DIFF) ]; then :; else
 	DIFF=""
 fi
 
-# Now that we have metaflac, check if we need cue2discid
-case $CDROMREADERSYNTAX in
-	flac)
-		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | egrep "[a-f0-9]{8}")
-		if [ "$TRACKINFO" = "" ]; then 
-			checkexec ${NEEDCUE2DISCID+$CUE2DISCID}
-		fi
-		;;
-esac
+## Now that we have metaflac, check if we need cue2discid
+#case $CDROMREADERSYNTAX in
+#	flac)
+#		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | egrep "[a-f0-9]{8}")
+#		if [ "$TRACKINFO" = "" ]; then 
+#			checkexec ${NEEDCUE2DISCID+$CUE2DISCID}
+#		fi
+#		;;
+#esac
 
 CDROMREADER="$CDROMREADER $CDROMREADEROPTS"
 CDDBTOOL="$CDDBTOOL $CDDBTOOLOPTS"
