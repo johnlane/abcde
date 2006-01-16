@@ -1364,13 +1364,11 @@ do_discid ()
 			disktool -u ${CDROM#/dev/}
 		fi
 		if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-			if [ "$TRACKINFO" = "" ]; then
+			if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM > /dev/null 2>&1 ; then
 				TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
 			else
-				if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM > /dev/null 2>&1 ; then :; else
-					log error "the input flac file does not contain a cuesheet."
-					exit 1
-				fi
+				log error "the input flac file does not contain a cuesheet."
+				exit 1
 			fi
 		else
 			case "$CDDBMETHOD" in
@@ -3330,6 +3328,8 @@ case "$CDDBMETHOD" in
 esac
 
 if [ "$DOCDDB" = "y" ]; then
+	# start with a sane default:
+	CDDBLOCALSTATUS=notfound
 	if [ $CDDBUSELOCAL = "y" ]; then
 		do_localcddb
 	fi
