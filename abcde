@@ -1654,8 +1654,6 @@ do_localcddb ()
 				if   (( $(echo "${CDDBLOCALRESULTS}" | wc -l) == 1 )); then
 					CDDBLOCALFILE="${CDDBLOCALRESULTS}"
 					CDDBLOCALMATCH=single
-					echo "${CDDBLOCALRESULTS}" : $(echo "${CDDBLOCALRESULTS}" | wc -l )
-					echo CDDBLOCALMATCH=single
 				elif (( $(echo "${CDDBLOCALRESULTS}" | wc -l) > 1 )); then
 					CDDBLOCALMATCH=multiple
 				fi
@@ -1672,13 +1670,13 @@ do_localcddb ()
 		# If the user has selected to check a local CDDB repo, we proceed with it
 		case $CDDBLOCALMATCH in
 			multiple)
-				echo "Processing multiple matching CDDB entries..." >> "$ABCDETEMPDIR/cddblocalchoices"
+				echo "Processing multiple matching CDDB entries..." > "$ABCDETEMPDIR/cddblocalchoices"
 				X=0
 				echo "$CDDBLOCALRESULTS" | while read RESULT ; do
 					X=$(expr $X + 1)
 					# List out disc title/author and contents
 					CDDBLOCALREAD="$ABCDETEMPDIR/cddblocalread.$X"
-					cat "$RESULT" >> "${CDDBLOCALREAD}"
+					cat "$RESULT" > "${CDDBLOCALREAD}"
 					{	
 						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}" 
