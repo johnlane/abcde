@@ -2270,12 +2270,12 @@ do_cdread ()
 		# the user said
 		# We need the first and last track for cdda2wav
 		FIRSTTRACK=$2
-		LASTTRACK=$3
+		LASTTRACK=$(expr $3 + 0)
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
 			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
 			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
-			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTRACK" ;;
+			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 				exit 1 ;;
 		esac
