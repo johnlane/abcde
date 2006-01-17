@@ -1552,13 +1552,22 @@ do_discid ()
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
 			CUEFILE=cue-$(echo "$TRACKINFO" | cut -f1 -d' ').txt
 			vecho "Creating cue file..."
-			if $CUEREADER $CUEREADEROPTS > "$ABCDETEMPDIR/$CUEFILE"; then
-				echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
-			else
-				log warning "reading the CUE sheet with mkcue is still considered experimental"
-				log warning "and there was a problem with the CD reading. abcde will continue,"
-				log warning "but consider reporting the problem to the abcde author"
-			fi
+			case $CDROMREADERSYNTAX in
+				flac)
+					if $METAFLAC --export-cuesheet-to=- $CDROM > "$ABCDETEMPDIR/$CUEFILE"; then :; else
+						log warning "the input flac file does not contain a cuesheet."
+					fi
+					;;
+				*)
+					if $CUEREADER $CUEREADEROPTS > "$ABCDETEMPDIR/$CUEFILE"; then
+						echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+					else
+						log warning "reading the CUE sheet with mkcue is still considered experimental"
+						log warning "and there was a problem with the CD reading. abcde will continue,"
+						log warning "but consider reporting the problem to the abcde author"
+					fi
+					;;
+			esac
 		fi
 	fi
 	# If we got the CDPARANOIA status and it is not recorded, save it now
