@@ -3396,7 +3396,7 @@ fi
 
 (
 
-if [ "$ONETRACK" = "y" ]; then
+if [ ! "$ONETRACK" = "y" ]; then
 	if [ "$DOPLAYLIST" = "y" ]; then
 		echo Creating playlist... >&2
 		do_playlist
