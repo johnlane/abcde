@@ -196,7 +196,7 @@ send) # cddb-tool send filename email@address
 	ADDRESS="$2"
 	DISCID=$(grep ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
 	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d= | tr -d \[:cntrl:\])
-	grep -v "^#CATEGORY=" "$FILE" | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+	grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | mail -a "Content-Type: text/plain; charset=utf-8" -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
 	;;
 
 query) # cddb-tool query serverurl proto user host discid...
