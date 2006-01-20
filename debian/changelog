@@ -3,10 +3,23 @@ abcde (2.3.99.3-1) unstable; urgency=low
   * The "Mao es nuestro indiscutible lider" release.
   * Check the CDROMREADER options we have in Debian which we depend on. Thanks
     to Jose Carlos Garcia Sogo for finding the error.
+  * New recursive option for local CDDB repositories, to cope with other
+    players saving the entries.
+  * Brand new CD backup procedure: rip a CD into a single FLAC trac with an
+    embedded cuesheet using "-1 -M -o flac" and proceed to rip your tracks
+    from the obtained file using "-d file.flac -o <format>". It needs
+    cue2discid script from the examples directory to work. OH! If you manage
+    to get it working with bash, we can get rid of the python dependency...
+  * Initial steps to make abcde working with musicbrainz, although it is not
+    ready yet.
   * Added a missing $ in a variable (Closes: #345629).
   * Added -p to the mkdir's for $ABCDETEMPDIR (Closes: #345630).
+  * Added iconv + converted to utf-8 the charset of a ready-to-send CDDB
+    entry (Closes: #345708).
+  * Added AAC (Mpeg4) support.
+  * Small cd-discid update. 
 
- -- Jesus Climent <jesus.climent@nokia.com>  Mon,  2 Jan 2006 18:52:49 +0200
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 19 Jan 2006 23:27:40 +0200
 
 abcde (2.3.99.2-1) unstable; urgency=low
 
