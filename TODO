@@ -1,13 +1,9 @@
 TODO:
 ----
-* flac with force.
-
 * Get the multiple choices in both local and remote CDDB to use the same
   functions.
 
 * Add musicbrainz support: http://www.rupamsunyata.org/~decklin/musicbrainz-get-tracks
-
-* flacdecode (to extract files from a -1 flac file) (ALMOST READY!)
 
 * read the TOC and CDTEXT files and store them
 
@@ -44,6 +40,3 @@ TODO:
   invoked once per wav.
 
   Abcde should halt when a problem occurs, so it can be manually resolved.
-
-* AAC support (faac should be free?)
-

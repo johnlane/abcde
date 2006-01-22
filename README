@@ -27,6 +27,9 @@ Changes in 2.4:
   parsed CDDB entries.
 * Added SHOWCDDBFIELDS to define wether to show the YEAR and GENRE fields from
   the CDDB output.
+* Added the possibility of embeding a cuesheet on a singletrack flac file. A
+  single BACKUP flag is most likely needed to use all the needed flags:
+  "abcde -1 -M -o flac"
 * Added the possibility of using a singletrack flac file with an embeded
   cuesheet as a source to extract tracks from.
 * Added replaygain for Ogg/Vorbis and Ogg/FLAC.
@@ -40,8 +43,7 @@ Changes in 2.4:
  
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
-  with "-1" to create a backup, so that later on the original CD can be
-  recreated.
+  with "-1" to create a backup, so that later the original CD can be recreated.
 * New -o <output(1)>:<options(1)>,... way of passing specific options to an
   output. Now we can pass specific options without having to modify a config
   file. This feature was already present in the last versions of the 2.2 cycle.

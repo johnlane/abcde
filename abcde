@@ -349,6 +349,39 @@ checkexec ()
 	fi
 }
 
+# diffentries <filename> <max_value> <entry1>,<entry2>
+diffentries ()
+{
+	FILENAME=$1
+	shift
+	local CDDBDIFFCHOICES=$1
+	shift
+	local CDDBDIFFCHOICE="$@"
+	if [ ! X"$DIFF" = "X" ]; then
+		PARSECHOICE1=$(echo $CDDBDIFFCHOICE | cut -d"," -f1 | xargs printf %d 2>/dev/null)
+		PARSECHOICE2=$(echo $CDDBDIFFCHOICE | cut -d"," -f2 | xargs printf %d 2>/dev/null)
+		if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBDIFFCHOICES ] || \
+		   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBDIFFCHOICES ] || \
+		   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then 
+			echo "Invalid diff range. Please select two coma-separated numbers between 1 and $CDDBDIFFCHOICES" >&2
+		else
+			# We parse the 2 choices to diff, store them in temporary files and diff them.
+			for PARSECHOICE in $(echo $CDDBDIFFCHOICE | tr , \ ); do
+				do_cddbparse "$ABCDETEMPDIR/$FILENAME.$PARSECHOICE" > "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE"
+			done
+			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/$FILENAME.diff"
+			$DIFF $DIFFOPTS "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/$FILENAME.diff"
+			if [ $(cat "$ABCDETEMPDIR/$FILENAME.diff" | wc -l) -ge 24 ]; then
+				page "$ABCDETEMPDIR/$FILENAME.diff"
+			else
+				cat "$ABCDETEMPDIR/$FILENAME.diff" >&2
+			fi
+		fi
+	else
+		echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBDIFFCHOICES." >&2
+	fi
+}
+
 # do_getcddbinfo
 # Finds an specific field from cddbinfo
 do_getcddbinfo()
@@ -1690,14 +1723,30 @@ do_localcddb ()
 						echo ""
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
+				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge 24 ]; then
+					page "$ABCDETEMPDIR/cddblocalchoices"
+				else
+					# It's all going to fit in one page, cat it
+					cat "$ABCDETEMPDIR/cddblocalchoices" >&2
+				fi
 				CDDBLOCALCHOICES=$( echo "$CDDBLOCALRESULTS" | wc -l )
-				cat "$ABCDETEMPDIR/cddblocalchoices"
+				# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 				CDDBLOCALCHOICENUM=-1
 				if [ "$INTERACTIVE" = "y" ]; then
 					while [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; do
 						echo -n "Locally cached CDDB entries found. Which one would you like to use (0 for none)? [0-$CDDBLOCALCHOICES]: " >&2
-						read CDDBLOCALCHOICENUM
-						[ x"$CDDBLOCALCHOICENUM" = "x" ] && CDDBLOCALCHOICENUM="1"
+						read CDDBLOCALCHOICE
+						[ x"$CDDBLOCALCHOICE" = "x" ] && CDDBLOCALCHOICE="1"
+						# FIXME # Introduce diff's
+						if echo $CDDBLOCALCHOICE | egrep -q "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" ; then
+							diffentries cddblocalread "$CDDBLOCALCHOICES" "$CDDBLOCALCHOICE"
+						elif echo $CDDBLOCALCHOICE | egrep -q "[[:space:]]*[[:digit:]]+[[:space:]]*" ; then
+							# Make sure we get a valid choice
+							CDDBLOCALCHOICENUM=$(echo $CDDBLOCALCHOICE | xargs printf %d 2>/dev/null)
+							if [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; then
+								echo "Invalid selection. Please choose a number between 0 and $CDDBLOCALCHOICES." >&2
+							fi
+						fi
 					done
 				else
 					### FIXME ###
