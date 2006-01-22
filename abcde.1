@@ -10,7 +10,8 @@ tagging or commenting it, is very involved.
 .BR abcde
 is designed to automate this. It will take an entire CD and convert it into
 a compressed audio format - Ogg/Vorbis, MPEG Audio Layer III, Free Lossless
-Audio Codec (FLAC), Ogg/Speex or MPP/MP+(Musepack). With one command, it will:
+Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack) and/or M4A (AAC) format(s).
+With one command, it will:
 .TP
 .B *
 Do a CDDB query over the Internet to look up your CD or use a locally stored CDDB entry
@@ -43,8 +44,8 @@ Repeat until finished
 .B \-1
 Encode the whole CD in a single file. The resulting file uses the CD title
 for tagging. If the resulting format is a flac file with an embeded cuesheet,
-the file can be used as a source for creating other formats.
-.TP
+the file can be used as a source for creating other formats. Use "-1 -M -o
+flac" for obtaining such a file .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of:
 cddb, read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize
@@ -169,7 +170,7 @@ Same as \-t but changes also the internal (tag) numbering. Keep in mind that
 the default TRACK tag for MP3 is $T/$TRACKS so it is changed to simply $T.
 .TP
 .B \-u
-Set CDDBPROTOCOL to version 6, so that we retrieve UTF-8 encoded CDDB
+Set CDDBPROTO to version 6, so that we retrieve UTF-8 encoded CDDB
 information, and we tag and add comments with a proper encoding. This flag will
 be removed and -U will be added to set it to version 5 once version 6 becomes
 the default.
@@ -236,6 +237,10 @@ Python to stablish a conversation with the server for information retrieval.
 .B CDDBURL
 Specifies a server to use for CDDB lookups.
 .TP
+.B CDDBPROTO
+Specifies the protocol version used for the CDDB retrieval of results. Version
+6 retrieves CDDB entries in UTF-8 format.
+.TP
 .B HELLOINFO
 Specifies the Hello information to send to the CDDB server. The CDDB
 protocol requires you to send a valid username and hostname each time you
@@ -263,7 +268,7 @@ CDDB entry found in the local repository but which has been modified by the
 user; and "always" which forces the CDDB entry to be stored back in the root of
 the CDDBLOCALDIR no matter where it was found, and no matter it was not edited.
 This last option will always overwrite the one found in the root of the local
-repository (if any).
+repository (if any). STILL NOT WORKING!!
 .TP
 .B CDDBCOPYLOCAL
 Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
