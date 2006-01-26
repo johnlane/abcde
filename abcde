@@ -382,9 +382,9 @@ diffentries ()
 	fi
 }
 
-# do_getcddbinfo
+# getcddbinfo
 # Finds an specific field from cddbinfo
-do_getcddbinfo()
+getcddbinfo()
 {
 	case $1 in
 	TRACKNAME1)
@@ -396,9 +396,9 @@ do_getcddbinfo()
 	esac
 }
 
-# do_gettracknum
+# gettracknum
 # Get the track number we are going to use for different actions
-do_gettracknum()
+gettracknum()
 {
 	if [ -n "$STARTTRACKNUMBER" ] ; then
 		# Get the trackpadding from the current track
@@ -431,16 +431,16 @@ do_replaygain()
 			for UTRACKNUM in $TRACKQUEUE
 			do
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-				do_getcddbinfo TRACKNAME
+				getcddbinfo TRACKNAME
 				splitvarious
 				TRACKFILE="$(mungefilename "$TRACKNAME")"
 				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 				ALBUMFILE="$(mungefilename "$DALBUM")"
-				do_gettracknum
+				gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE="$(eval echo $VAOUTPUTFORMAT)"
+					OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
 				else
-					OUTPUTFILE="$(eval echo $OUTPUTFORMAT)"
+					OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
 				fi
 				OUTPUTFILES[$REPLAYINDEX]="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 				(( REPLAYINDEX = $REPLAYINDEX + 1 ))
@@ -693,7 +693,7 @@ do_tag ()
 	# If we want to start the tracks with a given number, we need to modify the
 	# TRACKNUM value before evaluation
 	if [ -n "$STARTTRACKNUMBERTAG" ] ; then
-		do_gettracknum
+		gettracknum
 	fi
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
@@ -1194,8 +1194,12 @@ do_normalize ()
 # TRACKNUM, TRACKNAME, TRACKARTIST, DALBUM, OUTPUTFORMAT, CDGENRE, CDYEAR
 do_move ()
 {
-	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+	for TMPOUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
+		# For now, set OUTPUT as TMPOUTPUT, and then change it once we have
+		# defined the OUTPUTFILE:
+		OUTPUT="$TMPOUTPUT"
+
 		# Create ALBUMFILE, ARTISTFILE, TRACKFILE
 		# Munge filenames as follows:
 		# ' ' -> '_'
@@ -1207,25 +1211,29 @@ do_move ()
 		ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 		TRACKFILE="$(mungefilename "$TRACKNAME")"
 		GENRE="$(mungegenre "$GENRE")"
-		YEAR="$(echo $CDYEAR)"
-		# If we want to start the tracks with a given number, we need to modify the
-		# TRACKNUM value before evaluation
-		do_gettracknum
-		# Supported variables for OUTPUTFORMAT are GENRE, ALBUMFILE, ARTISTFILE,
-		# TRACKFILE, and TRACKNUM.
+		YEAR=${CDYEAR:-$CDYEAR}
+		# If we want to start the tracks with a given number, we need to modify
+		# the TRACKNUM value before evaluation
+		gettracknum
+		# Supported variables for OUTPUTFORMAT are GENRE, YEAR, ALBUMFILE,
+		# ARTISTFILE, TRACKFILE, and TRACKNUM.
 		if [ "$VARIOUSARTISTS" = "y" ]; then
 			OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
 		else
 			OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
 		fi
 		if checkerrors "tagtrack-$OUTPUT-$1"; then :; else
-			# Once we know the specific output was successful, we can change the OUTPUT to the value containing the container
-			case $OUTPUT in
+			# Once we know the specific output was successful, we can change
+			# the OUTPUT to the value containing the container
+			case $TMPOUTPUT in
 				vorbis|ogg)
 					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
+					;;
+				*)
+					OUTPUT=$TMPOUTPUT
 					;;
 			esac
 			# Check that the directory for OUTPUTFILE exists, if it doesn't, create it
@@ -1314,14 +1322,14 @@ do_playlist ()
 		for LASTTRACK in $TRACKQUEUE; do :; done
 		ALBUMFILE="$(mungefilename "$DALBUM")"
 		ARTISTFILE="$(mungefilename "$DARTIST")"
-		GENRE=$(mungegenre "$GENRE")
+		GENRE="$(mungegenre "$GENRE")"
 		YEAR=${CDYEAR:-$CDYEAR}
 		if [ "$VARIOUSARTISTS" = "y" ] ; then
-			PLAYLISTFILE=$(eval echo $VAPLAYLISTFORMAT)
+			PLAYLISTFILE="$(eval echo "$VAPLAYLISTFORMAT")"
 		else
-			PLAYLISTFILE=$(eval echo $PLAYLISTFORMAT)
+			PLAYLISTFILE="$(eval echo "$PLAYLISTFORMAT")"
 		fi
-		FINALPLAYLISTDIR=$(dirname "$OUTPUTDIR/$PLAYLISTFILE")
+		FINALPLAYLISTDIR="$(dirname "$OUTPUTDIR/$PLAYLISTFILE")"
 		mkdir -p "$FINALPLAYLISTDIR"
 		if [ -s "$OUTPUTDIR/$PLAYLISTFILE" ]; then
 			echo -n "Erase, Append to, or Keep the existing playlist file? [e/a/k] (e): " >&2
@@ -1349,18 +1357,18 @@ do_playlist ()
 			do
 				# Shares some code with do_move since the filenames have to match
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-				do_getcddbinfo TRACKNAME
+				getcddbinfo TRACKNAME
 				splitvarious
 				TRACKFILE="$(mungefilename "$TRACKNAME")"
 				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 				ALBUMFILE="$(mungefilename "$DALBUM")"
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
-				do_gettracknum
+				gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE=$(eval echo $VAOUTPUTFORMAT)
+					OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
 				else
-					OUTPUTFILE=$(eval echo $OUTPUTFORMAT)
+					OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
 				fi
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					if [ "$VAPLAYLISTDATAPREFIX" ] ; then
@@ -2373,7 +2381,7 @@ do_cdread ()
 		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
 	else
 		if [ -r "$CDDBDATA" ]; then
-			do_getcddbinfo TRACKNAME
+			getcddbinfo TRACKNAME
 			echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM: $TRACKNAME..." >&2
 		else
 			echo "Grabbing ${PIPE_MESSAGE}track $UTRACKNUM..." >&2
@@ -3388,7 +3396,7 @@ case "$CDDBMETHOD" in
 		do_discid # Get ABCDETEMPDIR created and status file initialized
 		;;
 	musicbrainz)
-		do_musicbrainz
+		do_musicbrainz id
 		;;
 esac
 
@@ -3682,7 +3690,7 @@ do
 		else
 			TRACKNUM=$UTRACKNUM
 			CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
-			do_getcddbinfo TRACKNAME
+			getcddbinfo TRACKNAME
 			splitvarious
 		fi
 	fi
