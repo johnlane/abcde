@@ -413,14 +413,17 @@ do_replaygain()
 {
 	if checkstatus replaygain; then :; else
 		run_command "" echo "Adding replygain information..."
-		for OUTPUT in $( echo $OUTPUTTYPE | tr , \ )
+		for TMPOUTPUT in $( echo $OUTPUTTYPE | tr , \ )
 		do
-			case $OUTPUT in
+			case $TMPOUTPUT in
 				vorbis|ogg)
 					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
+					;;
+				*)
+					OUTPUT=$TMPOUTPUT
 					;;
 			esac
 			OUTPUTFILES=""
@@ -894,9 +897,9 @@ do_encode ()
 	fi
 	# We need IN to proceed, if we are not using pipes.
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
-		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+		for TMPOUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
-			case "$OUTPUT" in
+			case "$TMPOUTPUT" in
 				vorbis|ogg)
 					OUT="$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
 					OUTPUT=$OGGOUTPUTCONTAINER
@@ -907,6 +910,7 @@ do_encode ()
 					;;
 				*)
 					OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+					OUTPUT=$TMPOUTPUT
 					;;
 			esac
 			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then 
@@ -1292,14 +1296,17 @@ do_move ()
 # VARIOUSARTISTS, OUTPUTDIR
 do_playlist ()
 {
-	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+	for TMPOUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
-		case $OUTPUT in
+		case $TMPOUTPUT in
 			vorbis|ogg)
 				OUTPUT=$OGGOUTPUTCONTAINER
 				;;
 			flac)
 				OUTPUT=$FLACOUTPUTCONTAINER
+				;;
+			*)
+				OUTPUT=$TMPOUTPUT
 				;;
 		esac
 		# Create a playlist file for the playlist data to go into.
