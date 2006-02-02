@@ -108,7 +108,7 @@ f_seq_row ()
 f_seq_line ()
 {
 	i=$1
-	if echo $i | grep -q "[[:digit:]]" ; then
+	if echo $i | grep "[[:digit:]]" > /dev/null 2>&1 ; then
 		while [ $i -ne `expr $2 + 1` ]
 		do
 			printf $i" "
@@ -334,13 +334,28 @@ relpath ()
 	echo $TO
 }
 
+new_checkexec ()
+{
+	if [ ! "$@" = "" ]; then
+		# Cut off any command-line option we added in
+		X=$(echo $@ | cut -d' ' -f2)
+		if [ "$(which $X)" = "" ]; then
+			return 1
+		elif [ ! -x $(which $X) ]; then
+			return 2
+		fi
+	fi
+	return 0
+}
+
 checkexec ()
 {
 	if [ ! "$@" = "" ]; then
-		# Cut off the command-line options we just added in
+		# Cut off any command-line option we added in
 		X=$(echo $@ | cut -d' ' -f2)
 		if [ "$(which $X)" = "" ]; then
 			log error "$X is not in your path." >&2
+			log info  "Define the full path to the executable if it exists on your system." >&2
 			exit 1
 		elif [ ! -x $(which $X) ]; then
 			log error "$X is not executable." >&2
@@ -350,6 +365,7 @@ checkexec ()
 }
 
 # diffentries <filename> <max_value> <entry1>,<entry2>
+# max_value: the range of entries goes from 1 to <max_value>
 diffentries ()
 {
 	FILENAME=$1
@@ -1648,8 +1664,7 @@ do_cleancue()
 			echo "TITLE \"$DALBUM\"" >> "$CUEFILE_OUT"
 			cat "$CUEFILE_IN" | while read line
 			do
-				if echo "$line" | grep -q "INDEX"
-				then
+				if echo "$line" | grep "INDEX" > /dev/null 2>&1 ; then
 					eval track="\$TRACK$n"
 					n=$(expr $n + 1)
 					echo "TITLE \"$track\"" >> "$CUEFILE_OUT"
@@ -1753,9 +1768,9 @@ do_localcddb ()
 						read CDDBLOCALCHOICE
 						[ x"$CDDBLOCALCHOICE" = "x" ] && CDDBLOCALCHOICE="1"
 						# FIXME # Introduce diff's
-						if echo $CDDBLOCALCHOICE | egrep -q "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" ; then
+						if echo $CDDBLOCALCHOICE | egrep "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							diffentries cddblocalread "$CDDBLOCALCHOICES" "$CDDBLOCALCHOICE"
-						elif echo $CDDBLOCALCHOICE | egrep -q "[[:space:]]*[[:digit:]]+[[:space:]]*" ; then
+						elif echo $CDDBLOCALCHOICE | egrep "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
 							CDDBLOCALCHOICENUM=$(echo $CDDBLOCALCHOICE | xargs printf %d 2>/dev/null)
 							if [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; then
@@ -2023,7 +2038,7 @@ do_cddbedit ()
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
 					case $CDDBCHOICES in
-						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep -q "^$" ; then
+						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep "^$" > /dev/null 2>&1 ; then
 								log error "CDDB query failed!" 
 								exit 1
 							else
@@ -2053,7 +2068,7 @@ do_cddbedit ()
 						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
 						read CDDBCHOICE
 						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
-						if echo $CDDBCHOICE | egrep -q "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" ; then
+						if echo $CDDBCHOICE | egrep "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							if [ ! X"$DIFF" = "X" ]; then
 								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1 | xargs printf %d 2>/dev/null)
 								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2 | xargs printf %d 2>/dev/null)
@@ -2077,7 +2092,7 @@ do_cddbedit ()
 							else
 								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
 							fi
-						elif echo $CDDBCHOICE | egrep -q "[[:space:]]*[[:digit:]]+[[:space:]]*" ; then
+						elif echo $CDDBCHOICE | egrep "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
 							CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
 							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; then
@@ -2488,7 +2503,7 @@ fi
 decho ()
 {
 if [ x"$DEBUG" != "x" ]; then
-	if echo $1 | grep -q "^\[" ; then
+	if echo $1 | grep "^\[" > /dev/null 2>&1 ; then
 		DEBUGECHO=$(echo "$@" | tr -d '[]')
 		echo "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
 	else
@@ -2690,8 +2705,10 @@ DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex
 # List of prefered cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
 
-# Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for Linux/OpenBSD/NetBSD.
-# Let's use these checkings to determine the OS flavour, which will be used later
+# Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
+# Linux/OpenBSD. ftp is user for NetBSD.
+# Let's use these checkings to determine the OS flavour, which will be used
+# later
 if [ X$(uname) = "XFreeBSD" ] ; then
 	HTTPGET=fetch
 	MD5SUM=md5
@@ -2706,9 +2723,15 @@ elif [ X$(uname) = "XDarwin" ] ; then
 elif [ X$(uname) = "XOpenBSD" ] ; then
 	HTTPGET=wget
 	MD5SUM=md5
+	OSFLAVOUR=OBSD
 elif [ X$(uname) = "XNetBSD" ] ; then
 	HTTPGET=ftp
 	MD5SUM=md5
+	OSFLAVOUR=NBSD
+elif [ X$(uname) = "Solaris" ] ; then
+	HTTPGET=""
+	MD5SUM=md5
+	OSFLAVOUR=SunOS
 else
 	HTTPGET=wget
 fi
@@ -2798,7 +2821,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
-		R) DOREPLAYGAIN=y ;;
+		R) CDDBLOCALRECURSIVE=y ;;
 		s) SHOWCDDBFIELDS="$OPTARG" ;;
 		S) CDSPEEDVALUE="$OPTARG" ;;
 		t) STARTTRACKNUMBER="$OPTARG" ;;
@@ -2813,7 +2836,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		V) EXTRAVERBOSE="y" ;;
 		x) EJECTCD="y" ;;
 		w) COMMENT="$OPTARG" ;;
-		W) if echo $OPTARG | grep -q "[[:digit:]]" ; then 
+		W) if echo $OPTARG | grep "[[:digit:]]" > /dev/null 2>&1 ; then 
 		     STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}"
 		   else
 		     log error "argument of -W must be integer"
@@ -2828,7 +2851,11 @@ done
 shift $(($OPTIND - 1))
 
 # If the user specified a flac file, then switch to special flac mode
-if echo $CDROM | grep -i -q '.flac$'; then
+if echo $CDROM | grep -i '.flac$' > /dev/null 2>&1 ; then
+	if [ ! -f $CDROM ]; then
+		log error "the defined file for FLAC ripping cannot be found" >&2
+		exit 1
+	fi
 	vecho warning "abcde: switching to flac CDROMREADERSYNTAX..."
 	CDROMREADERSYNTAX=flac
 	# Added a need on CUE2DISCID until we manage to convert the python script to bash.
@@ -2843,7 +2870,7 @@ if [ -n "$DISCID" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
 # Check the available cd rippers in the system, from the ones we know.
 if [ "$CDROMREADERSYNTAX" = "" ]; then
 	for DEFAULT_CDROMREADER in $DEFAULT_CDROMREADERS; do
-		if [ -x $( which $DEFAULT_CDROMREADER ) ]; then
+		if new_checkexec $DEFAULT_CDROMREADER; then
 			CDROMREADERSYNTAX=$DEFAULT_CDROMREADER
 			break
 		fi
@@ -2946,7 +2973,7 @@ done
 if [ X"$CDROM" != "X" ] ; then 
 	if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] && [ "$NEEDCDROMID" = "y" ] ; then
 		if [ "$OSFLAVOUR" = "FBSD" ]; then
-			if ! echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then
+			if echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then :; else
 				log error "CDROMID not in the right format for $CDROMREADERSYNTAX"
 				log error "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
 				exit 1
@@ -3179,7 +3206,7 @@ case "$FLACENCODERSYNTAX" in
 		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
 		FLACENCODER="$FLAC"	
 		# FLAC streams can be encapsulated on a Ogg transport layer
-		if echo "$FLACENCODEROPTS" | egrep -q -- "(^| )--ogg($| )" ;then
+		if echo "$FLACENCODEROPTS" | egrep -- "(^| )--ogg($| )" > /dev/null 2>&1 ;then
 			log error "FLAC on an Ogg container is not yet supported"
 			log error "due to problem with adding comments to such files"
 			exit 1
