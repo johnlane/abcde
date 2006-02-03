@@ -2850,13 +2850,17 @@ done
 
 shift $(($OPTIND - 1))
 
+# Here it comes the worse part of the whole thing. From here until we start
+# ripping, we have a mixture of sanity checks, verifications, default settigs
+# and other crazy stuff that interdepends, but hey, someone has to do it.
+
 # If the user specified a flac file, then switch to special flac mode
-if echo $CDROM | grep -i '.flac$' > /dev/null 2>&1 ; then
-	if [ ! -f $CDROM ]; then
+if echo "$CDROM" | grep -i '.flac$' > /dev/null 2>&1 ; then
+	if [ ! -f "$CDROM" ]; then
 		log error "the defined file for FLAC ripping cannot be found" >&2
 		exit 1
 	fi
-	vecho warning "abcde: switching to flac CDROMREADERSYNTAX..."
+	vecho warning "switching to flac CDROMREADERSYNTAX..."
 	CDROMREADERSYNTAX=flac
 	# Added a need on CUE2DISCID until we manage to convert the python script to bash.
 	NEEDCUE2DISCID=y
@@ -2940,6 +2944,7 @@ DOCLEAN=n
 for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
+		default) DOCDDB=y; DOREAD=y; DOENCODE=y; DOTAG=y; DOMOVE=y; DOCLEAN=y;;
 		cddb) DOCDDB=y;;
 		read) DOREAD=y;;
 		normalize) DONORMALIZE=y; DOREAD=y;;
@@ -2966,8 +2971,6 @@ for SHOWCDDBFIELD in $(echo $SHOWCDDBFIELDS | tr , \ ); do
 		*) ;;
 	esac
 done
-
-# Sanity checks:
 
 # At this point a CDROM has to be defined, so we check it exists.
 if [ X"$CDROM" != "X" ] ; then 
@@ -3150,7 +3153,7 @@ do
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
-				vecho "Unsetting the KEEPWAVS option, since the resulting wav files were requested..."
+				vecho "Setting the KEEPWAVS option, since the resulting wav files were requested..."
 			fi
 			KEEPWAVS=move
 			;;
@@ -3234,8 +3237,8 @@ case "$AACENCODERSYNTAX" in
 		AACENCODER="$AACENC"
 		;;
 esac
-# and which tagger
 
+# and which tagger
 if [ "$ID3TAGV" = "1" ]; then
 	TAGGER="$ID3"
 	TAGGEROPTS="$ID3OPTS"
@@ -3379,7 +3382,8 @@ do
 	checkexec "$X"
 done
 
-# And last but not least, check if we can diff between files
+# And last but not least, check if we can diff between files. We do not abort,
+# since diffing is not critical...
 if [ -x $(which $DIFF) ]; then :; else
 	vecho warning "Disabling diff since we cannot find it in the \$PATH..."
 	DIFF=""
