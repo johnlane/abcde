@@ -54,7 +54,6 @@ echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-R     Use local CDDB in recursive mode"
-#echo "-R     Add replaygain values to the tag info (only for vorbis,flac,mp3)"
 echo "-s <field>"
 echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
@@ -357,7 +356,7 @@ checkexec ()
 			log error "$X is not in your path." >&2
 			log info  "Define the full path to the executable if it exists on your system." >&2
 			exit 1
-		elif [ ! -x $(which $X) ]; then
+		elif [ ! -x "$(which $X)" ]; then
 			log error "$X is not executable." >&2
 			exit 1
 		fi
@@ -721,15 +720,25 @@ do_tag ()
 			case "$ID3SYNTAX" in
 				id3);;
 				eyed3)
-					# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
-					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS --commen=::"$COMMENTOUTPUT" \
-						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
+					# FIXME # track numbers in mp3 come with 1/10, so we cannot
+					# happily substitute them with $TRACKNUM
+					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS \
+						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
+						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
-						"${ENCODING:+--set-encoding=$ENCODING}"
+						"${ENCODING:+--set-encoding=$ENCODING}" \
+						"$ABCDETEMPDIR/track$1.$OUTPUT"
+					;;
+				# FIXME # Still not activated...
+				id3ed)
+					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+						-a "$DALBUM" -n "$TRACKARTIST" -s "$TRACKNAME" -y "$CDYEAR" \
+						-g "$GENREID" -k "${TRACKNUM:-$1}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				*)
-					# FIXME # track numbers in mp3 come with 1/10, so we cannot happily substitute them with $TRACKNUM
+					# FIXME # track numbers in mp3 come with 1/10, so we cannot
+					# happily substitute them with $TRACKNUM
 					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
 						-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
