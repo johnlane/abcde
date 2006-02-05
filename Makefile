@@ -1,4 +1,4 @@
-VERSION = 2.3.99.1
+VERSION = 2.3.99.5
 INSTALL = /usr/bin/install -c
 
 # Installation directories

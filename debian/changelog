@@ -1,3 +1,21 @@
+abcde (2.3.99.4-1) unstable; urgency=low
+
+  * 
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 05 Feb 2006 15:24:00 +0200
+
+abcde (2.3.99.4-1) unstable; urgency=low
+
+  * Repaired multiple output encoding (Closes: #351362).
+  * Added missing space on a [] test statement.
+  * Added "default" action, so that one can add things on top of what we do
+    regularly, without having to list everything: "-a default,playlist" works.
+  * Restored all the > /dev/null instead of using grep -q, since it is not
+    portable.
+  * Added Solaris OS entry, in case we need to define things for it.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 05 Feb 2006 15:24:00 +0200
+
 abcde (2.3.99.3-1) unstable; urgency=low
 
   * The "Mao es nuestro indiscutible lider" release.
