@@ -926,18 +926,16 @@ do_encode ()
 		do
 			case "$TMPOUTPUT" in
 				vorbis|ogg)
-					OUT="$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
 					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
 				flac)
-					OUT="$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
 				*)
-					OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
 					OUTPUT=$TMPOUTPUT
 					;;
 			esac
+			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
 			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then 
 				continue
 			fi
