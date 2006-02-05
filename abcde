@@ -3319,7 +3319,7 @@ if [ "$MAKECUEFILE" = "y" ]; then
 	NEEDCUEREADER=y
 fi
 
-if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y"]; then
+if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y" ]; then
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
 		### FIXME ### translate "cue2discid" from python to bash
