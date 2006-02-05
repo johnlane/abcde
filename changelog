@@ -1,3 +1,53 @@
+abcde 2.3.99.4
+
+  * Repaired multiple output encoding (Closes: #351362).
+  * Added missing space on a [] test statement.
+  * Added "default" action, so that one can add things on top of what we do
+    regularly, without having to list everything: "-a default,playlist" works.
+  * Restored all the > /dev/null instead of using grep -q, since it is not
+    portable.
+  * Added Solaris OS entry, in case we need to define things for it.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 05 Feb 2006 15:24:00 +0200
+
+abcde 2.3.99.3
+
+  * The "Mao es nuestro indiscutible lider" release.
+  * Check the CDROMREADER options we have in Debian which we depend on. Thanks
+    to Jose Carlos Garcia Sogo for finding the error.
+  * New recursive option for local CDDB repositories, to cope with other
+    players saving the entries.
+  * Brand new CD backup procedure: rip a CD into a single FLAC trac with an
+    embedded cuesheet using "-1 -M -o flac" and proceed to rip your tracks
+    from the obtained file using "-d file.flac -o <format>". It needs
+    cue2discid script from the examples directory to work. OH! If you manage
+    to get it working with bash, we can get rid of the python dependency...
+  * Initial steps to make abcde working with musicbrainz, although it is not
+    ready yet.
+  * Added a missing $ in a variable (Closes: #345629).
+  * Added -p to the mkdir's for $ABCDETEMPDIR (Closes: #345630).
+  * Added iconv + converted to utf-8 the charset of a ready-to-send CDDB
+    entry (Closes: #345708).
+  * Added AAC (Mpeg4) support.
+  * Small cd-discid update. 
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 19 Jan 2006 23:27:40 +0200
+
+abcde 2.3.99.2
+
+  * Missing bits in the 2.3.99.1 changelog:
+    - Man page: added information about -z (Debug option).
+    - Corrected config file with the BATCHNORM/NOGAP split
+      (Closes: #337622).
+    - Uses /bin/bash for the time being... We need to get some substitution
+      functions/operations for the bashisms we have: Closes: #337139.
+  * Config bits with corrected typos
+  * Adding musicbrainz support. First bits.
+  * Reworked comparison for numerical answer when selecting a CDDB output.
+  * TODO updated
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 12 Dec 2005 23:46:58 +0200
+
 abcde 2.3.99.1
 
   * Both -z and -C unset EJECTCD to avoid ejecting the CD when a) we are
