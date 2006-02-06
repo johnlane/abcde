@@ -1758,6 +1758,7 @@ do_localcddb ()
 						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}" 
 						echo ""
+						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
 				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge 24 ]; then
@@ -1787,8 +1788,9 @@ do_localcddb ()
 					done
 				else
 					### FIXME ###
-					echo "Selected ..."
+					#echo "Selected ..."
 					CDDBLOCALRESP=y
+					CDDBLOCALCHOICENUM=1
 				fi
 				if [ ! "$CDDBLOCALCHOICENUM" = "0" ]; then
 					#echo "Using local copy of CDDB data"
