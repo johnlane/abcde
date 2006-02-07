@@ -1758,6 +1758,7 @@ do_localcddb ()
 						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}" 
 						echo ""
+						##FIXME## QUICK HACK !!!!
 						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
