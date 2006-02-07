@@ -43,7 +43,7 @@ Repeat until finished
 .TP
 .B \-1
 Encode the whole CD in a single file. The resulting file uses the CD title
-for tagging. If the resulting format is a flac file with an embeded cuesheet,
+for tagging. If the resulting format is a flac file with an embedded cuesheet,
 the file can be used as a source for creating other formats. Use "-1 -M -o
 flac" for obtaining such a file .TP
 .B \-a [actions]
@@ -74,7 +74,7 @@ least the "read" action during the previous session.
 .TP
 .B \-d [devicename | filename]
 CD\-ROM block device that contains audio tracks to be read. Alternatively, a
-single-track flac file with embeded cuesheet.
+single-track flac file with embedded cuesheet.
 .TP
 .B \-D
 Capture debugging information (you'll want to redirect this \- try 'abcde \-D
@@ -128,7 +128,7 @@ endings. Some hardware players insist on having those to work.
 .B \-M
 Create a CUE file with information about the CD. Together with the possibility
 of creating a single file (see option "\-1"), one can recreate the original CD.
-If the cuesheet is embeded in a flac single file it can be used as source for
+If the cuesheet is embedded in a flac single file it can be used as source for
 encoding other formats.
 .TP
 .B \-o [filetype][:filetypeoptions]
@@ -180,7 +180,7 @@ Show the version and exit
 .TP
 .B \-V
 Be a bit more verbose. On slow networks the CDDB requests might give the
-sensation nothins is happening.
+sensation nothing is happening.
 .TP
 .B \-x
 Eject the CD when all tracks have been read. See the EJECTCD configuration
@@ -213,8 +213,8 @@ its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.
 abcde sources two configuration files on startup - /etc/abcde.conf and
 $HOME/.abcde.conf, in that order. 
 .TP
-The configuration options stated on those files can be overriden by providing
-the appropiate flags at runtime.
+The configuration options stated on those files can be overridden by providing
+the appropriate flags at runtime.
 .TP
 The configuration variables have to be set as follows:
 .TP
@@ -232,7 +232,7 @@ Here is a list of options abcde recognizes:
 Specifies the method we want to use to retrieve the track information. Two
 values are recognized: "cddb" and "musicbrainz". The "cddb" value needs the
 CDDBURL and HELLOINFO variables described below. The "musicbrainz" value uses
-Python to stablish a conversation with the server for information retrieval.
+Python to establish a conversation with the server for information retrieval.
 .TP
 .B CDDBURL
 Specifies a server to use for CDDB lookups.
@@ -274,7 +274,7 @@ repository (if any). STILL NOT WORKING!!
 Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
 .TP
 .B CDDBUSELOCAL
-Actually use the stored copies of the CDDB entries. Can be overriden using the 
+Actually use the stored copies of the CDDB entries. Can be overridden using the 
 "-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
 the choice of retrieving a CDDB entry from the internet.
 .TP
@@ -508,7 +508,7 @@ Possible ways one can call abcde
 Will work in most systems
 .TP
 .B abcde \-d /dev/cdrom2
-If the CDROM you are reding from is not the standard /dev/cdrom (in GNU/Linux systems)
+If the CDROM you are reading from is not the standard /dev/cdrom (in GNU/Linux systems)
 .TP
 .B abcde \-o vorbis,flac
 Will create both Ogg/Vorbis and Ogg/FLAC files.
@@ -523,7 +523,7 @@ For double+ CD settings: will create the 1st CD starting with the track number
 and so on.
 .TP
 .B abcde \-d singletrack.flac
-Will extract the files contained in singletrack using the embeded cuesheet.
+Will extract the files contained in singletrack using the embedded cuesheet.
 .SH BACKEND TOOLS
 abcde requires the following backend tools to work:
 .TP
