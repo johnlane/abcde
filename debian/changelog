@@ -1,8 +1,9 @@
-abcde (2.3.99.4-1) unstable; urgency=low
+abcde (2.3.99.5-1) unstable; urgency=low
 
-  * 
+  * Repaired multiple CDDB entries when recursive search is active.
+  * Patch from A. Costa to clean some typos (Closes: #351774).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 05 Feb 2006 15:24:00 +0200
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 07 Feb 2006 23:48:00 +0200
 
 abcde (2.3.99.4-1) unstable; urgency=low
 
