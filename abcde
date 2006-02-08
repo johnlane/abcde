@@ -1762,7 +1762,7 @@ do_localcddb ()
 						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
-				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge 24 ]; then
+				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge 24 ] && [ "$INTERACTIVE" = "y" ]; then
 					page "$ABCDETEMPDIR/cddblocalchoices"
 				else
 					# It's all going to fit in one page, cat it
