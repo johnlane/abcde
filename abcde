@@ -1435,8 +1435,8 @@ do_discid ()
 			disktool -u ${CDROM#/dev/}
 		fi
 		if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-			if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM > /dev/null 2>&1 ; then
-				TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- $CDROM | $CUE2DISCID)
+			if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" > /dev/null 2>&1 ; then
+				TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" | $CUE2DISCID)
 			else
 				log error "the input flac file does not contain a cuesheet."
 				exit 1
@@ -3110,7 +3110,7 @@ esac
 
 # Allow -o OUTPUT(1):OPTIONS(1),...,OUTPUT(N):OPTIONS(N) mode of operation
 if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
-	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
+	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr \  \|| tr , \ | tr \| \ )"; do
 		case "$OUTPUT" in
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
