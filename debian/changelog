@@ -1,3 +1,14 @@
+abcde (2.3.99.6-1) unstable; urgency=low
+
+  * Default to UNICODE (UTF8) tags and comments.
+  * Added a missing "INDEX 01" entry for CUE sheet creation.
+  * Avoid completing the encoding of files if we aborted previously.
+  * Embed the CUE sheet if we have a cuesheet file and we have a single FLAC
+    file, even if we are not tagging.
+  * Fails to quote filenames properly (Closes: #355296)
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 23 Mar 2006 15:55:52 +0200
+
 abcde (2.3.99.5-1) unstable; urgency=low
 
   * Repaired multiple CDDB entries when recursive search is active.

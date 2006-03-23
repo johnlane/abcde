@@ -59,7 +59,8 @@ echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
 echo "-t <#> Start the track numbering at a given number"
 echo "-T <#> Same as -t but modifies tag numbering"
-echo "-u     Use UNICODE tags and comments"
+echo "-u     Use UNICODE (UTF8) tags and comments"
+echo "-U     Do NOT use UNICODE (UTF8) tags and comments"
 echo "-v     Show version number and exit"
 echo "-V     Be a bit more verbose about what is happening behind the scenes"
 echo "-x     Eject CD after all tracks are read"
@@ -453,9 +454,9 @@ do_replaygain()
 				ALBUMFILE="$(mungefilename "$DALBUM")"
 				gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
+					OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT\"")"
 				else
-					OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
+					OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT\"")"
 				fi
 				OUTPUTFILES[$REPLAYINDEX]="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 				(( REPLAYINDEX = $REPLAYINDEX + 1 ))
@@ -1241,9 +1242,9 @@ do_move ()
 		# Supported variables for OUTPUTFORMAT are GENRE, YEAR, ALBUMFILE,
 		# ARTISTFILE, TRACKFILE, and TRACKNUM.
 		if [ "$VARIOUSARTISTS" = "y" ]; then
-			OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
+			OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT\"")"
 		else
-			OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
+			OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT\"")"
 		fi
 		if checkerrors "tagtrack-$OUTPUT-$1"; then :; else
 			# Once we know the specific output was successful, we can change
@@ -1389,9 +1390,9 @@ do_playlist ()
 				# TRACKNUM value before evaluation
 				gettracknum
 				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE="$(eval echo "$VAOUTPUTFORMAT")"
+					OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT\"")"
 				else
-					OUTPUTFILE="$(eval echo "$OUTPUTFORMAT")"
+					OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT\"")"
 				fi
 				if [ "$VARIOUSARTISTS" = "y" ]; then
 					if [ "$VAPLAYLISTDATAPREFIX" ] ; then
@@ -1671,7 +1672,7 @@ do_cleancue()
 			echo "TITLE \"$DALBUM\"" >> "$CUEFILE_OUT"
 			cat "$CUEFILE_IN" | while read line
 			do
-				if echo "$line" | grep "INDEX" > /dev/null 2>&1 ; then
+				if echo "$line" | grep "INDEX 01" > /dev/null 2>&1 ; then
 					eval track="\$TRACK$n"
 					n=$(expr $n + 1)
 					echo "TITLE \"$track\"" >> "$CUEFILE_OUT"
@@ -1851,7 +1852,7 @@ do_musicbrainzstat ()
 	:
 }
 
-do_musizbrainz ()
+do_musicbrainz ()
 {
 	:
 }
@@ -2563,7 +2564,7 @@ post_read ()
 CDDBMETHOD=cddb
 CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
 CDDBSUBMIT=freedb-submit@freedb.org
-CDDBPROTO=5
+CDDBPROTO=6
 HELLOINFO="$(whoami)@$(hostname)"
 CDDBCOPYLOCAL="n"
 CDDBLOCALPOLICY="always"
@@ -2837,6 +2838,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		t) STARTTRACKNUMBER="$OPTARG" ;;
 		T) STARTTRACKNUMBER="$OPTARG" ; STARTTRACKNUMBERTAG="y" ;;
 		u) CDDBPROTO=6 ;;
+		U) CDDBPROTO=5 ;;
 		v) 
 		   echo "This is abcde v$VERSION."
 		   echo "Usage: abcde [options] [tracks]"
@@ -3149,6 +3151,7 @@ do
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
+			[ "$ONETRACK" = "y" ] && [ "$MAKECUEFILE" = "y" ] && NEEDMETAFLAC=y 
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
@@ -3491,7 +3494,7 @@ fi
 if checkstatus onetrack ; then ONETRACK=y ; fi
 
 if [ "$ONETRACK" = "y" ]; then 
-	# Reuse the CUEFILE in case we created it in a previous run
+	# Reuse the CUEFILE in case we created it (now or in a previous run)
 	if CUEFILE=$(checkstatus cuefile); then
 		IMPORTCUESHEET=y
 	fi
@@ -3722,6 +3725,8 @@ do
 	fi
 	# Don't proceed with the rest of the loop if we can't encode
 	if [ "$ABORT" ]; then continue; fi
+	## FIXME ## Add here 
+	## run_command tagtrack-$OUTPUT-$1 $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 	# Set TRACKNUM, TRACKNAME
 	if [ -e "$CDDBDATA" ]; then
 		if [ "$ONETRACK" = "y" ]; then 
@@ -3778,8 +3783,9 @@ done
 
 # Go through it again and make sure there's no distmp3 stragglers, otherwise
 # we'll delete the files they're working on
+# Do NOT play ball if there is no ball to play (so ABORT if needed)
 ## FIXME ## Check also for files which are encoded using PIPEs.
-if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
+if [ "$DOENCODE" = "y" ] && [ "$USEPIPES" != "y" ] && [ ! "$ABORT" ]; then
 	PROCEED=
 	until [ $PROCEED ]
 	do
