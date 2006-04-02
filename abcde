@@ -1,12 +1,12 @@
 #!/bin/bash
 # Copyright (c) 1998-2001 Robert Woodcock <rcw@debian.org>
-# Copyright (c) 2003-2005 Jesus Climent <jesus.climent@hispalinux.es>
+# Copyright (c) 2003-2006 Jesus Climent <jesus.climent@hispalinux.es>
 # This code is hereby licensed for public consumption under either the
 # GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # Copyright for this work is to expire January 1, 2010, after which it
 # shall be public domain.
@@ -453,10 +453,18 @@ do_replaygain()
 				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 				ALBUMFILE="$(mungefilename "$DALBUM")"
 				gettracknum
-				if [ "$VARIOUSARTISTS" = "y" ]; then
-					OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT\"")"
-				else
-					OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT\"")"
+				if [ "$ONETRACK" = "y" ]; then 
+					if [ "$VARIOUSARTISTS" = "y" ]; then
+						OUTPUTFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\")"
+					else
+						OUTPUTFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\")"
+					fi
+				else	
+					if [ "$VARIOUSARTISTS" = "y" ]; then
+						OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT"\")"
+					else
+						OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT"\")"
+					fi
 				fi
 				OUTPUTFILES[$REPLAYINDEX]="$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 				(( REPLAYINDEX = $REPLAYINDEX + 1 ))
@@ -1241,11 +1249,19 @@ do_move ()
 		gettracknum
 		# Supported variables for OUTPUTFORMAT are GENRE, YEAR, ALBUMFILE,
 		# ARTISTFILE, TRACKFILE, and TRACKNUM.
-		if [ "$VARIOUSARTISTS" = "y" ]; then
-			OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT\"")"
-		else
-			OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT\"")"
-		fi
+		if [ "$ONETRACK" = "y" ]; then 
+			if [ "$VARIOUSARTISTS" = "y" ]; then
+				OUTPUTFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\")"
+			else
+				OUTPUTFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\")"
+		    	fi
+		else	
+			if [ "$VARIOUSARTISTS" = "y" ]; then
+				OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT"\")"
+			else
+				OUTPUTFILE="$(eval echo \""$OUTPUTFORMAT"\")"
+			fi
+ 		fi
 		if checkerrors "tagtrack-$OUTPUT-$1"; then :; else
 			# Once we know the specific output was successful, we can change
 			# the OUTPUT to the value containing the container
@@ -2711,7 +2727,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 
 # This option is basicaly for Debian package dependencies: 
 # List of prefered outputs - by default, run with whatever we have in the path
-DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
 
 # List of prefered cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
@@ -3384,6 +3400,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $FLACENCODER $SPEEXENCODER $MPPENCODER \
+	$AACENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \

@@ -4,8 +4,13 @@ abcde (2.3.99.6-1) unstable; urgency=low
   * Added a missing "INDEX 01" entry for CUE sheet creation.
   * Avoid completing the encoding of files if we aborted previously.
   * Embed the CUE sheet if we have a cuesheet file and we have a single FLAC
-    file, even if we are not tagging.
+    file, even if we are not tagging. This way we can use the file as a source
+    even if it is not tagged/named properly.
   * Fails to quote filenames properly (Closes: #355296)
+  * Introduced VA/ONETRACKOUTPUTFORMAT.
+  * Added a missing check for AACENCODER.
+  * Updated config file with some new AAC bits.
+  * Updated FSF address.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 23 Mar 2006 15:55:52 +0200
 
