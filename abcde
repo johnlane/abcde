@@ -1827,11 +1827,11 @@ do_localcddb ()
 			single)
 				# List out disc title/author and contents
 				do_cddbparse "${CDDBLOCALFILE}"
-				if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-					echo -n "Embedded cuesheet entry found, use it? [y/n] (y): " >&2
-				else
+				#if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
+				#	echo -n "Embedded cuesheet entry found, use it? [y/n] (y): " >&2
+				#else
 					echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
-				fi
+				#fi
 				if [ "$INTERACTIVE" = "y" ]; then
 					read USELOCALRESP
 					while [ "$USELOCALRESP" != "y" ] && [ "$USELOCALRESP" != "n" ] && [ "$USELOCALRESP" != "" ] ; do
