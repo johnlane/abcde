@@ -38,7 +38,7 @@ if [ "$HTTPGET" = "" ]; then
 		HTTPGETOPTS=${HTTPGETOPTS:="-q -o -"}
 	elif [ X"$(uname)" = X"NetBSD" ] ; then
 		HTTPGET=ftp
-		HTTPGETOPTS=${HTTPGETOPTS:="-q -o -"}
+		HTTPGETOPTS=${HTTPGETOPTS:="-a -V -o - "}
 	elif [ X"$(uname)" = X"Darwin" ] ; then
 		HTTPGET=curl
 		HTTPGETOPTS=${HTTPGETOPTS:="-f -s"}

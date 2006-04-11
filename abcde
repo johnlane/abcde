@@ -2794,7 +2794,7 @@ if [ "$HTTPGETOPTS" = "" ] ; then
 		wget) HTTPGETOPTS="-q -O -";;
 		curl) HTTPGETOPTS="-f -s";;
 		fetch)HTTPGETOPTS="-q -o -";;
-		ftp)  HTTPGETOPTS="-q -o -";;
+		ftp)  HTTPGETOPTS="-a -V -o - ";;
 		*) log warning "HTTPGET in non-standard and HTTPGETOPTS are not defined." ;;
 	esac
 fi
