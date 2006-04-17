@@ -114,13 +114,13 @@ A. Use the OUTPUT variable in PLAYLISTFORMAT and OUTPUTFORMAT. It holds the
 
 Q. I have a CD with a data track, and abcde complaints it cannot read/encode
    it.
-A. It is not easy to find a data track on a CD. Right now, I can only think
+A. From version 2.2 onwards, abcde includes some checkings with cdparanoia, to
+   try to get this right.
+   (It is not easy to find a data track on a CD. Right now, I can only think
    of getting the track info from CDDB and ask the user for continuing should
    a "data" track name is found. But the solution is far from been optimal.
    For now, if you find a "data" track and you know the number, restart abcde
-   specifying the tracks to be encoded, leaving out the data one.
-   From version 2.2 onwards, abcde includes some checkings with cdparanoia, to
-   try to get this right.
+   specifying the tracks to be encoded, leaving out the data one).
 
 Q. I am requested to have "eject" when setting the speed although I do not use
    it for anything.
@@ -148,6 +148,13 @@ A. Set abcde to rip the first CD and give it the option "-t 101". Use a generic
 Q. I have a live concert. I want to encode it in a single file. How do i do it?
 A. Use "-1" and it will be encoded in a single file. Use "-M" to make a CUE
    sheet file where the information about the tracks is stored.
+
+Q. Can I use abcde to take a backup of my CD collection?
+A. Yes. Use "abcde -1 -o flac -M" and it will create a single-track FLAC file
+   with an embedded cuesheet. Later on, you can use the command
+   "abcde -o vorbis -d flac-file.flac" to extract the individual tracks in
+   Ogg/Vorbis format. Of course you can select whatever format you want.
+   
 
 3. CDDB
    ====

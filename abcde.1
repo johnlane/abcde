@@ -39,6 +39,14 @@ Delete the intermediate WAV file (or save it for later use)
 .TP
 .B *
 Repeat until finished
+.P
+Alternatively, 
+.B abcde
+can also grab a CD and turn it into a single FLAC file with an embedded
+cuesheet which can be user later on as a source for other formats, and will be
+treated as if it was the original CD. In a way,
+.B abcde
+can take a compressed backup of your CD collection.
 .SH OPTIONS
 .TP
 .B \-1
@@ -130,7 +138,7 @@ endings. Some hardware players insist on having those to work.
 Create a CUE file with information about the CD. Together with the possibility
 of creating a single file (see option "\-1"), one can recreate the original CD.
 If the cuesheet is embedded in a flac single file it can be used as source for
-encoding other formats.
+encoding other formats (see option "\-d").
 .TP
 .B \-o [filetype][:filetypeoptions]
 Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc",
@@ -186,6 +194,12 @@ sensation nothing is happening.
 .B \-x
 Eject the CD when all tracks have been read. See the EJECTCD configuration
 variable.
+.TP
+.B \-X [cue2discid]
+Use an alternative "cue2discid" implementation. The name of the binary must be
+exactly that. abcde comes with an implementation in python under the examples
+directory. The special keyword "builtin" forces the usage of the internal
+(default) implementation in shell script.
 .TP
 .B \-w [comment]
 Add a comment to the tracks ripped from the CD.
@@ -350,7 +364,7 @@ respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
 VORBIZE, OGGENC, FLAC, SPEEXENC, MPPENC, AACEND, ID3, ID3V2, EYED3, METAFLAC,
 CDPARANOIA, CDDA2WAV, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
 VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
-DIFF and HTTPGET.
+CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs abcde uses,
@@ -413,8 +427,13 @@ you can force with
 '-p' in the command line.
 .TP
 .B VAOUTPUTFORMAT
-Just like OUTPUTFORMAT but for Various Artists discs. Default is whatever
-OUTPUTFORMAT is set to.
+Just like OUTPUTFORMAT but for Various Artists discs. The default is 'Various-${ALBUMFILE}/${TRACKNUM}.${ARTISTFILE}-${TRACKFILE}'
+.TP
+.B ONETRACKOUTPUTFORMAT
+Just like OUTPUTFORMAT but for single-track rips (see option "\-1"). The default is '${ARTISTFILE}-${ALBUMFILE}/${ALBUMFILE}'
+.TP
+.B VAONETRACKOUTPUTFORMAT
+Just like ONETRACKOUTPUTFORMAT but for Various Artists discs. The default is 'Various-${ALBUMFILE}/${ALBUMFILE}'
 .TP
 .B MAXPROCS
 Defines how many encoders to run at once. This makes for huge speedups
