@@ -1510,6 +1510,7 @@ do_discid ()
 				if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" > /dev/null 2>&1 ; then
 					case "$CUE2DISCID" in
 						builtin)
+							#vecho "Using builtin cue2discid implementation..."
 							CUESHEET="$(metaflac $METAFLACOPTS --export-cuesheet-to=- "$CDROM")"
 
 							#TRACKS=$(echo $CUESHEET | egrep "TRACK \+[[:digit:]]\+ \+AUDIO" |wc -l)
@@ -1528,6 +1529,7 @@ do_discid ()
 							makeids
 						;;
 						*)
+							#vecho "Using external python cue2discid implementation..."
 							TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" | $CUE2DISCID)
 						;;
 					esac
@@ -2771,7 +2773,7 @@ MPPGAIN=replaygain
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
-CUE2DISCID=cue2discid
+CUE2DISCID=builtin
 
 # Options for programs called from abcde
 # mp3
@@ -2911,7 +2913,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
+while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -2955,6 +2957,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		   ;;
 		V) EXTRAVERBOSE="y" ;;
 		x) EJECTCD="y" ;;
+		X) CUE2DISCID="$OPTARG" ;;
 		w) COMMENT="$OPTARG" ;;
 		W) if echo $OPTARG | grep "[[:digit:]]" > /dev/null 2>&1 ; then 
 		     STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}"
@@ -2964,7 +2967,6 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxw:W:z opt ; do
 		   fi
 		   ;;
 		z) DEBUG=y ; CDROMREADERSYNTAX=debug ; EJECTCD="n" ;;
-		Z) CUE2DISCID=builtin;;
 		?) usage; exit ;;
 	esac
 done
