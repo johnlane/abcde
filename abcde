@@ -46,6 +46,7 @@ echo "-L     Use local CDDB storage directory"
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
+echo "       WARNING: Deprecated. Use \"cue\" action"
 echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
 echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a). Defaults to vorbis"
@@ -59,7 +60,6 @@ echo "       Show dielfs from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
 echo "-t <#> Start the track numbering at a given number"
 echo "-T <#> Same as -t but modifies tag numbering"
-echo "-u     Use UNICODE (UTF8) tags and comments"
 echo "-U     Do NOT use UNICODE (UTF8) tags and comments"
 echo "-v     Show version number and exit"
 echo "-V     Be a bit more verbose about what is happening behind the scenes"
@@ -527,16 +527,16 @@ do_replaygain()
 			done
 			case "$OUTPUT" in
 				flac)
-					run_command replaygain-flac $METAFLAC --add-replay-gain "${OUTPUTFILES[@]}"
+					run_command replaygain-flac nice $ENCNICE $METAFLAC --add-replay-gain "${OUTPUTFILES[@]}"
 					;;
 				vorbis|ogg)
-					run_command replaygain-vorbis $VORBISGAIN --album "${OUTPUTFILES[@]}"
+					run_command replaygain-vorbis nice $ENCNICE $VORBISGAIN --album "${OUTPUTFILES[@]}"
 					;;
 				mp3)
-					run_command replaygain-mp3 $MP3GAIN -a "${OUTPUTFILES[@]}"
+					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN -a "${OUTPUTFILES[@]}"
 					;;
 				mpc)
-					run_command replaygain-mpc $MPPGAIN --auto "${OUTPUTFILES[@]}"
+					run_command replaygain-mpc nice $ENCNICE $MPPGAIN --auto "${OUTPUTFILES[@]}"
 					;;
 				*);;
 			esac
@@ -787,7 +787,7 @@ do_tag ()
 				eyed3)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
-					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
 						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
@@ -796,7 +796,7 @@ do_tag ()
 					;;
 				# FIXME # Still not activated...
 				id3ed)
-					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 						-a "$DALBUM" -n "$TRACKARTIST" -s "$TRACKNAME" -y "$CDYEAR" \
 						-g "$GENREID" -k "${TRACKNUM:-$1}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
@@ -804,7 +804,7 @@ do_tag ()
 				*)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
-					run_command tagtrack-$OUTPUT-$1 $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
 						-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
@@ -837,7 +837,7 @@ do_tag ()
 							*)   echo COMMENT="$COMMENTOUTPUT";;
 						esac	
 					fi
-					) | run_command tagtrack-$OUTPUT-$1 $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
+					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
 						"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
 					# Doublecheck that the commented file was created successfully before wiping the original
 					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
@@ -867,7 +867,7 @@ do_tag ()
 					*)   echo COMMENT="$COMMENTOUTPUT";;
 				esac	
 			fi
-			) | run_command tagtrack-$OUTPUT-$1 $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 			;;
 		spx)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -1008,20 +1008,26 @@ do_encode ()
 				RUN_COMMAND=""
 				# We need a way to store the creation of the files when using PIPES
 				RUN_COMMAND_PIPES="run_command encodetrack-$OUTPUT-$1 true"
+				# When pipping it does not make sense to have a higher nice for
+				# reading than for encoding, since it will be hold by the
+				# encoding process. Setting an effective nice, to calm down a
+				# bit the reading process.
+				EFFECTIVE_NICE=$READNICE
 			else
 				run_command '' echo "Encoding track $1 of $TRACKS: $TRACKNAME..."
 				RUN_COMMAND="run_command encodetrack-$OUTPUT-$1"
+				EFFECTIVE_NICE=$ENCNICE
 			fi
 			case "$OUTPUT" in
 			mp3)
 				case "$2" in
 				%local*%)
 					case "$MP3ENCODERSYNTAX" in
-					lame|toolame|gogo) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
-					bladeenc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
-					l3enc|xingmp3enc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
+					lame|toolame|gogo) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
+					bladeenc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
+					l3enc|xingmp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
 					# FIXME # Relates to the previous FIXME since it might need the "-if" removed.
-					mp3enc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
+					mp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
 					esac
 					;;
 				*)
@@ -1033,8 +1039,8 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$OGGENCODERSYNTAX" in
-					vorbize) $RUN_COMMAND nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -w "$OUT" "$IN" ;;
-					oggenc) $RUN_COMMAND nice $ENCNICE $OGGENCODER $OGGENCODEROPTS -o "$OUT" "$IN" ;;
+					vorbize) $RUN_COMMAND nice $EFFECTIVE_NICE $OGGENCODER $OGGENCODEROPTS -w "$OUT" "$IN" ;;
+					oggenc) $RUN_COMMAND nice $EFFECTIVE_NICE $OGGENCODER $OGGENCODEROPTS -o "$OUT" "$IN" ;;
 					esac
 					;;
 				*)
@@ -1046,7 +1052,7 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$FLACENCODERSYNTAX" in
-					flac) $RUN_COMMAND nice $ENCNICE $FLACENCODER -f $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
+					flac) $RUN_COMMAND nice $EFFECTIVE_NICE $FLACENCODER -f $FLACENCODEROPTS -o "$OUT" "$IN" ;; 
 				        esac
 						;;
 					*)
@@ -1066,9 +1072,9 @@ do_encode ()
 				fi
 				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
 				if [ ! "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" "$COMMENT" "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" "$COMMENT" "$IN" "$OUT"
 				else
-					$RUN_COMMAND nice $ENCNICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
 				;;
 			mpc)	
@@ -1078,12 +1084,12 @@ do_encode ()
 				# errors, so I have not tried it myself.
 				## FIXME ## Needs some cleanup to determine if an empty tag sent
 				## FIXME ## to the encoder ends up empty.
-				$RUN_COMMAND nice $ENCNICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				$RUN_COMMAND nice $EFFECTIVE_NICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			m4a)
 				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
 				if [ ! "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
 					
 				else
 					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
@@ -1881,7 +1887,7 @@ do_discid ()
 		# Store the abcde version in the status file.
 		echo "abcde-version=$VERSION" >> "$ABCDETEMPDIR/status"
 	fi
-	if [ X"$MAKECUEFILE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
+	if [ X"$DOCUE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
 			CUEFILE=cue-$(echo "$TRACKINFO" | cut -f1 -d' ').txt
 			vecho "Creating cue file..."
@@ -3102,7 +3108,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxX:w:W:z opt ; do
 		n) CDDBAVAIL=n ;;
 		N) INTERACTIVE=n ;;
 		m) DOSPLAYLIST=y ;;
-		M) MAKECUEFILE=y ;;
+		M) DOCUE=y ;;
 		o) OUTPUTTYPE="$OPTARG" ;;
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
@@ -3242,7 +3248,7 @@ for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
 		default) DOCDDB=y; DOREAD=y; DOENCODE=y; DOTAG=y; DOMOVE=y; DOCLEAN=y;;
-		cue) DOCUE=y;;
+		cue) DOCUE=y ; MAKECUEFILE=y ;;
 		cddb) DOCDDB=y;;
 		read) DOREAD=y;;
 		normalize) DONORMALIZE=y; DOREAD=y;;
@@ -3437,7 +3443,7 @@ do
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
-			[ "$ONETRACK" = "y" ] && [ "$MAKECUEFILE" = "y" ] && NEEDMETAFLAC=y 
+			[ "$ONETRACK" = "y" ] && [ "$DOCUE" = "y" ] && NEEDMETAFLAC=y 
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
@@ -3605,7 +3611,7 @@ if [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ]; then
 		:
 	fi
 fi
-if [ "$MAKECUEFILE" = "y" ]; then
+if [ "$DOCUE" = "y" ]; then
 	NEEDCUEREADER=y
 fi
 
