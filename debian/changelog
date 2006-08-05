@@ -38,8 +38,9 @@ abcde (2.3.99.6-1) unstable; urgency=low
     situation, while having a high priority process running in the system.
     Also, set proper nice values to tagging tasks. Reading should remain as
     the default higher priority task in the abcde flow (Closes: #359156)
+  * Standards bumped to 3.7.2.1, no changes needed.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  5 Aug 2006 03:33:36 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  5 Aug 2006 05:26:56 +0300
 
 abcde (2.3.99.5-1) unstable; urgency=low
 
