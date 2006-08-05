@@ -3084,7 +3084,7 @@ fi
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxX:w:W:z opt ; do
+while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -3118,7 +3118,6 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:uvVxX:w:W:z opt ; do
 		S) CDSPEEDVALUE="$OPTARG" ;;
 		t) STARTTRACKNUMBER="$OPTARG" ;;
 		T) STARTTRACKNUMBER="$OPTARG" ; STARTTRACKNUMBERTAG="y" ;;
-		u) CDDBPROTO=6 ;;
 		U) CDDBPROTO=5 ;;
 		v) 
 		   echo "This is abcde v$VERSION."
