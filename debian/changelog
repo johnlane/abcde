@@ -15,10 +15,19 @@ abcde (2.3.99.6-1) unstable; urgency=low
   * Added an internal implementation of cue2discid, so there is no need for an
     external program to do the conversion. Thanks to Michael (sorry, his mail
     does not have a surname).
+  * The final 2.4 will have "cuefile" as an action instead of as a flag.
+  * Create the cuefile when extracting from a FLAC file.
+  * Small bugs (Charles Steinkuehler):
+    - Added missing quotes
+    - toolame is included in Debian as default MP3 encoder
+    - Use IFS to preserve spaces when adding metadata to a cuefile
   * Small documentation changes:
     - abcde.1 (Closes: #364978)
+  * Added internal mkcue and cue2discid functions (Charles Steinkuehler) and
+    add a check for internal abcde.<function> to make sure we are using the
+    correct version (not sure if needed ;)
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Tue, 18 Apr 2006 01:09:32 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  5 Aug 2006 03:06:32 +0300
 
 abcde (2.3.99.5-1) unstable; urgency=low
 
