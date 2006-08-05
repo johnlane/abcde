@@ -146,12 +146,12 @@ A. Set abcde to rip the first CD and give it the option "-t 101". Use a generic
    name and the tag/comment information.
 
 Q. I have a live concert. I want to encode it in a single file. How do i do it?
-A. Use "-1" and it will be encoded in a single file. Use "-M" to make a CUE
-   sheet file where the information about the tracks is stored.
+A. Use "-1" and it will be encoded in a single file. Use "cue" as an action to
+   make a CUE sheet file where the information about the tracks is stored.
 
 Q. Can I use abcde to take a backup of my CD collection?
-A. Yes. Use "abcde -1 -o flac -M" and it will create a single-track FLAC file
-   with an embedded cuesheet. Later on, you can use the command
+A. Yes. Use "abcde -1 -o flac -a default,cue" and it will create a single-track
+   FLAC file with an embedded cuesheet. Later on, you can use the command
    "abcde -o vorbis -d flac-file.flac" to extract the individual tracks in
    Ogg/Vorbis format. Of course you can select whatever format you want.
    
