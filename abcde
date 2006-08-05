@@ -1520,8 +1520,12 @@ abcde.cue2discid () {
 		IFS=":"
 		set -- $1
 		IFS="$OIFS"
+		local first second third
+		first=$(expr ${1} + 0 )
+		second=$(expr ${2} + 0 )
+		third=$(expr ${3} + 0 )
 
-		echo $(( ((($1 * 60) + $2) * 75) + $3 ))
+		echo $(( ((($first * 60) + $second) * 75) + $third ))
 	}
 
 	OFFSET=150
