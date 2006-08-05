@@ -354,7 +354,7 @@ checkexec ()
 		# Cut off any command-line option we added in
 		X=$(echo $@ | cut -d' ' -f2)
 		# Test for built-in abcde.function
-		[ "$X" != "${X#abcde.}" ] && type $X >/dev/null 2&>1 && return
+		[ "$X" != "${X#abcde.}" ] && type $X >/dev/null 2>&1 && return
 		if [ "$(which $X)" = "" ]; then
 			log error "$X is not in your path." >&2
 			log info  "Define the full path to the executable if it exists on your system." >&2
@@ -1665,6 +1665,9 @@ do_discid ()
 			flac)
 				if $METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" > /dev/null 2>&1 ; then
 					case "$CUE2DISCID" in
+						# FIXME # right now we have 2 cue2discid internal
+						# implementations: builtin and abcde.cue2discid. Test
+						# both of them and decide which one we want to use.
 						builtin)
 							#vecho "Using builtin cue2discid implementation..."
 							CUESHEET="$(metaflac $METAFLACOPTS --export-cuesheet-to=- "$CDROM")"
@@ -2132,6 +2135,7 @@ do_musicbrainzstat ()
 
 do_musicbrainz ()
 {
+# Use MBE_TOCGetCDIndexId on a perl query
 	:
 }
 
