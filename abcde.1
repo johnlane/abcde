@@ -56,12 +56,12 @@ the file can be used as a source for creating other formats. Use "-1 -M -o
 flac" for obtaining such a file.
 .TP
 .B \-a [actions]
-Comma-delimited list of actions to perform. Can be one or more of:
-cddb, read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize
-and encode imply read. Tag implies cddb, read, encode. Move implies
-cddb, read, encode, tag. Replaygain implies cddb, read, encode, tag and move.
-Playlist implies cddb. The default is to do all actions except normalize,
-replaygain and playlist.
+Comma-delimited list of actions to perform. Can be one or more of: cddb, cue,
+read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize and
+encode imply read. Tag implies cddb, read, encode. Move implies cddb, read,
+encode, tag. Replaygain implies cddb, read, encode, tag and move.  Playlist
+implies cddb. The default is to do all actions except normalize, replaygain and
+playlist.
 .TP
 .B \-b
 Enable batch mode normalization. See the BATCHNORM configuration variable.
@@ -178,11 +178,9 @@ filenames and the playlist. Internal (tag) numbering remains the same.
 Same as \-t but changes also the internal (tag) numbering. Keep in mind that
 the default TRACK tag for MP3 is $T/$TRACKS so it is changed to simply $T.
 .TP
-.B \-u
-Set CDDBPROTO to version 6, so that we retrieve UTF-8 encoded CDDB
-information, and we tag and add comments with a proper encoding. This flag will
-be removed and -U will be added to set it to version 5 once version 6 becomes
-the default.
+.B \-U
+Set CDDBPROTO to version 5, so that we retrieve ISO-8859-15 encoded CDDB
+information, and we tag and add comments with Latin1 encoding.
 .TP
 .B \-v
 Show the version and exit

@@ -29,7 +29,7 @@ Changes in 2.4:
   the CDDB output.
 * Added the possibility of embeding a cuesheet on a singletrack flac file. A
   single BACKUP flag is most likely needed to use all the needed flags:
-  "abcde -1 -M -o flac"
+  "abcde -1 -o flac -a default,cue"
 * Added the possibility of using a singletrack flac file with an embeded
   cuesheet as a source to extract tracks from (use -X to specify an external
   CUE2DISCID implementation; check under examples in the distributed source
@@ -39,9 +39,10 @@ Changes in 2.4:
 * Uses the default found $CDROMREADER instead of forcing cdparanoia when
   cdda2wav is installed.
 * BATCH mode has been splitted into two options: BATCHNORM and NOGAP.
-* Added -U option for non-UNICODE (UTF-8) tag encoding.
+* Added -U option for non-UNICODE (non UTF-8) tag encoding.
 * Added -z for debug.
 * Added -f to force the removal of left files.
+* CUE support has changed from a flag (-M) to an action (cue).
  
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
