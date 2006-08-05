@@ -1,3 +1,10 @@
+abcde 2.3.99.5
+
+  * Repaired multiple CDDB entries when recursive search is active.
+  * Patch from A. Costa to clean some typos (Closes: #351774).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 07 Feb 2006 23:48:00 +0200
+
 abcde 2.3.99.4
 
   * Repaired multiple output encoding (Closes: #351362).

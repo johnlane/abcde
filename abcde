@@ -353,6 +353,8 @@ checkexec ()
 	if [ ! "$@" = "" ]; then
 		# Cut off any command-line option we added in
 		X=$(echo $@ | cut -d' ' -f2)
+		# Test for built-in abcde.function
+		[ "$X" != "${X#abcde.}" ] && type $X >/dev/null 2&>1 && return
 		if [ "$(which $X)" = "" ]; then
 			log error "$X is not in your path." >&2
 			log info  "Define the full path to the executable if it exists on your system." >&2
@@ -899,7 +901,7 @@ do_nogap_encode ()
 		case "$OUTPUT" in
 		mp3)
 			case "$MP3ENCODERSYNTAX" in
-			lame)
+			lame|toolame)
 				(
 				cd "$ABCDETEMPDIR"
 				TRACKFILES=
@@ -1015,7 +1017,7 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$MP3ENCODERSYNTAX" in
-					lame|gogo) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
+					lame|toolame|gogo) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
 					bladeenc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
 					l3enc|xingmp3enc) $RUN_COMMAND nice $ENCNICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
 					# FIXME # Relates to the previous FIXME since it might need the "-if" removed.
@@ -1490,6 +1492,154 @@ do_playlist ()
 	done
 }
 
+# abcde.cue2discid
+# This function reads a cuefile on stdin and writes an extended
+# cddb query on stdout.  Any PREGAP for track 1 is properly
+# handled, although cue files embedded in FLAC files do not
+# appear to properly store the PREGAP setting. :(
+abcde.cue2discid () {
+
+	cddb_sum () {
+		val=$1
+		ret=0
+		while [ $val -gt 0 ] ; do
+			ret=$(( $ret + ( $val % 10) ))
+			val=$(( $val / 10 ))
+		done
+		echo $ret
+	}
+
+	msf2lba () {
+		OIFS="$IFS"
+		IFS=":"
+		set -- $1
+		IFS="$OIFS"
+
+		echo $(( ((($1 * 60) + $2) * 75) + $3 ))
+	}
+
+	OFFSET=150
+	PREGAP=0
+	LEADOUT=0
+	LEADIN=88200
+	i=0
+	N=0
+	
+	while read line ; do
+		set -- $line
+		case "$1" in
+		TRACK)	i=$(( i + 1 ))
+			;;
+		INDEX)	if [ "$2" -eq 1 ] ; then
+				LBA=$(msf2lba $3)
+				START=$(( $LBA + $PREGAP + $OFFSET ))
+				eval TRACK$i=$START
+				X=$(cddb_sum $(( $START / 75 )) )
+				N=$(( $N + $X ))
+			fi
+			;;
+		PREGAP)	PREGAP=$(msf2lba $2)
+			;;
+		REM)	case "$2" in 
+			FLAC__lead-out)
+				LEADOUT=$(( $4 / 588 ))
+				;;
+			FLAC__lead-in)
+				LEADIN=$(( $3 / 588 ))
+				;;
+			esac
+			;;
+		esac
+		
+	done
+	
+	TRACKS=$i
+	LEADOUT=$(( $LEADOUT + $LEADIN ))
+
+	LENGTH=$(( $LEADOUT/75 - $TRACK1/75 ))
+	DISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
+	printf "%08x %i" $DISCID $TRACKS
+	
+	j=1
+	while [ $j -le $TRACKS ] ; do
+		eval echo -n "\" \$TRACK$j\""
+		j=$((j+1))
+	done
+	echo " $(( $LEADOUT / 75 ))"
+}
+
+# abcde.mkcue
+# abcde.mkcue [--wholedisk]
+# This creates a cuefile directly from the extended discid information
+# The --wholedisk option controls whether we're ripping data from the
+# start of track one or from the start of the disk (usually, but not
+# always the same thing!)
+#
+# Track one leadin/pregap (if any) handeling:
+# --wholedisk specified:
+#   TRACK 01 AUDIO
+#     INDEX 00 00:00:00
+#     INDEX 01 <pregap value>
+#   Remaining track index values unchanged from disc TOC
+#
+# --wholedisk not specified
+#   TRACK 01 AUDIO
+#     PREGAP <pregap value>
+#     INDEX 01 00:00:00
+#   Remaining track index values offset by <pregap value>
+#
+# Variables used:
+# TRACKINFO
+abcde.mkcue () {
+
+	echomsf () {
+		printf "$1%02i:%02i:%02i\n" $(($2/4500)) $((($2/75)%60)) $(($2%75))
+	} 
+
+	local MODE DISCID TRACKS
+	local i OFFSET LBA 
+
+
+    if [ "$1" = --wholedisc ] ; then
+        MODE=INDEX
+    else
+        MODE=PREGAP
+    fi
+
+    set -- $TRACKINFO
+
+    DISCID=$1
+    TRACKS=$2
+    shift 2
+
+    echo REM DISCID $DISCID
+    echo FILE \"dummy.wav\" WAVE
+
+    if [ $1 -ne 150 ] ; then
+        if [ $MODE = PREGAP ] ; then
+            OFFSET=$1
+        else
+            OFFSET=150
+        fi
+    fi
+
+    i=1
+    while [ $i -le "$TRACKS" ] ; do
+        LBA=$(( $1 - $OFFSET ))
+        printf "  TRACK %02i AUDIO\n" $i
+        if [ $i -eq 1 -a $1 -ne 150 ] ; then
+            if [ $MODE = PREGAP ] ; then
+                echomsf "    PREGAP " $(($OFFSET-150))
+            else
+                echo    "    INDEX 00 00:00:00"
+            fi
+		fi
+        echomsf "    INDEX 01 " $LBA
+		i=$(($i+1))
+        shift
+    done
+}
+
 # do_discid
 # This essentially the start of things
 do_discid ()
@@ -1539,7 +1689,7 @@ do_discid ()
 				fi
 				;;
 #			cdparanoia|debug)
-#				CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -Q --verbose 2>&1 )"
+#				CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -Q --verbose 2>&1 )"
 #				RET=$?
 #				if [ ! "$RET" = "0" ];then
 #					log warning "something went wrong while querying the CD... Maybe a DATA CD?"
@@ -1554,9 +1704,9 @@ do_discid ()
 #				;;
 			*)
 				case "$CDDBMETHOD" in
-					cddb) TRACKINFO=$($CDDISCID $CDROM) ;;
+					cddb) TRACKINFO=$($CDDISCID "$CDROM") ;;
 					# FIXME # musicbrainz needs a cleanup
-					musicbrainz) TRACKINFO=$($MUSICBRAINZ -c $CDROM ) ;;
+					musicbrainz) TRACKINFO=$($MUSICBRAINZ -c "$CDROM" ) ;;
 				esac
 				;;
 		esac
@@ -1600,7 +1750,7 @@ do_discid ()
 				cdparanoia|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
-						CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -Q --verbose 2>&1 )"
+						CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -Q --verbose 2>&1 )"
 						RET=$?
 						if [ ! "$RET" = "0" ];then
 							log warning "something went wrong while querying the CD... Maybe a DATA CD?"
@@ -1737,7 +1887,9 @@ do_discid ()
 			vecho "Creating cue file..."
 			case $CDROMREADERSYNTAX in
 				flac)
-					if $METAFLAC --export-cuesheet-to=- $CDROM > "$ABCDETEMPDIR/$CUEFILE"; then :; else
+					if $METAFLAC --export-cuesheet-to=- "$CDROM" > "$ABCDETEMPDIR/$CUEFILE"; then 
+						echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+					else
 						log warning "the input flac file does not contain a cuesheet."
 					fi
 					;;
@@ -1781,15 +1933,24 @@ do_cleancue()
 			n=1
 			echo "PERFORMER \"$DARTIST\"" >> "$CUEFILE_OUT"
 			echo "TITLE \"$DALBUM\"" >> "$CUEFILE_OUT"
+			# Set IFS to <newline> to prevent read from swallowing spaces and tabs
+			OIFS="$IFS"
+			IFS='
+'
 			cat "$CUEFILE_IN" | while read line
 			do
 				if echo "$line" | grep "INDEX 01" > /dev/null 2>&1 ; then
+# FIXME # Possible patch: remove the line above, uncomment the 2 lines below.
+#				echo "$line" >> "$CUEFILE_OUT"
+#				if echo "$line" | grep "^[[:space:]]*TRACK" > /dev/null 2>&1 ; then
 					eval track="\$TRACK$n"
 					n=$(expr $n + 1)
-					echo "TITLE \"$track\"" >> "$CUEFILE_OUT"
+					echo "    TITLE \"$track\"" >> "$CUEFILE_OUT"
 				fi
+# FIXME # If the lines above are uncommented, remove the line below.
 				echo "$line" >> "$CUEFILE_OUT"
 			done
+			IFS="$OIFS"
 			mv "$CUEFILE_OUT" "$CUEFILE_IN"
 			echo "cleancuefile" >> "$ABCDETEMPDIR/status"
 		fi
@@ -2484,7 +2645,10 @@ do_cdread ()
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
 			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
-			cdparanoia) READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
+			cdparanoia) 
+				#XX FIXME XX
+				# Add a variable to check if tracks are provided in command line and if not, use "0-" to rip the tracks
+				READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
 			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 				exit 1 ;;
@@ -2532,7 +2696,7 @@ do_cdread ()
 			STRIPTRACKNUM=$(expr $UTRACKNUM + 0)
 			nice $READNICE $FLAC -d -f --cue=${READTRACKNUMS:-$STRIPTRACKNUM.1-$(($STRIPTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
-			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
+			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -2552,7 +2716,7 @@ do_cdread ()
 			;;
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
-		dagrab) nice $READNICE $CDROMREADER -d $CDROM -v $UTRACKNUM "$FILEARG" $REDIR
+		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" $REDIR
 			;;
 		cddafs)
 			# Find the track's mounted path
@@ -2565,7 +2729,7 @@ do_cdread ()
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS $CDROM -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
+		debug) nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
 			;;
 	esac
 	RETURN=$?
@@ -2721,6 +2885,7 @@ KEEPWAVS=n
 PADTRACKS=n
 NOGAP=n
 BATCHNORM=n
+NOCDDBQUERY=n
 
 # If using scsi devices, cdda2wav needs a CDROMID, instead of a device node
 # i.e. CDROMID="1,0,0"
@@ -2822,7 +2987,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 
 # This option is basicaly for Debian package dependencies: 
 # List of prefered outputs - by default, run with whatever we have in the path
-DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
 
 # List of prefered cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
@@ -2977,6 +3142,11 @@ shift $(($OPTIND - 1))
 # ripping, we have a mixture of sanity checks, verifications, default settigs
 # and other crazy stuff that interdepends, but hey, someone has to do it.
 
+# If NOCDDBQUERY is set, don't query the CDDB server.
+if [ "$NOCDDBQUERY" = "y" ]; then
+	CDDBAVAIL="n"
+fi
+
 # If the user specified a flac file, then switch to special flac mode
 if echo "$CDROM" | grep -i '.flac$' > /dev/null 2>&1 ; then
 	if [ ! -f "$CDROM" ]; then
@@ -3066,11 +3236,13 @@ DOMOVE=n
 DOREPLAYGAIN=n
 DOPLAYLIST=n
 DOCLEAN=n
+DOCUE=n
 
 for ACTION in $(echo $ACTIONS | tr , \ )
 do
 	case $ACTION in
 		default) DOCDDB=y; DOREAD=y; DOENCODE=y; DOTAG=y; DOMOVE=y; DOCLEAN=y;;
+		cue) DOCUE=y;;
 		cddb) DOCDDB=y;;
 		read) DOREAD=y;;
 		normalize) DONORMALIZE=y; DOREAD=y;;
@@ -3722,7 +3894,7 @@ if [ "$EJECTCD" = "y" ] && [ -x $(which $EJECT) ]; then
 	elif [ X"$(uname)" = X"Darwin" ] ; then
 		disktool -e ${CDROM#/dev/} 0
 	else
-		$EJECT $EJECTOPTS $CDROM
+		$EJECT $EJECTOPTS "$CDROM"
 	fi
 	#fi
 fi
