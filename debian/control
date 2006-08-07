@@ -3,7 +3,7 @@ Section: sound
 Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
 Standards-Version: 3.7.2.1
-Build-Depends: debhelper
+Build-Depends: debhelper (>= 5)
 
 Package: abcde
 Architecture: all
