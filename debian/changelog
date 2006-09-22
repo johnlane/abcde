@@ -1,3 +1,12 @@
+abcde (2.3.99.7-1) unstable; urgency=low
+
+  * Corrected debian/changelog.
+  * Added -nv for "no verbose" output, to avoid wget complaining it cannot be
+    quiet and verbose at the same time if "verbose = on" is set in ~/.wgetrc
+    (Closes: #388715).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 22 Sep 2006 12:47:06 +0300
+
 abcde (2.3.99.6-1) unstable; urgency=low
 
   * Default to UNICODE (UTF8) tags and comments (Closes: #282332).
@@ -21,15 +30,15 @@ abcde (2.3.99.6-1) unstable; urgency=low
     - Use IFS to preserve spaces when adding metadata to a cuefile
   * Small documentation changes:
     - abcde.1 (Closes: #364978)
-  * The dollowing entries have in commong that both add an internal cue2discid
+  * The following entries have in common that both add an internal cue2discid
     function. I will evaluate which one is more accurate and decide which one
-    to use. Right now they are not conflicting.
-  * Added internal mkcue and cue2discid functions (Charles Steinkuehler) and
-    add a check for internal abcde.<function> to make sure we are using the
-    correct version (not sure if needed ;)
-  * Added an internal implementation of cue2discid, so there is no need for an
-    external program to do the conversion. Thanks to Michael (sorry, his mail
-    does not have a surname).
+    to use. Right now they are not conflicting:
+    - Added internal mkcue and cue2discid functions (Charles Steinkuehler) and
+      add a check for internal abcde.<function> to make sure we are using the
+      correct version (not sure if needed ;)
+    - Added an internal implementation of cue2discid, so there is no need for
+      an external program to do the conversion. Thanks to Michael (sorry, his
+      mail does not have a surname).
   * cue2discid is now an internal function, so no need for including the
     python script in the path (Closes: #378407)
   * cddb-tool.1 typo (Thanks to A. Costa) (Closes: #351775)
