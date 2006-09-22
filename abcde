@@ -3065,7 +3065,7 @@ fi
 
 if [ "$HTTPGETOPTS" = "" ] ; then
 	case $HTTPGET in
-		wget) HTTPGETOPTS="-q -O -";;
+		wget) HTTPGETOPTS="-q -nv -O -";;
 		curl) HTTPGETOPTS="-f -s";;
 		fetch)HTTPGETOPTS="-q -o -";;
 		ftp)  HTTPGETOPTS="-a -V -o - ";;
