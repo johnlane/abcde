@@ -1,11 +1,14 @@
 abcde (2.3.99.7-1) unstable; urgency=low
 
+  * abcde.1: remove -M in favour of "-a cue" (Closes: #382614).
+  * Added -q <Q> as a quality option.
+  * PREGAP was not set in some situations (Closes: #390170).
   * Corrected debian/changelog.
   * Added -nv for "no verbose" output, to avoid wget complaining it cannot be
     quiet and verbose at the same time if "verbose = on" is set in ~/.wgetrc
     (Closes: #388715).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 22 Sep 2006 12:47:06 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  1 Oct 2006 17:14:47 +0300
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
