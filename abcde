@@ -47,11 +47,13 @@ echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-m     Modify playlist to include CRLF endings, to comply with some players"
 echo "       WARNING: Deprecated. Use \"cue\" action"
-echo "-M     Create a CUE file"
+#echo "-M     Create a CUE file"
 echo "-o <type1[,type2]...>"
 echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
+echo "-q <level>"
+echo "       Set quality level (high,medium,low)"
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-R     Use local CDDB in recursive mode"
@@ -790,23 +792,27 @@ do_tag ()
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
 						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
-						-G "$GENREID" -n "${TRACKNUM:-$1}" "${TRACKNUM:+-N $TRACKS}" \
+						-G "$GENREID" -n "${TRACKNUM:-$1}" \
+						"${TRACKNUM:+-N $TRACKS}" \
 						"${ENCODING:+--set-encoding=$ENCODING}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
 				id3ed)
-					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
-						-a "$DALBUM" -n "$TRACKARTIST" -s "$TRACKNAME" -y "$CDYEAR" \
-						-g "$GENREID" -k "${TRACKNUM:-$1}" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
+						$TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+						-a "$DALBUM" -n "$TRACKARTIST" -s "$TRACKNAME" \
+						-y "$CDYEAR" -g "$GENREID" -k "${TRACKNUM:-$1}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				*)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
-					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
-						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" \
-						-g "$GENREID" -T "${TRACKNUM:-$1/$TRACKS}" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
+						$TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
+						-y "$CDYEAR" -g "$GENREID" \
+						-T "${TRACKNUM:-$1/$TRACKS}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 			esac
@@ -819,7 +825,9 @@ do_tag ()
 						mv "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					fi
 					(
-					# These are from http://www.xiph.org/ogg/vorbis/doc/v-comment.html
+					# These are from
+					# http://www.xiph.org/ogg/vorbis/doc/v-comment.html
+
 					echo ARTIST="$TRACKARTIST"
 					echo ALBUM="$DALBUM"
 					echo TITLE="$TRACKNAME"
@@ -837,9 +845,11 @@ do_tag ()
 							*)   echo COMMENT="$COMMENTOUTPUT";;
 						esac	
 					fi
-					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $VORBISCOMMENT $VORBISCOMMENTOPTS -w \
+					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
+						$VORBISCOMMENT $VORBISCOMMENTOPTS -w \
 						"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
-					# Doublecheck that the commented file was created successfully before wiping the original
+					# Doublecheck that the commented file was created
+					# successfully before wiping the original
 					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
 						rm -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					else
@@ -894,7 +904,8 @@ do_tag ()
 # OUTPUTTYPE, {FOO}ENCODERSYNTAX, ENCNICE, ENCODER, ENCODEROPTS
 do_nogap_encode ()
 {
-	# The commands here don't go through run_command because they're never supposed to be silenced
+	# The commands here don't go through run_command because they're never
+	# supposed to be silenced
 	echo "Encoding gapless MP3 tracks: $TRACKQUEUE"
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
@@ -933,8 +944,8 @@ do_nogap_encode ()
 			fi
 		fi
 	fi
-	# Other encoders fall through to normal encoding as the tracks
-	# have not been entered in the status file.
+	# Other encoders fall through to normal encoding as the tracks have not
+	# been entered in the status file.
 }
 
 # do_encode [tracknumber] [hostname]
@@ -1625,12 +1636,10 @@ abcde.mkcue () {
     echo REM DISCID $DISCID
     echo FILE \"dummy.wav\" WAVE
 
-    if [ $1 -ne 150 ] ; then
-        if [ $MODE = PREGAP ] ; then
-            OFFSET=$1
-        else
-            OFFSET=150
-        fi
+    if [ $1 -ne 150 ] && [ $MODE = "PREGAP"] ; then
+        OFFSET=$1
+    else
+        OFFSET=150
     fi
 
     i=1
@@ -3006,6 +3015,12 @@ DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeen
 # List of prefered cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
 
+# List of quality levels associated with the encoders:
+DEFAULT_QUALITY_XLO="oggenc:-q -1,lame:-q 9,speex:--quality 1,m4a:"
+DEFAULT_QUALITY_LO="oggenc:-q 1,lame:-q 7,speex:--quality 5,m4a:"
+DEFAULT_QUALITY_HI="oggenc:-q 7,lame:--preset standard,speex:--quality 9,m4a:"
+DEFAULT_QUALITY_XHI="oggenc:-q 10,lame:--preset extreme,speex:--quality 10,m4a:"
+
 # Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
 # Linux/OpenBSD. ftp is user for NetBSD.
 # Let's use these checkings to determine the OS flavour, which will be used
@@ -3042,6 +3057,12 @@ fi
 CDDBAVAIL=y
 USEID3=y
 USEID3V2=y
+
+# There we go..
+# But before we get into business, let us chop off any GREP environmental
+# variables.
+GREP_OPTIONS=""
+GREP_COLOR=""
 
 if [ -z "$OUTPUTDIR" ]; then
 	OUTPUTDIR=$(pwd)
@@ -3091,7 +3112,7 @@ if [ "$CDROM" = "" ] ; then
 fi
 
 # Parse command line options
-#while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPr:Rs:S:t:T:vVxw:W: opt ; do
+#while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPq:r:Rs:S:t:T:vVxw:W: opt ; do
 while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
@@ -3120,6 +3141,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 		o) OUTPUTTYPE="$OPTARG" ;;
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
+		q) QUALITYLEVEL="$OPTARG" ;;
 		r) REMOTEHOSTS="$OPTARG" ;;
 		R) CDDBLOCALRECURSIVE=y ;;
 		s) SHOWCDDBFIELDS="$OPTARG" ;;
@@ -3249,7 +3271,8 @@ DOMOVE=n
 DOREPLAYGAIN=n
 DOPLAYLIST=n
 DOCLEAN=n
-DOCUE=n
+## FIXME ## Lets keep compatibility with -M
+[ "$DOCUE" != "y" ] && DOCUE=n
 
 for ACTION in $(echo $ACTIONS | tr , \ )
 do
@@ -3718,7 +3741,7 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
-# Well, right now we are at line 3306 ;)
+# Well, right now we are at line 3737 ;)
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS

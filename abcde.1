@@ -52,16 +52,16 @@ can take a compressed backup of your CD collection.
 .B \-1
 Encode the whole CD in a single file. The resulting file uses the CD title
 for tagging. If the resulting format is a flac file with an embedded cuesheet,
-the file can be used as a source for creating other formats. Use "-1 -M -o
-flac" for obtaining such a file.
+the file can be used as a source for creating other formats. Use "-1 -o
+flac -a default,cue" for obtaining such a file.
 .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of: cddb, cue,
 read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize and
 encode imply read. Tag implies cddb, read, encode. Move implies cddb, read,
 encode, tag. Replaygain implies cddb, read, encode, tag and move.  Playlist
-implies cddb. The default is to do all actions except normalize, replaygain and
-playlist.
+implies cddb. The default is to do all actions except cue, normalize,
+replaygain and playlist.
 .TP
 .B \-b
 Enable batch mode normalization. See the BATCHNORM configuration variable.
@@ -147,6 +147,11 @@ Pads track numbers with 0\'s.
 .B \-P
 Use Unix PIPES to read and encode in one step. It disables multiple encodings,
 since the WAV audio file is never stored in the disc.
+.TP
+.B \-q [quality]
+Use a pre-defined quality level for the encoding process. Defined as low,
+medium or high. The "medium" value is used to reset the default values if other
+are used in the config file(s).
 .TP
 .B \-r [hosts...]
 Remote encode on this comma-delimited list of machines using distmp3. See
