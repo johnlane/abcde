@@ -360,6 +360,13 @@ checkexec ()
 		if [ "$(which $X)" = "" ]; then
 			log error "$X is not in your path." >&2
 			log info  "Define the full path to the executable if it exists on your system." >&2
+			if [ -e /etc/debian_release ] ; then
+				case $X in
+					oggenc) MISSING_PACKAGE=vorbis-tools ;;
+					lame)   MISSING_PACKAGE=lame ;;
+					flac)   MISSING_PACKAGE=flac ;;
+				esac
+				log info "Hint: apt-get install $MISSING_PACKAGE" >&2
 			exit 1
 		elif [ ! -x "$(which $X)" ]; then
 			log error "$X is not executable." >&2
@@ -3382,7 +3389,7 @@ if [ "$BATCHNORM" = "y" ] && [ "$DONORMALIZE" = "n" ]; then
 	BATCHNORM=n
 fi
 
-# Check the encoding format from the ones available in the system, if nothing has been configured in the system.
+# Check the encoding format from the ones available in the system, if nothing has been configured.
 if [ X"$OUTPUTTYPE" = "X" ]; then
 	for DEFAULT_OUTPUT in $( echo "$DEFAULT_OUTPUT_BINARIES" | tr , \ ); do
 		DEFAULT_OUTPUT_FORMAT="$(echo $DEFAULT_OUTPUT | cut -d ":" -f 1)"
