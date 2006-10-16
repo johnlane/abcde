@@ -1,14 +1,22 @@
 abcde (2.3.99.7-1) unstable; urgency=low
 
   * abcde.1: remove -M in favour of "-a cue" (Closes: #382614).
+  * Added a check for a DOCUE already set in the command line
+    (Closes: #385663).
   * Added -q <Q> as a quality option.
   * PREGAP was not set in some situations (Closes: #390170).
   * Corrected debian/changelog.
-  * Added -nv for "no verbose" output, to avoid wget complaining it cannot be
-    quiet and verbose at the same time if "verbose = on" is set in ~/.wgetrc
-    (Closes: #388715).
+  * Added -nv to wget for "no verbose" output, to avoid wget complaining it
+    cannot be quiet and verbose at the same time if "verbose = on" is set in
+    ~/.wgetrc (Closes: #388715).
+  * Added XS-Vcs-Svn: field to control file.
+  * Added some hints if we are using Debian for what packages need to be
+    installed if their binaries are not found.
+  * Spelling mistakes corrected (thanks to Ville Skytta).
+  * Unset GREP_OPTIONS to avoid things like printing number in the begining of
+    the line (Closes: #383771).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun,  1 Oct 2006 17:14:47 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 15 Oct 2006 01:32:14 +0300
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
