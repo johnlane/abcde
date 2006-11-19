@@ -15,8 +15,12 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Spelling mistakes corrected (thanks to Ville Skytta).
   * Unset GREP_OPTIONS to avoid things like printing number in the begining of
     the line (Closes: #383771).
+  * Default answer to erase a playlist was not working (thanks to Charles
+    Steinkuehler) (Closes: #395108).
+  * Corrected man page wrapping. Thanks to Edward J. Shornock 
+    (Closes: #399289).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 15 Oct 2006 01:32:14 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 19 Nov 2006 13:13:40 +0200
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
