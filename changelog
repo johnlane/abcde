@@ -1,3 +1,71 @@
+abcde 2.3.99.7
+
+  * abcde.1: remove -M in favour of "-a cue" (Closes: #382614, #396505).
+  * Added a check for a DOCUE already set in the command line
+    (Closes: #385663).
+  * Added -q <Q> as a quality option.
+  * PREGAP was not set in some situations (Closes: #390170).
+  * Corrected debian/changelog.
+  * Added -nv to wget for "no verbose" output, to avoid wget complaining it
+    cannot be quiet and verbose at the same time if "verbose = on" is set in
+    ~/.wgetrc (Closes: #388715).
+  * Added XS-Vcs-Svn: field to control file.
+  * Added some hints if we are using Debian for what packages need to be
+    installed if their binaries are not found.
+  * Spelling mistakes corrected (thanks to Ville Skytta).
+  * Unset GREP_OPTIONS to avoid things like printing number in the begining of
+    the line (Closes: #383771).
+  * Default answer to erase a playlist was not working (thanks to Charles
+    Steinkuehler) (Closes: #395108).
+  * Corrected man page wrapping. Thanks to Edward J. Shornock
+    (Closes: #399289).
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 19 Nov 2006 14:36:07 +0200
+
+abcde 2.3.99.6
+
+  * Default to UNICODE (UTF8) tags and comments (Closes: #282332).
+    - Added CDDBPROTO option in config file (Closes: #349951)
+  * Added a missing "INDEX 01" entry for CUE sheet creation.
+  * Avoid completing the encoding of files if we aborted previously.
+  * Embed the CUE sheet if we have a cuesheet file and we have a single FLAC
+    file, even if we are not tagging. This way we can use the file as a source
+    even if it is not tagged/named properly.
+  * Fails to quote filenames properly (Closes: #355296)
+  * Introduced VA/ONETRACKOUTPUTFORMAT.
+  * Added a missing check for AACENCODER.
+  * Updated config file with some new AAC bits.
+  * Updated FSF address.
+  * Corrected NetBSD options for ftp (Thanks to Marius).
+  * The final 2.4 will have "cuefile" as an action instead of as a flag.
+  * Create the cuefile when extracting from a FLAC file.
+  * Small bugs (Charles Steinkuehler):
+    - Added missing quotes (Closes: #375710)
+    - toolame is included in Debian as default MP3 encoder
+    - Use IFS to preserve spaces when adding metadata to a cuefile
+  * Small documentation changes:
+    - abcde.1 (Closes: #364978)
+  * The following entries have in common that both add an internal cue2discid
+    function. I will evaluate which one is more accurate and decide which one
+    to use. Right now they are not conflicting:
+    - Added internal mkcue and cue2discid functions (Charles Steinkuehler) and
+      add a check for internal abcde.<function> to make sure we are using the
+      correct version (not sure if needed ;)
+    - Added an internal implementation of cue2discid, so there is no need for
+      an external program to do the conversion. Thanks to Michael (sorry, his
+      mail does not have a surname).
+  * cue2discid is now an internal function, so no need for including the
+    python script in the path (Closes: #378407)
+  * cddb-tool.1 typo (Thanks to A. Costa) (Closes: #351775)
+  * abcde.1 typo (Thanks to David L. Anselmi) (Closes: #364978)
+  * Set proper nice values to not separate encoding and reading in the pipes
+    situation, while having a high priority process running in the system.
+    Also, set proper nice values to tagging tasks. Reading should remain as
+    the default higher priority task in the abcde flow (Closes: #359156)
+  * Standards bumped to 3.7.2.1, no changes needed.
+
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sat,  5 Aug 2006 05:26:56 +0300
+
 abcde 2.3.99.5
 
   * Repaired multiple CDDB entries when recursive search is active.
