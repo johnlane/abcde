@@ -1458,6 +1458,7 @@ do_playlist ()
 					read ERASEPLAYLIST
 					case $ERASEPLAYLIST in
 						e|E|a|A|k|K) DONE=y ;;
+						"") ERASEPLAYLIST=e ; DONE=y ;;
 						*) ;;
 					esac
 				done
