@@ -362,11 +362,11 @@ checkexec ()
 			log info  "Define the full path to the executable if it exists on your system." >&2
 			if [ -e /etc/debian_release ] ; then
 				case $X in
-					oggenc) MISSING_PACKAGE=vorbis-tools ;;
-					lame)   MISSING_PACKAGE=lame ;;
-					flac)   MISSING_PACKAGE=flac ;;
+					oggenc) 	MISSING_PACKAGE=vorbis-tools ;;
+					lame|flac)	MISSING_PACKAGE=$X ;;
 				esac
 				log info "Hint: apt-get install $MISSING_PACKAGE" >&2
+			fi
 			exit 1
 		elif [ ! -x "$(which $X)" ]; then
 			log error "$X is not executable." >&2
