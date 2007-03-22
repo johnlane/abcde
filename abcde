@@ -517,6 +517,8 @@ do_replaygain()
 				TRACKFILE="$(mungefilename "$TRACKNAME")"
 				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 				ALBUMFILE="$(mungefilename "$DALBUM")"
+        		GENRE="$(mungegenre "$GENRE")"
+        		YEAR=${CDYEAR:-$CDYEAR}
 				gettracknum
 				if [ "$ONETRACK" = "y" ]; then 
 					if [ "$VARIOUSARTISTS" = "y" ]; then
