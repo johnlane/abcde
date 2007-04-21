@@ -1,4 +1,4 @@
-#!env python
+#!/usr/bin/env python
 # Copyright (c) 2007 Jesus Climent <jesus.climent@hispalinux.es>
 # This code is hereby licensed for public consumption under either the
 # GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
@@ -9,15 +9,25 @@
 #
 # $Id: abcde 232 2007-03-22 21:39:30Z data $
 
-
 # import those needed modules.
 
 import os
 import re
+import sys
+import time
+import getopt
+import string
+import select
 
-version = "1.0-$Revision$"
+__version__ = "1.0-$Revision$"
 
-help = """This is abcde version """ + version + """
+"""
+abcde.py - A Better CD Encoder - python release
+Copyright (C) 2007 Jesus Climent <jesus.climent@hispalinux.es>
+
+"""
+
+help = """This is abcde version """ + __version__ + """
 
 usage: abcde.py [options] [tracks]
 Options:
@@ -77,11 +87,27 @@ Ranges specified with hyphens are allowed (i.e., 1-5).
 def usage ():
 	print help
 
-def addstatus(status):
-	pass
+def addstatus(status,file):
+	try:
+		file = open(file, "w")
+	except:
+		log("error","file",file,"cannot be read")
+		return -1
 
 def log(status,logstring):
-	pass	
+	if re.compile("info").match(status):
+		status = "[INFO]"
+		pass
+	elif re.compile("warning").match(status):
+		status = "[WARNING]"
+		pass
+	elif re.compile("error").match(status):
+		returncode = 1
+		status = "[ERROR] %s\n"
+		sys.stderr.write(status % logstring)
+		sys.exit(1)
+	else:
+		return 1
 
 def f_seq_row (min,max):
 	try:
@@ -114,7 +140,7 @@ def checkstatus (string, file):
 	try:
 		file = open(file, "r")
 	except:
-		log("error","file",file,"cannot be read")
+		log("error","file "+file+" cannot be read")
 		return -1
 
 	blurb = []
@@ -129,4 +155,105 @@ def checkstatus (string, file):
 	else:
 		return 1
 
-print checkstatus("test", "/tmp/status")
+# which(program)
+# checks where we can find a program in the path
+def which(program):
+	for path in string.split(os.environ["PATH"], ":"):
+		if os.path.exists(os.path.join(path, program)):
+			return os.path.join(path, program)
+
+
+
+def main():
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "1a:bc:C:d:DefghjklLnNmopPqrRsStTUvVxwWz")
+	except:
+		log("error","unknown error")
+		sys.stderr.write(usage % sys.argv[0])
+		sys.exit(1)
+	
+	try:
+		#abcde.setup()
+		for opt, optarg in opts:
+			print opt, optarg
+			if opt == "-1": o_onetrack = "y"
+			if opt == "-a": o_actions = optarg
+			if opt == "-b": o_batchnormalize = "y"
+			if opt == "-B": o_nobatchreplygain = "y"
+			if opt == "-c": 
+				o_configfile = str(optarg)
+				try:
+					if not re.compile("\.\/").search(o_configfile):
+						o_configfile = os.environ.get("PWD", "./") + "/" + o_configfile
+					os.path.exists(o_configfile)
+				except:
+					log("error",o_configfile+" cannot be read")
+			if opt == "-C":
+				if re.compile("abcde\.").match(optarg):
+					o_discid = optarg
+				else:
+					o_discid = "abcde." + optarg
+			if opt == "-d": o_cdrom = optarg
+			if opt == "-D": o_debug = "y"
+			if opt == "-h":
+				usage()
+				sys.exit(1)
+			if opt == "-e": o_eraseencodedstatus = "y"
+#			if opt == "-E": o_encoding
+			if opt == "-f": o_force = "y"
+			if opt == "-g": o_nogap = "y"
+			if opt == "-j": o_maxprocs = optarg
+			if opt == "-k": o_keepwavs = "y"
+			if opt == "-l": o_lowdisk = "y"
+			if opt == "-L": o_localcddb = "y"
+			if opt == "-n": o_cddbavailable = "n"
+			if opt == "-m": o_dosplaylist = "y"
+			if opt == "-M": o_docue = "y"
+			if opt == "-N": o_interactive = "n"
+			if opt == "-o": o_outputtypes = optarg
+			if opt == "-p": o_padtracks = "y"
+			if opt == "-P": o_usepipes = "y"
+			if opt == "-q": o_qualitylevel = optarg
+			#if opt == "-r": o_remotehosts = optarg
+			if opt == "-R": o_localcddbrecursive = "y"
+			if opt == "-s": o_showcddbfields = "y"
+			if opt == "-S": o_cdspeed = optarg
+			if opt == "-t": o_starttracknumber = optarg
+			if opt == "-T": 
+				o_starttracknumber = optarg
+				o_starttracknumbertag = "y"
+			if opt == "-U": o_cddbproto = 5
+			if opt == "-v":
+				print "This is abcde v", __version__
+				print "Usage: abcde.py [options] [tracks]"
+				print "abcde -h for extra help"
+				sys.exit(0)
+			if opt == "-V": o_verbose = "y"
+			if opt == "-x": o_eject = "y"
+#			if opt == "-X": o_cue2discid = optarg
+			if opt == "-w": o_comment = optarg
+			if opt == "-W":
+				if re.compile("^\d+$").search(optarg)
+					o_starttracknumber = optarg + "01"
+					o_starttracknumbertag = "y"
+					o_comment = "CD" + optarg
+				else:
+					log("error","opt -W must be an integer")
+					sys.exit(1)
+
+	except: 
+		#log("error","arguments were not correct")
+		pass
+
+
+#try:
+##	checkstatus("test", "/tmp/status")
+#	pass
+#except:
+#	sys.exit(1)
+
+# -------------------------------
+if __name__ == "__main__": main()
+
+# b:is_python
+# vim:tabstop=4:
