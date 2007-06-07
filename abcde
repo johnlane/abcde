@@ -847,6 +847,9 @@ do_tag ()
 						echo GENRE="$CDGENRE"
 					fi	
 					echo TRACKNUMBER=${TRACKNUM:-$1}
+					if [ -n "$DISCNUMBER" ]; then
+						echo DISCNUMBER="$DISCNUMBER"
+					fi
 					echo CDDB=$CDDBDISCID
 					if [ "$(eval echo ${COMMENT})" != "" ]; then
 						case "$COMMENTOUTPUT" in
@@ -879,6 +882,9 @@ do_tag ()
 				echo GENRE="$CDGENRE"
 			fi	
 			echo TRACKNUMBER="${TRACKNUM:-$1}"
+			if [ -n "$DISCNUMBER" ]; then
+				echo DISCNUMBER="$DISCNUMBER"
+			fi
 			echo CDDB="$CDDBDISCID"
 			if [ "$(eval echo ${COMMENT})" != "" ]; then
 				case "$COMMENTOUTPUT" in
@@ -3170,7 +3176,10 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 		X) CUE2DISCID="$OPTARG" ;;
 		w) COMMENT="$OPTARG" ;;
 		W) if echo $OPTARG | grep "[[:digit:]]" > /dev/null 2>&1 ; then 
-		     STARTTRACKNUMBER="${OPTARG}01" ; STARTTRACKNUMBERTAG="y" ; COMMENT="CD${OPTARG}"
+		     STARTTRACKNUMBER="${OPTARG}01"
+			 STARTTRACKNUMBERTAG="y"
+			 COMMENT="CD${OPTARG}"
+			 DISCNUMBER="${OPTARG}"
 		   else
 		     log error "argument of -W must be integer"
 			 exit 1

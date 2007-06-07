@@ -1,5 +1,6 @@
 abcde (2.3.99.7-1) unstable; urgency=low
 
+  * The "It took me one year to get this release out" release.
   * abcde.1: remove -M in favour of "-a cue" (Closes: #382614, #396505).
   * Added a check for a DOCUE already set in the command line
     (Closes: #385663).
@@ -19,8 +20,9 @@ abcde (2.3.99.7-1) unstable; urgency=low
     Steinkuehler) (Closes: #395108).
   * Corrected man page wrapping. Thanks to Edward J. Shornock
     (Closes: #399289).
+  * Adds DISCNUMBER to Ogg/Vorbis and FLAC when using -W.
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 19 Nov 2006 14:36:07 +0200
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 07 Jun 2007 10:29:54 +0300
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
