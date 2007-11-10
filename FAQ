@@ -24,7 +24,7 @@ A. To get abcde you can use a pre-packaged version, available for Debian,
 
 Q. I have a problem, and I reported some time ago. Have you solved it already?
 A. Maybe. Try downloading the trunk of the development from 
-   http://svn.hispalinux.es/svn/abcde/trunk
+   https://subversion.pumuki.org/svn/abcde/trunk
    
 Q. When are you going to release a new version?
 A. When it is ready. I keep on having new ideas and adding them to the trunk

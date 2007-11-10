@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
 Standards-Version: 3.7.2.1
 Build-Depends: debhelper (>= 5)
-XS-Vcs-Svn: http://svn.hispalinux.es/svn/abcde/trunk
+XS-Vcs-Svn: https://subversion.pumuki.org/svn/abcde/trunk
 
 Package: abcde
 Architecture: all
