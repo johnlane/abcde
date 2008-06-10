@@ -58,7 +58,7 @@ echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-R     Use local CDDB in recursive mode"
 echo "-s <field>"
-echo "       Show dielfs from the CDDB info (year,genre)"
+echo "       Show fields from the CDDB info (year,genre)"
 echo "-S <#> Set the CD speed"
 echo "-t <#> Start the track numbering at a given number"
 echo "-T <#> Same as -t but modifies tag numbering"
@@ -68,7 +68,7 @@ echo "-V     Be a bit more verbose about what is happening behind the scenes"
 echo "-x     Eject CD after all tracks are read"
 echo "-w <comment>"
 echo "       Add a comment to the CD tracks"
-echo "-W <#> Contatenate CDs: -T #01 -w \"CD #\"" 
+echo "-W <#> Concatenate CDs: -T #01 -w \"CD #\"" 
 echo "-z     Use debug CDROMREADERSYNTAX option (needs cdparanoia)"
 echo ""
 echo "Tracks is a space-delimited list of tracks to grab."
@@ -420,6 +420,9 @@ getcddbinfo()
 	TRACKNAME)
 		TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 		;;
+	TRACK-INFO)
+		grep ^EXTT$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | perl -p -e 's/\\n/\n/;'
+		;;
 	esac
 }
 
@@ -539,6 +542,7 @@ do_replaygain()
 			case "$OUTPUT" in
 				flac)
 					run_command replaygain-flac nice $ENCNICE $METAFLAC --add-replay-gain "${OUTPUTFILES[@]}"
+					#run_command replaygain-flac true
 					;;
 				vorbis|ogg)
 					run_command replaygain-vorbis nice $ENCNICE $VORBISGAIN --album "${OUTPUTFILES[@]}"
@@ -774,11 +778,14 @@ return 0
 # do_tag [tracknumber]
 # id3 tags a filename
 # variables used:
-# TRACKS, TRACKNAME, TRACKARTIST, TAGGER, TAGGEROPTS, VORBISCOMMENT, METAFLAC, 
+# TRACKS, TRACKNAME, TRACKARTIST, TAGGER, TAGGEROPTS, VORBISCOMMENT, METAFLAC, ATOMICPARSLEY 
 # COMMENT, DALBUM, DARTIST, CDYEAR, CDGENRE (and temporarily) ID3TAGV
 do_tag ()
 {
 	COMMENTOUTPUT="$(eval echo ${COMMENT})"
+	if [ -z "$COMMENTOUTPUT" ]; then
+		COMMENTOUTPUT="$(getcddbinfo TRACK-INFO)"
+	fi
 	CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
 	# If we want to start the tracks with a given number, we need to modify the
@@ -901,7 +908,20 @@ do_tag ()
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
 		m4a)
-			run_command tagtrack-$OUTPUT-$1 true
+			#  Use a temp-file of our choice. --overWrite seems to
+			#  case core dumps with AtomicParsley 0.9.0
+			ATOMICTEMPFILE="$ABCDETEMPDIR/track$1.m4a-atomic"
+
+			VARIOUSBOOL="false"
+			if [ "$VARIOUSARTISTS" = "y" ]; then
+				VARIOUSBOOL="true"
+			fi
+
+			#It has to be command file opts for AtomicParsley
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $ATOMICPARSLEY $ABCDETEMPDIR/track$1.m4a --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --tracknum ${TRACKNUM:-$1} --year "$CDYEAR" --genre "$CDGENRE" --compilation $VARIOUSBOOL --comment "$COMMENTOUTPUT" --output $ATOMICTEMPFILE
+			if [ -f $ATOMICTEMPFILE ]; then
+				mv "$ATOMICTEMPFILE" "$ABCDETEMPDIR/track$1.m4a"
+			fi
 			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -2865,6 +2885,13 @@ post_read ()
 :
 }
 
+# post_encode
+# Empty post_encode function, to be defined in the configuration file.
+post_encode ()
+{
+:
+}
+
 ###############################################################################
 # End of functions
 #
@@ -3506,6 +3533,7 @@ do
 			;;
 		m4a)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
+			[ "$DOTAG" = "y" ] && CHECKATOMICPARSLEY=y
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -3564,6 +3592,8 @@ case "$FLACENCODERSYNTAX" in
 	flac)
 		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
 		FLACENCODER="$FLAC"	
+		if [ "$DOREPLAYGAIN" = "y" ]; then
+			FLACENCODEROPTS="${FLACENCODEROPTS} --replay-gain"
 		# FLAC streams can be encapsulated on a Ogg transport layer
 		if echo "$FLACENCODEROPTS" | egrep -- "(^| )--ogg($| )" > /dev/null 2>&1 ;then
 			log error "FLAC on an Ogg container is not yet supported"
@@ -3728,6 +3758,7 @@ fi
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $FLACENCODER $SPEEXENCODER $MPPENCODER \
 	$AACENCODER \
+	${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
@@ -3738,6 +3769,15 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 do
 	checkexec "$X"
 done
+
+if [ "$CHECKATOMICPARSLEY" = "y" ]; then
+	if ! new_checkexec "$ATOMICPARSLEY"; then
+		echo "WARNING: $ATOMICPARSLEY Not Found Not Post-Tagging!"
+		DOTAG='n'
+	else
+		echo "Using $ATOMICPARSLEY To Tag AAC Tracks."
+	fi
+fi
 
 # And last but not least, check if we can diff between files. We do not abort,
 # since diffing is not critical...
@@ -4155,6 +4195,9 @@ wait
 if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
 fi
+
+# Execute the user-defined post_encode function before cleaning up
+post_encode
 
 # Check to see if run_command logged any errors
 if [ -f "$ABCDETEMPDIR/errors" ]; then
