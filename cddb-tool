@@ -44,7 +44,7 @@ if [ "$HTTPGET" = "" ]; then
 		HTTPGETOPTS=${HTTPGETOPTS:="-f -s"}
 	else
 		HTTPGET=wget
-		HTTPGETOPTS=${HTTPGETOPTS:="-q -nv -O -"}
+		HTTPGETOPTS=${HTTPGETOPTS:="-q -nv -e timestamping=off -O -"}
 	fi
 fi
 
