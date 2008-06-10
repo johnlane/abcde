@@ -3131,7 +3131,7 @@ fi
 
 if [ "$HTTPGETOPTS" = "" ] ; then
 	case $HTTPGET in
-		wget) HTTPGETOPTS="-q -nv -O -";;
+		wget) HTTPGETOPTS="-q -nv -e timestamping=off -O -";;
 		curl) HTTPGETOPTS="-f -s";;
 		fetch)HTTPGETOPTS="-q -o -";;
 		ftp)  HTTPGETOPTS="-a -V -o - ";;
