@@ -1,7 +1,7 @@
 The software was originally developed by Robert Woodcock <rcw@debian.org>.
 It was also debianized by Robert Woodcock on Sun, 21 Feb 1999 18:50:34 -0800.
 
-It is available at: http://www.hispalinux.es/~data/abcde.php
+It is available at: http://code.google.com/p/abcde
 
 Upstream Author: Jesus Climent <jesus.climent@hispalinux.es>
 Original Author: Robert Woodcook
@@ -9,7 +9,7 @@ Original Author: Robert Woodcook
 Copyright:
 
 Copyright (c) 1998-2001 Robert Woodcock <rcw@debian.org>
-Copyright (c) 2003-2005 Jesus Climent <jesus.climent@hispalinux.es>
+Copyright (c) 2003-2009 Jesus Climent <jesus.climent@hispalinux.es>
 This code is hereby licensed for public consumption under either the
 GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
 
