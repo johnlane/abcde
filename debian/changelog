@@ -1,6 +1,6 @@
 abcde (2.3.99.7-1) unstable; urgency=low
 
-  * The "It took me more than one year to get this release out" release.
+  * The "It took me a long time to get this release out" release.
   * abcde.1: remove -M in favour of "-a cue" (Closes: #382614, #396505).
   * Added a check for a DOCUE already set in the command line
     (Closes: #385663).
@@ -21,13 +21,14 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Corrected man page wrapping. Thanks to Edward J. Shornock
     (Closes: #399289).
   * Adds DISCNUMBER to Ogg/Vorbis and FLAC when using -W.
-  * Minor typos (Closes: #458995)
+  * Minor typos (Closes: #458995).
   * Added AtomicParley for AAC encoding. Thanks to Bill Adams.
   * Added by Marc Staveley:
     - post_encode hook.
     - track comments if null and present in CDDB.
+  * Corrected copyright information (Closes: #516535).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 07 Nov 2007 10:29:54 +0300
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 22 Feb 2009 13:30:02 +0000
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
