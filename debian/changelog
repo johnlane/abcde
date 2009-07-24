@@ -1,5 +1,6 @@
 abcde (2.3.99.7-1) unstable; urgency=low
 
+  [ Jesus Climent ]
   * The "It took me a long time to get this release out" release.
   * abcde.1: remove -M in favour of "-a cue" (Closes: #382614, #396505).
   * Added a check for a DOCUE already set in the command line
@@ -28,7 +29,15 @@ abcde (2.3.99.7-1) unstable; urgency=low
     - track comments if null and present in CDDB.
   * Corrected copyright information (Closes: #516535).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 22 Feb 2009 13:30:02 +0000
+  [ Colin Tuckley ]
+  * Added Uploader.
+  * Fix Lintian warning for make-clean-error.
+  * Fix FSF address in debian/copyright.
+  * Fix binary-arch-rules-but-pkg-is-arch-indep lintian warning.
+  * Add homepage: field to debian/control
+  * Update standards version to 3.8.0
+
+ -- Colin Tuckley <colint@debian.org>  Fri, 24 Jul 2009 19:50:14 +0100
 
 abcde (2.3.99.6-1) unstable; urgency=low
 

@@ -22,7 +22,7 @@ clean:
 	rm -f build-stamp install-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	[ ! -f Makefile ] || $(MAKE) clean
 
 	dh_clean
 
@@ -42,10 +42,6 @@ install-stamp: build-stamp
 
 # Build architecture-independent files here.
 binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
 #	dh_testversion
 	dh_testdir
 	dh_testroot
@@ -64,6 +60,10 @@ binary-arch: build install
 #	dh_makeshlibs
 	dh_md5sums
 	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# We have nothing to do by default.
 
 source diff:                                                                  
 	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
