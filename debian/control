@@ -2,7 +2,9 @@ Source: abcde
 Section: sound
 Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
-Standards-Version: 3.7.2.1
+Uploaders: Colin Tuckley <colint@debian.org>
+Homepage: http://code.google.com/p/abcde/
+Standards-Version: 3.8.0
 Build-Depends: debhelper (>= 5)
 XS-Vcs-Svn: https://subversion.pumuki.org/svn/abcde/trunk
 
