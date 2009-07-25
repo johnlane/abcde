@@ -3594,6 +3594,7 @@ case "$FLACENCODERSYNTAX" in
 		FLACENCODER="$FLAC"	
 		if [ "$DOREPLAYGAIN" = "y" ]; then
 			FLACENCODEROPTS="${FLACENCODEROPTS} --replay-gain"
+		fi
 		# FLAC streams can be encapsulated on a Ogg transport layer
 		if echo "$FLACENCODEROPTS" | egrep -- "(^| )--ogg($| )" > /dev/null 2>&1 ;then
 			log error "FLAC on an Ogg container is not yet supported"
