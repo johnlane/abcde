@@ -36,8 +36,9 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Fix binary-arch-rules-but-pkg-is-arch-indep lintian warning.
   * Add homepage: field to debian/control
   * Update standards version to 3.8.0
+  * Remove debian/conffiles (it is not needed).
 
- -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 08:47:02 +0100
+ -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 09:20:36 +0100
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
