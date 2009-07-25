@@ -30,14 +30,14 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Corrected copyright information (Closes: #516535).
 
   [ Colin Tuckley ]
-  * Added Uploader.
+  * Added new uploader (Closes: #529695).
   * Fix Lintian warning for make-clean-error.
   * Fix FSF address in debian/copyright.
   * Fix binary-arch-rules-but-pkg-is-arch-indep lintian warning.
   * Add homepage: field to debian/control
   * Update standards version to 3.8.0
 
- -- Colin Tuckley <colint@debian.org>  Fri, 24 Jul 2009 19:50:14 +0100
+ -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 08:47:02 +0100
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
