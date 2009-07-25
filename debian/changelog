@@ -37,8 +37,9 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Add homepage: field to debian/control
   * Update standards version to 3.8.0
   * Remove debian/conffiles (it is not needed).
+  * Fix syntax error in abcde (missing fi).
 
- -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 09:20:36 +0100
+ -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 09:50:42 +0100
 
 abcde (2.3.99.6-1) unstable; urgency=low
 
