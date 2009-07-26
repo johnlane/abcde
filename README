@@ -38,7 +38,7 @@ Changes in 2.4:
 * Added M4A encoding.
 * Uses the default found $CDROMREADER instead of forcing cdparanoia when
   cdda2wav is installed.
-* BATCH mode has been splitted into two options: BATCHNORM and NOGAP.
+* BATCH mode has been split into two options: BATCHNORM and NOGAP.
 * Added -U option for non-UNICODE (non UTF-8) tag encoding.
 * Added -z for debug.
 * Added -f to force the removal of left files.
