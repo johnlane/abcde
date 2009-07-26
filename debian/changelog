@@ -9,8 +9,10 @@ abcde (2.3.99.8-1) unstable; urgency=low
   * Remove unneeded escapes in cddb-tool URLs.
     Add support for freedb2 (Closes: #391110).
     another patch from Charles Steinkuehler.
+  * Fix Endless loop possible when mp3gain asks clipping question bug
+    (Closes: #411579).
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 17:40:23 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 18:20:55 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
