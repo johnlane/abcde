@@ -2,10 +2,11 @@ abcde (2.3.99.8-1) unstable; urgency=low
 
   * Remove svn Revision tag from version.
   * Correct homepage URL in README (Closes: #526165).
-  * Fix typo in error message (Closes: #435605).
+  * Fix typos (Closes: #435605, #435606).
   * Fix misspelling of comma in script and manpage (Closes: #435603).
+  * 
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 12:33:27 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 12:44:17 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
@@ -180,7 +181,7 @@ abcde (2.3.99-1) unstable; urgency=low
   * Added the possibility of using a singletrack flac file with an embeded
     cuesheet as a source of tracks.
   * Added -z for easy and quick debug.
-  * BATCH has been splitted into two options: BATCHNORM which allows, by using
+  * BATCH has been split into two options: BATCHNORM which allows, by using
     -b, to use the -a normalize in all the files at once, and NOGAP, that by
     using -g, introduces the lame's --nogap extension.
   * Added replygain using the appropiate tags with Ogg/Vorbis and Ogg/FLAC.
