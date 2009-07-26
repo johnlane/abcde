@@ -390,7 +390,7 @@ diffentries ()
 		if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBDIFFCHOICES ] || \
 		   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBDIFFCHOICES ] || \
 		   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then 
-			echo "Invalid diff range. Please select two coma-separated numbers between 1 and $CDDBDIFFCHOICES" >&2
+			echo "Invalid diff range. Please select two comma-separated numbers between 1 and $CDDBDIFFCHOICES" >&2
 		else
 			# We parse the 2 choices to diff, store them in temporary files and diff them.
 			for PARSECHOICE in $(echo $CDDBDIFFCHOICE | tr , \ ); do
@@ -2417,7 +2417,7 @@ do_cddbedit ()
 								if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBCHOICES ] || \
 								   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBCHOICES ] || \
 								   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then 
-									echo "Invalid diff range. Please select two coma-separated numbers between 1 and $CDDBCHOICES" >&2
+									echo "Invalid diff range. Please select two comma-separated numbers between 1 and $CDDBCHOICES" >&2
 								else
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do

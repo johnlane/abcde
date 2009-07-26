@@ -3,8 +3,9 @@ abcde (2.3.99.8-1) unstable; urgency=low
   * Remove svn Revision tag from version.
   * Correct homepage URL in README (Closes: #526165).
   * Fix typo in error message (Closes: #435605).
+  * Fix misspelling of comma in script and manpage (Closes: #435603).
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 12:27:35 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 12:33:27 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
