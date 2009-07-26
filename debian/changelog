@@ -6,8 +6,9 @@ abcde (2.3.99.8-1) unstable; urgency=low
   * Fix misspelling of comma in script and manpage (Closes: #435603).
   * Fix Writable temp directories not owned/writeable (Closes: #143552).
   * Fix broken range code, patch from Charles Steinkuehler (Closes: #389981).
+  * Remove unneeded escapes in cddb-tool URLs.
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 16:24:59 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 16:58:00 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
