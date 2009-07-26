@@ -208,7 +208,7 @@ query) # cddb-tool query serverurl proto user host discid...
 	shift 4
 	TRACKINFO="$@"
 	TRACKINFOPLUS=$(echo $TRACKINFO | tr ' ' '+')
-	RESULTS=$($HTTPGET "$SERVER?cmd=cddb+query+$TRACKINFOPLUS\&hello=$HELLOINFO\&proto=$PROTO") || exit $LOOKUP_ERR
+	RESULTS=$($HTTPGET "$SERVER?cmd=cddb+query+$TRACKINFOPLUS&hello=$HELLOINFO&proto=$PROTO") || exit $LOOKUP_ERR
 	echo "$RESULTS" | tr '\r' '\n' | tr -s '\n' | sed 's/^ //g'
 	;;
 
@@ -220,7 +220,7 @@ read) # cddb-tool read serverurl proto user host genre discnumber
 	CATEGORY="$5"
 	DISCID="$6"
 	HELLOINFO="$USER+$HOST+$NAME+$VERSION"
-	$HTTPGET $CDDBDATA "$SERVER?cmd=cddb+read+$CATEGORY+$DISCID\&hello=$HELLOINFO\&proto=$PROTO" 2>/dev/null
+	$HTTPGET $CDDBDATA "$SERVER?cmd=cddb+read+$CATEGORY+$DISCID&hello=$HELLOINFO&proto=$PROTO" 2>/dev/null
 	;;
 
 stat) # cddb-tool stat serverurl user host proto
@@ -229,7 +229,7 @@ stat) # cddb-tool stat serverurl user host proto
 	HOST="$3"
 	PROTO="$4"
 	HELLOINFO="$USER+$HOST+$NAME+$VERSION"
-	$HTTPGET $CDDBDATA "$SERVER?cmd=stat&hello=$HELLOINFO\&proto=$PROTO" 2>/dev/null
+	$HTTPGET $CDDBDATA "$SERVER?cmd=stat&hello=$HELLOINFO&proto=$PROTO" 2>/dev/null
 	;;
 
 help) # help
