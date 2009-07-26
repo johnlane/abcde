@@ -1883,11 +1883,11 @@ do_discid ()
 			exit 1
 		fi
 		echo -n .
-		# It's a directory, let's see if it's owned by us
-		if [ ! -O "$ABCDETEMPDIR" ]; then
+		# It's a directory, let's see if it's writable by us
+		if [ ! -r "$ABCDETEMPDIR" ] || [ ! -w "$ABCDETEMPDIR" ] || [ ! -x "$ABCDETEMPDIR" ]; then
 			# Nope, complain and exit
 			echo >&2
-			echo "abcde: directory $ABCDETEMPDIR already exists and is not owned by you." >&2
+			echo "abcde: directory $ABCDETEMPDIR already exists and is not writeable." >&2
 			echo "Please investigate, remove it, and rerun abcde." >&2
 			exit 1
 		fi

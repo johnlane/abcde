@@ -4,9 +4,9 @@ abcde (2.3.99.8-1) unstable; urgency=low
   * Correct homepage URL in README (Closes: #526165).
   * Fix typos (Closes: #435605, #435606).
   * Fix misspelling of comma in script and manpage (Closes: #435603).
-  * 
+  * Fix Writable temp directories not owned/writeable (Closes: #143552).
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 12:44:17 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 14:40:56 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
