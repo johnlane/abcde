@@ -3634,9 +3634,9 @@ else
 	TAGGEROPTS="$ID3V2OPTS"
 fi
 
-# Specific for NOGAP is the use of lame. Another encoder fails...
+# NOGAP is specific to lame. Other encoders fail ...
 if [ "$NOGAP" = "y" ] && [ ! "$MP3ENCODER" = "lame" ]; then
-	log warning "the NOGAP option is specific of lame. Deactivating..."
+	log warning "the NOGAP option is specific to lame. Deactivating..."
 	NOGAP=n
 fi
 
