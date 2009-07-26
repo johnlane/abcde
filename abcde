@@ -548,7 +548,7 @@ do_replaygain()
 					run_command replaygain-vorbis nice $ENCNICE $VORBISGAIN --album "${OUTPUTFILES[@]}"
 					;;
 				mp3)
-					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN -a "${OUTPUTFILES[@]}"
+					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN -a -k "${OUTPUTFILES[@]}"
 					;;
 				mpc)
 					run_command replaygain-mpc nice $ENCNICE $MPPGAIN --auto "${OUTPUTFILES[@]}"
