@@ -3291,14 +3291,17 @@ if [ "$ONETRACK" = "y" ]; then
 else
 	while [ $# -gt 0 ]; do
 		# Range parsing code courtesy of Vincent Ho
-		RSTART=$(echo $1 | cut -f1 -d-)
-		REND=$(echo $1 | cut -f2 -d-)
-		if [ "$RSTART" = "$REND" ]; then
-			NEWTRACKS="$RSTART"
-		else
-			NEWTRACKS=$(f_seq_line $RSTART $REND)
-		fi
-		TRACKQUEUE=$(echo "$TRACKQUEUE" "$NEWTRACKS")
+		# Cleaned up to use shell built-ins by Charles Steinkuehler
+		if [ "${1#*[^0-9-]}" != "$1" ]; then
+			log error "syntax error while processing track numbers"
+ 		else
+			RSTART=${1%%-*}
+			REND=${1##*-}
+			while [ ${RSTART:=1} -le ${REND:=0} ] ; do
+				TRACKQUEUE="$TRACKQUEUE $RSTART"
+				RSTART=$(( $RSTART + 1 ))
+			done
+ 		fi
 		shift
 	done
 fi
