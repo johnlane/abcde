@@ -2206,10 +2206,20 @@ do_cddbstat ()
 				RESPONSECODE=$(head -n 1 "$ABCDETEMPDIR/cddbstat" | cut -f1 -d' ')
 				case "$RESPONSECODE" in
 				210)    # 210 OK, status information follows (until terminating `.')
-					rc=0;
+					rc=0
 					;;
-				501|*)  # 501 Illegal CDDB protocol level: <n>. 
+				501)  # 501 Illegal CDDB protocol level: <n>. 
 					CDDBPROTO=`expr $CDDBPROTO - 1`
+					;;
+				*)	# Try a cddb query, since freedb2.org doesn't support the stat or ver commands
+					# FreeDB TESTCD disc-id is used for query
+					$CDDBTOOL query $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST 03015501 1 296 344 > "$ABCDETEMPDIR/cddbstat"
+					RESPONSECODE=$(head -n 1 "$ABCDETEMPDIR/cddbstat" | cut -f1 -d' ')
+					case "$RESPONSECODE" in
+						2??)	# Server responded, everything seems OK
+							rc=0
+							;;
+					esac
 					;;
 				esac 
 			done
