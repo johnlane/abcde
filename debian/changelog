@@ -1,3 +1,9 @@
+abcde (2.3.99.8-1) unstable; urgency=low
+
+  * Remove svn Revision tag from version.
+
+ -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 11:50:34 +0100
+
 abcde (2.3.99.7-1) unstable; urgency=low
 
   [ Jesus Climent ]
