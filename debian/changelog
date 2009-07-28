@@ -11,8 +11,9 @@ abcde (2.3.99.8-1) unstable; urgency=low
     another patch from Charles Steinkuehler.
   * Fix Endless loop possible when mp3gain asks clipping question bug
     (Closes: #411579).
+  * Update Vcs-Svn: tag in debian/control.
 
- -- Colin Tuckley <colint@debian.org>  Sun, 26 Jul 2009 18:20:55 +0100
+ -- Colin Tuckley <colint@debian.org>  Tue, 28 Jul 2009 15:21:28 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
