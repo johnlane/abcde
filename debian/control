@@ -6,7 +6,7 @@ Uploaders: Colin Tuckley <colint@debian.org>
 Homepage: http://code.google.com/p/abcde/
 Standards-Version: 3.8.0
 Build-Depends: debhelper (>= 5)
-XS-Vcs-Svn: https://subversion.pumuki.org/svn/abcde/trunk
+Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 
 Package: abcde
 Architecture: all
