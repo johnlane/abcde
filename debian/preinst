@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 # If:
 # * this isn't an upgrade (a fresh install)
 # * and /etc/cdgrab.conf exists

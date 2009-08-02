@@ -13,8 +13,10 @@ abcde (2.3.99.8-1) unstable; urgency=low
     (Closes: #411579).
   * Update Vcs-Svn: tag in debian/control.
   * Add a recommends for vorbis-tools (Closes: #392843).
+  * Update standards version to 3.8.2 (no changes required).
+  * Fix debian/preinst not to ignore errors.
 
- -- Colin Tuckley <colint@debian.org>  Tue, 28 Jul 2009 15:33:20 +0100
+ -- Colin Tuckley <colint@debian.org>  Sun, 02 Aug 2009 13:32:30 +0100
 
 abcde (2.3.99.7-1) unstable; urgency=low
 
