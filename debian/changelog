@@ -33,7 +33,7 @@ abcde (2.3.99.7-1) unstable; urgency=low
   * Added some hints if we are using Debian for what packages need to be
     installed if their binaries are not found.
   * Spelling mistakes corrected (thanks to Ville Skytta).
-  * Unset GREP_OPTIONS to avoid things like printing number in the begining of
+  * Unset GREP_OPTIONS to avoid things like printing number in the beginning of
     the line (Closes: #383771).
   * Default answer to erase a playlist was not working (thanks to Charles
     Steinkuehler) (Closes: #395108).
@@ -762,7 +762,7 @@ abcde (2.0.4-0.1) unstable; urgency=low
   * EXPERIMENTAL multiple output support:
     + multiple output and error checking
     + multiple lists support
-  * Default output file changed to have the $track_number in the begining.
+  * Default output file changed to have the $track_number in the beginning.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 27 Feb 2003 19:19:18 +0200
 
