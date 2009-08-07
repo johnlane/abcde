@@ -1,11 +1,33 @@
+abcde 2.3.99.8
+
+  * Remove svn Revision tag from version.
+  * Correct homepage URL in README (Closes: #526165).
+  * Fix typos (Closes: #435605, #435606).
+  * Fix misspelling of comma in script and manpage (Closes: #435603).
+  * Fix Writable temp directories not owned/writeable (Closes: #143552).
+  * Fix broken range code, patch from Charles Steinkuehler (Closes: #389981).
+  * Remove unneeded escapes in cddb-tool URLs.
+    Add support for freedb2 (Closes: #391110).
+    another patch from Charles Steinkuehler.
+  * Fix Endless loop possible when mp3gain asks clipping question bug
+    (Closes: #411579).
+  * Update Vcs-Svn: tag in debian/control.
+  * Add a recommends for vorbis-tools (Closes: #392843).
+  * Update standards version to 3.8.2 (no changes required).
+  * Fix debian/preinst not to ignore errors.
+
+ -- Colin Tuckley <colint@debian.org>  Sun, 02 Aug 2009 13:32:30 +0100
+
+
 abcde 2.3.99.7
 
+  [ Jesus Climent ]
+  * The "It took me a long time to get this release out" release.
   * abcde.1: remove -M in favour of "-a cue" (Closes: #382614, #396505).
   * Added a check for a DOCUE already set in the command line
     (Closes: #385663).
   * Added -q <Q> as a quality option.
   * PREGAP was not set in some situations (Closes: #390170).
-  * Corrected debian/changelog.
   * Added -nv to wget for "no verbose" output, to avoid wget complaining it
     cannot be quiet and verbose at the same time if "verbose = on" is set in
     ~/.wgetrc (Closes: #388715).
@@ -13,14 +35,31 @@ abcde 2.3.99.7
   * Added some hints if we are using Debian for what packages need to be
     installed if their binaries are not found.
   * Spelling mistakes corrected (thanks to Ville Skytta).
-  * Unset GREP_OPTIONS to avoid things like printing number in the begining of
+  * Unset GREP_OPTIONS to avoid things like printing number in the beginning of
     the line (Closes: #383771).
   * Default answer to erase a playlist was not working (thanks to Charles
     Steinkuehler) (Closes: #395108).
   * Corrected man page wrapping. Thanks to Edward J. Shornock
     (Closes: #399289).
+  * Adds DISCNUMBER to Ogg/Vorbis and FLAC when using -W.
+  * Minor typos (Closes: #458995).
+  * Added AtomicParley for AAC encoding. Thanks to Bill Adams.
+  * Added by Marc Staveley:
+    - post_encode hook.
+    - track comments if null and present in CDDB.
+  * Corrected copyright information (Closes: #516535).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Sun, 19 Nov 2006 14:36:07 +0200
+  [ Colin Tuckley ]
+  * Added new uploader (Closes: #529695).
+  * Fix Lintian warning for make-clean-error.
+  * Fix FSF address in debian/copyright.
+  * Fix binary-arch-rules-but-pkg-is-arch-indep lintian warning.
+  * Add homepage: field to debian/control
+  * Update standards version to 3.8.0
+  * Remove debian/conffiles (it is not needed).
+  * Fix syntax error in abcde (missing fi).
+
+ -- Colin Tuckley <colint@debian.org>  Sat, 25 Jul 2009 09:50:42 +0100
 
 abcde 2.3.99.6
 
