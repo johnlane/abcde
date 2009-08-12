@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION='2.3.99.8'
+VERSION='2.4'
 
 usage ()
 {
@@ -799,6 +799,11 @@ do_tag ()
 		mp3)
 			# id3v2 v0.1.9 claims to have solved the -c bug, so we merge both id3 and id3v2
 			GENREID=$(do_getgenreid "${CDGENRE}")
+			# Set TPE2 in case we have a Various Artists rip.
+			TPE2=""
+			if [ "$VARIOUSARTISTS" = "y"]; then
+				TPE2="Various"
+			fi
 	
 			case "$ID3SYNTAX" in
 				id3);;
@@ -811,6 +816,7 @@ do_tag ()
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						"${TRACKNUM:+-N $TRACKS}" \
 						"${ENCODING:+--set-encoding=$ENCODING}" \
+						"${TPE2:+--set-user-text-frame=TPE2:$TPE2}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
@@ -829,6 +835,7 @@ do_tag ()
 						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 						-y "$CDYEAR" -g "$GENREID" \
 						-T "${TRACKNUM:-$1/$TRACKS}" \
+						"${TPE2:+--TPE2 \"$TPE2\"}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 			esac
@@ -2729,7 +2736,7 @@ do_cdread ()
 	if [ "$USEPIPES" = "y" ]; then
 		TEMPARG="PIPERIPPER_$CDROMREADERSYNTAX"
 		FILEARG="$( eval echo "\$$TEMPARG" )"
-		REDIR=""
+		REDIR="y"
 		PIPE_MESSAGE="and encoding "
 	else
 		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
@@ -2745,7 +2752,7 @@ do_cdread ()
 				FILEARG="$WAVDATA"
 				;;
 		esac
-		REDIR=">&2"
+		REDIR="n"
 	fi
 	if [ "$1" = "onetrack" ]; then
 		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
@@ -2765,7 +2772,12 @@ do_cdread ()
 			STRIPTRACKNUM=$(expr $UTRACKNUM + 0)
 			nice $READNICE $FLAC -d -f --cue=${READTRACKNUMS:-$STRIPTRACKNUM.1-$(($STRIPTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
-			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
+		    if [ "$REDIR" = "y"]; then
+			    nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
+			else
+			    nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
+			fi;;
+
 		cdda2wav)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
@@ -2781,12 +2793,19 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR
-			;;
+		    if [ "$REDIR" = "y"]; then
+				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
+		    else
+				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
+			fi ;;
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
-		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" $REDIR
-			;;
+		dagrab) 
+		    if [ "$REDIR" = "y"]; then
+				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" >&2
+			else
+				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG"
+			fi ;;
 		cddafs)
 			# Find the track's mounted path
 			REALTRACKNUM=$(expr $UTRACKNUM + 0)
@@ -2794,12 +2813,20 @@ do_cdread ()
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then
-				nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" $REDIR
+		    	if [ "$REDIR" = "y"]; then
+					nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" >&2
+				else
+					nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG"
+				fi
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" $REDIR
-			;;
+		debug)
+		    if [ "$REDIR" = "y"]; then
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" >&2
+			else
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG"
+			fi ;;
 	esac
 	RETURN=$?
 	# If we get some error or we get some missing wav 
