@@ -210,7 +210,7 @@ abcde requires the following backend tools to work:
 * cdda2wav, the audio CD reading utility cdparanoia was born from or:
 * dagrab, another audio CD reading utility.
 * cd-discid, a CDDB DiscID reading program. Formerly bundled with abcde.
-  It's available in Debian or http://www.hispalinux.es/~data/files/cd-discid/
+  It's available in Debian or http://linukz.org/cd-discid.shtml
 * An HTTP retrieval program: wget, fetch (FreeBSD) or curl (MacOSX)
 * id3, an id3 tagging program. Available at: http://lly.org/~rcw/id3/
 * id3v2, an id3 version 2.0 tagger. http://id3v2.sourceforge.net/
