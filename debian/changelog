@@ -1,11 +1,15 @@
 abcde (2.4-1) unstable; urgency=low
 
+  [ Jesus Climent ]
   * Bumped to 2.4
   * Corrected REDIR redirection, this time with ifs instead of variable
     substitution, which did not work (Closes: #527191).
   * Added TPE2 for Various artists definition (Closes: #521669).
 
- -- Jesus Climent <jesus.climent@hispalinux.es>  Wed, 12 Aug 2009 07:56:21 +0100
+  [ Colin Tuckley ]
+  * Incorporate syntax error fix patch from Andrew Ruder.
+
+ -- Colin Tuckley <colint@debian.org>  Mon, 05 Oct 2009 19:09:52 +0100
 
 abcde (2.3.99.8-1) unstable; urgency=low
 
