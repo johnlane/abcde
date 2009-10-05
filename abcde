@@ -801,7 +801,7 @@ do_tag ()
 			GENREID=$(do_getgenreid "${CDGENRE}")
 			# Set TPE2 in case we have a Various Artists rip.
 			TPE2=""
-			if [ "$VARIOUSARTISTS" = "y"]; then
+			if [ "$VARIOUSARTISTS" = "y" ]; then
 				TPE2="Various"
 			fi
 	
@@ -1679,7 +1679,7 @@ abcde.mkcue () {
     echo REM DISCID $DISCID
     echo FILE \"dummy.wav\" WAVE
 
-    if [ $1 -ne 150 ] && [ $MODE = "PREGAP"] ; then
+    if [ $1 -ne 150 ] && [ $MODE = "PREGAP" ] ; then
         OFFSET=$1
     else
         OFFSET=150
@@ -2772,7 +2772,7 @@ do_cdread ()
 			STRIPTRACKNUM=$(expr $UTRACKNUM + 0)
 			nice $READNICE $FLAC -d -f --cue=${READTRACKNUMS:-$STRIPTRACKNUM.1-$(($STRIPTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia) 
-		    if [ "$REDIR" = "y"]; then
+		    if [ "$REDIR" = "y" ]; then
 			    nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
 			else
 			    nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
@@ -2793,7 +2793,7 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-		    if [ "$REDIR" = "y"]; then
+		    if [ "$REDIR" = "y" ]; then
 				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
 		    else
 				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
@@ -2801,7 +2801,7 @@ do_cdread ()
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
 		dagrab) 
-		    if [ "$REDIR" = "y"]; then
+		    if [ "$REDIR" = "y" ]; then
 				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" >&2
 			else
 				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG"
@@ -2813,7 +2813,7 @@ do_cdread ()
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then
-		    	if [ "$REDIR" = "y"]; then
+		    	if [ "$REDIR" = "y" ]; then
 					nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" >&2
 				else
 					nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG"
@@ -2822,7 +2822,7 @@ do_cdread ()
 				false
 			fi ;;
 		debug)
-		    if [ "$REDIR" = "y"]; then
+		    if [ "$REDIR" = "y" ]; then
 				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" >&2
 			else
 				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG"
