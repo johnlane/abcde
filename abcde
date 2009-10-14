@@ -834,7 +834,7 @@ do_tag ()
 						$TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
 						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 						-y "$CDYEAR" -g "$GENREID" \
-						-T "${TRACKNUM:-$1/$TRACKS}" \
+						-T "${TRACKNUM:-$1}/$TRACKS" \
 						"${TPE2:+--TPE2 \"$TPE2\"}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
