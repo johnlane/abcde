@@ -8,8 +8,9 @@ abcde (2.4-1) unstable; urgency=low
 
   [ Colin Tuckley ]
   * Incorporate syntax error fix patch from Andrew Ruder.
+  * Fix formatting for track number tagging (Closes: #520367, #435665).
 
- -- Colin Tuckley <colint@debian.org>  Mon, 05 Oct 2009 19:09:52 +0100
+ -- Colin Tuckley <colint@debian.org>  Wed, 14 Oct 2009 17:13:10 +0100
 
 abcde (2.3.99.8-1) unstable; urgency=low
 
