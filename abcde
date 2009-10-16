@@ -2715,7 +2715,7 @@ do_cdread ()
 		# FIXME # Add the possibility of grabbing ranges of tracks in onetrack
 		# FIXME # Until then, we grab the whole CD in one track, no matter what
 		# the user said
-		# We need the first and last track for cdda2wav
+		# We need the first and last track for cdda2wav/icedax
 		FIRSTTRACK=$2
 		LASTTRACK=$(expr $3 + 0)
 		UTRACKNUM=$FIRSTTRACK
@@ -2725,7 +2725,7 @@ do_cdread ()
 				#XX FIXME XX
 				# Add a variable to check if tracks are provided in command line and if not, use "0-" to rip the tracks
 				READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
-			cdda2wav) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
+			cdda2wav | icedax) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 				exit 1 ;;
 		esac
@@ -2778,11 +2778,11 @@ do_cdread ()
 			    nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
 			fi;;
 
-		cdda2wav)
+		cdda2wav | icedax)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
-				# Hei, we have to unmount the device before running anything like cdda2wav in OSX
+				# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
 				disktool -u ${CDROM#/dev/} 0
-				# Also, in OSX the cdrom device for cdda2wav changes...
+				# Also, in OSX the cdrom device for cdda2wav/icedax changes...
 				CDDA2WAVCDROM="IODVDServices"
 			elif [ "$OSFLAVOUR" = "FBSD" ] ; then
 				CDDA2WAVCDROM="$CDROMID"
@@ -2990,7 +2990,7 @@ NOGAP=n
 BATCHNORM=n
 NOCDDBQUERY=n
 
-# If using scsi devices, cdda2wav needs a CDROMID, instead of a device node
+# If using scsi devices, cdda2wav/icedax needs a CDROMID, instead of a device node
 # i.e. CDROMID="1,0,0"
 CDROMID=""
 # If we are using the IDE bus, we need CDPARANOIACDROMBUS defined as "d"
@@ -3026,7 +3026,7 @@ METAFLAC=metaflac
 AACTAG=faac
 
 CDPARANOIA=cdparanoia
-CDDA2WAV=cdda2wav
+CDDA2WAV=icedax
 DAGRAB=dagrab
 CDDAFS=cp
 CDDISCID=cd-discid
@@ -3095,7 +3095,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
 
 # List of prefered cdromreaders - by default, run whichever we have in the path
-DEFAULT_CDROMREADERS="cdparanoia cdda2wav"
+DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav"
 
 # List of quality levels associated with the encoders:
 DEFAULT_QUALITY_XLO="oggenc:-q -1,lame:-q 9,speex:--quality 1,m4a:"
@@ -3308,7 +3308,7 @@ if [ "$ONETRACK" = "y" ]; then
 	case "$CDROMREADERSYNTAX" in
 		flac) ;;
 		cdparanoia) ;;
-		cdda2wav) ;;
+		cdda2wav | icedax) ;;
 		*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
 		   exit 1 ;;
 	esac
@@ -3396,7 +3396,7 @@ done
 
 # At this point a CDROM has to be defined, so we check it exists.
 if [ X"$CDROM" != "X" ] ; then 
-	if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] && [ "$NEEDCDROMID" = "y" ] ; then
+	if ( [ "$CDROMREADERSYNTAX" = "cdda2wav" ] || [ "$CDROMREADERSYNTAX" = "icedax" ] ) && [ "$NEEDCDROMID" = "y" ] ; then
 		if [ "$OSFLAVOUR" = "FBSD" ]; then
 			if echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then :; else
 				log error "CDROMID not in the right format for $CDROMREADERSYNTAX"
@@ -3494,7 +3494,7 @@ case "$CDROMREADERSYNTAX" in
 		CDROMREADER="$CDPARANOIA"
 		CDROMREADEROPTS="$CDPARANOIAOPTS"
 		;;
-	cdda2wav)
+	cdda2wav | icedax)
 		CDROMREADER="$CDDA2WAV"
 		CDROMREADEROPTS="$CDDA2WAVOPTS"
 		;;

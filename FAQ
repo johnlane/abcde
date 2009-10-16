@@ -250,9 +250,9 @@ A. Well, I have a Mac, but I use linux on it. I have not been able to find
    a way to make it work there, since I do not have the development tools
    installed. I have placed a basic support, but some user reports are just
    complaining about abcde not encoding the ripped tracks, as if 
-   cdda2wav/cdparanoia/cddafs would never end reading them. If you have such
-   a system and experience problems, please, report them, and I will try to
-   work them out with your help.
+   icedax/cdda2wav/cdparanoia/cddafs would never end reading them. If you have
+   such a system and experience problems, please, report them, and I will
+   try to work them out with your help.
 
 Q. My hardware player (put it here) does not recognize the playlists created
    with abcde. What I am doing wrong?
