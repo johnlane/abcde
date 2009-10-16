@@ -11,8 +11,9 @@ abcde (2.4-1) unstable; urgency=low
   * Fix formatting for track number tagging (Closes: #520367, #435665).
   * Replace dependency on cdda2wav with icedax since the former has
     been superseded (Closes: #447397).
+  * Update standards version to 3.8.3 (no changes required).
 
- -- Colin Tuckley <colint@debian.org>  Fri, 16 Oct 2009 19:33:33 +0100
+ -- Colin Tuckley <colint@debian.org>  Fri, 16 Oct 2009 21:05:41 +0100
 
 abcde (2.3.99.8-1) unstable; urgency=low
 
