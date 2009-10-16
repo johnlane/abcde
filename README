@@ -207,7 +207,7 @@ abcde requires the following backend tools to work:
 * AAC encoder (faac)
 * normalize-audio for volume normalization.
 * CD Paranoia, an audio CD reading utility or:
-* cdda2wav, the audio CD reading utility cdparanoia was born from or:
+* icedax/cdda2wav, the audio CD reading utility cdparanoia was born from or:
 * dagrab, another audio CD reading utility.
 * cd-discid, a CDDB DiscID reading program. Formerly bundled with abcde.
   It's available in Debian or http://linukz.org/cd-discid.shtml

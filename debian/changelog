@@ -9,8 +9,10 @@ abcde (2.4-1) unstable; urgency=low
   [ Colin Tuckley ]
   * Incorporate syntax error fix patch from Andrew Ruder.
   * Fix formatting for track number tagging (Closes: #520367, #435665).
+  * Replace dependency on cdda2wav with icedax since the former has
+    been superseded (Closes: #447397).
 
- -- Colin Tuckley <colint@debian.org>  Wed, 14 Oct 2009 17:13:10 +0100
+ -- Colin Tuckley <colint@debian.org>  Fri, 16 Oct 2009 19:33:33 +0100
 
 abcde (2.3.99.8-1) unstable; urgency=low
 
