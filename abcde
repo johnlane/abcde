@@ -496,7 +496,7 @@ makeids ()
 do_replaygain()
 {
 	if checkstatus replaygain; then :; else
-		run_command "" echo "Adding replygain information..."
+		run_command "" echo "Adding replaygain information..."
 		for TMPOUTPUT in $( echo $OUTPUTTYPE | tr , \ )
 		do
 			case $TMPOUTPUT in
