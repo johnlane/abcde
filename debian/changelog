@@ -1,7 +1,7 @@
-abcde (2.4-1) unstable; urgency=low
+abcde (2.4.0-1) unstable; urgency=low
 
   [ Jesus Climent ]
-  * Bumped to 2.4
+  * Bumped to 2.4.0
   * Corrected REDIR redirection, this time with ifs instead of variable
     substitution, which did not work (Closes: #527191).
   * Added TPE2 for Various artists definition (Closes: #521669).
