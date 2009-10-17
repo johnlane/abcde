@@ -404,7 +404,9 @@ encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
 Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)) or
 "wav" (Microsoft Waveform). Values like "vorbis,mp3" encode the tracks in both
-Ogg/Vorbis and MP3 formats.
+Ogg/Vorbis and MP3 formats. For example
+.br
+OUTPUTTYPE=vorbis,flac
 .br
 For each value in OUTPUTTYPE, abcde expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
