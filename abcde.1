@@ -52,8 +52,8 @@ can take a compressed backup of your CD collection.
 .B \-1
 Encode the whole CD in a single file. The resulting file uses the CD title
 for tagging. If the resulting format is a flac file with an embedded cuesheet,
-the file can be used as a source for creating other formats. Use "-1 -o
-flac -a default,cue" for obtaining such a file.
+the file can be used as a source for creating other formats. Use "\-1 \-o
+flac \-a default,cue" for obtaining such a file.
 .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of: cddb, cue,
@@ -288,7 +288,7 @@ Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
 .TP
 .B CDDBUSELOCAL
 Actually use the stored copies of the CDDB entries. Can be overridden using the 
-"-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
+"\-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
 the choice of retrieving a CDDB entry from the internet.
 .TP
 .B SHOWCDDBFIELDS
@@ -340,7 +340,7 @@ we only support \'mkcue\', but in the future other readers might be used.
 .TP
 .B KEEPWAVS
 It defaults to no, so if you want to keep those wavs ripped from your CD,
-set it to "y". You can use the "-k" switch in the command line. The default
+set it to "y". You can use the "\-k" switch in the command line. The default
 behaviour with KEEPWAVS set is to keep the temporary directory and the wav
 files even you have requested the "clean" action.
 .TP
@@ -421,7 +421,7 @@ syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE, TRACKFILE,
 TRACKNUM, and YEAR. Default is \'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'. 
 Make sure to use single quotes around this variable. TRACKNUM is automatically
 zero-padded, when the number of encoded tracks is higher than 9. When lower,
-you can force with '-p' in the command line.
+you can force with '\-p' in the command line.
 .TP
 .B VAOUTPUTFORMAT
 Just like OUTPUTFORMAT but for Various Artists discs. The default is 'Various-${ALBUMFILE}/${TRACKNUM}.${ARTISTFILE}-${TRACKFILE}'
@@ -478,7 +478,7 @@ syntax as OUTPUTFORMAT. Does not currently support ID3v2.
 .TP
 .B REMOTEHOSTS
 Specifies a comma-delimited list of systems to use for remote encoding using
-distmp3. Equivalent to -r.
+distmp3. Equivalent to \-r.
 .TP
 .B mungefilename
 mungefilename() is an abcde shell function that can be overridden via
@@ -531,7 +531,7 @@ If the CDROM you are reading from is not the standard /dev/cdrom (in GNU/Linux s
 Will create both Ogg/Vorbis and Ogg/FLAC files.
 .TP
 .B abcde \-o vorbis:"-b 192"
-Will pass "-b 192" to the Ogg/Vorbis encoder, without having to modify the
+Will pass "\-b 192" to the Ogg/Vorbis encoder, without having to modify the
 config file
 .TP
 .B abcde \-W 1
