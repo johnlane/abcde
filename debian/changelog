@@ -1,3 +1,11 @@
+abcde (2.4.1-1) unstable; urgency=low
+
+  * Bumped to 2.4.1
+  * In manpage note a 2nd use for LOWDISK (or '-l' switch)
+    it's faster and better on scratchy disks (Closes: #426343).
+
+ -- Colin Tuckley <colint@debian.org>  Wed, 21 Oct 2009 21:41:28 +0100
+
 abcde (2.4.0-1) unstable; urgency=low
 
   [ Jesus Climent ]
