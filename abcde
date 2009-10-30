@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION='2.4.1'
+VERSION='2.4.0.1'
 
 usage ()
 {
@@ -541,14 +541,14 @@ do_replaygain()
 			done
 			case "$OUTPUT" in
 				flac)
-					run_command replaygain-flac nice $ENCNICE $METAFLAC --add-replay-gain "${OUTPUTFILES[@]}"
+					run_command replaygain-flac nice $ENCNICE $METAFLAC $FLACGAINOPTS "${OUTPUTFILES[@]}"
 					#run_command replaygain-flac true
 					;;
 				vorbis|ogg)
-					run_command replaygain-vorbis nice $ENCNICE $VORBISGAIN --album "${OUTPUTFILES[@]}"
+					run_command replaygain-vorbis nice $ENCNICE $VORBISGAIN $VORBISGAINOPTS "${OUTPUTFILES[@]}"
 					;;
 				mp3)
-					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN -a -k "${OUTPUTFILES[@]}"
+					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN $MP3GAINOPTS "${OUTPUTFILES[@]}"
 					;;
 				mpc)
 					run_command replaygain-mpc nice $ENCNICE $MPPGAIN --auto "${OUTPUTFILES[@]}"
@@ -3054,11 +3054,14 @@ BLADEENCOPTS=
 L3ENCOPTS=
 XINGMP3ENCOPTS=
 MP3ENCOPTS=
+MP3GAINOPTS="-a -k"
 # ogg
 VORBIZEOPTS=
 OGGENCOPTS=
+VORBISGAINOPTS="--album"
 # flac
 FLACOPTS=
+FLACGAINOPTS="--add-replay-gain"
 # speex
 SPEEXENCOPTS=
 # mpc
