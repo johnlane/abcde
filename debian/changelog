@@ -1,10 +1,11 @@
-abcde (2.4.1-1) unstable; urgency=low
+abcde (2.4.0.1-1) unstable; urgency=low
 
-  * Bumped to 2.4.1
+  * Bumped to 2.4.0.1
   * In manpage note a 2nd use for LOWDISK (or '-l' switch)
     it's faster and better on scratchy disks (Closes: #426343).
+  * Add configurable options for replaygain tools (Closes: #426544).
 
- -- Colin Tuckley <colint@debian.org>  Wed, 21 Oct 2009 21:41:28 +0100
+ -- Colin Tuckley <colint@debian.org>  Thu, 29 Oct 2009 19:09:47 +0000
 
 abcde (2.4.0-1) unstable; urgency=low
 
