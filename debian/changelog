@@ -6,8 +6,10 @@ abcde (2.4.0.1-1) unstable; urgency=low
   * Add configurable options for replaygain tools (Closes: #426544).
   * Fix syntax error in tagged speex command (Closes: #554406)
     Ubuntu patch by Michael Helmling.
+  * Fix mp3 tagging fails (for single author albums) (Closes: #554030)
+    patch from Christof Douma.
 
- -- Colin Tuckley <colint@debian.org>  Sun, 08 Nov 2009 16:22:28 +0000
+ -- Colin Tuckley <colint@debian.org>  Sun, 08 Nov 2009 17:07:34 +0000
 
 abcde (2.4.0-1) unstable; urgency=low
 
