@@ -4,6 +4,8 @@ abcde (2.4.0.1-1) unstable; urgency=low
   * In manpage note a 2nd use for LOWDISK (or '-l' switch)
     it's faster and better on scratchy disks (Closes: #426343).
   * Add configurable options for replaygain tools.
+  * Fix syntax error in tagged speex command (Closes: #554406)
+    Ubuntu patch by Michael Helmling.
 
  -- Colin Tuckley <colint@debian.org>  Thu, 29 Oct 2009 19:09:47 +0000
 

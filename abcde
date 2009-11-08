@@ -1125,7 +1125,7 @@ do_encode ()
 				fi
 				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
 				if [ ! "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" "$COMMENT" "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" --comment "$COMMENT" "$IN" "$OUT"
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
