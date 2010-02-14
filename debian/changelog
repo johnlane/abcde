@@ -9,7 +9,7 @@ abcde (2.4.1-1) unstable; urgency=low
   * Fix mp3 tagging fails (for single author albums) (Closes: #554030)
     patch from Christof Douma.
 
- -- Colin Tuckley <colint@debian.org>  Sun, 08 Nov 2009 17:07:34 +0000
+ -- Colin Tuckley <colint@debian.org>  Sun, 14 Feb 2010 13:07:34 +0000
 
 abcde (2.4.0-1) unstable; urgency=low
 
