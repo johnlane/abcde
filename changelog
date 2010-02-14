@@ -1,4 +1,4 @@
-abcde (2.4.1-1) unstable; urgency=low
+abcde 2.4.1
 
   * Bumped to 2.4.1
   * In manpage note a 2nd use for LOWDISK (or '-l' switch)
@@ -8,7 +8,7 @@ abcde (2.4.1-1) unstable; urgency=low
     Ubuntu patch by Michael Helmling.
   * Fix mp3 tagging fails for single author albums (Closes: #554030)
 
- -- Colin Tuckley <colint@debian.org>  Thu, 29 Oct 2009 19:09:47 +0000
+ -- Colin Tuckley <colint@debian.org>  Sun, 14 Feb 2010 13:09:47 +0000
 
 abcde 2.4.0
 
