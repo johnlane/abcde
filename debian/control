@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
 Uploaders: Colin Tuckley <colint@debian.org>
 Homepage: http://code.google.com/p/abcde/
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 5)
 Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 
