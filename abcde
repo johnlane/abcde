@@ -1662,12 +1662,27 @@ abcde.mkcue () {
 
 	local MODE DISCID TRACKS
 	local i OFFSET LBA 
-
+    local CUEWAVFILE
 
     if [ "$1" = --wholedisc ] ; then
         MODE=INDEX
     else
         MODE=PREGAP
+    fi
+
+    vecho "One track is $ONETRACK"
+    TRACKFILE="$(mungefilename "$TRACKNAME")"
+    ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+    ALBUMFILE="$(mungefilename "$DALBUM")"
+    if [ "$ONETRACK" = "y" ]; then
+        if [ "$VARIOUSARTISTS" = "y" ]; then
+            CUEWAVFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
+        else
+            CUEWAVFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
+        fi
+        vecho "Cue wav file is $CUEWAVFILE"
+    else
+        CUEWAVFILE="dummy.wav"
     fi
 
     set -- $TRACKINFO
@@ -1677,7 +1692,7 @@ abcde.mkcue () {
     shift 2
 
     echo REM DISCID $DISCID
-    echo FILE \"dummy.wav\" WAVE
+    echo FILE \""$CUEWAVEFILE"\" WAVE
 
     if [ $1 -ne 150 ] && [ $MODE = "PREGAP" ] ; then
         OFFSET=$1
@@ -2011,6 +2026,25 @@ do_cleancue()
 					eval track="\$TRACK$n"
 					n=$(expr $n + 1)
 					echo "    TITLE \"$track\"" >> "$CUEFILE_OUT"
+				# When making a single-track rip, put the
+				# actual file name into the file declaration
+				# in the cue file so that it is usable by
+				# music players and the like
+				elif [ "$ONETRACK" = "y" ] &&
+						echo "$line" | grep '^FILE "dummy.wav" WAVE' > /dev/null 2>&1 ; then
+
+					TRACKFILE="$(mungefilename "$TRACKNAME")"
+					ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+					ALBUMFILE="$(mungefilename "$DALBUM")"
+
+					if [ "$VARIOUSARTISTS" = "y" ]; then
+						OUTPUTFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
+					else
+						OUTPUTFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
+					fi
+
+					echo "FILE \"$OUTPUTFILE\" WAVE" >> "$CUEFILE_OUT"
+					continue
 				fi
 # FIXME # If the lines above are uncommented, remove the line below.
 				echo "$line" >> "$CUEFILE_OUT"
