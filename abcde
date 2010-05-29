@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION='2.4.1'
+VERSION='2.4.2'
 
 usage ()
 {
@@ -1754,8 +1754,8 @@ do_discid ()
 								#OFFSETS[${#OFFSETS[*]}]=$(( 10#${OFFSETTIME:0:2} * 4500 + 10#${OFFSETTIME:3:2} * 75 + 10#${OFFSETTIME:6:2} ))
 							done
 
-							LEADOUT=$(( $(echo "$CUESHEET" | grep lead-out | get_last) / 44100 * 75 ))
-							LEADIN=$(( $(echo "$CUESHEET" | grep lead-in | get_last) / 44100 * 75 ))
+							LEADOUT=$(( $(echo "$CUESHEET" | grep lead-out | get_last) * 75 / 44100 ))
+							LEADIN=$(( $(echo "$CUESHEET" | grep lead-in | get_last) * 75 / 44100 ))
 							makeids
 						;;
 						*)

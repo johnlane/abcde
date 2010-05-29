@@ -4,8 +4,10 @@ abcde (2.4.2-1) unstable; urgency=low
   * Update standards version to 3.8.4 (no changes required).
   * Fix Cue file always references "dummy.wav" bug
     patch from Chris Chiappa (Closes: #459928).
+  * Fix leadin/leadout computation for cue files broken bug
+    Patch from Martin Michlmayr (Closes: #582175).
 
- -- Colin Tuckley <colint@debian.org>  Sat, 13 Mar 2010 10:10:43 +0000
+ -- Colin Tuckley <colint@debian.org>  Sat, 29 May 2010 09:43:54 +0100
 
 abcde (2.4.1-1) unstable; urgency=low
 

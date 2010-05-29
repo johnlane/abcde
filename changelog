@@ -5,8 +5,10 @@ abcde 2.4.2
     patch from Chris Chiappa (Closes: #459928).
   * Whitespace cleanup, replace single perl instance with sed 
     (Charles Steinkuehler)
+  * Fix leadin/leadout computation for cue files broken bug
+    Patch from Martin Michlmayr (Closes: #582175).
 
- -- Colin Tuckley <colint@debian.org>  Sat, 27 Feb 2010 11:21:37 +0000
+ -- Colin Tuckley <colint@debian.org>  Sat, 29 May 2010 09:43:01 +0100
 
 abcde 2.4.1
 
