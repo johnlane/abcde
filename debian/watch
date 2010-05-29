@@ -1,0 +1,5 @@
+version=3
+opts=\
+downloadurlmangle=s|.*[?]name=(.*?)&.*|http://abcde.googlecode.com/files/$1|,\
+filenamemangle=s|[^/]+[?]name=(.*?)&.*|$1| \
+http://code.google.com/p/abcde/downloads/detail[?]name=abcde-([0-9.]+).tar.gz&.*
