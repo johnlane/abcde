@@ -14,7 +14,7 @@ Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack) and/or M4A (AAC) format(s).
 With one command, it will:
 .TP
 .B *
-Do a CDDB query over the Internet to look up your CD or use a locally stored CDDB entry
+Do a CDDB or Musicbrainz query over the Internet to look up your CD or use a locally stored CDDB entry
 .TP
 .B *
 Grab an audio track (or all the audio CD tracks) from your CD
@@ -72,12 +72,12 @@ information. See the NOBATCHREPLAYGAIN configuration variable.
 .TP
 .B \-c [filename]
 Specifies an additional configuration file to parse. Configuration options
-in this file override those in /etc/abcde.conf or $HOME/.abcde.conf.
+in this file override those in \fI/etc/abcde.conf\fR or \fI$HOME/.abcde.conf\fR.
 .TP
 .B \-C [discid]
 Allows you to resume a session for
 .I discid
-when you no longer have the CD available (abcde will automatically resume if
+when you no longer have the CD available (\fBabcde\fR will automatically resume if
 you still have the CD in the drive). You must have already finished at
 least the "read" action during the previous session.
 .TP
@@ -98,7 +98,7 @@ Force the removal of the temporary ABCDETEMPDIR directory, even when we have
 not finished. For example, one can read and encode several formats, including
 \'.ogg\', and later on execute a \'move\' action with only one of the given
 formats. On a normal situation it would erase the rest of those encoded
-formats. In this case, abcde will refuse to execute such command, except if \-f
+formats. In this case, \fBabcde\fR will refuse to execute such command, except if \-f
 is used.
 .TP
 .B \-g
@@ -111,7 +111,7 @@ Get help information.
 .TP
 .B \-j [number]
 Start [number] encoder processes at once. Useful for SMP systems. Overrides
-the MAXPROCS configuration variable. Set it to "0" when using distmp3 to avoid
+the MAXPROCS configuration variable. Set it to "0" when using \fBdistmp3\fR to avoid
 local encoding processes.
 .TP
 .B \-k
@@ -154,7 +154,7 @@ medium or high. The "medium" value is used to reset the default values if other
 are used in the config file(s).
 .TP
 .B \-r [hosts...]
-Remote encode on this comma-delimited list of machines using distmp3. See
+Remote encode on this comma-delimited list of machines using \fBdistmp3\fR. See
 the REMOTEHOSTS configuration variable.
 .TP
 .B \-R
@@ -194,7 +194,7 @@ variable.
 .TP
 .B \-X [cue2discid]
 Use an alternative "cue2discid" implementation. The name of the binary must be
-exactly that. abcde comes with an implementation in python under the examples
+exactly that. \fBabcde\fR comes with an implementation in python under the examples
 directory. The special keyword "builtin" forces the usage of the internal
 (default) implementation in shell script.
 .TP
@@ -207,28 +207,28 @@ to modify the numbering of the tracks, starting with "#01". For Ogg/Vorbis and
 FLAC files, it also defines a DISCNUMBER tag.
 .TP
 .B \-z
-DEBUG mode: it will rip, using cdparanoia, the very first second of each track
+DEBUG mode: it will rip, using \fBcdparanoia\fR, the very first second of each track
 and proceed with the actions requested very quickly, also providing some
 "hidden" information about what happens on the background. CAUTION: IT WILL
 ERASE ANY EXISTING RIPS WITHOUT WARNING!
 .TP
 .B [tracks]
-A list of tracks you want abcde to process. If this isn't specified, abcde
+A list of tracks you want \fBabcde\fR to process. If this isn't specified, \fBabcde\fR
 will process the entire CD. Accepts ranges of track numbers -
 "abcde 1-5 7 9" will process tracks 1, 2, 3, 4, 5, 7, and 9.
 .SH OUTPUT
 Each track is, by default, placed in a separate file named after the track
 in a subdirectory named after the artist under the current directory. 
 This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
-variables in your abcde.conf. Each file is given an extension identifying 
+variables in your \fIabcde.conf\fR. Each file is given an extension identifying 
 its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac' or '.wav'.
 .SH CONFIGURATION
-abcde sources two configuration files on startup - /etc/abcde.conf and
-$HOME/.abcde.conf, in that order. 
-.TP
-The configuration options stated on those files can be overridden by providing
+\fBabcde\fR sources two configuration files on startup - \fI/etc/abcde.conf\fR and
+\fI$HOME/.abcde.conf\fR, in that order. 
+.PP
+The configuration options stated in those files can be overridden by providing
 the appropriate flags at runtime.
-.TP
+.PP
 The configuration variables have to be set as follows:
 .TP
 .B VARIABLE=value
@@ -237,15 +237,15 @@ variables within "value" are to be expanded upon reading the configuration
 file, then double quotes should be used. If they are only supposed to be 
 expanded upon use (for example OUTPUTFORMAT) then single quotes must be used.
 .TP 
-All sh escaping/quoting rules apply.
+All shell escaping/quoting rules apply.
 .TP
-Here is a list of options abcde recognizes:
+Here is a list of options \fBabcde\fR recognizes:
 .TP
 .B CDDBMETHOD
 Specifies the method we want to use to retrieve the track information. Two
 values are recognized: "cddb" and "musicbrainz". The "cddb" value needs the
 CDDBURL and HELLOINFO variables described below. The "musicbrainz" value uses
-the Perl helper script abcde-musicbrainz-tool to establish a
+the Perl helper script \fBabcde-musicbrainz-tool\fR to establish a
 conversation with the Musicbrainz server for information retrieval.
 .TP
 .B CDDBURL
@@ -263,7 +263,7 @@ connect. The format of this is username@hostname.
 .B CDDBLOCALDIR
 Specifies a directory where we store a local CDDB repository. The entries must
 be standard CDDB entries, with the filename being the DISCID value. Other
-CD playing and ripping programs (like Grip) store the entries under ~/.cddb
+CD playing and ripping programs (like Grip) store the entries under \fI~/.cddb\fR
 and we can make use of those entries.
 .TP
 .B CDDBLOCALRECURSIVE
@@ -355,7 +355,7 @@ Set to "n" if you want to perform automatic rips, without user intervention.
 .B NICE VALUES
 Define the values for priorities (nice values) for the different CPU-hungry
 processes: encoding (ENCNICE), CDROM read (READNICE) and distributed encoder
-with distmp3 (DISTMP3NICE).
+with \fBdistmp3\fR (DISTMP3NICE).
 .TP
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
@@ -366,7 +366,7 @@ VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
 CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 .TP
 .B COMMAND-LINE OPTIONS
-If you wish to specify command-line options to any of the programs abcde uses,
+If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
 FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, AACENCOPTS, ID3OPTS, ID3V2OPTS, MP3GAINOPTS,
@@ -388,8 +388,8 @@ extraction. Abcde tries to guess the right device, but it may fail. The special
 \'flac\' option is defined to extract tracks from a single-track flac file.
 .TP
 .B CDPARANOIACDROMBUS
-Defined as "d" when using cdparanoia with an IDE bus and as "g" when using
-cdparanoia with the ide-scsi emulation layer.
+Defined as "d" when using \fBcdparanoia\fR with an IDE bus and as "g" when using
+\fBcdparanoia\fR with the ide-scsi emulation layer.
 .TP
 .B OUTPUTDIR
 Specifies the directory to place completed tracks/playlists in.
@@ -409,7 +409,7 @@ Ogg/Vorbis and MP3 formats. For example
 .br
 OUTPUTTYPE=vorbis,flac
 .br
-For each value in OUTPUTTYPE, abcde expands a different process for encoding,
+For each value in OUTPUTTYPE, \fBabcde\fR expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create 
 different subdirectories to hold the different types. The variable OUTPUT will
 be 'vorbis', 'mp3', 'flac', 'spx', 'mpc', 'm4a' and/or 'wav', depending on the
@@ -486,11 +486,11 @@ syntax as OUTPUTFORMAT. Does not currently support ID3v2.
 .TP
 .B REMOTEHOSTS
 Specifies a comma-delimited list of systems to use for remote encoding using
-distmp3. Equivalent to \-r.
+\fBdistmp3\fR. Equivalent to \-r.
 .TP
 .B mungefilename
-mungefilename() is an abcde shell function that can be overridden via
-abcde.conf. It takes CDDB data as $1 and outputs the resulting filename on
+mungefilename() is an \fBabcde\fR shell function that can be overridden via
+\fIabcde.conf\fR. It takes CDDB data as $1 and outputs the resulting filename on
 stdout. It defaults to eating control characters, apostrophes and
 question marks, translating spaces and forward slashes to underscores, and
 translating colons to an underscore and a hyphen.
@@ -507,7 +507,7 @@ to stdout converting all UPPERCASE characters to lowercase.
 .TP
 .B pre_read
 pre_read () is a shell function which is executed before the CDROM is read
-for the first time, during abcde execution. It can be used to close the CDROM
+for the first time, during \fBabcde\fR execution. It can be used to close the CDROM
 tray, to set its speed (via "setcd" or via "eject", if available) and other
 preparation actions. The default function is empty.
 .TP
@@ -518,7 +518,7 @@ from the CDROM, or to try to read the DATA areas from the CD (if any exist).
 The default function is empty.
 .TP
 .B EJECTCD
-If set to "y", abcde will call eject(1) to eject the cdrom from the drive
+If set to "y", \fBabcde\fR will call \fBeject\fR(1) to eject the cdrom from the drive
 after all tracks have been read. It has no effect when CDROM is set to a flac
 file.
 .TP
@@ -527,13 +527,13 @@ If set to "y", some operations which are usually now shown to the end user
 are visible, such as CDDB queries. Useful for initial debug and if your
 network/CDDB server is slow.
 .SH EXAMPLES
-Possible ways one can call abcde
+Possible ways one can call \fBabcde\fR:
 .TP
 .B abcde
 Will work in most systems
 .TP
 .B abcde \-d /dev/cdrom2
-If the CDROM you are reading from is not the standard /dev/cdrom (in GNU/Linux systems)
+If the CDROM you are reading from is not the standard \fI/dev/cdrom\fR (in GNU/Linux systems)
 .TP
 .B abcde \-o vorbis,flac
 Will create both Ogg/Vorbis and Ogg/FLAC files.
@@ -550,7 +550,7 @@ and so on.
 .B abcde \-d singletrack.flac
 Will extract the files contained in singletrack using the embedded cuesheet.
 .SH BACKEND TOOLS
-abcde requires the following backend tools to work:
+\fBabcde\fR requires the following backend tools to work:
 .TP
 .B *
 An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) or M4A encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mppenc, faac)
@@ -562,7 +562,10 @@ An audio CD reading utility (cdparanoia, icedax, cdda2wav, dagrab)
 cd-discid, a CDDB DiscID reading program.
 .TP
 .B *
-An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others). Alternatively, musicbrainz-get-tracks (which depends on Python) can be used to retrieve CDDB information about the CD.
+An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X,
+among others). Alternatively, abcde-musicbrainz-tool (which depends on
+Perl and some Musicbrainz libraries) can be used to retrieve CDDB
+information about the CD.
 .TP
 .B *
 (for MP3s) id3 or id3v2, id3 v1 and v2 tagging programs.
@@ -604,4 +607,6 @@ An HTTP retrieval program: wget, fetch (FreeBSD) or curl (Mac OS X, among others
 .BR mp3gain (1)
 .SH AUTHORS
 Robert Woodcock <rcw@debian.org>,
-Jesus Climent <jesus.climent@hispalinux.es> and contributions from many others.
+Jesus Climent <jesus.climent@hispalinux.es>,
+Colin Tuckley <colint@debian.org>,
+Steve McIntyre <93sam@debian.org> and contributions from many others.
