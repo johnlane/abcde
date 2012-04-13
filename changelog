@@ -2,7 +2,7 @@ abcde 2.5.0, unreleased
 
   * Bumped to 2.5.0
   * Add support for Musicbrainz using a perl helper script.
-    Closes: #655970
+    Closes: #665970
   * Tweak man page. Thanks to Mats Erik Andersson for the patch.
     Closes: #627237
   * Make the -q option work again. Thanks to A Mennucc for the patch.
