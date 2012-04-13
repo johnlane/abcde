@@ -1,3 +1,21 @@
+abcde (2.5.0-1) unstable; urgency=low
+
+  * New upstream release, fixing several bugs:
+    + Add support for Musicbrainz using a perl helper script.
+      Closes: #665970
+    + Tweak man page. Thanks to Mats Erik Andersson for the patch.
+      Closes: #627237
+    + Make the -q option work again. Thanks to A Mennucc for the patch.
+      Closes: #562522
+  * Remove the Suggests: python-musicbrainz; it's never been used and this
+    patch makes it totally obsolete. Closes: #657003
+  * Add Steve McIntyre to Uploaders
+  * Update debhelper build-dep.
+  * Add build-arch and build-indep rules
+  * Update Standards-Version to 3.9.3
+
+ -- Steve McIntyre <93sam@debian.org>  Fri, 13 Apr 2012 22:29:45 +0100
+
 abcde (2.4.2-1) unstable; urgency=low
 
   * Bumped to 2.4.2

@@ -2,17 +2,17 @@ Source: abcde
 Section: sound
 Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
-Uploaders: Colin Tuckley <colint@debian.org>
+Uploaders: Colin Tuckley <colint@debian.org>, Steve McIntyre <93sam@debian.org>
 Homepage: http://code.google.com/p/abcde/
-Standards-Version: 3.8.4
-Build-Depends: debhelper (>= 5)
+Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 8)
 Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 
 Package: abcde
 Architecture: all
-Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex 
-Recommends: vorbis-tools
-Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3, normalize-audio, vorbisgain, mkcue, mp3gain, python-musicbrainz
+Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex
+Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl
+Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3, normalize-audio, vorbisgain, mkcue, mp3gain
 Description: A Better CD Encoder
  A frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
  Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) encoder (defaults 
