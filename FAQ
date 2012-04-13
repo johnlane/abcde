@@ -3,8 +3,10 @@
 
 Q. Who created abcde? Who develops it nowadays?
 A. It was originally created by Robert Woodcook. He decided to give up 
-   maintaining it at some point in 2002 and Jesus Climent took over.  Contact
-   jesus.climent@hispalinux.es if you have a problem or a suggestion.
+   maintaining it at some point in 2002 and Jesus Climent took over. In 2012,
+   Colin Tuckley and Steve McIntyre joined in to help. Contact
+   jesus.climent@hispalinux.es, colint@debian.org or 93sam@debian.org if you
+   have a problem or a suggestion.
 
 
 1. INSTALLATION
@@ -156,8 +158,8 @@ A. Yes. Use "abcde -1 -o flac -a default,cue" and it will create a single-track
    Ogg/Vorbis format. Of course you can select whatever format you want.
    
 
-3. CDDB
-   ====
+3. CDDB and Musicbrainz
+   ====================
 
 Q. I need to go through an HTTP proxy for CDDB access. 
 A. No problem, just export your http_proxy variable first so wget/fetch/curl 
@@ -182,6 +184,8 @@ Q. After requesting CDDB data, I received several answers which seem to be
 A. Yes. When asked which one you want to select, use "X,Y" where X and Y are
    the numbers of the selections you want to find the difference between.
 
+Q. I don't like CDDB/FreeDB. How can I use Musicbrainz instead?
+A. Set CDDBMETHOD=musicbrainz and try it!
 
 3. FORMATS
    =======

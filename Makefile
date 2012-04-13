@@ -16,6 +16,7 @@ install:
 	$(INSTALL) -d -m 755 $(bindir)
 	$(INSTALL) -m 755 -o 0 abcde $(bindir)
 	$(INSTALL) -m 755 -o 0 cddb-tool $(bindir)
+	$(INSTALL) -m 755 -o 0 abcde-musicbrainz-tool $(bindir)
 	$(INSTALL) -d -m 755 $(mandir)
 	$(INSTALL) -m 644 -o 0 abcde.1 $(mandir)
 	$(INSTALL) -m 644 -o 0 cddb-tool.1 $(mandir)

@@ -1,3 +1,11 @@
+abcde 2.5.0, unreleased
+
+  * Bumped to 2.5.0
+  * Add support for Musicbrainz using a perl helper script.
+    Closes: #655970
+
+ -- Steve McIntyre <93sam@debian.org>  Fri, 13 Apr 2011 21:25:43 +0100
+
 abcde 2.4.2
 
   * Bumped to 2.4.2
