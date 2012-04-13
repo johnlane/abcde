@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+# Copyright (c) 2012 Steve McIntyre <93sam@debian.org>
+# This code is hereby licensed for public consumption under either the
+# GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# abcde-musicbrainz-tool
+# 
+# Helper script for abcde to work with the MusicBrainz WS API (v2)
+
+use strict;
+use encoding "utf8";
+use MusicBrainz::DiscID;
+use WebService::MusicBrainz::Release;
+use WebService::MusicBrainz::Artist;
+use WebService::MusicBrainz::Response::Track;
+use WebService::MusicBrainz::Response::TrackList;
+use Getopt::Long;
+
+my $FRAMES_PER_SEC = 75;
+
+my ($device, $command, $workdir);
+Getopt::Long::Configure ('no_ignore_case');
+Getopt::Long::Configure ('no_auto_abbrev');
+GetOptions ("device=s"   => \$device,
+            "command=s"  => \$command,
+            "workdir=s" => \$workdir);
+
+if (!defined($device)) {
+    $device = "/dev/cdrom";
+}
+if (!defined($command)) {
+    $command = "id";
+}
+if (!defined($workdir)) {
+    $workdir = "/tmp";
+}
+
+my $disc = new MusicBrainz::DiscID($device);
+
+# read the disc in the default disc drive */
+if ( $disc->read() == 0 ) {
+    printf STDERR "Error: %s\n", $disc->error_msg();
+    exit(1);
+}
+
+if ($command =~ m/id/) {
+
+    printf("%s ", $disc->id());
+    printf("%d ", $disc->last_track_num() + 1 - $disc->first_track_num());
+    
+    for ( my $i = $disc->first_track_num;
+          $i <= $disc->last_track_num; $i++ ) {
+        printf("%d ", $disc->track_offset($i));
+    }
+    printf("%d\n", $disc->sectors() / $FRAMES_PER_SEC);
+
+} elsif ($command =~ m/data/) {
+    my $ws = WebService::MusicBrainz::Release->new();
+    my $response = $ws->search({ DISCID => $disc->id()});
+    my @releases = $response->release_list();
+    my $releasenum = 0;
+
+    foreach my $release (@releases) {
+        my $a_artist = $release->artist()->name();
+        my $va = 0;
+        if ($a_artist =~ /Various Artists/) {
+            $va = 1;
+        }
+        $releasenum++;
+        open (OUT, "> $workdir/cddbread.$releasenum");
+        binmode OUT, ":utf8";
+        print OUT "# xmcd style database file\n";
+        print OUT "#\n";
+        print OUT "# Track frame offsets:\n";
+        for ( my $i = $disc->first_track_num;
+              $i <= $disc->last_track_num; $i++ ) {
+            print OUT "#       " . $disc->track_offset($i) . "\n";
+        }
+        print OUT "#\n";
+        printf OUT "# Disc length: %d seconds\n", $disc->sectors() / $FRAMES_PER_SEC;
+        print OUT "#\n";
+        print OUT "# Submitted via: XXXXXX\n";
+        print OUT "#\n";
+        print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
+        print OUT "#CATEGORY=none\n";
+        print OUT "DISCID=" . $disc->id() . "\n";
+        print OUT "DTITLE=" . $a_artist. " / " . $release->title() . "\n";
+        print OUT "DYEAR=\n";
+        print OUT "DGENRE=\n";
+           
+        my @tracks = @{$release->track_list()->tracks()};
+        for (my $i = 0; $i < scalar(@tracks); $i++) {
+            my $track = $tracks[$i];
+            my $t_name = $track->title;
+            if ($va) {
+                my $t_artist = $track->artist->name;
+                printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
+            } else {
+                printf OUT "TTITLE%d=%s\n", $i, $t_name;
+            }
+        }
+
+        print OUT "EXTD=\n";
+        for (my $i = 0; $i < scalar(@tracks); $i++) {
+            printf OUT "EXTT%d=\n", $i;
+        }
+        print OUT "PLAYORDER=\n";
+        print OUT ".\n";
+        close OUT;
+    }
+}
+
+undef $disc;
