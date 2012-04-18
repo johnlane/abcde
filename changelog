@@ -11,9 +11,10 @@ abcde 2.5.1 UNRELEASED
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24)
+  * remove -o 0 options from make install (Closes issue 17)
   * clean up indentation on older changelog entries
 
- -- Colin Tuckley <colint@debian.org>  Wed, 18 Apr 2012 15:54:24 +0100
+ -- Colin Tuckley <colint@debian.org>  Wed, 18 Apr 2012 19:54:24 +0100
 
 abcde 2.5.0
 
