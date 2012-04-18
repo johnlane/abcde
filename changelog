@@ -1,3 +1,11 @@
+abcde 2.5.1 UNRELEASED
+
+  * Several patches for improved Musicbrainz support from Martin Michlmayr:
+    + add musicbrainz support for FLAC files with embedded cue files.
+      Closes: #669139
+
+ -- Steve McIntyre <93sam@debian.org>  Fri, 13 Apr 2012 22:29:45 +0100
+
 abcde 2.5.0
 
   * Bumped to 2.5.0

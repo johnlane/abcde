@@ -13,6 +13,8 @@
 
 use strict;
 use encoding "utf8";
+use POSIX qw(ceil);
+use Digest::SHA;
 use MusicBrainz::DiscID;
 use WebService::MusicBrainz::Release;
 use WebService::MusicBrainz::Artist;
@@ -22,12 +24,14 @@ use Getopt::Long;
 
 my $FRAMES_PER_SEC = 75;
 
-my ($device, $command, $workdir);
+my ($device, $command, $discid, @discinfo, $workdir);
 Getopt::Long::Configure ('no_ignore_case');
 Getopt::Long::Configure ('no_auto_abbrev');
-GetOptions ("device=s"   => \$device,
-            "command=s"  => \$command,
-            "workdir=s" => \$workdir);
+GetOptions ("device=s"       => \$device,
+            "command=s"      => \$command,
+            "discid=s"       => \$discid,
+            "discinfo=i{5,}" => \@discinfo,
+            "workdir=s"      => \$workdir);
 
 if (!defined($device)) {
     $device = "/dev/cdrom";
@@ -39,15 +43,15 @@ if (!defined($workdir)) {
     $workdir = "/tmp";
 }
 
-my $disc = new MusicBrainz::DiscID($device);
 
-# read the disc in the default disc drive */
-if ( $disc->read() == 0 ) {
-    printf STDERR "Error: %s\n", $disc->error_msg();
-    exit(1);
-}
+if ($command =~ m/^id/) {
+    my $disc = new MusicBrainz::DiscID($device);
 
-if ($command =~ m/id/) {
+    # read the disc in the default disc drive */
+    if ( $disc->read() == 0 ) {
+        printf STDERR "Error: %s\n", $disc->error_msg();
+        exit(1);
+    }
 
     printf("%s ", $disc->id());
     printf("%d ", $disc->last_track_num() + 1 - $disc->first_track_num());
@@ -57,10 +61,11 @@ if ($command =~ m/id/) {
         printf("%d ", $disc->track_offset($i));
     }
     printf("%d\n", $disc->sectors() / $FRAMES_PER_SEC);
+    undef $disc;
 
 } elsif ($command =~ m/data/) {
     my $ws = WebService::MusicBrainz::Release->new();
-    my $response = $ws->search({ DISCID => $disc->id()});
+    my $response = $ws->search({ DISCID => $discid });
     my @releases = $response->release_list();
     my $releasenum = 0;
 
@@ -76,18 +81,21 @@ if ($command =~ m/id/) {
         print OUT "# xmcd style database file\n";
         print OUT "#\n";
         print OUT "# Track frame offsets:\n";
-        for ( my $i = $disc->first_track_num;
-              $i <= $disc->last_track_num; $i++ ) {
-            print OUT "#       " . $disc->track_offset($i) . "\n";
+        # Assume standard pregap
+        my $total_len = 2000;
+        my @tracks = @{$release->track_list()->tracks()};
+        for (my $i = 0; $i < scalar(@tracks); $i++) {
+            printf OUT "#       %d\n", ceil($total_len * $FRAMES_PER_SEC / 1000.0);
+            $total_len += $tracks[$i]->duration();
         }
         print OUT "#\n";
-        printf OUT "# Disc length: %d seconds\n", $disc->sectors() / $FRAMES_PER_SEC;
+        printf OUT "# Disc length: %d seconds\n", $total_len / 1000.0;
         print OUT "#\n";
         print OUT "# Submitted via: XXXXXX\n";
         print OUT "#\n";
         print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
         print OUT "#CATEGORY=none\n";
-        print OUT "DISCID=" . $disc->id() . "\n";
+        print OUT "DISCID=" . $discid . "\n";
         print OUT "DTITLE=" . $a_artist. " / " . $release->title() . "\n";
         print OUT "DYEAR=\n";
         print OUT "DGENRE=\n";
@@ -112,6 +120,38 @@ if ($command =~ m/id/) {
         print OUT ".\n";
         close OUT;
     }
+} elsif ($command =~ m/calcid/) {
+# Calculate MusicBrainz ID from disc offsets; see
+# http://musicbrainz.org/doc/DiscIDCalculation
+
+    my ($first, $last, $leadin, $leadout, @offsets) = @discinfo;
+
+    my $s = Digest::SHA->new(1);
+    $s->add(sprintf "%02X", int($first));
+    $s->add(sprintf "%02X", int($last));
+
+    my @a;
+    for (my $i = 0; $i < 100; $i++) {
+        $a[$i] = 0;
+    }
+    my $i = 0;
+    foreach my $o ($leadout, @offsets) {
+       $a[$i++] = int($o) + int($leadin);
+    }
+    for (my $i = 0; $i < 100; $i++) {
+       $s->add(sprintf "%08X", $a[$i]);
+    }
+
+    my $id = $s->b64digest;
+    # CPAN Digest modules do not pad their Base64 output, so we have to do it.
+    while (length($id) % 4) {
+        $id .= '=';
+    }
+
+    $id =~ tr#+#.#;
+    $id =~ tr#/#_#;
+    $id =~ tr#=#-#;
+
+    print $id;
 }
 
-undef $disc;

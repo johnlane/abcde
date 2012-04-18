@@ -489,8 +489,18 @@ makeids ()
 	PREGAP=$(($(echo $OFFSETS | cut -f1 -d' ')))
 	TOTALTIME=$(( (($LEADOUT + $LEADIN + $PREGAP) / $CDFRAMES) - (($LEADIN + $PREGAP) / $CDFRAMES)))
 
-	printf -v HEXSUM "%08lx" $(( ($CDDBCKSUM % 0xff) << 24 | $TOTALTIME << 8 | $TRACKS))
-	TRACKINFO="${HEXSUM} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
+	case "$CDDBMETHOD" in
+		cddb)
+			printf -v DISCID "%08lx" $(( ($CDDBCKSUM % 0xff) << 24 | $TOTALTIME << 8 | $TRACKS))
+			;;
+		musicbrainz)
+			# FIXME: don't assume the first track is 1
+			echo "dasd: 1 $TRACKS $LEADIN $LEADOUT $OFFSETS "
+			DISCID=$($MUSICBRAINZ --command calcid --discinfo 1 $TRACKS $LEADIN $LEADOUT $OFFSETS)
+			;;
+	esac
+
+	TRACKINFO="${DISCID} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
 }
 
 do_replaygain()
@@ -2230,7 +2240,8 @@ do_musicbrainz ()
 		# the available entries.
 		rm -f "$ABCDETEMPDIR/cddbchoices"
 		CDDBCHOICES=1 # Overridden by multiple matches
-		${MUSICBRAINZ} --command data --device "$CDROM" --workdir $ABCDETEMPDIR
+		MBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
+		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir $ABCDETEMPDIR
 
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
