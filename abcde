@@ -2768,7 +2768,7 @@ do_cddbedit ()
 	echo "variousartists=$VARIOUSARTISTS" >> "$ABCDETEMPDIR/status"
 	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "$ABCDETEMPDIR/status"
 
-	if [ "$EDITCDDB" = "y" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
+	if [ "$EDITCDDB" = "y" ] && [ "$CDDBMETHOD" = "cddb" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
 		if [ "$CDDBDATAMD5SUM" != "" ]  && [ "$CDDBDATAMD5SUM" != "$($MD5SUM "$CDDBDATA" | cut -d " " -f 1)" ]; then
 			# This works but does not have the necessary error checking
 			# yet. If you are familiar with the CDDB spec
