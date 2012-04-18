@@ -1,4 +1,3 @@
-VERSION = 2.3.99.7
 INSTALL = /usr/bin/install -c
 
 # Installation directories
@@ -22,8 +21,4 @@ install:
 	$(INSTALL) -m 644 cddb-tool.1 $(mandir)
 	$(INSTALL) -d -m 755 $(etcdir)
 	$(INSTALL) -m 644 abcde.conf $(etcdir)
-
-tarball:
-	@cd .. && tar czvf abcde_$(VERSION).orig.tar.gz \
-		abcde-$(VERSION)/{Makefile,COPYING,README,TODO,FAQ,abcde,abcde.1,abcde.conf,changelog,cddb-tool,cddb-tool.1,examples/,USEPIPES}
 
