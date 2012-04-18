@@ -156,7 +156,7 @@ checkstatus ()
 {
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(=.*)?$"
-	BLURB=$(egrep $PATTERN "$ABCDETEMPDIR/status" | tail -n 1)
+	BLURB=$(grep -E $PATTERN "$ABCDETEMPDIR/status" | tail -n 1)
 
 	if [ -z "$BLURB" ]; then
 		# No matches found
@@ -183,7 +183,7 @@ checkwarnings ()
 	fi
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(:.*)?$"
-	BLURB="$(egrep $PATTERN "$ABCDETEMPDIR/warnings" | tail -n 1)"
+	BLURB="$(grep -E $PATTERN "$ABCDETEMPDIR/warnings" | tail -n 1)"
 
 	if [ -z "$BLURB" ]; then
 		# negative, we did not have a negative...
@@ -206,7 +206,7 @@ checkerrors ()
 	fi
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(:.*)?$"
-	BLURB="$(egrep $PATTERN "$ABCDETEMPDIR/errors" | tail -n 1)"
+	BLURB="$(grep -E $PATTERN "$ABCDETEMPDIR/errors" | tail -n 1)"
 
 	if [ -z "$BLURB" ]; then
 		# negative, we did not have a negative...
@@ -1755,7 +1755,7 @@ do_discid ()
 							#vecho "Using builtin cue2discid implementation..."
 							CUESHEET="$(metaflac $METAFLACOPTS --export-cuesheet-to=- "$CDROM")"
 
-							#TRACKS=$(echo $CUESHEET | egrep "TRACK \+[[:digit:]]\+ \+AUDIO" |wc -l)
+							#TRACKS=$(echo $CUESHEET | grep -E "TRACK \+[[:digit:]]\+ \+AUDIO" |wc -l)
 							#TRACKS=0
 							OFFSETTIMES=( $(echo "$CUESHEET" | sed -n -e's/\ *INDEX 01\ \+//p' ) )
 							TRACKS=${#OFFSETTIMES[@]}
@@ -1787,10 +1787,10 @@ do_discid ()
 #					log warning "something went wrong while querying the CD... Maybe a DATA CD?"
 #				fi
 #
-#				TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
+#				TRACKS="$(echo "$CDPARANOIAOUTPUT" | grep -E '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 #				CDPARANOIAAUDIOTRACKS="$TRACKS"
 #
-#				LEADOUT="$(echo "$CDPARANOIAOUTPUT" | egrep -o '^TOTAL[[:space:]]+([[:digit:]]+)' | get_last)"
+#				LEADOUT="$(echo "$CDPARANOIAOUTPUT" | grep -Eo '^TOTAL[[:space:]]+([[:digit:]]+)' | get_last)"
 #				OFFSETS="$(echo "$CDPARANOIAOUTPUT" | sed -n -e's/^ .* \([0-9]\+\) \[.*/\1/p')"
 #				makeids
 #				;;
@@ -1846,7 +1846,7 @@ do_discid ()
 						if [ ! "$RET" = "0" ];then
 							log warning "something went wrong while querying the CD... Maybe a DATA CD?"
 						fi
-						TRACKS="$(echo "$CDPARANOIAOUTPUT" | egrep '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
+						TRACKS="$(echo "$CDPARANOIAOUTPUT" | grep -E '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						# Previous versions of abcde would store the tracks on a file, instead of the status record.
@@ -2160,9 +2160,9 @@ do_localcddb ()
 						read CDDBLOCALCHOICE
 						[ x"$CDDBLOCALCHOICE" = "x" ] && CDDBLOCALCHOICE="1"
 						# FIXME # Introduce diff's
-						if echo $CDDBLOCALCHOICE | egrep "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
+						if echo $CDDBLOCALCHOICE | grep -E "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							diffentries cddblocalread "$CDDBLOCALCHOICES" "$CDDBLOCALCHOICE"
-						elif echo $CDDBLOCALCHOICE | egrep "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
+						elif echo $CDDBLOCALCHOICE | grep -E "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
 							CDDBLOCALCHOICENUM=$(echo $CDDBLOCALCHOICE | xargs printf %d 2>/dev/null)
 							if [ $CDDBLOCALCHOICENUM -lt 0 ] || [ $CDDBLOCALCHOICENUM -gt $CDDBLOCALCHOICES ]; then
@@ -2534,7 +2534,7 @@ do_cddbedit ()
 						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
 						read CDDBCHOICE
 						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
-						if echo $CDDBCHOICE | egrep "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
+						if echo $CDDBCHOICE | grep -E "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							if [ ! X"$DIFF" = "X" ]; then
 								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1 | xargs printf %d 2>/dev/null)
 								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2 | xargs printf %d 2>/dev/null)
@@ -2558,7 +2558,7 @@ do_cddbedit ()
 							else
 								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
 							fi
-						elif echo $CDDBCHOICE | egrep "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
+						elif echo $CDDBCHOICE | grep -E "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
 							CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
 							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; then
@@ -2688,7 +2688,7 @@ do_cddbedit ()
 
 	# Some heuristics first. Look at Disc Title, and if it starts with
 	# "Various", then we'll assume Various Artists
-	if [ "$(grep ^DTITLE= "$CDDBDATA" | cut -f2- -d= | egrep -ci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
+	if [ "$(grep ^DTITLE= "$CDDBDATA" | cut -f2- -d= | grep -Eci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
 		echo "Looks like a Multi-Artist CD" >&2
 		VARIOUSARTISTS=y
 	else
@@ -2704,7 +2704,7 @@ do_cddbedit ()
 		# Set a default
 		DEFAULTSTYLE=1
 		# Need NUMTRACKS before cddb-tool will return it:
-		NUMTRACKS=$(egrep '^TTITLE[0-9]+=' "$CDDBDATA" | wc -l)
+		NUMTRACKS=$(grep -E '^TTITLE[0-9]+=' "$CDDBDATA" | wc -l)
 		if [ "$(grep -c "^TTITLE.*\/" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
 			# More than 1/2 tracks contain a "/", so guess forward
 			DEFAULTSTYLE=1
@@ -3746,7 +3746,7 @@ case "$FLACENCODERSYNTAX" in
 			FLACENCODEROPTS="${FLACENCODEROPTS} --replay-gain"
 		fi
 		# FLAC streams can be encapsulated on a Ogg transport layer
-		if echo "$FLACENCODEROPTS" | egrep -- "(^| )--ogg($| )" > /dev/null 2>&1 ;then
+		if echo "$FLACENCODEROPTS" | grep -E -- "(^| )--ogg($| )" > /dev/null 2>&1 ;then
 			log error "FLAC on an Ogg container is not yet supported"
 			log error "due to problem with adding comments to such files"
 			exit 1
@@ -3940,7 +3940,7 @@ fi
 ## Now that we have metaflac, check if we need cue2discid
 #case $CDROMREADERSYNTAX in
 #	flac)
-#		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | egrep "[a-f0-9]{8}")
+#		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | grep -E "[a-f0-9]{8}")
 #		if [ "$TRACKINFO" = "" ]; then
 #			checkexec ${NEEDCUE2DISCID+$CUE2DISCID}
 #		fi
@@ -4357,8 +4357,8 @@ if [ "$KEEPWAVS" = "y" ];then
 fi
 # Check if we have moved all the formats we had previously encoded, if we are not using the FORCE.
 if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
-	ENCODED_FORMATS=$(egrep "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
-	MOVED_FORMATS=$(egrep "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
+	ENCODED_FORMATS=$(grep -E "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	MOVED_FORMATS=$(grep -E "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		log warning "The encoded formats does not match with the moved ones"
 		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
