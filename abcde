@@ -796,7 +796,9 @@ do_tag ()
 	if [ -z "$COMMENTOUTPUT" ]; then
 		COMMENTOUTPUT="$(getcddbinfo TRACK-INFO)"
 	fi
-	CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
+	if [ "$CDDBMETHOD" = "cddb" ]; then
+		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
+	fi
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
 	# If we want to start the tracks with a given number, we need to modify the
 	# TRACKNUM value before evaluation
