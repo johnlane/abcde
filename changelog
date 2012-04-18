@@ -1,5 +1,6 @@
 abcde 2.5.1 UNRELEASED
 
+  [ Steve McIntyre ]
   * Several patches for improved Musicbrainz support from Martin Michlmayr:
     + add musicbrainz support for FLAC files with embedded cue files.
       Closes: #669139
@@ -8,7 +9,11 @@ abcde 2.5.1 UNRELEASED
     + Don't tag CDDB string with musicbrainz id
       Closes: #669141
 
- -- Steve McIntyre <93sam@debian.org>  Fri, 13 Apr 2012 22:29:45 +0100
+  [ Colin Tuckley ]
+  * replace deprecated egrep with grep -E (Closes issue 24)
+  * clean up indentation on older changelog entries
+
+ -- Colin Tuckley <colint@debian.org>  Wed, 18 Apr 2012 15:54:24 +0100
 
 abcde 2.5.0
 
@@ -769,7 +774,7 @@ abcde 2.1.0
   * Default output file changed to have the $track_number in the begining.
   * abcde takeover.
 
-  -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 28 Feb 2003
+ -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 28 Feb 2003
 
 abcde 2.0.3
   * The Fixed-Yet?-How-About-Now?-What-About-Now?-Now? Release
@@ -784,13 +789,13 @@ abcde 2.0.3
   * Using -C with WAVOUTPUTDIR fixed, closes: #127728
   * Resuming various artists discs fixed, closes: #127731
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 27 Jan 2002
+ -- Robert Woodcock <rcw@debian.org>  Sun, 27 Jan 2002
 
 abcde 2.0.2
   * The One-More-Time-With-Feeling Release
   * Bladeenc really works this time. Honest. closes: #121988
 
-  -- Robert Woodcock <rcw@debian.org>  Mon,  3 Dec 2001
+ -- Robert Woodcock <rcw@debian.org>  Mon,  3 Dec 2001
 
 abcde 2.0.1
 
@@ -815,7 +820,7 @@ abcde 2.0.1
     use that yet
   * Various Artists playlist generation fixed, thanks to William Lash
 
-  -- Robert Woodcock <rcw@debian.org>  Tue,  6 Nov 2001
+ -- Robert Woodcock <rcw@debian.org>  Tue,  6 Nov 2001
 
 abcde 2.0
 
@@ -823,7 +828,7 @@ abcde 2.0
   * Renamed to 2.0
   * Minor documentation updates
 
-  -- Robert Woodcock <rcw@debian.org>  Wed, 15 Aug 2001
+ -- Robert Woodcock <rcw@debian.org>  Wed, 15 Aug 2001
 
 abcde 1.9.10
 
@@ -849,7 +854,7 @@ abcde 1.9.10
   * Resumes encoding if all files have ripped, closes: #101843
   * do_cddbedit code checks to see if it's already been run
 
-  -- Robert Woodcock <rcw@debian.org>  Wed,  1 Aug 2001
+ -- Robert Woodcock <rcw@debian.org>  Wed,  1 Aug 2001
 
 abcde 1.9.9
 
@@ -857,7 +862,7 @@ abcde 1.9.9
   * I broke ID3v1 comments in 1.9.8, it's fixed now, thanks to Christian
     Beyerlein for noticing this
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 13 Mar 2001
+ -- Robert Woodcock <rcw@debian.org>  Tue, 13 Mar 2001
 
 abcde 1.9.8
 
@@ -877,7 +882,7 @@ abcde 1.9.8
   * Ogg commenting is now done separately so resuming doesn't break it
   * More documentation updates
 
-  -- Robert Woodcock <rcw@debian.org>  Sat, 10 Mar 2001
+ -- Robert Woodcock <rcw@debian.org>  Sat, 10 Mar 2001
 
 abcde 1.9.7
 
@@ -895,7 +900,7 @@ abcde 1.9.7
   * Hitting control-c while there's nothing in the foreground no longer
     causes abcde to delete all its work upon exit
 
-  -- Robert Woodcock <rcw@debian.org>  Sun,  7 Jan 2001
+ -- Robert Woodcock <rcw@debian.org>  Sun,  7 Jan 2001
 
 abcde 1.9.6
 
@@ -905,408 +910,407 @@ abcde 1.9.6
   * Single inexact match spurious question fix
   * Fixed encoder trigger timing when using -l, closes: #77854
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 26 Nov 2000
+ -- Robert Woodcock <rcw@debian.org>  Sun, 26 Nov 2000
 
 abcde 1.9.5
 
-* The "Run Towards Trick Or Treaters With Scissors" Release
-* Some documentation updates
-* mungefilename quoting fix
-* Implemented -a, which replaces -p, -P, and a number of other things
+  * The "Run Towards Trick Or Treaters With Scissors" Release
+  * Some documentation updates
+  * mungefilename quoting fix
+  * Implemented -a, which replaces -p, -P, and a number of other things
 
-  -- Robert Woodcock <rcw@debian.org>  Mon, 30 Oct 2000
+ -- Robert Woodcock <rcw@debian.org>  Mon, 30 Oct 2000
 
 abcde 1.9.4
 
-* The "Run With Scissors" Release
-* Various Artists support by Kevin Everets
-* Specifying track numbers on the command line should work again, bash was
-  getting a wee bit confuzzled with the way I had things before.
-* A couple more error output changes and miscellaneous fixes
-* OUTPUTDIR works again
+  * The "Run With Scissors" Release
+  * Various Artists support by Kevin Everets
+  * Specifying track numbers on the command line should work again, bash was
+    getting a wee bit confuzzled with the way I had things before.
+  * A couple more error output changes and miscellaneous fixes
+  * OUTPUTDIR works again
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 28 Sep 2000
+ -- Robert Woodcock <rcw@debian.org>  Thu, 28 Sep 2000
 
 abcde 1.9.3
 
-* The ugh Release
-* Brown Paper Bag fix for mp3enc users
-* Recreated the rest of the variable environment in do_playlist, fixes
-  TRACKNUM availability for real this time, closes: #72535
+  * The ugh Release
+  * Brown Paper Bag fix for mp3enc users
+  * Recreated the rest of the variable environment in do_playlist, fixes
+    TRACKNUM availability for real this time, closes: #72535
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 26 Sep 2000
+ -- Robert Woodcock <rcw@debian.org>  Tue, 26 Sep 2000
 
 abcde 1.9.2
 
-* The "Very Long Changelog Entries Can Become Addicting" Release.
-* Switched default output type to ogg, default encoder to oggenc
-* Since 1.9.x prompts for CDDB edits by default there is now a -N switch
-  for non-interactivity.
-* Handles cddb entries with random sprinklings of CR's and LF's
-* You can now specify niceness for the reader and encoders, thanks to
-  Kevin Everets <kevin.everets@alcatel.com>
-* -j 0 will now disable local encoding, thanks to Antonio Fiol
-  <Antonio.FIOL@enst-bretagne.fr>
-* Vorbize should actually work now, thanks to Kevin Everets and James
-  LewisMoss
-* Oggenc/Vorbize commenting support
-* Made TRACKNUM available for playlist generation
-* Fleshed out the TODO list a bit more
-* mungefilename() now translates ':' to ' -' by default. Rationale: You
-  can't put ':' on a FAT filesystem. It also wreaks havoc with Samba.
+  * The "Very Long Changelog Entries Can Become Addicting" Release.
+  * Switched default output type to ogg, default encoder to oggenc
+  * Since 1.9.x prompts for CDDB edits by default there is now a -N switch
+    for non-interactivity.
+  * Handles cddb entries with random sprinklings of CR's and LF's
+  * You can now specify niceness for the reader and encoders, thanks to
+    Kevin Everets <kevin.everets@alcatel.com>
+  * -j 0 will now disable local encoding, thanks to Antonio Fiol
+    <Antonio.FIOL@enst-bretagne.fr>
+  * Vorbize should actually work now, thanks to Kevin Everets and James
+    LewisMoss
+  * Oggenc/Vorbize commenting support
+  * Made TRACKNUM available for playlist generation
+  * Fleshed out the TODO list a bit more
+  * mungefilename() now translates ':' to ' -' by default. Rationale: You
+    can't put ':' on a FAT filesystem. It also wreaks havoc with Samba.
 
-  -- Robert Woodcock <rcw@debian.org>  Mon, 25 Sep 2000
+ -- Robert Woodcock <rcw@debian.org>  Mon, 25 Sep 2000
 
 abcde 1.9.1
 
-* The "Don't Fraun" Release.
-* Fixed a half-dozen minor buglets
-* A little less debug output, a lot more normal output
-* Resuming operation works better now
-* Patched up offline usage again
-* Broke OUTPUTFORMAT - if you plan on ever using Ogg support, and you've
-  overridden the OUTPUTFORMAT default, change the ".mp3" to
-  ".${OUTPUTTYPE}"
-* Beginnings of Ogg Vorbis support (vorbize and oggenc) - warning:
+  * The "Don't Fraun" Release.
+  * Fixed a half-dozen minor buglets
+  * A little less debug output, a lot more normal output
+  * Resuming operation works better now
+  * Patched up offline usage again
+  * Broke OUTPUTFORMAT - if you plan on ever using Ogg support, and you've
+    overridden the OUTPUTFORMAT default, change the ".mp3" to
+    ".${OUTPUTTYPE}"
+  * Beginnings of Ogg Vorbis support (vorbize and oggenc) - warning:
     completely untested
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 17 Aug 2000
+ -- Robert Woodcock <rcw@debian.org>  Thu, 17 Aug 2000
 
 abcde 1.9
 
-* The "" Release.
-* Completely redone tmpfile handling, abcde can now continue where you left
-  off. closes: #42970, #50883, #66668
-* Restructured program execution scheduling around central status file
-* Moved cddb-tool interactivity to abcde, 'cddb-tool get' no longer exists,
-  it is now 'cddb-tool query' and 'cddb-tool read'.
-* Removed -e, -v, and -V, since abcde will now prompt you if you want to
-  edit or otherwise muck with the data after you have a chance to see it.
+  * The "" Release.
+  * Completely redone tmpfile handling, abcde can now continue where you left
+    off. closes: #42970, #50883, #66668
+  * Restructured program execution scheduling around central status file
+  * Moved cddb-tool interactivity to abcde, 'cddb-tool get' no longer exists,
+    it is now 'cddb-tool query' and 'cddb-tool read'.
+  * Removed -e, -v, and -V, since abcde will now prompt you if you want to
+    edit or otherwise muck with the data after you have a chance to see it.
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 22 Jun 2000
+ -- Robert Woodcock <rcw@debian.org>  Thu, 22 Jun 2000
 
 abcde 1.1.1
 
-* The "That wasn't chicken" release.
-* Remote distributed encoding had a bad bug in 1.1 - work to be done
-  remotely was duplicated locally (everything still turned out ok - there
-  was just no speedup). Fixed that.
-* Restructured encode_and_tag function.
+  * The "That wasn't chicken" release.
+  * Remote distributed encoding had a bad bug in 1.1 - work to be done
+    remotely was duplicated locally (everything still turned out ok - there
+    was just no speedup). Fixed that.
+  * Restructured encode_and_tag function.
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 07 May 2000
+ -- Robert Woodcock <rcw@debian.org>  Sun, 07 May 2000
 
 abcde 1.1
 
-* The "We heard Mr. Garrison say them a couple of times" Release.
-* New -r and REMOTEHOSTS option to use distmp3 to encode to multiple
-  hosts at once.
-* Command-line track range specification (f.e. "abcde 1-12"
-  (Thanks: Vincent Ho)
-* Now displays minutes/seconds for each track while displaying track titles
-  at the start
+  * The "We heard Mr. Garrison say them a couple of times" Release.
+  * New -r and REMOTEHOSTS option to use distmp3 to encode to multiple
+    hosts at once.
+  * Command-line track range specification (f.e. "abcde 1-12"
+    (Thanks: Vincent Ho)
+  * Now displays minutes/seconds for each track while displaying track titles
+    at the start
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 18 Apr 2000
+ -- Robert Woodcock <rcw@debian.org>  Tue, 18 Apr 2000
 
 abcde 1.0.6
 
-* The "Inspected by #17" Release.
-* New EJECTCD option to eject the CD after all tracks are read (thanks:
-  Hrafnkell F Hlodversson)
+  * The "Inspected by #17" Release.
+  * New EJECTCD option to eject the CD after all tracks are read (thanks:
+    Hrafnkell F Hlodversson)
 
-  -- Robert Woodcock <rcw@debian.org>  Sun,  2 Apr 2000
+ -- Robert Woodcock <rcw@debian.org>  Sun,  2 Apr 2000
 
 abcde 1.0.5
 
-* The "...So we can both watch X-Files..." Release.
-* Quoting fix for setups without space->underscore filename munging
-* README file URL fixes/updates
+  * The "...So we can both watch X-Files..." Release.
+  * Quoting fix for setups without space->underscore filename munging
+  * README file URL fixes/updates
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 16 Mar 2000
+ -- Robert Woodcock <rcw@debian.org>  Thu, 16 Mar 2000
 
 abcde 1.0.4
 
-* CDPARANOIAOPTS and CDDA2WAVOPTS should work now.
+  * CDPARANOIAOPTS and CDDA2WAVOPTS should work now.
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 20 Feb 2000
+ -- Robert Woodcock <rcw@debian.org>  Sun, 20 Feb 2000
 
 abcde 1.0.3
 
-* The "This Space Intentionally Left Blank" Release
-* Support for reverse and dashed Various Artists discs
-* More elegant way of passing backtick data
-* Replaced all `foo` commands with $(foo)
-* Custom filename munging, closes: #38448
+  * The "This Space Intentionally Left Blank" Release
+  * Support for reverse and dashed Various Artists discs
+  * More elegant way of passing backtick data
+  * Replaced all `foo` commands with $(foo)
+  * Custom filename munging, closes: #38448
 
-  -- Robert Woodcock <rcw@debian.org>  Wed,  9 Feb 2000
+ -- Robert Woodcock <rcw@debian.org>  Wed,  9 Feb 2000
 
 abcde 1.0.2
 
-* Now eats backticks in CDDB input (thanks to Steve Beattie)
-* mp3enc support (thanks to Richard Jelinek and Chris Ruvolo), closes: #56189
-* cddb-tool more gracefully handles no net connection for those with
-  local caching name servers
-* Fixed HELLOINFO documentation bug, closes: #56189
+  * Now eats backticks in CDDB input (thanks to Steve Beattie)
+  * mp3enc support (thanks to Richard Jelinek and Chris Ruvolo), closes: #56189
+  * cddb-tool more gracefully handles no net connection for those with
+    local caching name servers
+  * Fixed HELLOINFO documentation bug, closes: #56189
 
-  -- Robert Woodcock <rcw@debian.org>  Wed, 26 Jan 2000
+ -- Robert Woodcock <rcw@debian.org>  Wed, 26 Jan 2000
 
 abcde 1.0.1
 
-* The "s/ever/ Three Days/" Release
-* Now properly handles double-quotes in Artist and Album data
-  (thanks to Clint Adams), closes: #54888
+  * The "s/ever/ Three Days/" Release
+  * Now properly handles double-quotes in Artist and Album data
+    (thanks to Clint Adams), closes: #54888
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 13 Jan 2000
+ -- Robert Woodcock <rcw@debian.org>  Thu, 13 Jan 2000
 
 abcde 1.0
 
-* The "But a 1.0 is Forever" Release
-* Backed out cddb-tool quoting change, closes: #54005
-* Now strips carriage returns from CDDB data, closes: #53815
-* Added ID3COMMENT config option
+  * The "But a 1.0 is Forever" Release
+  * Backed out cddb-tool quoting change, closes: #54005
+  * Now strips carriage returns from CDDB data, closes: #53815
+  * Added ID3COMMENT config option
 
-  -- Robert Woodcock <rcw@debian.org>  Mon, 10 Jan 2000
+ -- Robert Woodcock <rcw@debian.org>  Mon, 10 Jan 2000
 
 abcde 0.8.9
 
-* The "Get it Before the World Implodes" Release
-* Added -D (debugging option, outputs debugging information to stderr).
-  Very useful for submitting bug reports, hint hint hint :)
-  Just do 'abcde -D 2>logfile' and include logfile in your bug report.
-* Now uses id3's new -T option to embed track numbers in ID3 tags.
-* Fixed cddb-tool output for FreeDB submissions, closes: #51986.
-  Thanks to Clint Adams for spotting the problem
-* New -v switch for Various Artist CD's (thanks to Magenta Hari Nezumi)
-  closes: #43581
-* Fixed minor cddb-tool manpage buglet
-* Fixed cddb-tool output for shell quoting, thanks to Philipp Meier.
-  closes: #52469
+  * The "Get it Before the World Implodes" Release
+  * Added -D (debugging option, outputs debugging information to stderr).
+    Very useful for submitting bug reports, hint hint hint :)
+    Just do 'abcde -D 2>logfile' and include logfile in your bug report.
+  * Now uses id3's new -T option to embed track numbers in ID3 tags.
+  * Fixed cddb-tool output for FreeDB submissions, closes: #51986.
+    Thanks to Clint Adams for spotting the problem
+  * New -v switch for Various Artist CD's (thanks to Magenta Hari Nezumi)
+    closes: #43581
+  * Fixed minor cddb-tool manpage buglet
+  * Fixed cddb-tool output for shell quoting, thanks to Philipp Meier.
+    closes: #52469
 
-  -- Robert Woodcock <rcw@debian.org>  Fri, 31 Dec 1999
+ -- Robert Woodcock <rcw@debian.org>  Fri, 31 Dec 1999
 
 abcde 0.8.8
 
-* Added gogo explainations to manpages and example config file
-* Added code by Stuart Ballard <sballard@netreach.net> to intelligently use
-  relative paths for playlist files
-* Added PLAYLISTDATAPREFIX config option for those who wish to prefix their
-  playlist data with things like URL's
-* Fixed bug added in 0.8 where the multiple inexact match choice selection
-  would be hidden to the user (cddb-tool wasn't sending all user output to
-  stderr as it should).
+  * Added gogo explainations to manpages and example config file
+  * Added code by Stuart Ballard <sballard@netreach.net> to intelligently use
+    relative paths for playlist files
+  * Added PLAYLISTDATAPREFIX config option for those who wish to prefix their
+    playlist data with things like URL's
+  * Fixed bug added in 0.8 where the multiple inexact match choice selection
+    would be hidden to the user (cddb-tool wasn't sending all user output to
+    stderr as it should).
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 28 Nov 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 28 Nov 1999
 
 abcde 0.8.7
 
-* Removed parallelization of silent encoder processes
+  * Removed parallelization of silent encoder processes
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 16 Nov 1999
+ -- Robert Woodcock <rcw@debian.org>  Tue, 16 Nov 1999
 
 abcde 0.8.6
 
-* Removed bashisms (again :)
+  * Removed bashisms (again :)
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 14 Nov 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 14 Nov 1999
 
 abcde 0.8.5
 
-* Fixed some output issues regarding background encoding that cropped up in
-  0.8.3
+  * Fixed some output issues regarding background encoding that cropped up in
+    0.8.3
 
-  -- Robert Woodcock <rcw@debian.org>  Sun,  7 Nov 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun,  7 Nov 1999
 
 abcde 0.8.4
 
-* New name. A Better CD Encoder. cdgrab was already taken - the original
-  cdgrab name belongs to a CDDA reading program for DOS dating back to
-  1993. It's still in use and active development, so I'm changing the
-  name of cdgrab instead. See this URL for a description of the original
-  cdgrab: http://www.scn.rain.com/pub/cdrom/cdgrab.txt
+  * New name. A Better CD Encoder. cdgrab was already taken - the original
+    cdgrab name belongs to a CDDA reading program for DOS dating back to
+    1993. It's still in use and active development, so I'm changing the
+    name of cdgrab instead. See this URL for a description of the original
+    cdgrab: http://www.scn.rain.com/pub/cdrom/cdgrab.txt
 
-  Your old /etc/cdgrab.conf and/or ~/.cdgrab.conf can simply be
-  renamed to /etc/abcde.conf and ~/.abcde.conf.
+    Your old /etc/cdgrab.conf and/or ~/.cdgrab.conf can simply be
+    renamed to /etc/abcde.conf and ~/.abcde.conf.
 
-  The program name is now 'abcde'.
+    The program name is now 'abcde'.
 
-  -- Robert Woodcock <rcw@debian.org>  Tue,  2 Nov 1999
+ -- Robert Woodcock <rcw@debian.org>  Tue,  2 Nov 1999
 
 cdgrab 0.8.3
 
-* cdgrab 0.7 through 0.8.2 would leave around cdgrab.xxxxxx
-  tempfiles with -j. Fixed that.
-* Fixed quoting issues regarding spaces in output files
+  * cdgrab 0.7 through 0.8.2 would leave around cdgrab.xxxxxx
+    tempfiles with -j. Fixed that.
+  * Fixed quoting issues regarding spaces in output files
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 28 Oct 1999
+ -- Robert Woodcock <rcw@debian.org>  Thu, 28 Oct 1999
 
 cdgrab 0.8.2
 
-* Supports the 'gogo' mp3 encoder
-* cddb-tool escapes double quotes when sourcing its temp files
-* Added cddb-tool manpage
+  * Supports the 'gogo' mp3 encoder
+  * cddb-tool escapes double quotes when sourcing its temp files
+  * Added cddb-tool manpage
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 10 Oct 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 10 Oct 1999
 
 cdgrab 0.8.1
 
-* Cleared up some bashisms from the patches merged in 0.8
+  * Cleared up some bashisms from the patches merged in 0.8
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 19 Sep 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 19 Sep 1999
 
 cdgrab 0.8
 
-* Fixed a bug where if multiple tracks (but not the entire CD) was
-  specificed explicitly, cdgrab would loop forever after the first track
-* Now uses Debian's sensible-editor wrapper if available
-* Merged in patches from Nathaniel J Smith that puts cddb lookup
-  functionality in a separate script, cddb-tool
-* Adds WAVOUTPUTDIR environment variable for those running out of space in
-  OUTPUTDIR.
+  * Fixed a bug where if multiple tracks (but not the entire CD) was
+    specificed explicitly, cdgrab would loop forever after the first track
+  * Now uses Debian's sensible-editor wrapper if available
+  * Merged in patches from Nathaniel J Smith that puts cddb lookup
+    functionality in a separate script, cddb-tool
+  * Adds WAVOUTPUTDIR environment variable for those running out of space in
+    OUTPUTDIR.
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 26 Aug 1999
+ -- Robert Woodcock <rcw@debian.org>  Thu, 26 Aug 1999
 
 cdgrab 0.7.7
 
-* Yet another quick fix to finish what 0.7.6 started - cdgrab should now
-  handle multiple inexact matches as well. (Thanks again to Robert Macaulay)
+  * Yet another quick fix to finish what 0.7.6 started - cdgrab should now
+    handle multiple inexact matches as well. (Thanks again to Robert Macaulay)
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 12 Aug 1999
+ -- Robert Woodcock <rcw@debian.org>  Thu, 12 Aug 1999
 
 cdgrab 0.7.6
 
-* Another quick bugfix release - hopefully this will handle inexact matches
-  properly now. (Thank you Robert Macaulay :)
+  * Another quick bugfix release - hopefully this will handle inexact matches
+    properly now. (Thank you Robert Macaulay :)
 
-  -- Robert Woodcock <rcw@debian.org>  Mon,  9 Aug 1999
+ -- Robert Woodcock <rcw@debian.org>  Mon,  9 Aug 1999
 
 cdgrab 0.7.5
 
-* Quick bugfix release - with any luck I can start on 0.8 soon :)
-* **** YOU WILL NEED TO EDIT CDGRAB.CONF **** if you use lame as
-  /usr/bin/lamer. The default program name is now 'lame' as of lame v3.0.
-  If you don't want to touch your lame installation, put the following in
-  your cdgrab.conf: "LAME=lamer"
-* Omits -w from cdparanoia commands
-* Depends on cdparanoia-bin or cdparanoia now - this accomodates the recent
-  cdparanoia package namechange.
-* Fixed a stealth-whitespace typo at line 495. Thanks go to Gregory T.
-  Norris for tracking this down.
+  * Quick bugfix release - with any luck I can start on 0.8 soon :)
+  * **** YOU WILL NEED TO EDIT CDGRAB.CONF **** if you use lame as
+    /usr/bin/lamer. The default program name is now 'lame' as of lame v3.0.
+    If you don't want to touch your lame installation, put the following in
+    your cdgrab.conf: "LAME=lamer"
+  * Omits -w from cdparanoia commands
+  * Depends on cdparanoia-bin or cdparanoia now - this accomodates the recent
+    cdparanoia package namechange.
+  * Fixed a stealth-whitespace typo at line 495. Thanks go to Gregory T.
+    Norris for tracking this down.
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 13 Jul 1999
+ -- Robert Woodcock <rcw@debian.org>  Tue, 13 Jul 1999
 
 cdgrab 0.7.4
 
-* Now only uses the first match from a CDDB datafile for the track
-  information, this works around a cddb glitch some of you may have
-  hit last month
-* Default config file now gets version number from program.
-* added 'debug' option to CDROMREADERSYNTAX to get cdparanoia to only rip
-  the first 5 seconds of a track. This is very useful to those debugging
-  cdgrab, makes things go much faster. This will also prevent me releasing
-  another 0.7.2 :)
-* Now puts options last on the encoder command line if you are using
-  bladeenc or l3enc, this should allow the proper use of these encoders
-  with additional commandline options (thanks to Justin Hugh Daly for
-  pointing this out)
-* m3u PLAYLIST SUPPORT! Check out the new -p and -P options!
+  * Now only uses the first match from a CDDB datafile for the track
+    information, this works around a cddb glitch some of you may have
+    hit last month
+  * Default config file now gets version number from program.
+  * added 'debug' option to CDROMREADERSYNTAX to get cdparanoia to only rip
+    the first 5 seconds of a track. This is very useful to those debugging
+    cdgrab, makes things go much faster. This will also prevent me releasing
+    another 0.7.2 :)
+  * Now puts options last on the encoder command line if you are using
+    bladeenc or l3enc, this should allow the proper use of these encoders
+    with additional commandline options (thanks to Justin Hugh Daly for
+    pointing this out)
+  * m3u PLAYLIST SUPPORT! Check out the new -p and -P options!
 
-  -- Robert Woodcock <rcw@debian.org>  Mon,  7 Jun 1999
+ -- Robert Woodcock <rcw@debian.org>  Mon,  7 Jun 1999
 
 cdgrab 0.7.3
 
-* Fixes wget calling method
-* -l/LOWDISK documented
-* Fixes the lowdisk #2 option so it exits cleanly
-* Lets you enter track info for CDs without CDDB matches now
+  * Fixes wget calling method
+  * -l/LOWDISK documented
+  * Fixes the lowdisk #2 option so it exits cleanly
+  * Lets you enter track info for CDs without CDDB matches now
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 23 May 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 23 May 1999
 
 cdgrab 0.7.2
 
-* Woops, left some debugging code in 0.7.1 - if you have truckloads of 80kb
-  mp3's, try this :)
+  * Woops, left some debugging code in 0.7.1 - if you have truckloads of 80kb
+    mp3's, try this :)
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 16 May 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 16 May 1999
 
 cdgrab 0.7.1
 
-* LOWDISK/-l option added for those who don't have the disk space to run a
-  parallelized session.
-* MAXPROCS added to config file
-* CDDB handling revisited - cdgrab should now properly handle CD's with
-  multiple or inexact CDDB entries.
+  * LOWDISK/-l option added for those who don't have the disk space to run a
+    parallelized session.
+  * MAXPROCS added to config file
+  * CDDB handling revisited - cdgrab should now properly handle CD's with
+    multiple or inexact CDDB entries.
 
-  -- Robert Woodcock <rcw@debian.org>  Fri, 14 May 1999
+ -- Robert Woodcock <rcw@debian.org>  Fri, 14 May 1999
 
 cdgrab 0.7
 
-* Parallelizes ripping and encoding - this may take substantially more disk
-  space temporarily (up to 500MB or so depending on how fast your CPU is
-  compared to your cdrom drive) but cdgrab will be done with your CD
-  much more quickly.
-* Allows for SMP optimizations (multiple encoders running at once) with the
-  new -j option
-* Output fix for TOC printing
-* cd-discid split off into it's own package
+  * Parallelizes ripping and encoding - this may take substantially more disk
+    space temporarily (up to 500MB or so depending on how fast your CPU is
+    compared to your cdrom drive) but cdgrab will be done with your CD
+    much more quickly.
+  * Allows for SMP optimizations (multiple encoders running at once) with the
+    new -j option
+  * Output fix for TOC printing
+  * cd-discid split off into it's own package
 
-  -- Robert Woodcock <rcw@debian.org>  Fri,  7 May 1999
+ -- Robert Woodcock <rcw@debian.org>  Fri,  7 May 1999
 
 cdgrab 0.6.2
 
-* Fixes encoder and cdrom reader option-passing bug
+  * Fixes encoder and cdrom reader option-passing bug
 
-  -- Robert Woodcock <rcw@debian.org>  Sun,  4 Apr 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun,  4 Apr 1999
 
 cdgrab 0.6.1
 
-* Adds the -H option (don't create .inf files) when calling cdda2wav
-* Removed a bashism from the usage function
+  * Adds the -H option (don't create .inf files) when calling cdda2wav
+  * Removed a bashism from the usage function
 
-  -- Robert Woodcock <rcw@debian.org>  Mon, 29 Mar 1999
+ -- Robert Woodcock <rcw@debian.org>  Mon, 29 Mar 1999
 
 cdgrab 0.6
 
-* Tacks a .wav extension to the wave data temporary file to make bladeenc
-  happy.
-* Munges /'s to _'s now instead of eating them
-* Adds command-line option configuration options for backend programs
-* Properly zero-pads the TRACKNUM variable
+  * Tacks a .wav extension to the wave data temporary file to make bladeenc
+    happy.
+  * Munges /'s to _'s now instead of eating them
+  * Adds command-line option configuration options for backend programs
+  * Properly zero-pads the TRACKNUM variable
 
-  -- Robert Woodcock <rcw@debian.org>  Sun, 28 Mar 1999
+ -- Robert Woodcock <rcw@debian.org>  Sun, 28 Mar 1999
 
 cdgrab 0.5
 
-* Added support for inexact or multiple CDDB matches
-* Properly bombs out if CDDB can't come up with a match
-  (without CDDB, you might as well use cdparanoia -B)
+  * Added support for inexact or multiple CDDB matches
+  * Properly bombs out if CDDB can't come up with a match
+    (without CDDB, you might as well use cdparanoia -B)
 
-  -- Robert Woodcock <rcw@debian.org>  Thu, 18 Mar 1999
+ -- Robert Woodcock <rcw@debian.org>  Thu, 18 Mar 1999
 
 cdgrab 0.4
 
-* Added ALBUMFILE, fixed manpage reference to it
-* Deletes editor backups from 'cdgrab -e' automagically
-  (I wish mutt did this :)
-* Bombs out if there's no CD in the drive
-* Bombs out if any necessary external programs don't exist
-* Encourages people to use brackets for OUTPUTFORMAT variables to
-  handle formats like Artist/TrackName_Number.mp3
+  * Added ALBUMFILE, fixed manpage reference to it
+  * Deletes editor backups from 'cdgrab -e' automagically
+    (I wish mutt did this :)
+  * Bombs out if there's no CD in the drive
+  * Bombs out if any necessary external programs don't exist
+  * Encourages people to use brackets for OUTPUTFORMAT variables to
+    handle formats like Artist/TrackName_Number.mp3
 
-  -- Robert Woodcock <rcw@debian.org>  Tue, 16 Mar 1999
+ -- Robert Woodcock <rcw@debian.org>  Tue, 16 Mar 1999
 
 cdgrab 0.3
 
-* Fixed one thinko in user preferences loading and another in the tagger
-* New option syntax - if you used to specify a cdrom device through the
-  command line, use 'cdgrab -d device' now to get the same result.
-* Allows you to edit CDDB response data before using it (-e)
-* Added support for getting a user-specified selection of tracks
-* Added support for user-specified output file formats
+  * Fixed one thinko in user preferences loading and another in the tagger
+  * New option syntax - if you used to specify a cdrom device through the
+    command line, use 'cdgrab -d device' now to get the same result.
+  * Allows you to edit CDDB response data before using it (-e)
+  * Added support for getting a user-specified selection of tracks
+  * Added support for user-specified output file formats
 
  -- Robert Woodcock <rcw@debian.org>  Wed, 10 Mar 1999
 
 cdgrab 0.2
 
-* Initial release
+  * Initial release
 
  -- Robert Woodcock <rcw@debian.org>  Sun, 21 Feb 1999
-
