@@ -6,7 +6,7 @@ abcde 2.5.1 UNRELEASED
     + Don't submit to CDDB server when using musicbrainz
       Closes: #669140
     + Don't tag CDDB string with musicbrainz id
-      Closes: #699141
+      Closes: #669141
 
  -- Steve McIntyre <93sam@debian.org>  Fri, 13 Apr 2012 22:29:45 +0100
 
