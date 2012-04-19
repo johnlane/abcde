@@ -2974,10 +2974,23 @@ do_cdspeed ()
 
 # vecho [message]
 #
-# vecho outputs a message if EXTRAVERBOSE is selected
+# vecho outputs a message if EXTRAVERBOSE is 1 or more
 vecho ()
 {
-if [ x"$EXTRAVERBOSE" != "x" ]; then
+if [ x"$EXTRAVERBOSE" != "x" ] && [ $EXTRAVERBOSE -gt 0 ] ; then
+	case $1 in
+		warning) shift ; log warning "$@" ;;
+		*) echo "$@" ;;
+	esac
+fi
+}
+
+# vvecho [message]
+#
+# vvecho outputs a message if EXTRAVERBOSE is 2 or more
+vvecho ()
+{
+if [ x"$EXTRAVERBOSE" != "x" ] && [ $EXTRAVERBOSE -gt 1 ] ; then
 	case $1 in
 		warning) shift ; log warning "$@" ;;
 		*) echo "$@" ;;
@@ -3307,6 +3320,16 @@ if [ "$CDROM" = "" ] ; then
 	fi
 fi
 
+# We used to use EXTRAVERBOSE=y to turn on more debug output. Now
+# that's changed to a number to allow for more control. If
+# EXTRAVERBOSE=y, set it to 1 for backwards compatibility.
+if [ "$EXTRAVERBOSE" = "y" ]; then
+	EXTRAVERBOSE=1
+fi
+if [ "$EXTRAVERBOSE" = "n" ]; then
+	EXTRAVERBOSE=0
+fi
+
 # Parse command line options
 #while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPq:r:Rs:S:t:T:vVxw:W: opt ; do
 while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPq:r:s:S:t:T:UvVxX:w:W:z opt ; do
@@ -3351,7 +3374,7 @@ while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPq:r:s:S:t:T:UvVxX:w:W:z opt ; do
 		   echo "abcde -h for extra help"
 		   exit
 		   ;;
-		V) EXTRAVERBOSE="y" ;;
+		V) EXTRAVERBOSE=$(($EXTRAVERBOSE + 1)) ;;
 		x) EJECTCD="y" ;;
 		X) CUE2DISCID="$OPTARG" ;;
 		w) COMMENT="$OPTARG" ;;
