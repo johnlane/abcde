@@ -8,7 +8,8 @@ abcde 2.5.1 UNRELEASED
       Closes: #669140
     + Don't tag CDDB string with musicbrainz id
       Closes: #669141
-  * 
+  * Fix speex tagging. (Closes issue 19).
+    Thanks to vskytta for the patch.
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).
