@@ -1741,7 +1741,7 @@ do_discid ()
 		vecho -n "Getting CD track info... "
 		# In OSX, unmount the disc before a query
 		if [ "$OSFLAVOUR" = "OSX" ]; then
-			disktool -u ${CDROM#/dev/}
+			diskutil unmount ${CDROM#/dev/}
 		fi
 		case "$CDROMREADERSYNTAX" in
 			flac)
@@ -1813,7 +1813,7 @@ do_discid ()
 		fi
 		# In OSX, remount the disc again
 		if [ "$OSFLAVOUR" = "OSX" ]; then
-			disktool -m ${CDROM#/dev/}
+			diskutil mount ${CDROM#/dev/}
 		fi
 		WEHAVEACD=y
 		DISCID=$(echo $TRACKINFO | cut -f1 -d' ')
@@ -2887,7 +2887,7 @@ do_cdread ()
 		cdda2wav | icedax)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
-				disktool -u ${CDROM#/dev/} 0
+				diskutil unmount ${CDROM#/dev/} 0
 				# Also, in OSX the cdrom device for cdda2wav/icedax changes...
 				CDDA2WAVCDROM="IODVDServices"
 			elif [ "$OSFLAVOUR" = "FBSD" ] ; then
@@ -3225,8 +3225,8 @@ if [ X$(uname) = "XFreeBSD" ] ; then
 elif [ X$(uname) = "XDarwin" ] ; then
 	HTTPGET=curl
 	OSFLAVOUR=OSX
-	# We should have disktool in OSX, but let's be sure...
-	NEEDDISKTOOL=y
+	# We should have diskutil in OSX, but let's be sure...
+	NEEDDISKUTIL=y
 	CDROMREADERSYNTAX=cddafs
 elif [ X$(uname) = "XOpenBSD" ] ; then
 	HTTPGET=wget
@@ -3913,7 +3913,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
-	${NEEDDISKTOOL+disktool} ${NEEDCDSPEED+$CDSPEED} \
+	${NEEDDISKUTIL+diskutil} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
 	${NEEDMPPGAIN+$MPPGAIN} ${NEEDCUEREADER+$CUEREADER} \
 	${NEEDCUE2DISCID+$CUE2DISCID}
@@ -4134,7 +4134,7 @@ if [ "$EJECTCD" = "y" ] && [ -x $(which $EJECT) ]; then
 		cd="$(echo $CDROM | sed -e 's=.*/==;s=[a-h]$==;')"
 		$eject $EJECTOPTS $cd
 	elif [ X"$(uname)" = X"Darwin" ] ; then
-		disktool -e ${CDROM#/dev/} 0
+		diskutil eject ${CDROM#/dev/} 0
 	else
 		$EJECT $EJECTOPTS "$CDROM"
 	fi
