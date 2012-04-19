@@ -15,8 +15,10 @@ abcde 2.5.1 UNRELEASED
   * clean up indentation on older changelog entries
   * remove tarball target from Makefile since dir structure
     has changed now that we use subversion.
+  * improve presentation of options/defaults when asking a question
+    (closes issue 9)
 
- -- Colin Tuckley <colint@debian.org>  Wed, 18 Apr 2012 20:54:24 +0100
+ -- Colin Tuckley <colint@debian.org>  Thu, 19 Apr 2012 13:55:00 +0100
 
 abcde 2.5.0
 

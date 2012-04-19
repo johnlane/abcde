@@ -1929,7 +1929,7 @@ do_discid ()
 		if [ ! -f "$ABCDETEMPDIR/discid" ]; then
 			# Wipe and start fresh
 			echo "abcde: $ABCDETEMPDIR/discid not found. Abcde must remove and recreate" >&2
-			echo -n "this directory to continue. Continue? [y/n] (n)" >&2
+			echo -n "this directory to continue. Continue [y/N]? " >&2
 			if [ "$INTERACTIVE" = "y" ]; then
 				read ANSWER
 			else
@@ -2194,9 +2194,9 @@ do_localcddb ()
 				# List out disc title/author and contents
 				do_cddbparse "${CDDBLOCALFILE}"
 				#if [ "$CDROMREADERSYNTAX" = "flac" ] ; then
-				#	echo -n "Embedded cuesheet entry found, use it? [y/n] (y): " >&2
+				#	echo -n "Embedded cuesheet entry found, use it [Y/n]? " >&2
 				#else
-					echo -n "Locally cached CDDB entry found, use it? [y/n] (y): " >&2
+					echo -n "Locally cached CDDB entry found, use it [Y/n]? " >&2
 				#fi
 				if [ "$INTERACTIVE" = "y" ]; then
 					read USELOCALRESP
@@ -2692,7 +2692,7 @@ do_cddbedit ()
 		echo "Looks like a Multi-Artist CD" >&2
 		VARIOUSARTISTS=y
 	else
-		echo -n "Is the CD multi-artist? [y/n] (n): " >&2
+		echo -n "Is the CD multi-artist [y/N]? " >&2
 		if [ "$INTERACTIVE" = "y" ]; then
 			read VARIOUSARTISTS
 		else
@@ -2783,7 +2783,7 @@ do_cddbedit ()
 
 			# submit the modified file, if they want
 			if [ "$NOSUBMIT" != "y" ]; then
-				echo -n "Do you want to submit this entry to $CDDBSUBMIT? [y/n] (n): "
+				echo -n "Do you want to submit this entry to $CDDBSUBMIT [y/N]? "
 				read YESNO
 				while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
 					[ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
