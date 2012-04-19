@@ -10,6 +10,8 @@ abcde 2.5.1 UNRELEASED
       Closes: #669141
   * Fix speex tagging. (Closes issue 19).
     Thanks to vskytta for the patch.
+  * Fix aac tagging. (Closes issue 7).
+    Thanks to Andrew Strong for forwarding the patch.
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).

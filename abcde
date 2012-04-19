@@ -1151,8 +1151,8 @@ do_encode ()
 				$RUN_COMMAND nice $EFFECTIVE_NICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			m4a)
-				# Quick hack to avoid tagging Ogg/Speex, since there is no other way to tag than inline tagging
-				if [ ! "$DOTAG" = "y" ]; then
+				# Tag the file at encode time, as it can't be done after encoding.
+				if [ "$DOTAG" = "y" ]; then
 					$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
 					
 				else
