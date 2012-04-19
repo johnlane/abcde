@@ -3130,6 +3130,7 @@ EYED3=eyeD3
 VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 AACTAG=faac
+ATOMICPARSLEY=AtomicParsley
 
 CDPARANOIA=cdparanoia
 CDDA2WAV=icedax
