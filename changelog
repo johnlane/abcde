@@ -14,6 +14,9 @@ abcde 2.5.1 UNRELEASED
     Thanks to Andrew Strong for forwarding the patch.
   * Add ATOMICPARSLEY=AtomicParsley (Closes issue 37).
   * On OS X, switch from disktool to diskutil. (Closes issue 43).
+  * Updates for CD device detection:
+    + Look for /dev/sr0, in case /dev/cdrom doesn't exist.
+      Closes issue 52.
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).

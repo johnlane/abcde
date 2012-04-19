@@ -3294,6 +3294,8 @@ if [ "$CDROM" = "" ] ; then
 		CDROM=/dev/cdroms/cdrom0
 	elif [ -e /dev/cdrom ]; then
 		CDROM=/dev/cdrom
+	elif [ -e /dev/sr0 ]; then
+		CDROM=/dev/sr0
 	elif [ -e /dev/cd0c ]; then
 		CDROM=/dev/cd0c
 	elif [ -e /dev/acd0c ]; then
