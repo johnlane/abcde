@@ -185,8 +185,9 @@ information, and we tag and add comments with Latin1 encoding.
 Show the version and exit
 .TP
 .B \-V
-Be a bit more verbose. On slow networks the CDDB requests might give the
-sensation nothing is happening.
+Be more verbose. On slow networks the CDDB requests might give the
+sensation nothing is happening. Add this more than once to make things
+even more verbose.
 .TP
 .B \-x
 Eject the CD when all tracks have been read. See the EJECTCD configuration
@@ -523,9 +524,10 @@ after all tracks have been read. It has no effect when CDROM is set to a flac
 file.
 .TP
 .B EXTRAVERBOSE
-If set to "y", some operations which are usually now shown to the end user
+If set to "1", some operations which are usually now shown to the end user
 are visible, such as CDDB queries. Useful for initial debug and if your
-network/CDDB server is slow.
+network/CDDB server is slow. Set to "2" or more for even more verbose
+output.
 .SH EXAMPLES
 Possible ways one can call \fBabcde\fR:
 .TP

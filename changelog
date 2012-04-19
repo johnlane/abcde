@@ -20,6 +20,9 @@ abcde 2.5.1 UNRELEASED
     + Add suggested diskutil code to auto-detect the CD on OS X.
       (Closes issue 45).
   * Check that we have $CDDBTOOL before we start. (Closes issue 27).
+  * Change the meaning of EXTRAVERBOSE; previously, it was a y/n option
+    to make things more verbose. Add extra levels of verbosity (0, 1, 2 so
+    far) and a new vvecho() function for callers to use.
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).
