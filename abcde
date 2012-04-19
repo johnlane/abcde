@@ -3302,6 +3302,8 @@ if [ "$CDROM" = "" ] ; then
 		CDROM=/dev/acd0c
 	elif [ -e /dev/disk1 ]; then
 		CDROM=/dev/disk1
+	elif [ "$OSFLAVOUR" = "OSX" ] && [[ $(diskutil list) =~ CD_part.*(disk.)$'\n' ]]; then
+		CDROM=/dev/${BASH_REMATCH[1]}
 	fi
 fi
 
