@@ -23,6 +23,8 @@ abcde 2.5.1 UNRELEASED
   * Change the meaning of EXTRAVERBOSE; previously, it was a y/n option
     to make things more verbose. Add extra levels of verbosity (0, 1, 2 so
     far) and a new vvecho() function for callers to use.
+  * With EXTRAVERBOSE==2 or more, make run_command() print out each
+    command as it's run. (Closes issue 39).
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).

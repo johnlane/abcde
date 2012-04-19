@@ -246,6 +246,7 @@ page ()
 # Runs a command, silently if necessary, and updates the status file
 run_command ()
 {
+	vvecho "$@"
 	BLURB="$1"
 	shift
 	# See if this is supposed to be silent
