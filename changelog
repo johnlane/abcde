@@ -8,10 +8,13 @@ abcde 2.5.1 UNRELEASED
       Closes: #669140
     + Don't tag CDDB string with musicbrainz id
       Closes: #669141
+  * 
 
   [ Colin Tuckley ]
-  * replace deprecated egrep with grep -E (Closes issue 24)
-  * remove -o 0 options from make install (Closes issue 17)
+  * replace deprecated egrep with grep -E (Closes issue 24).
+    Thanks to vskytta for the patch.
+  * remove -o 0 options from make install (Closes issue 17).
+    Thanks to vskytta for the patch.
   * clean up indentation on older changelog entries
   * remove tarball target from Makefile since dir structure
     has changed now that we use subversion.
