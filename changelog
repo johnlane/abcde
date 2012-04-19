@@ -13,6 +13,7 @@ abcde 2.5.1 UNRELEASED
   * Fix aac tagging. (Closes issue 7).
     Thanks to Andrew Strong for forwarding the patch.
   * Add ATOMICPARSLEY=AtomicParsley (Closes issue 37).
+  * On OS X, switch from disktool to diskutil. (Closes issue 43).
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).
