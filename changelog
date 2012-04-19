@@ -16,9 +16,10 @@ abcde 2.5.1 UNRELEASED
   * On OS X, switch from disktool to diskutil. (Closes issue 43).
   * Updates for CD device detection:
     + Look for /dev/sr0, in case /dev/cdrom doesn't exist.
-      Closes issue 52.
+      (Closes issue 52).
     + Add suggested diskutil code to auto-detect the CD on OS X.
-      Closes issue 45.
+      (Closes issue 45).
+  * Check that we have $CDDBTOOL before we start. (Closes issue 27).
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).
