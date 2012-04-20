@@ -25,6 +25,9 @@ abcde 2.5.1 UNRELEASED
     far) and a new vvecho() function for callers to use.
   * With EXTRAVERBOSE==2 or more, make run_command() print out each
     command as it's run. (Closes issue 39).
+  * If we don't find any CDDB or Musicbrainz information for the CD, try
+    to extract CD-Text information to populate the cddbinfo template.
+    (Closes issue 41).
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).

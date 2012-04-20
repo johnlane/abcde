@@ -2229,6 +2229,58 @@ do_localcddb ()
 	fi
 }
 
+# do_cdtext
+# Try to read CD-Text from the drive using icedax / cdda2wav
+do_cdtext ()
+{
+	if new_checkexec icedax; then
+		CDTEXT_READER=icedax
+	elif new_checkexec cdda2wav; then
+		CDTEXT_READER=cdda2wav
+    else
+		# Didn't find either, bail
+		return 0
+	fi
+
+	if [ "$CDROMID" = "" ]; then
+		CDDA2WAVCDROM="$CDROM"
+	else
+		CDDA2WAVCDROM="$CDROMID"
+	fi
+
+	# Do we have CD-Text on the disc (and can the drive read it?)
+	${CDTEXT_READER} -J -N -D ${CDDA2WAVCDROM} > $ABCDETEMPDIR/cd-text 2>&1
+	grep -q '^CD-Text: detected' $ABCDETEMPDIR/cd-text
+	ERRORCODE=$?
+	if [ $ERRORCODE -ne 0 ]; then
+		# No CD-Text found, bail
+		return 0
+	fi
+
+	rm -f "$ABCDETEMPDIR/cddbchoices"
+	CDDBCHOICES=1
+	# Make an empty template
+	$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.1"
+	echo -n "Retrieved 1 CD-Text match..." >> "$ABCDETEMPDIR/cddbchoices"
+	echo "done." >> "$ABCDETEMPDIR/cddbchoices"
+	echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
+	echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+	ATITLE=$(grep -e '^Album title:' ${ABCDETEMPDIR}/cd-text | cut -c14- )
+	echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
+	# List out disc title/author and contents
+	echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
+	for TRACK in $(f_seq_row 1 $TRACKS)
+	do
+		TRACKM1=$(($TRACK - 1))
+		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | cut -c11- | tr -d \\r\\n)"
+		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
+		sed -i "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" $ABCDETEMPDIR/cddbread.1
+	done
+	sed -i "s~^DTITLE=.*~DTITLE=${ATITLE}~" $ABCDETEMPDIR/cddbread.1
+	echo >> "$ABCDETEMPDIR/cddbchoices"
+	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
+}
+
 # do_musicbrainz
 # Work with the musicbrainz WS API, then transform the results here so
 # they look (very) like the results from CDDB. Maybe not the best way
@@ -4021,6 +4073,13 @@ if [ "$DOCDDB" = "y" ]; then
 					do_musicbrainz
 					;;
 			esac
+		fi
+		CHOICE=$(checkstatus cddb-choice)
+		if [ $CHOICE = 0 ] ; then
+			# We don't have any information at all; try to fall back
+			# to CD-Text for basic information
+			vecho "No CDDB information found, trying cdtext from the CD"
+			do_cdtext
 		fi
 	fi
 	do_cddbedit
