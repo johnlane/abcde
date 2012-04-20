@@ -2272,7 +2272,7 @@ do_cdtext ()
 	for TRACK in $(f_seq_row 1 $TRACKS)
 	do
 		TRACKM1=$(($TRACK - 1))
-		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | cut -c11- | tr -d \\r\\n)"
+		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
 		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
 		sed -i "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" $ABCDETEMPDIR/cddbread.1
 	done
