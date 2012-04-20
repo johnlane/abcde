@@ -118,7 +118,7 @@ f_seq_line ()
 		done
 		echo
 	else
-		log error "syntax error while processing track numbers"
+		log error "syntax error while processing track numbers ($i)"
 		exit 1
 	fi
 }
@@ -3520,7 +3520,8 @@ else
 		# Range parsing code courtesy of Vincent Ho
 		# Cleaned up to use shell built-ins by Charles Steinkuehler
 		if [ "${1#*[^0-9-]}" != "$1" ]; then
-			log error "syntax error while processing track numbers"
+			log error "syntax error while processing track numbers ($1)"
+			exit 1
 		else
 			RSTART=${1%%-*}
 			REND=${1##*-}
