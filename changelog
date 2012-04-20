@@ -28,6 +28,8 @@ abcde 2.5.1 UNRELEASED
   * If we don't find any CDDB or Musicbrainz information for the CD, try
     to extract CD-Text information to populate the cddbinfo template.
     (Closes issue 41).
+  * Try to give more helpful error messages when we can't parse the
+    command line, and exit rather than carry on. (Closes issue 51).
 
   [ Colin Tuckley ]
   * replace deprecated egrep with grep -E (Closes issue 24).
