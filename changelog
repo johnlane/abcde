@@ -1,4 +1,4 @@
-abcde 2.5.1 UNRELEASED
+abcde 2.5.1
 
   [ Steve McIntyre ]
   * Several patches for improved Musicbrainz support from Martin Michlmayr:
@@ -42,7 +42,7 @@ abcde 2.5.1 UNRELEASED
   * improve presentation of options/defaults when asking a question
     (closes issue 9)
 
- -- Colin Tuckley <colint@debian.org>  Thu, 19 Apr 2012 13:55:00 +0100
+ -- Steve McIntyre <93sam@debian.org>  Wed, 25 Apr 2012 12:35:00 +0100
 
 abcde 2.5.0
 

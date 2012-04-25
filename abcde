@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION='2.5.1-UNRELEASED'
+VERSION='2.5.1'
 
 usage ()
 {
