@@ -1,3 +1,56 @@
+abcde (2.5.2-1) unstable; urgency=low
+
+  * New upstream release, fixing a silly bug in the 2.5.1 release:
+    + Re-fix speex tagging. (Closes issue 19).
+      Thanks to vskytta for pointing out the problem - patch not applied
+      properly in 2.5.1
+
+ -- Steve McIntyre <93sam@debian.org>  Sun, 29 Apr 2012 17:28:22 +0100
+
+abcde (2.5.1-1) unstable; urgency=low
+
+  * New upstream release, fixing lots of bugs:
+    + Several patches for improved Musicbrainz support from Martin Michlmayr:
+      - add musicbrainz support for FLAC files with embedded cue files.
+        Closes: #669139
+      - Don't submit to CDDB server when using musicbrainz
+        Closes: #669140
+      - Don't tag CDDB string with musicbrainz id
+        Closes: #669141
+    + Fix speex tagging. (Closes issue 19).
+      Thanks to vskytta for the patch.
+    + Fix aac tagging. (Closes issue 7).
+      Thanks to Andrew Strong for forwarding the patch.
+    + Add ATOMICPARSLEY=AtomicParsley (Closes issue 37).
+    + On OS X, switch from disktool to diskutil. (Closes issue 43).
+    + Updates for CD device detection:
+      - Look for /dev/sr0, in case /dev/cdrom doesn't exist.
+        (Closes issue 52).
+      - Add suggested diskutil code to auto-detect the CD on OS X.
+        (Closes issue 45).
+    + Check that we have $CDDBTOOL before we start. (Closes issue 27).
+    + Change the meaning of EXTRAVERBOSE; previously, it was a y/n option
+      to make things more verbose. Add extra levels of verbosity (0, 1, 2 so
+      far) and a new vvecho() function for callers to use.
+    + With EXTRAVERBOSE==2 or more, make run_command() print out each
+      command as it's run. (Closes issue 39).
+    + If we don't find any CDDB or Musicbrainz information for the CD, try
+      to extract CD-Text information to populate the cddbinfo template.
+      (Closes issue 41). Closes: #449206.
+    + Try to give more helpful error messages when we can't parse the
+      command line, and exit rather than carry on. (Closes issue 51).
+    + replace deprecated egrep with grep -E (Closes issue 24).
+      Thanks to vskytta for the patch.
+    + remove -o 0 options from make install (Closes issue 17).
+      Thanks to vskytta for the patch.
+    + clean up indentation on older changelog entries
+    + remove tarball target from Makefile since dir structure
+      has changed now that we use subversion.
+    + improve presentation of options/defaults when asking a question
+      (closes issue 9)
+
+ -- Steve McIntyre <93sam@debian.org>  Thu, 25 Apr 2012 13:04:57 +0100
+
 abcde (2.5.0-1) unstable; urgency=low
 
   * New upstream release, fixing several bugs:
