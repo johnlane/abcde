@@ -13,7 +13,7 @@
 #
 # $Id$
 
-VERSION='2.5.1'
+VERSION='2.5.2'
 
 usage ()
 {
@@ -1137,7 +1137,7 @@ do_encode ()
 				fi
 				# Tag the file at encode time, as it can't be done after encoding.
 				if [ "$DOTAG" = "y" ]; then
-					RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
