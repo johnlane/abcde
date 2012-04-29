@@ -1,3 +1,13 @@
+abcde 2.5.2
+
+  [ Steve McIntyre ]
+  * Re-fix speex tagging. (Closes issue 19).
+    Thanks to vskytta for pointing out the problem - patch not applied
+    properly in 2.5.1
+  * Quickly re-release as 2.5.2
+
+ -- Steve McIntyre <93sam@debian.org>  sun, 29 Apr 2012 17:17:14 +0100
+
 abcde 2.5.1
 
   [ Steve McIntyre ]
