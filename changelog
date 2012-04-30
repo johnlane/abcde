@@ -1,6 +1,9 @@
 abcde 2.5.3 UNRELEASED
 
- -- Steve McIntyre <93sam@debian.org>  Sun, 29 Apr 2012 17:17:14 +0100
+  * Sort options alphabetically (Closes issue 58).
+    Thanks to vskytta for the patch.
+
+ -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
 abcde 2.5.2
 
