@@ -1,3 +1,7 @@
+abcde 2.5.3 UNRELEASED
+
+ -- Steve McIntyre <93sam@debian.org>  Sun, 29 Apr 2012 17:17:14 +0100
+
 abcde 2.5.2
 
   [ Steve McIntyre ]
@@ -6,7 +10,7 @@ abcde 2.5.2
     properly in 2.5.1
   * Quickly re-release as 2.5.2
 
- -- Steve McIntyre <93sam@debian.org>  sun, 29 Apr 2012 17:17:14 +0100
+ -- Steve McIntyre <93sam@debian.org>  Sun, 29 Apr 2012 17:17:14 +0100
 
 abcde 2.5.1
 
