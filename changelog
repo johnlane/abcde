@@ -2,6 +2,8 @@ abcde 2.5.3 UNRELEASED
 
   * Sort options alphabetically (Closes issue 58).
     Thanks to vskytta for the patch.
+  * Add Recommends: mailx in the Debian packaging for Debian/Ubuntu
+    users.
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
