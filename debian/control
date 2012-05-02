@@ -11,7 +11,7 @@ Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 Package: abcde
 Architecture: all
 Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex
-Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl
+Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, mailx
 Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3, normalize-audio, vorbisgain, mkcue, mp3gain
 Description: A Better CD Encoder
  A frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
