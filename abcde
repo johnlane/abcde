@@ -1027,7 +1027,7 @@ do_encode ()
 				TEMPARG="PIPE_$MPPENCODER"
 				;;
 			m4a)
-				TEMPARG="PIPE_$MPPENCODER"
+				TEMPARG="PIPE_$AACENCODERSYNTAX"
 				;;
 		esac
 		IN="$( eval echo "\$$TEMPARG" )"
