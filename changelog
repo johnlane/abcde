@@ -3,7 +3,7 @@ abcde 2.5.3 UNRELEASED
   * Sort options alphabetically (Closes issue 58).
     Thanks to vskytta for the patch.
   * Add Recommends: mailx in the Debian packaging for Debian/Ubuntu
-    users.
+    users. Closes: #607147
   * Fix encoding call for m4a. (Closes issue 31).
   * Fix do_musicbrainz() for the case where there are no matches.
   * When using Musicbrainz, checksum and only output unique matches for an
