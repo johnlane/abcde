@@ -43,6 +43,12 @@ if (!defined($workdir)) {
     $workdir = "/tmp";
 }
 
+sub calc_sha1($) {
+    my $filename = shift;
+    my $s = Digest::SHA->new(1);
+    $s->addfile($filename);
+    return $s->hexdigest;
+}
 
 if ($command =~ m/^id/) {
     my $disc = new MusicBrainz::DiscID($device);
@@ -68,6 +74,7 @@ if ($command =~ m/^id/) {
     my $response = $ws->search({ DISCID => $discid });
     my @releases = $response->release_list();
     my $releasenum = 0;
+    my @sums;
 
     foreach my $release (@releases) {
         my $a_artist = $release->artist()->name();
@@ -119,6 +126,18 @@ if ($command =~ m/^id/) {
         print OUT "PLAYORDER=\n";
         print OUT ".\n";
         close OUT;
+
+        # Check to see that this entry is unique; generate a checksum
+        # and compare to any previous checksums
+        my $checksum = calc_sha1("$workdir/cddbread.$releasenum");
+        foreach my $sum (@sums) {
+            if ($checksum eq $sum) {
+                unlink("$workdir/cddbread.$releasenum");
+                $releasenum--;
+                last;
+            }
+        }
+        push (@sums, $checksum);
     }
 } elsif ($command =~ m/calcid/) {
 # Calculate MusicBrainz ID from disc offsets; see
