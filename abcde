@@ -2299,23 +2299,7 @@ do_musicbrainz ()
 
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
-		NUM_RESPONSES=$(echo ${ABCDETEMPDIR}/cddbread.* | wc -w)
-		if [ "$NUM_RESPONSES" -eq 1 ] ; then
-			# One exact match
-			echo -n "Retrieved 1 Musicbrainz match..." >> "$ABCDETEMPDIR/cddbchoices"
-			echo "done." >> "$ABCDETEMPDIR/cddbchoices"
-			echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
-			echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-			ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.1 | cut -c8- )
-			echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
-			# List out disc title/author and contents
-			echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
-			for TRACK in $(f_seq_row 1 $TRACKS)
-			do
-				echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo >> "$ABCDETEMPDIR/cddbchoices"
-		elif [ "$NUM_RESPONSES" -eq 0 ] ; then
+		if [ ! -f ${ABCDETEMPDIR}/cddbread.1 ] ; then
 			# No matches. Use the normal cddb template for the user to
 			# fill in
 			echo "No Musicbrainz match." >> "$ABCDETEMPDIR/cddbchoices"
@@ -2332,23 +2316,42 @@ do_musicbrainz ()
 			echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
 			echo 503 > "$ABCDETEMPDIR/cddbquery"
 		else
-			echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
-			echo "Multiple Musicbrainz matches:" >> "$ABCDETEMPDIR/cddbchoices"
-			for file in $ABCDETEMPDIR/cddbread.*
-			do
-				X=$(echo $file | sed 's/^.*cddbread\.//g')
-				echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
-				ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.$X | cut -c8- )
-				echo "none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
+			# We have some matches
+			NUM_RESPONSES=$(echo ${ABCDETEMPDIR}/cddbread.* | wc -w)
+			if [ "$NUM_RESPONSES" -eq 1 ] ; then
+				# One exact match
+				echo -n "Retrieved 1 Musicbrainz match..." >> "$ABCDETEMPDIR/cddbchoices"
+				echo "done." >> "$ABCDETEMPDIR/cddbchoices"
+				echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
+				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+				ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.1 | cut -c8- )
+				echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 				# List out disc title/author and contents
-				echo "#$X: ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
+				echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
 				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
-					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 				done
 				echo >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo "." >> "$ABCDETEMPDIR/cddbquery"
+			else
+				echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
+				echo "Multiple Musicbrainz matches:" >> "$ABCDETEMPDIR/cddbchoices"
+				for file in $ABCDETEMPDIR/cddbread.*
+				do
+					X=$(echo $file | sed 's/^.*cddbread\.//g')
+					echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
+					ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.$X | cut -c8- )
+					echo "none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
+					# List out disc title/author and contents
+					echo "#$X: ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
+					for TRACK in $(f_seq_row 1 $TRACKS)
+					do
+						echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					done
+					echo >> "$ABCDETEMPDIR/cddbchoices"
+				done
+				echo "." >> "$ABCDETEMPDIR/cddbquery"
+			fi
 		fi
 		echo "musicbrainz-readcomplete" >> "$ABCDETEMPDIR/status"
 	fi
