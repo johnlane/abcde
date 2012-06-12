@@ -217,15 +217,19 @@ abcde requires the following backend tools to work:
 * (optional) distmp3, a client/server for distributed mp3 encoding.
   You can get distmp3 at http://wlug.westbo.se/medlprog/medlprog.html
 
-Abcde's new mailing list is abcde@listas.hispalinux.es. So far has not
-been actively used.
-The posts from non-subscribers are moderated to prevent spam.
+Abcde's new mailing list is abcde-users@lists.einval.com. Visit
+
+  http://lists.einval.com/cgi-bin/mailman/listinfo/abcde-users
+
+to subscribe. Posts from non-subscribers are moderated to prevent
+spam.
 
 Abcde's current page is at http://code.google.com/p/abcde/
 
 --
 Jesus Climent <jesus.climent@hispalinux.es>
 Colin Tuckley <colint@debian.org>
+Steve McIntyre <93sam@debian.org>
 
 abcde was originally created by Robert Woodcock <rcw@debian.org>
 
