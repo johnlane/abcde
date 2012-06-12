@@ -8,6 +8,8 @@ abcde 2.5.3 UNRELEASED
   * Fix do_musicbrainz() for the case where there are no matches.
   * When using Musicbrainz, checksum and only output unique matches for an
     album. Closes: #669143
+  * Add Recommends: atomicparsley in the Debian packaging for Debian/Ubuntu
+    users. LP: #535527
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
