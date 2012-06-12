@@ -20,6 +20,9 @@ for more help.
 
 MAJOR CHANGES
 =============
+Changes in 2.5:
+* Added working support for Musicbrainz using a perl helper script.
+
 Changes in 2.4:
 * Read TOC entries from the CD. The default uses cdrdao. The program mkcue is
   also optional.
