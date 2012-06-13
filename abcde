@@ -2241,10 +2241,19 @@ do_cdtext ()
 		return 0
 	fi
 
-	if [ "$CDROMID" = "" ]; then
-		CDDA2WAVCDROM="$CDROM"
-	else
+	if [ "$OSFLAVOUR" = "OSX" ] ; then
+		# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
+		diskutil unmount ${CDROM#/dev/}
+		# Also, in OSX the cdrom device for cdda2wav/icedax changes...
+		CDDA2WAVCDROM="IODVDServices"
+	elif [ "$OSFLAVOUR" = "FBSD" ] ; then
 		CDDA2WAVCDROM="$CDROMID"
+	else
+		if [ "$CDROMID" = "" ]; then
+			CDDA2WAVCDROM="$CDROM"
+		else
+			CDDA2WAVCDROM="$CDROMID"
+		fi
 	fi
 
 	# Do we have CD-Text on the disc (and can the drive read it?)
@@ -2942,7 +2951,7 @@ do_cdread ()
 		cdda2wav | icedax)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
-				diskutil unmount ${CDROM#/dev/} 0
+				diskutil unmount ${CDROM#/dev/}
 				# Also, in OSX the cdrom device for cdda2wav/icedax changes...
 				CDDA2WAVCDROM="IODVDServices"
 			elif [ "$OSFLAVOUR" = "FBSD" ] ; then
