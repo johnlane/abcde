@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 1999 Nathaniel Smith <njs@uclink4.berkeley.edu>
 # Copyright (C) 1999, 2000, 2001 Robert Woodcock <rcw@debian.org>
