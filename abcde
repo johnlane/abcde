@@ -1555,7 +1555,7 @@ do_playlist ()
 		## this will convert the playlist to have CRLF line-endings, if specified
 		## (some hardware players insist on CRLF endings)
 		if [ "$DOSPLAYLIST" = "y" ]; then
-			awk '{substr("\r",""); printf "%s\r\n", $0}' "$OUTPUTDIR/$PLAYLISTFILE" > "$ABCDETEMPDIR/PLAYLISTFILE.tmp"
+			awk '{sub("\r$",""); printf "%s\r\n", $0}' "$OUTPUTDIR/$PLAYLISTFILE" > "$ABCDETEMPDIR/PLAYLISTFILE.tmp"
 #			mv -f "$ABCDETEMPDIR/PLAYLISTFILE.tmp" "$OUTPUTDIR/$PLAYLISTFILE"
 			cat "$ABCDETEMPDIR/PLAYLISTFILE.tmp" | sed 's/\//\\/' > "$OUTPUTDIR/$PLAYLISTFILE"
 		fi
