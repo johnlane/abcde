@@ -17,6 +17,8 @@ abcde 2.5.3 UNRELEASED
   * Make sure that ABCDETEMPDIR is quoted so we can deal with spaces in
     file and directory names. Closes issue 64. Thanks to
     richard.security.consultant for the patch, adapted slightly.
+  * Tweak do_cdtext() so it works on OS X too. Closes issue 65.
+    Thanks to richard.security.consultant for the patch.
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
