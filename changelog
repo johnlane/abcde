@@ -10,6 +10,8 @@ abcde 2.5.3 UNRELEASED
     album. Closes: #669143
   * Add Recommends: atomicparsley in the Debian packaging for Debian/Ubuntu
     users. LP: #535527
+  * Remove documentation of the old "-R" option for recursive searching of
+    local CDDB data, it's now enabled always. (Closes issue 57).
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
