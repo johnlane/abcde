@@ -937,7 +937,7 @@ do_tag ()
 			fi
 
 			#It has to be command file opts for AtomicParsley
-			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $ATOMICPARSLEY $ABCDETEMPDIR/track$1.m4a --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --tracknum ${TRACKNUM:-$1} --year "$CDYEAR" --genre "$CDGENRE" --compilation $VARIOUSBOOL --comment "$COMMENTOUTPUT" --output $ATOMICTEMPFILE
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $ATOMICPARSLEY "$ABCDETEMPDIR/track$1.m4a" --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --tracknum ${TRACKNUM:-$1} --year "$CDYEAR" --genre "$CDGENRE" --compilation $VARIOUSBOOL --comment "$COMMENTOUTPUT" --output $ATOMICTEMPFILE
 			if [ -f $ATOMICTEMPFILE ]; then
 				mv "$ATOMICTEMPFILE" "$ABCDETEMPDIR/track$1.m4a"
 			fi
@@ -2248,8 +2248,8 @@ do_cdtext ()
 	fi
 
 	# Do we have CD-Text on the disc (and can the drive read it?)
-	${CDTEXT_READER} -J -N -D ${CDDA2WAVCDROM} > $ABCDETEMPDIR/cd-text 2>&1
-	grep -q '^CD-Text: detected' $ABCDETEMPDIR/cd-text
+	${CDTEXT_READER} -J -N -D ${CDDA2WAVCDROM} > "$ABCDETEMPDIR/cd-text" 2>&1
+	grep -q '^CD-Text: detected' "$ABCDETEMPDIR/cd-text"
 	ERRORCODE=$?
 	if [ $ERRORCODE -ne 0 ]; then
 		# No CD-Text found, bail
@@ -2264,7 +2264,7 @@ do_cdtext ()
 	echo "done." >> "$ABCDETEMPDIR/cddbchoices"
 	echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 	echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-	ATITLE=$(grep -e '^Album title:' ${ABCDETEMPDIR}/cd-text | cut -c14- )
+	ATITLE=$(grep -e '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- )
 	echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 	# List out disc title/author and contents
 	echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
@@ -2273,9 +2273,9 @@ do_cdtext ()
 		TRACKM1=$(($TRACK - 1))
 		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
 		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
-		sed -i "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" $ABCDETEMPDIR/cddbread.1
+		sed -i "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" "$ABCDETEMPDIR/cddbread.1"
 	done
-	sed -i "s~^DTITLE=.*~DTITLE=${ATITLE}~" $ABCDETEMPDIR/cddbread.1
+	sed -i "s~^DTITLE=.*~DTITLE=${ATITLE}~" "$ABCDETEMPDIR/cddbread.1"
 	echo >> "$ABCDETEMPDIR/cddbchoices"
 	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
 }
@@ -2294,11 +2294,11 @@ do_musicbrainz ()
 		rm -f "$ABCDETEMPDIR/cddbchoices"
 		CDDBCHOICES=1 # Overridden by multiple matches
 		MBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
-		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir $ABCDETEMPDIR
+		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir "$ABCDETEMPDIR"
 
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
-		if [ ! -f ${ABCDETEMPDIR}/cddbread.1 ] ; then
+		if [ ! -f "${ABCDETEMPDIR}/cddbread.1" ] ; then
 			# No matches. Use the normal cddb template for the user to
 			# fill in
 			echo "No Musicbrainz match." >> "$ABCDETEMPDIR/cddbchoices"
@@ -2316,14 +2316,14 @@ do_musicbrainz ()
 			echo 503 > "$ABCDETEMPDIR/cddbquery"
 		else
 			# We have some matches
-			NUM_RESPONSES=$(echo ${ABCDETEMPDIR}/cddbread.* | wc -w)
+			NUM_RESPONSES=$(echo "${ABCDETEMPDIR}"/cddbread.* | wc -w)
 			if [ "$NUM_RESPONSES" -eq 1 ] ; then
 				# One exact match
 				echo -n "Retrieved 1 Musicbrainz match..." >> "$ABCDETEMPDIR/cddbchoices"
 				echo "done." >> "$ABCDETEMPDIR/cddbchoices"
 				echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-				ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.1 | cut -c8- )
+				ATITLE=$(grep -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.1" | cut -c8- )
 				echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 				# List out disc title/author and contents
 				echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
@@ -2335,11 +2335,11 @@ do_musicbrainz ()
 			else
 				echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
 				echo "Multiple Musicbrainz matches:" >> "$ABCDETEMPDIR/cddbchoices"
-				for file in $ABCDETEMPDIR/cddbread.*
+				for file in "$ABCDETEMPDIR"/cddbread.*
 				do
 					X=$(echo $file | sed 's/^.*cddbread\.//g')
 					echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
-					ATITLE=$(grep -e '^DTITLE=' ${ABCDETEMPDIR}/cddbread.$X | cut -c8- )
+					ATITLE=$(grep -e '^DTITLE=' "${ABCDETEMPDIR}"/cddbread.$X | cut -c8- )
 					echo "none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 					# List out disc title/author and contents
 					echo "#$X: ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
