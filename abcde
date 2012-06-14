@@ -95,7 +95,7 @@ log ()
 	esac
 }
 
-# Funtions to replace the need of seq, which is too distribution dependant.
+# Functions to replace the need of seq, which is too distribution dependent.
 f_seq_row ()
 {
 	i=$1
@@ -3277,11 +3277,11 @@ MAXPROCS=1
 # List of actions to perform - by default, run to completion
 ACTIONS=cddb,read,encode,tag,move,clean
 
-# This option is basicaly for Debian package dependencies:
-# List of prefered outputs - by default, run with whatever we have in the path
+# This option is basically for Debian package dependencies:
+# List of preferred outputs - by default, run with whatever we have in the path
 DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
 
-# List of prefered cdromreaders - by default, run whichever we have in the path
+# List of preferred cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav"
 
 # List of quality levels associated with the encoders:
@@ -3290,7 +3290,7 @@ DEFAULT_QUALITY_LO="oggenc:-q 1,lame:-q 7,speex:--quality 5,m4a:"
 DEFAULT_QUALITY_HI="oggenc:-q 7,lame:--preset standard,speex:--quality 9,m4a:"
 DEFAULT_QUALITY_XHI="oggenc:-q 10,lame:--preset extreme,speex:--quality 10,m4a:"
 
-# Asume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
+# Assume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
 # Linux/OpenBSD. ftp is user for NetBSD.
 # Let's use these checkings to determine the OS flavour, which will be used
 # later
@@ -3602,7 +3602,7 @@ if [ X"$CDROM" != "X" ] ; then
 		if [ "$OSFLAVOUR" = "FBSD" ]; then
 			if echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then :; else
 				log error "CDROMID not in the right format for $CDROMREADERSYNTAX"
-				log error "Use \"cdrecord -scanbus\" to obtain a adecuate ID an set CDROMID accordingly"
+				log error "Use \"cdrecord -scanbus\" to obtain an adequate ID and set CDROMID accordingly"
 				exit 1
 			fi
 		fi
@@ -4057,7 +4057,7 @@ if [ "$DOREAD" = "y" ]; then
 	#  - set the CD speed value with eject -x
 	vecho -n "Executing customizable pre-read function... "
 
-	pre_read # Execute the user-defined pre-read funtion. Close the CD with it.
+	pre_read # Execute the user-defined pre-read function. Close the CD with it.
 
 	vecho "done."
 fi
@@ -4212,7 +4212,7 @@ if [ "$NOGAP" = "y" ] || [ "$BATCHNORM" = "y" ] || [ "$ONETRACK" = "y" ]; then
 	echo NEXTTRACK
 fi
 
-# Execute the user-defined post_read funtion before ejecting CD
+# Execute the user-defined post_read function before ejecting CD
 post_read
 
 # We are now finished with the cdrom - it can be safely ejected. Note that

@@ -36,7 +36,7 @@ TODO:
 * When cdparanoia encounters a problem (disk full, data track) when abcde
   is run in batch mode, abcde still continues, but batch mode is disabled.
   I.e. instead of normalizing all tracks together, they are normalized
-  seperately, instead of running "lame --nogap" on all wavs, lame is
+  separately, instead of running "lame --nogap" on all wavs, lame is
   invoked once per wav.
 
   Abcde should halt when a problem occurs, so it can be manually resolved.
