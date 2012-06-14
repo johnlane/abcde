@@ -21,6 +21,7 @@ abcde 2.5.3 UNRELEASED
     Thanks to richard.security.consultant for the patch.
   * Change cddb-tool to use bash to make sure that echo -n works.
     Closes issue 67.
+  * Fixes for lots of spelling mistakes from vskytta. Closes issue 68.
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 
@@ -325,11 +326,11 @@ abcde 2.3.99
   * BATCH has been split into two options: BATCHNORM which allows, by using
     -b, to use the -a normalize in all the files at once, and NOGAP, that by
     using -g, introduces the lame's --nogap extension.
-  * Added replygain using the appropiate tags with Ogg/Vorbis and Ogg/FLAC.
-  * Replaygain is an action, not a flag, since it can be performed individualy
+  * Added replygain using the appropriate tags with Ogg/Vorbis and Ogg/FLAC.
+  * Replaygain is an action, not a flag, since it can be performed individually
     in the chain of events.
   * debian/{rules,control}:
-    - Changed the target directory from tmp to abcde, to accomodate to compat
+    - Changed the target directory from tmp to abcde, to accommodate to compat
     mode 4.
     - Bump standards to 3.6.2.1. No changes needed.
   * Added "decho" as a DEBUG output for some specific debug variables.
@@ -836,7 +837,7 @@ abcde 2.1.0
   * EXPERIMENTAL multiple output support:
     + multiple output and error checking
     + multiple lists support
-  * Default output file changed to have the $track_number in the begining.
+  * Default output file changed to have the $track_number in the beginning.
   * abcde takeover.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Fri, 28 Feb 2003
@@ -935,7 +936,7 @@ abcde 1.9.8
   * Now defaults to using FreeDB instead of Gracenote. Pricks.
   * New VAOUTPUTFORMAT variable for those who like their various artists
     discs named in a different format
-  * Accomodates the fact that OpenBSD xargs does not eat whitespace, thanks
+  * Accommodates the fact that OpenBSD xargs does not eat whitespace, thanks
     to Marcus Daniel for discovering this
   * New scheduler for distmp3, thanks to David Bergeron
   * xingmp3enc support, thanks to Brian Gannon
@@ -1256,7 +1257,7 @@ cdgrab 0.7.5
     If you don't want to touch your lame installation, put the following in
     your cdgrab.conf: "LAME=lamer"
   * Omits -w from cdparanoia commands
-  * Depends on cdparanoia-bin or cdparanoia now - this accomodates the recent
+  * Depends on cdparanoia-bin or cdparanoia now - this accommodates the recent
     cdparanoia package namechange.
   * Fixed a stealth-whitespace typo at line 495. Thanks go to Gregory T.
     Norris for tracking this down.
