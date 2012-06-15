@@ -22,6 +22,8 @@ abcde 2.5.3 UNRELEASED
   * Change cddb-tool to use bash to make sure that echo -n works.
     Closes issue 67.
   * Fixes for lots of spelling mistakes from vskytta. Closes issue 68.
+  * For safety across different systems, avoid using "sed -i".
+    Closes issue 66.
 
  -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
 

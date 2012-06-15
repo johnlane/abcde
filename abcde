@@ -2282,9 +2282,11 @@ do_cdtext ()
 		TRACKM1=$(($TRACK - 1))
 		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
 		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
-		sed -i "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" "$ABCDETEMPDIR/cddbread.1"
+		sed "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbread.new"
+        mv -f "$ABCDETEMPDIR/cddbread.new" "$ABCDETEMPDIR/cddbread.1"
 	done
-	sed -i "s~^DTITLE=.*~DTITLE=${ATITLE}~" "$ABCDETEMPDIR/cddbread.1"
+	sed "s~^DTITLE=.*~DTITLE=${ATITLE}~" "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbread.new"
+    mv -f "$ABCDETEMPDIR/cddbread.new" "$ABCDETEMPDIR/cddbread.1"
 	echo >> "$ABCDETEMPDIR/cddbchoices"
 	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
 }
