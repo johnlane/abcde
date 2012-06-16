@@ -1,4 +1,4 @@
-abcde 2.5.3 UNRELEASED
+abcde 2.5.3
 
   * Sort options alphabetically (Closes issue 58).
     Thanks to vskytta for the patch.
@@ -25,7 +25,7 @@ abcde 2.5.3 UNRELEASED
   * For safety across different systems, avoid using "sed -i".
     Closes issue 66.
 
- -- Steve McIntyre <93sam@debian.org>  Mon, 30 Apr 2012 16:59:14 +0100
+ -- Steve McIntyre <93sam@debian.org>  Sat, 16 Jun 2012 15:12:11 +0100
 
 abcde 2.5.2
 

@@ -1,3 +1,33 @@
+abcde (2.5.3-1) unstable; urgency=low
+
+  * New upstream release with lots of bug fixes.
+    + Sort options alphabetically (Closes issue 58).
+      Thanks to vskytta for the patch.
+    + Add Recommends: mailx in the Debian packaging for Debian/Ubuntu
+      users. Closes: #607147
+    + Fix encoding call for m4a. (Closes issue 31). Closes: #449045
+    + Fix do_musicbrainz() for the case where there are no matches.
+    + When using Musicbrainz, checksum and only output unique matches for an
+      album. Closes: #669143
+    + Add Recommends: atomicparsley in the Debian packaging for Debian/Ubuntu
+      users. LP: #535527
+    + Remove documentation of the old "-R" option for recursive searching of
+      local CDDB data, it's now enabled always. (Closes issue 57).
+    + Fix use of awk (sub instead of substr) when generating CRLF line endings.
+      (Closes issue 59).
+    + Make sure that ABCDETEMPDIR is quoted so we can deal with spaces in
+      file and directory names. Closes issue 64. Thanks to
+      richard.security.consultant for the patch, adapted slightly.
+    + Tweak do_cdtext() so it works on OS X too. Closes issue 65.
+      Thanks to richard.security.consultant for the patch.
+    + Change cddb-tool to use bash to make sure that echo -n works.
+      Closes issue 67.
+    + Fixes for lots of spelling mistakes from vskytta. Closes issue 68.
+    + For safety across different systems, avoid using "sed -i".
+      Closes issue 66.
+
+ -- Steve McIntyre <93sam@debian.org>  Sat, 16 Jun 2012 15:12:11 +0100
+
 abcde (2.5.2-1) unstable; urgency=low
 
   * New upstream release, fixing a silly bug in the 2.5.1 release:
