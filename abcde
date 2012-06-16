@@ -4091,7 +4091,7 @@ if [ "$DOCDDB" = "y" ]; then
 			esac
 		fi
 		CHOICE=$(checkstatus cddb-choice)
-		if [ $CHOICE = 0 ] ; then
+		if [ "$CHOICE" = 0 ] ; then
 			# We don't have any information at all; try to fall back
 			# to CD-Text for basic information
 			vecho "No CDDB information found, trying cdtext from the CD"
