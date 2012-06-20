@@ -1,6 +1,7 @@
 abcde 2.5.4 UNRELEASE
 
-  * 
+  * Update GPL/FSF headers to match current versions. Thanks to vskytta
+    for the patch. (Closes issue 69).
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 16 Jun 2012 15:12:11 +0100
 
