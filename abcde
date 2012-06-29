@@ -828,9 +828,9 @@ do_tag ()
 						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
-						"${TRACKNUM:+-N $TRACKS}" \
-						"${ENCODING:+--set-encoding=$ENCODING}" \
-						"${TPE2:+--set-user-text-frame=TPE2:$TPE2}" \
+						${TRACKNUM:+-N "$TRACKS"} \
+						${ENCODING:+--set-encoding="$ENCODING"} \
+						${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
