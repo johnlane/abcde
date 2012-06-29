@@ -3876,8 +3876,9 @@ if [ "$ID3TAGV" = "1" ]; then
 	TAGGER="$ID3"
 	TAGGEROPTS="$ID3OPTS"
 else
-	TAGGER="$ID3V2"
+	TAGGER="$EYED3"
 	TAGGEROPTS="$ID3V2OPTS"
+	ID3SYNTAX=eyed3
 fi
 
 # NOGAP is specific to lame. Other encoders fail ...
