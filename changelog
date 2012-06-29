@@ -4,6 +4,8 @@ abcde 2.5.4 UNRELEASE
     for the patch. (Closes issue 69).
   * Fix the command line for ID3SYNTAX=eyed3. Thanks to neil.gm.richards
     for the patch. Closes issue 50.
+  * Switch to eyed3 by default for MP3 tagging, as it looks to do UTF-8
+    tagging better. Closes issue 22 (hopefully)
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 16 Jun 2012 15:12:11 +0100
 
