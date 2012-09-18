@@ -1,4 +1,4 @@
-abcde 2.5.4 UNRELEASE
+abcde 2.5.4
 
   * Update GPL/FSF headers to match current versions. Thanks to vskytta
     for the patch. (Closes issue 69).
@@ -7,7 +7,7 @@ abcde 2.5.4 UNRELEASE
   * Switch to eyed3 by default for MP3 tagging, as it looks to do UTF-8
     tagging better. Closes issue 22 (hopefully)
 
- -- Steve McIntyre <93sam@debian.org>  Sat, 16 Jun 2012 15:12:11 +0100
+ -- Steve McIntyre <93sam@debian.org>  Tue, 18 Sep 2012 12:42:11 +0100
 
 abcde 2.5.3
 
