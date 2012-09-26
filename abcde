@@ -2400,6 +2400,9 @@ do_cddbstat ()
 						2??)	# Server responded, everything seems OK
 							rc=0
 							;;
+						*)      # unknown error
+							break
+							;;
 					esac
 					;;
 				esac
