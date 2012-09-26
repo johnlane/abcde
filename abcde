@@ -3326,10 +3326,7 @@ else
 fi
 
 # If CDDBAVAIL is set to n, no CDDB read is done
-# If USEID3 is set to n, no ID3 tagging is done
 CDDBAVAIL=y
-USEID3=y
-USEID3V2=y
 
 # There we go..
 # But before we get into business, let us chop off any GREP environmental
