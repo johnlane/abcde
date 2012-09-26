@@ -1,4 +1,4 @@
-abcde 2.5.5
+abcde 2.5.5 UNRELEASED
 
   * Fix finding $CDROM on OS X. Thanks to niederstrasser for the patch.
     Closes issue 71.
@@ -6,6 +6,8 @@ abcde 2.5.5
     to vskytta for the patch. Closes issue 73.
   * Clean up movement to eyeD3, remove id3v2 remnants. Thanks to vskytta
     for the patch. Closes issue 74.
+  * Fix infinite loop if cddb fails. Thanks to Dominic Hargreaves for the
+    patch. Closes: #687038 in Debian
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 18 Sep 2012 12:42:11 +0100
 
