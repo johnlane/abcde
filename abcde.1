@@ -357,7 +357,7 @@ with \fBdistmp3\fR (DISTMP3NICE).
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEEXENC, MPPENC, AACEND, ID3, ID3V2, EYED3, METAFLAC,
+VORBIZE, OGGENC, FLAC, SPEEXENC, MPPENC, AACEND, ID3, EYED3, EYED3, METAFLAC,
 CDPARANOIA, CDDA2WAV, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
 VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
 CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
@@ -366,7 +366,7 @@ CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
-FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, AACENCOPTS, ID3OPTS, ID3V2OPTS, MP3GAINOPTS,
+FLACOPTS, SPEEXENCOPTS, MPPENCOPTS, AACENCOPTS, ID3OPTS, EYED3OPTS, MP3GAINOPTS,
 CDPARANOIAOPTS, CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS,
 NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS,
 DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
@@ -566,7 +566,7 @@ Perl and some Musicbrainz libraries) can be used to retrieve CDDB
 information about the CD.
 .TP
 .B *
-(for MP3s) id3 or id3v2, id3 v1 and v2 tagging programs.
+(for MP3s) id3 or eyeD3, id3 v1 and v2 tagging programs.
 .TP
 .B *
 (optional) distmp3, a client/server for distributed mp3 encoding.
@@ -593,7 +593,7 @@ information about the CD.
 .BR mppenc (1),
 .BR faac (1),
 .BR id3 (1),
-.BR id3v2 (1),
+.BR eyeD3 (1),
 .BR wget (1),
 .BR fetch (1),
 .BR cd-discid (1),

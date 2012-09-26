@@ -216,7 +216,7 @@ abcde requires the following backend tools to work:
   It's available in Debian or http://linukz.org/cd-discid.shtml
 * An HTTP retrieval program: wget, fetch (FreeBSD) or curl (MacOSX)
 * id3, an id3 tagging program. Available at: http://lly.org/~rcw/id3/
-* id3v2, an id3 version 2.0 tagger. http://id3v2.sourceforge.net/
+* eyeD3, an id3 version 2.0 tagger. http://eyed3.nicfit.net/
 * (optional) distmp3, a client/server for distributed mp3 encoding.
   You can get distmp3 at http://wlug.westbo.se/medlprog/medlprog.html
 
