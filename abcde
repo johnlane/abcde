@@ -3373,6 +3373,8 @@ fi
 if [ "$CDROM" = "" ] ; then
 	if [ -e /dev/cdroms/cdrom0 ]; then
 		CDROM=/dev/cdroms/cdrom0
+	elif [ "$OSFLAVOUR" = "OSX" ] && [[ $(diskutil list) =~ CD_part.*(disk.)$'\n' ]]; then
+		CDROM=/dev/${BASH_REMATCH[1]}
 	elif [ -e /dev/cdrom ]; then
 		CDROM=/dev/cdrom
 	elif [ -e /dev/sr0 ]; then
@@ -3383,8 +3385,6 @@ if [ "$CDROM" = "" ] ; then
 		CDROM=/dev/acd0c
 	elif [ -e /dev/disk1 ]; then
 		CDROM=/dev/disk1
-	elif [ "$OSFLAVOUR" = "OSX" ] && [[ $(diskutil list) =~ CD_part.*(disk.)$'\n' ]]; then
-		CDROM=/dev/${BASH_REMATCH[1]}
 	fi
 fi
 
