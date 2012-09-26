@@ -4,6 +4,8 @@ abcde 2.5.5
     Closes issue 71.
   * USEID3 and USEID3V2 variables are unused now, so remove them. Thanks
     to vskytta for the patch. Closes issue 73.
+  * Clean up movement to eyeD3, remove id3v2 remnants. Thanks to vskytta
+    for the patch. Closes issue 74.
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 18 Sep 2012 12:42:11 +0100
 
