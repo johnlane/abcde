@@ -8,8 +8,10 @@ abcde 2.5.5 UNRELEASED
     for the patch. Closes issue 74.
   * Fix infinite loop if cddb fails. Thanks to Dominic Hargreaves for the
     patch. Closes: #687038 in Debian
+  * Switch from Musepack SV7 to SV8. Thanks to Andrew Strong for the
+    patch.
 
- -- Steve McIntyre <93sam@debian.org>  Tue, 18 Sep 2012 12:42:11 +0100
+ -- Steve McIntyre <93sam@debian.org>  Tue, 27 Nov 2012 17:34:55 +0000
 
 abcde 2.5.4
 
