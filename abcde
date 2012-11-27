@@ -1025,7 +1025,7 @@ do_encode ()
 				TEMPARG="PIPE_$SPEEXENCODER"
 				;;
 			mpc)
-				TEMPARG="PIPE_$MPPENCODER"
+				TEMPARG="PIPE_$MPCENCODER"
 				;;
 			m4a)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
@@ -1145,12 +1145,9 @@ do_encode ()
 				;;
 			mpc)	
 				# MPP/MP+(Musepack) format (.mpc) is done locally, with inline
-				# tagging.
-				# I tried compiling the mppenc from corecodecs.org and got some
-				# errors, so I have not tried it myself.
-				## FIXME ## Needs some cleanup to determine if an empty tag sent
-				## FIXME ## to the encoder ends up empty.
-				$RUN_COMMAND nice $EFFECTIVE_NICE $MPPENCODER $MPPENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				# tagging. Uses mpcenc for Musepack SV8 encoding, changed from
+				# Musepack SV7 which used mppenc....
+				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			m4a)
 				# Tag the file at encode time, as it can't be done after encoding.
@@ -3151,7 +3148,7 @@ MP3ENCODERSYNTAX=default
 OGGENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
-MPPENCODERSYNTAX=default
+MPCENCODERSYNTAX=default
 AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
@@ -3204,7 +3201,7 @@ FLAC=flac
 # speex
 SPEEXENC=speexenc
 # mpp (Musepack)
-MPPENC=mppenc
+MPCENC=mpcenc
 # m4a
 AACENC=faac
 
@@ -3255,7 +3252,7 @@ FLACGAINOPTS="--add-replay-gain"
 # speex
 SPEEXENCOPTS=
 # mpc
-MPPENCOPTS=
+MPCENCOPTS=
 # m4a
 AACENCOPTS=
 
@@ -3733,7 +3730,7 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
-			mpc:*)	MPPENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			m4a:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
@@ -3745,7 +3742,7 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 fi
 
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac
-# for flacs and speexenc for speex and mppenc for mpps and faac for m4as
+# for flacs and speexenc for speex and mpcenc for mpcs and faac for m4as
 
 # Getting ready for multiple output changes
 for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
@@ -3773,7 +3770,7 @@ do
 #			[ "$DOREPLAYGAIN" = "y" ] &&
 			;;
 		mpc)
-			[ "$MPPENCODERSYNTAX" = "default" ] && MPPENCODERSYNTAX=mppenc
+			[ "$MPCENCODERSYNTAX" = "default" ] && MPCENCODERSYNTAX=mpcenc
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
 			;;
 		m4a)
@@ -3857,10 +3854,10 @@ case "$SPEEXENCODERSYNTAX" in
 		SPEEXENCODER="$SPEEXENC"
 		;;
 esac
-case "$MPPENCODERSYNTAX" in
-	mppenc)
-		MPPENCODEROPTS="${MPPENCODEROPTSCLI:-$MPPENCOPTS}"
-		MPPENCODER="$MPPENC"
+case "$MPCENCODERSYNTAX" in
+	mpcenc)
+		MPCENCODEROPTS="${MPCENCODEROPTSCLI:-$MPCENCOPTS}"
+		MPCENCODER="$MPCENC"
 		;;
 esac
 case "$AACENCODERSYNTAX" in
@@ -3981,7 +3978,7 @@ if [ "$USEPIPES" = "y" ]; then
 		spx)
 			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
 		mpc)
-			PIPEENCODERSVARCHECK="PIPE_$MPPENCODER" ;;
+			PIPEENCODERSVARCHECK="PIPE_$MPCENCODER" ;;
 	esac
 	decho "PIPERIPPERSVARCHECK: $( eval echo "\$$PIPERIPPERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \
@@ -4003,7 +4000,7 @@ fi
 
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
-	$OGGENCODER $FLACENCODER $SPEEXENCODER $MPPENCODER \
+	$OGGENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
 	$AACENCODER $CDDBTOOL \
 	${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
