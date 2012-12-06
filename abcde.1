@@ -318,8 +318,8 @@ Specifies the style of encoder to use for MPP/MP+ (Musepack) encoder. At this
 point we only have \'mpcenc\' available, from musepack.net.
 .TP
 .B AACENCODERSYNTAX
-Specifies the style of encoder to use for M4A (AAC) encoder. At this point we
-only support \'faac\', so \'default\' points to it.
+Specifies the style of encoder to use for M4A (AAC) encoder. We support \'faac\'
+as \'default\' but support is there for neroAacEnc as well.
 .TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
@@ -551,7 +551,7 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 \fBabcde\fR requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) or M4A encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac)
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) or M4A encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc)
 .TP
 .B *
 An audio CD reading utility (cdparanoia, icedax, cdda2wav, dagrab)
