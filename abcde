@@ -1151,7 +1151,10 @@ do_encode ()
 				;;
 			m4a)
 				# Tag the file at encode time, as it can't be done after encoding.
-				if [ "$DOTAG" = "y" ]; then
+				if [ "$AACENC" = "neroAacEnc" ] ; then
+					DOTAG=y
+					$RUN_COMMAND nice $ENCNICE $AACENC $AACENCOPTS -if "$IN" -of "$OUT"
+									elif [ ! "$DOTAG" = "y" ]; then
 					$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
 					
 				else
