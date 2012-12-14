@@ -10,7 +10,7 @@ tagging or commenting it, is very involved.
 .BR abcde
 is designed to automate this. It will take an entire CD and convert it into
 a compressed audio format - Ogg/Vorbis, MPEG Audio Layer III, Free Lossless
-Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack) and/or M4A (AAC) format(s).
+Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack), M4A (AAC) or Opus format(s).
 With one command, it will:
 .TP
 .B *
@@ -23,7 +23,7 @@ Grab an audio track (or all the audio CD tracks) from your CD
 Normalize the volume of the individual file (or the album as a single unit)
 .TP
 .B *
-Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) and/or M4A format(s), all in one CD read
+Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A and/or Opus format(s), all in one CD read
 .TP
 .B *
 Comment or ID3/ID3v2 tag
@@ -136,8 +136,8 @@ Non interactive mode. Do not ask anything from the user. Just go ahead.
 .TP
 .B \-o [filetype][:filetypeoptions]
 Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc",
-"m4a" or "wav".  Specify a comma-delimited list of output types to obtain all
-specified types.  See the OUTPUTTYPE configuration variable. One can pass
+"m4a", "wav" or "opus".  Specify a comma-delimited list of output types to obtain 
+all specified types.  See the OUTPUTTYPE configuration variable. One can pass
 options to the encoder for a specific filetype on the command line separating
 them with a colon. The options must be escaped with double-quotes.
 .TP
@@ -214,11 +214,11 @@ A list of tracks you want \fBabcde\fR to process. If this isn't specified, \fBab
 will process the entire CD. Accepts ranges of track numbers -
 "abcde 1-5 7 9" will process tracks 1, 2, 3, 4, 5, 7, and 9.
 .SH OUTPUT
-Each track is, by default, placed in a separate file named after the track
-in a subdirectory named after the artist under the current directory. 
-This can be modified using the OUTPUTFORMAT and VAOUTPUTFORMAT
-variables in your \fIabcde.conf\fR. Each file is given an extension identifying 
-its compression format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac' or '.wav'.
+Each track is, by default, placed in a separate file named after the track in a 
+subdirectory named after the artist under the current directory. This can be 
+modified using the OUTPUTFORMAT and VAOUTPUTFORMAT variables in your 
+\fIabcde.conf\fR. Each file is given an extension identifying  its compression 
+format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac', '.wav' or '.opus'.
 .SH CONFIGURATION
 \fBabcde\fR sources two configuration files on startup - \fI/etc/abcde.conf\fR and
 \fI$HOME/.abcde.conf\fR, in that order. 
@@ -321,6 +321,10 @@ point we only have \'mpcenc\' available, from musepack.net.
 Specifies the style of encoder to use for M4A (AAC) encoder. We support \'faac\'
 as \'default\' but support is there for neroAacEnc as well.
 .TP
+.B OPUSENCODERSYNTAX
+Specifies the style of encoder to use for the Opus encoder. At this point only
+\'opusenc\' is available for Opus encoding.
+.TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
 and \'normalize'\ (and both run \'normalize-audio\'), since we only support it,
@@ -357,7 +361,7 @@ with \fBdistmp3\fR (DISTMP3NICE).
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, ID3, EYED3, METAFLAC,
+VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, OPUSENC, ID3, EYED3, METAFLAC,
 CDPARANOIA, CDDA2WAV, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
 VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
 CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
@@ -366,9 +370,9 @@ CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
-FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, ID3OPTS, EYED3OPTS, MP3GAINOPTS,
-CDPARANOIAOPTS, CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS,
-NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS,
+FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, ID3OPTS, EYED3OPTS, 
+MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, 
+DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS,
 DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
 .TP
 .B CDSPEEDVALUE
@@ -400,9 +404,9 @@ over 100MB for a machine that can encode music as fast as it can read it).
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
-Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)) or
-"wav" (Microsoft Waveform). Values like "vorbis,mp3" encode the tracks in both
-Ogg/Vorbis and MP3 formats. For example
+Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)), 
+"wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values 
+like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats. For example
 .br
 OUTPUTTYPE=vorbis,flac
 .br
@@ -551,7 +555,7 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 \fBabcde\fR requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) or M4A encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc)
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc, opusenc).
 .TP
 .B *
 An audio CD reading utility (cdparanoia, icedax, cdda2wav, dagrab)

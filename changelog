@@ -12,6 +12,8 @@ abcde 2.5.5 UNRELEASED
     patch.
   * Allow aac encoding with neroAacEnc. Thanks to atheren for the patch.
     Closes issue 8.
+  * Allow opus encoding with opusenc. Thanks to Tomasz Golinski for the
+    patch. Closes issue 70.
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 27 Nov 2012 17:34:55 +0000
 
