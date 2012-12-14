@@ -51,7 +51,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-q <level>"
@@ -515,6 +515,9 @@ do_replaygain()
 				vorbis|ogg)
 					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
+				opus)
+					OUTPUT=$OPUSOUTPUTCONTAINER
+					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
@@ -898,6 +901,10 @@ do_tag ()
 					;;
 			esac
 			;;
+		opus)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
+
 		flac)
 			(
 			echo ARTIST="$TRACKARTIST"
@@ -1018,6 +1025,9 @@ do_encode ()
 			vorbis|ogg)
 				TEMPARG="PIPE_$OGGENCODERSYNTAX"
 				;;
+			opus)
+				TEMPARG="PIPE_$OPUSENCODERSYNTAX"
+				;;
 			flac)
 				TEMPARG="PIPE_$FLACENCODERSYNTAX"
 				;;
@@ -1059,6 +1069,9 @@ do_encode ()
 			case "$TMPOUTPUT" in
 				vorbis|ogg)
 					OUTPUT=$OGGOUTPUTCONTAINER
+					;;
+				opus)
+					OUTPUT=$OPUSOUTPUTCONTAINER
 					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
@@ -1108,6 +1121,32 @@ do_encode ()
 					case "$OGGENCODERSYNTAX" in
 					vorbize) $RUN_COMMAND nice $EFFECTIVE_NICE $OGGENCODER $OGGENCODEROPTS -w "$OUT" "$IN" ;;
 					oggenc) $RUN_COMMAND nice $EFFECTIVE_NICE $OGGENCODER $OGGENCODEROPTS -o "$OUT" "$IN" ;;
+					esac
+					;;
+				*)
+					$RUN_COMMAND nice $DISTMP3NICE $DISTMP3 $DISTMP3OPTS "$2" "$IN" "$OUT" >/dev/null 2>&1
+					;;
+				esac
+				;;
+			opus)
+				case "$2" in
+				%local*%)
+					case "$OPUSENCODERSYNTAX" in
+					opusenc) 
+
+					    if [ "$(eval echo ${COMMENT})" != "" ]; then
+						case "$COMMENT" in
+						    *=*) ;;
+						     *)   COMMENT="COMMENT=$COMMENT" ;;
+						esac	
+					    fi
+					    # Tag the file at encode time, as it can't be done after encoding.
+					    if [ "$DOTAG" = "y" ]; then
+					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --comment album="$DALBUM" --title "$TRACKNAME" --comment track="$1" --comment genre="$CDGENRE" --comment year="$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					    else
+					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"  
+					    fi
+					      ;;
 					esac
 					;;
 				*)
@@ -1397,6 +1436,9 @@ do_move ()
 				vorbis|ogg)
 					OUTPUT=$OGGOUTPUTCONTAINER
 					;;
+				opus)
+					OUTPUT=$OPUSOUTPUTCONTAINER
+					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
@@ -1477,6 +1519,9 @@ do_playlist ()
 		case $TMPOUTPUT in
 			vorbis|ogg)
 				OUTPUT=$OGGOUTPUTCONTAINER
+				;;
+			opus)
+				OUTPUT=$OPUSOUTPUTCONTAINER
 				;;
 			flac)
 				OUTPUT=$FLACOUTPUTCONTAINER
@@ -3149,6 +3194,7 @@ ENCODERSYNTAX=default
 
 MP3ENCODERSYNTAX=default
 OGGENCODERSYNTAX=default
+OPUSENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
@@ -3199,6 +3245,8 @@ MP3ENC=mp3enc
 # ogg
 VORBIZE=vorbize
 OGGENC=oggenc
+#opus
+OPUSENC=opusenc
 # flac
 FLAC=flac
 # speex
@@ -3249,6 +3297,8 @@ MP3GAINOPTS="-a -k"
 VORBIZEOPTS=
 OGGENCOPTS=
 VORBISGAINOPTS="--album"
+#opus
+OPUSENCOPTS=
 # flac
 FLACOPTS=
 FLACGAINOPTS="--add-replay-gain"
@@ -3285,7 +3335,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 
 # This option is basically for Debian package dependencies:
 # List of preferred outputs - by default, run with whatever we have in the path
-DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav"
@@ -3730,6 +3780,7 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr \  \|| tr , \ | tr \| \ )"; do
 		case "$OUTPUT" in
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			opus:*)	OPUSENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -3756,6 +3807,10 @@ do
 			[ "$DOTAG" = "y" ] && NEEDCOMMENTER=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDVORBISGAIN=y
 			OGGOUTPUTCONTAINER=ogg
+			;;
+		opus)
+			[ "$OPUSENCODERSYNTAX" = "default" ] && OPUSENCODERSYNTAX=opusenc
+			OPUSOUTPUTCONTAINER=opus
 			;;
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
@@ -3831,6 +3886,12 @@ case "$OGGENCODERSYNTAX" in
 	oggenc)
 		OGGENCODEROPTS="${OGGENCODEROPTSCLI:-$OGGENCOPTS}"
 		OGGENCODER="$OGGENC"
+		;;
+esac
+case "$OPUSENCODERSYNTAX" in
+	opusenc)
+		OPUSENCODEROPTS="${OPUSENCODEROPTSCLI:-$OPUSENCOPTS}"
+		OPUSENCODER="$OPUSENC"
 		;;
 esac
 case "$FLACENCODERSYNTAX" in
@@ -3965,6 +4026,7 @@ PIPERIPPER_flac="-c "
 PIPE_lame="-"
 PIPE_bladeenc="-"
 PIPE_oggenc="-"
+PIPE_opusenc="-"
 PIPE_flac="-"
 
 # Figure out if we can use pipes with the ripper/encoder combination
@@ -3976,6 +4038,8 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$MP3ENCODERSYNTAX" ;;
 		vorbis|ogg)
 			PIPEENCODERSVARCHECK="PIPE_$OGGENCODERSYNTAX" ;;
+		opus)
+			PIPEENCODERSVARCHECK="PIPE_$OPUSENCODERSYNTAX" ;;
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYNTAX" ;;
 		spx)
@@ -4003,7 +4067,7 @@ fi
 
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
-	$OGGENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
+	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
 	$AACENCODER $CDDBTOOL \
 	${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
