@@ -1750,7 +1750,7 @@ abcde.mkcue () {
 	shift 2
 
 	echo REM DISCID $DISCID
-	echo FILE \""$CUEWAVEFILE"\" WAVE
+	echo FILE \""$CUEWAVFILE"\" WAVE
 
 	if [ $1 -ne 150 ] && [ $MODE = "PREGAP" ] ; then
 		OFFSET=$1

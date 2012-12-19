@@ -14,6 +14,8 @@ abcde 2.5.5 UNRELEASED
     Closes issue 8.
   * Allow opus encoding with opusenc. Thanks to Tomasz Golinski for the
     patch. Closes issue 70.
+  * Fix typo: s/CUEWAVEFILE/CUEWAVFILE/ so that abcde.mkcue should now
+    produce working cue files. Closes issue 78.
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 27 Nov 2012 17:34:55 +0000
 
