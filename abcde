@@ -3108,6 +3108,8 @@ do_cddbedit ()
 
 do_albumartist ()
 {
+	checkstatus variousartistsalbumartist && return
+
 	if [ "$VARIOUSARTISTS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
 
 		DEFAULTVARIOUSARTISTSALBUMARTIST=${DARTIST:-$VARIOUSARTISTSALBUMARTIST}
@@ -3125,7 +3127,7 @@ do_albumartist ()
 
 	fi
 
-	echo "variousartistsalbumartist=$VARIOUSARTISTSALBUMARTIST" >> "$ABCDETEMPDIR/status"
+	addstatus "variousartistsalbumartist=$VARIOUSARTISTSALBUMARTIST"
 
 }
 
