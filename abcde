@@ -983,6 +983,12 @@ do_tag ()
 			if [ "$COMPILATION" = "y" ]; then
 				TCMP=1
 			fi
+
+                        # Do we have album art
+                        APIC=""
+			if ALBUMART=$(checkstatus albumart) >/dev/null ; then
+				APIC="${ABCDETEMPDIR}/${ALBUMART}:OTHER:${ALBUMART}"
+			fi
 	
 			case "$ID3SYNTAX" in
 				id3);;
@@ -997,6 +1003,7 @@ do_tag ()
 						${ENCODING:+--set-encoding="$ENCODING"} \
 						${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
 						${TCMP:+--set-text-frame=TCMP:"$TCMP"} \
+						${APIC:+--add-image="$APIC"} \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
@@ -3189,6 +3196,101 @@ do_genre ()
 
 }
 
+do_albumart ()
+{
+
+        local response
+	local url;
+
+	checkstatus albumart && return
+
+        # Only offer album art selection when interactive
+        [[ $INTERACTIVE == y ]] || return
+
+        while [[ -z "$url" ]]; do
+
+	        echo -n "Do you want to supply album-art [y/N] ?" >&2
+
+		read response
+		[[ -z $response || $response == n ]] && break
+
+		if [[ $response == y ]]; then
+
+			echo -n "Enter URL or local path (ENTER to cancel or for hints) :" >&2
+
+			read url
+			if [[ -z "$url" ]]; then
+				cat <<-EOF >&2
+				Nothing entered. Here are some places where you can find
+				album art. Locate the URL to an image and enter it here.
+
+				http://albumart.org
+				http://www.allcdcovers.com
+				http://www.amazon.com
+				EOF
+			else
+
+                                filename=$(basename "$url")
+                                extension="${filename##*.}"
+                                filename="cover.${extension}"
+
+                                if [[ ${url} =~ (https?|ftp|file)://.* ]]; then
+
+					${CURL} -s -o "${ABCDETEMPDIR}/${filename}" "${url}"
+
+				else # it's a local path
+
+					cp "${url}" "${ABCDETEMPDIR}/${filename}"
+
+				fi
+
+				# Store the file
+				if [[ -f "${ABCDETEMPDIR}/${filename}" ]]; then
+
+					for TMPOUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+					do
+						case $TMPOUTPUT in
+							vorbis|ogg)
+								OUTPUT=$OGGOUTPUTCONTAINER
+								;;
+							flac)
+								OUTPUT=$FLACOUTPUTCONTAINER
+								;;
+							*)
+								OUTPUT=$TMPOUTPUT
+								;;
+						esac
+
+				                # Put album art in the same place
+                                                # as the playlist
+						if [ "$VARIOUSARTISTS" = "y" ] ; then
+							PLAYLISTFILE="$(eval echo "$VAPLAYLISTFORMAT")"
+						else
+							PLAYLISTFILE="$(eval echo "$PLAYLISTFORMAT")"
+						fi
+						ALBUMARTDIR="$(dirname "$OUTPUTDIR/$PLAYLISTFILE")"
+
+						cp "${ABCDETEMPDIR}/${filename}" "${ALBUMARTDIR}"
+						ln "${ALBUMARTDIR}/${filename}" \
+						   "${ALBUMARTDIR}/folder.${extension}"
+
+					done
+					echo "Success" >&2
+
+				else
+					echo "Not found" >&2
+					url="" #try again
+				fi
+
+			fi
+		fi
+
+	done
+
+	addstatus "albumart=${filename}"
+
+}
+
 # do_cdread [tracknumber]
 # do_cdread onetrack [firsttrack] [lasttrack]
 #
@@ -3545,6 +3647,7 @@ MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
 CUE2DISCID=builtin
+CURL=curl
 
 # Options for programs called from abcde
 # mp3
@@ -4460,6 +4563,8 @@ if [ ! "$ONETRACK" = "y" ]; then
 		do_playlist
 	fi
 fi
+
+do_albumart
 
 # For the lowdisk option, only one program is running at once so the encoder
 # can be unsilenced right away.
