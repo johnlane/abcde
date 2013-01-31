@@ -984,7 +984,7 @@ do_tag ()
 				TCMP=1
 			fi
 
-                        # Do we have album art
+                        # Do we have album-art ?
                         APIC=""
 			if ALBUMART=$(checkstatus albumart) >/dev/null ; then
 				APIC="${ABCDETEMPDIR}/${ALBUMART}:OTHER:${ALBUMART}"
@@ -1061,6 +1061,26 @@ do_tag ()
 					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
 						$VORBISCOMMENT $VORBISCOMMENTOPTS -w \
 						"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+
+					# Do we have album-art ?
+					if ALBUMART=$(checkstatus albumart) >/dev/null ; then
+						OGGIMAGE=$(base64 --wrap=0 "${ABCDETEMPDIR}/${ALBUMART}")
+
+						# There are 2 ways to do this
+						# This way is compatible with EasyTag
+						VORBIS_PICTURE_TAG="COVERART"
+
+						# This is the other way
+						#VORBIS_PICTURE_TAG="METADATA_BLOCK_PICTURE"
+
+						run_command tagtrack-$OUTPUT-$1 nice $ENCNICE\
+							$VORBISCOMMENT -a -R \
+							-t ${VORBIS_PICTURE_TAG}="${OGGIMAGE}"\
+							-t COVERARTDESCRIPTION="${ALBUMART}" \
+							-t COVERARTMIME="image/jpeg" \
+							"$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+					fi
+
 					# Doublecheck that the commented file was created
 					# successfully before wiping the original
 					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
@@ -1072,6 +1092,12 @@ do_tag ()
 			esac
 			;;
 		flac)
+                        # Do we have album-art ?
+                        FLACIMAGE=""
+			if ALBUMART=$(checkstatus albumart) >/dev/null ; then
+				FLACIMAGE="--import-picture-from=${ABCDETEMPDIR}/${ALBUMART}"
+			fi
+
 			(
 			echo ARTIST="$TRACKARTIST"
 			echo ALBUM="$DALBUM"
@@ -1093,7 +1119,7 @@ do_tag ()
 					*)   echo COMMENT="$COMMENTOUTPUT";;
 				esac	
 			fi
-			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} ${FLACIMAGE} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 			;;
 		spx)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -3225,6 +3251,8 @@ do_albumart ()
 				album art. Locate the URL to an image and enter it here.
 
 				http://albumart.org
+				https://www.google.co.uk/imghp
+				http://www.freecovers.net
 				http://www.allcdcovers.com
 				http://www.amazon.com
 				EOF
