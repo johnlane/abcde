@@ -3361,6 +3361,8 @@ elif [ X$(uname) = "XDarwin" ] ; then
 	# We should have diskutil in OSX, but let's be sure...
 	NEEDDISKUTIL=y
 	CDROMREADERSYNTAX=cddafs
+	# We won't find the eject program in OSX, and doing checkexec will fail further below...
+	unset EJECT
 elif [ X$(uname) = "XOpenBSD" ] ; then
 	HTTPGET=wget
 	MD5SUM=md5
@@ -4285,7 +4287,7 @@ post_read
 
 # We are now finished with the cdrom - it can be safely ejected. Note that
 # abcde will not have completed yet.
-if [ "$EJECTCD" = "y" ] && [ -x $(which $EJECT) ]; then
+if [ "$EJECTCD" = "y" ]; then
 	# We check if the disk we are processing is actually the disk inside the
 	# CD tray. If not, we do not eject the CD, since it might be so that the
 	# user ejected it manually.
@@ -4302,7 +4304,7 @@ if [ "$EJECTCD" = "y" ] && [ -x $(which $EJECT) ]; then
 		$eject $EJECTOPTS $cd
 	elif [ X"$(uname)" = X"Darwin" ] ; then
 		diskutil eject ${CDROM#/dev/} 0
-	else
+    elif [ -x $(which $EJECT) ]; then
 		$EJECT $EJECTOPTS "$CDROM"
 	fi
 	#fi
