@@ -433,8 +433,8 @@ getcddbinfo()
 gettracknum()
 {
 	if [ -n "$STARTTRACKNUMBER" ] ; then
-		# Get the trackpadding from the current track
-		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c)
+		# Get the trackpadding from the current track, also trim whitespace for MacOSX
+		CURRENTTRACKPADDING=$(echo -n $UTRACKNUM | wc -c | tr -d ' ')
 		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $(expr ${UTRACKNUM} + ${STARTTRACKNUMBER} - $FIRSTTRACK ))
 	else
 		TRACKNUM=${UTRACKNUM}
