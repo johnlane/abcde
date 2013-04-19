@@ -827,13 +827,17 @@ do_tag ()
 				eyed3)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
+					# FIXME as well! # Older versions of eyeD3 (< 0.7.0) expect
+					# --set-encoding and --set-text-frame so perhaps some version 
+					# sniffing would be useful. Might also be better to simply cut 
+					# ties with the older eyeD3... Andrew.
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
 						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
-						${ENCODING:+--set-encoding="$ENCODING"} \
-						${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
+						${ENCODING:+--encoding="$ENCODING"} \
+						${TPE2:+--text-frame=TPE2:"$TPE2"} \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
@@ -3310,7 +3314,10 @@ MPCENCOPTS=
 AACENCOPTS=
 
 ID3OPTS=
-EYED3OPTS="--set-encoding=utf16-LE"
+# FIXME # Older versions of eyeD3 (< 0.7.0) expect --set-encoding=utf16-LE
+# so perhaps some version sniffing would be useful. Or perhaps it might be
+# better to simply cut ties with the older eyeD3... Andrew.
+EYED3OPTS="--encoding utf16"
 CDPARANOIAOPTS=
 CDDA2WAVOPTS=
 DAGRABOPTS=
