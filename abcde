@@ -2952,6 +2952,7 @@ do_cdread ()
 				# Add a variable to check if tracks are provided in command line and if not, use "0-" to rip the tracks
 				READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
 			cdda2wav | icedax) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
+			pird) READTRACKNUMS="$FIRSTTRACK..$LASTTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
 				exit 1 ;;
 		esac
@@ -3031,6 +3032,12 @@ do_cdread ()
 				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" >&2
 			else
 				nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG"
+			fi ;;
+		pird)
+			if [ "$REDIR" = "y" ]; then
+				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$FILEARG"
+			else
+				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$PIPERIPPER_pird" > "$FILEARG"
 			fi ;;
 		cddafs)
 			# Find the track's mounted path
@@ -3271,6 +3278,7 @@ CDPARANOIA=cdparanoia
 CDDA2WAV=icedax
 DAGRAB=dagrab
 CDDAFS=cp
+PIRD=pird
 CDDISCID=cd-discid
 CDDBTOOL=cddb-tool
 MUSICBRAINZ=abcde-musicbrainz-tool
@@ -3345,7 +3353,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
-DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav"
+DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav pird"
 
 # List of quality levels associated with the encoders:
 DEFAULT_QUALITY_XLO="oggenc:-q -1,lame:-q 9,speex:--quality 1,m4a:"
@@ -3572,6 +3580,7 @@ if [ "$ONETRACK" = "y" ]; then
 		flac) ;;
 		cdparanoia) ;;
 		cdda2wav | icedax) ;;
+		pird) ;;
 		*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
 			exit 1 ;;
 	esac
@@ -3765,6 +3774,10 @@ case "$CDROMREADERSYNTAX" in
 	dagrab)
 		CDROMREADER="$DAGRAB"
 		CDROMREADEROPTS="$DAGRABOPTS"
+		;;
+	pird)
+		CDROMREADER="$PIRD"
+		CDROMREADEROPTS="$PIRDOPTS"
 		;;
 	cddafs)
 		CDROMREADER="$CDDAFS"
@@ -4016,6 +4029,7 @@ fi
 if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y" ]; then
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
+		pird) CDROMREADEROPTS="$PIRDOPTS -s $CDSPEEDVALUE" ;;
 		### FIXME ### translate "cue2discid" from python to bash
 		flac) NEEDMETAFLAC=y ; NEEDCUE2DISCID=y ; CDSPEEDVALUE="" ;;
 		*) NEEDCDSPEED=y ;;
@@ -4029,6 +4043,7 @@ fi
 PIPERIPPER_cdparanoia="-"
 PIPERIPPER_debug="-"
 PIPERIPPER_flac="-c "
+PIPERIPPER_pird="-"
 
 # Encoders with USEPIPE support
 # FIXME # Include here all the encoders we can figure out support pipes
@@ -4181,6 +4196,7 @@ fi
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
 		cdparanoia|debug) ;;
+		pird) ;;
 		flac) ;;
 		*) do_cdspeed ;;
 	esac

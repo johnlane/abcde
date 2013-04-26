@@ -362,7 +362,7 @@ with \fBdistmp3\fR (DISTMP3NICE).
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
 VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, OPUSENC, ID3, EYED3, METAFLAC,
-CDPARANOIA, CDDA2WAV, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
+CDPARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
 VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
 CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 .TP
@@ -371,9 +371,9 @@ If you wish to specify command-line options to any of the programs \fBabcde\fR u
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
 FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, ID3OPTS, EYED3OPTS, 
-MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, 
-DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS, METAFLACOPTS,
-DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
+MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, PIRDOPTS, CDDAFSOPTS, CDDBTOOLOPTS,
+EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS,
+METAFLACOPTS, DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
 .TP
 .B CDSPEEDVALUE
 Set the value of the CDROM speed. The default is to read the disc as fast as
@@ -558,7 +558,7 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc, opusenc).
 .TP
 .B *
-An audio CD reading utility (cdparanoia, icedax, cdda2wav, dagrab)
+An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird, dagrab)
 .TP
 .B *
 cd-discid, a CDDB DiscID reading program.
@@ -587,6 +587,7 @@ information about the CD.
 .BR cdparanoia (1),
 .BR icedax (1),
 .BR cdda2wav (1),
+.BR pird (1),
 .BR dagrab (1),
 .BR normalize-audio (1),
 .BR oggenc (1),
