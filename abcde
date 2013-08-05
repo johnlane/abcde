@@ -831,8 +831,9 @@ do_tag ()
 					# --set-encoding and --set-text-frame so perhaps some version 
 					# sniffing would be useful. Might also be better to simply cut 
 					# ties with the older eyeD3... Andrew.
+					# eyeD3 --comment syntax is also different in < and >= 0.7.0
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
-						--comment=::"$COMMENTOUTPUT" -A "$DALBUM" \
+						--comment="$COMMENTOUTPUT" -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" -Y "$CDYEAR" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
