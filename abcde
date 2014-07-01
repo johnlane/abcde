@@ -1147,7 +1147,7 @@ do_encode ()
 					    fi
 					    # Tag the file at encode time, as it can't be done after encoding.
 					    if [ "$DOTAG" = "y" ]; then
-					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --comment album="$DALBUM" --title "$TRACKNAME" --comment track="$1" --comment genre="$CDGENRE" --comment year="$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					       $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 					    else
 					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"  
 					    fi
