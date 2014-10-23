@@ -12,7 +12,7 @@
 # Helper script for abcde to work with the MusicBrainz WS API (v2)
 
 use strict;
-use encoding "utf8";
+use utf8;
 use POSIX qw(ceil);
 use Digest::SHA;
 use MusicBrainz::DiscID;
