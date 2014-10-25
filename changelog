@@ -16,8 +16,10 @@ abcde 2.5.5 UNRELEASED
     patch. Closes issue 70.
   * Fix typo: s/CUEWAVEFILE/CUEWAVFILE/ so that abcde.mkcue should now
     produce working cue files. Closes issue 78.
+  * Remove no-op -q option. Closes issue 106. Thanks to vskytta for the
+    patch.
 
- -- Steve McIntyre <93sam@debian.org>  Tue, 27 Nov 2012 17:34:55 +0000
+ -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
 
 abcde 2.5.4
 
