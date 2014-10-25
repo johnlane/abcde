@@ -28,7 +28,7 @@ Changes in 2.4:
   also optional.
 * Possibility to use CDDBCHOICE1,CDDBCHOICE2 (i.e., 1,3) to get a diff of two
   parsed CDDB entries.
-* Added SHOWCDDBFIELDS to define wether to show the YEAR and GENRE fields from
+* Added SHOWCDDBFIELDS to define whether to show the YEAR and GENRE fields from
   the CDDB output.
 * Added the possibility of embeding a cuesheet on a singletrack flac file. A
   single BACKUP flag is most likely needed to use all the needed flags:

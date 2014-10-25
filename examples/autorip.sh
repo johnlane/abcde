@@ -238,7 +238,7 @@ cdenc ()
 	if [ -d "$PROCDIR/Unknown Artist - Unknown Album/" ]
 	then
 		logger -p $LOGDEST.warn "Warning ($PROCESS): Processed successfully, but info unknown."
-		mv "$PROCDIR/Unknown Artist - Unknown Album" "$PROCDIR/Unkown Disc - ID $PROCESS"
+		mv "$PROCDIR/Unknown Artist - Unknown Album" "$PROCDIR/Unknown Disc - ID $PROCESS"
 	
 	fi
 	
