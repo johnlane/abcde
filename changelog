@@ -18,6 +18,10 @@ abcde 2.5.5 UNRELEASED
     produce working cue files. Closes issue 78.
   * Remove no-op -q option. Closes issue 106. Thanks to vskytta for the
     patch.
+  * Fix issue 112: perl encoding pragma deprecation. Thanks to Alex Corrie
+    for the patch.
+  * Fix option parsing for multiple output formats. Thanks to
+    matthias.andree@gmx.de for the patch. Closes issue 115.
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
 

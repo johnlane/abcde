@@ -3792,8 +3792,9 @@ case "$NORMALIZERSYNTAX" in
 esac
 
 # Allow -o OUTPUT(1):OPTIONS(1),...,OUTPUT(N):OPTIONS(N) mode of operation
-if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
-	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr \  \|| tr , \ | tr \| \ )"; do
+case "$OUTPUTTYPE" in *:*)
+	for OUTPUT in $(echo "$OUTPUTTYPE" | tr \  \|| tr , \ ); do
+		OUTPUT="$(echo "$OUTPUT" | tr \| \ )"
 		case "$OUTPUT" in
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			opus:*)	OPUSENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -3809,7 +3810,8 @@ if echo "$OUTPUTTYPE" | grep ":" > /dev/null 2>&1 ; then
 		TEMPOUTPUTTYPE="${TEMPOUTPUTTYPE:+$TEMPOUTPUTTYPE,}$TEMPOUTPUT"
 	done
 	OUTPUTTYPE="$TEMPOUTPUTTYPE"
-fi
+	;;
+esac
 
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac
 # for flacs and speexenc for speex and mpcenc for mpcs and faac for m4as
