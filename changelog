@@ -27,6 +27,8 @@ abcde 2.5.5 UNRELEASED
   * Add mention of CD-TEXT support in the man page. Closes issue 102.
   * Make Y/N prompting more consistent. Closes issue 95
   * Remove the no-op -B option. Closes: #426531 in Debian
+  * Document the need to escape parentheses in tag comments.
+    Closes: #256941 in Debian.
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
 
