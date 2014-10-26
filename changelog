@@ -25,6 +25,7 @@ abcde 2.5.5 UNRELEASED
   * Fix eyeD3 tagging for cddb entries without year. Thanks to vskytta for
     the patch. Closes issue 107
   * Add mention of CD-TEXT support in the man page. Closes issue 102.
+  * Make Y/N prompting more consistent. Closes issue 95
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
 

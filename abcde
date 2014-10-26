@@ -2748,18 +2748,18 @@ do_cddbedit ()
 		exit 1
 	fi
 	CDDBDATA="$ABCDETEMPDIR/cddbread.$(checkstatus cddb-choice)"
-	echo -n "Edit selected CDDB data? [y/n] (" >&2
+	echo -n "Edit selected CDDB data? " >&2
 	if [ "$INTERACTIVE" = "y" ]; then
 		if [ "$UNKNOWNDISK" = "y" ]; then
-			echo -n "y): " >&2
+			echo -n "[Y/n] (y): " >&2
 			read EDITCDDB
 			[ "$EDITCDDB" != "n" ] && EDITCDDB=y
 		else
-			echo -n "n): " >&2
+			echo -n "[y/N] (n): " >&2
 			read EDITCDDB
 		fi
 	else
-		echo "n): n" >&2
+		echo "[y/N] (n): n" >&2
 		EDITCDDB=n
 	fi
 	if [ "$EDITCDDB" = "y" ]; then
