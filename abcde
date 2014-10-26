@@ -3460,14 +3460,12 @@ case "$EXTRAVERBOSE"x in
 esac
 
 # Parse command line options
-#while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPq:r:Rs:S:t:T:vVxw:W: opt ; do
-while getopts 1a:bBc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
+while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
 		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCHNORM=y ;;
-		B) NOBATCHREPLAYGAIN=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
 		C) DISCID="$( echo ${OPTARG#abcde.} | tr -d /)" ;;
 		d) CDROM="$OPTARG" ;;
