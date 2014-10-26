@@ -3505,7 +3505,7 @@ while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 		X) CUE2DISCID="$OPTARG" ;;
 		w) COMMENT="$OPTARG" ;;
 		W) if echo $OPTARG | grep "[[:digit:]]" > /dev/null 2>&1 ; then
-			 STARTTRACKNUMBER="${OPTARG}01"
+			 STARTTRACKNUMBER="${OPTARG}$(printf %02d ${STARTTRACKNUMBER:-01})"
 			 STARTTRACKNUMBERTAG="y"
 			 COMMENT="CD${OPTARG}"
 			 DISCNUMBER="${OPTARG}"
