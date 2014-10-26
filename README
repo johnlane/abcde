@@ -20,6 +20,9 @@ for more help.
 
 MAJOR CHANGES
 =============
+Changes in 2.6:
+* Lots of bugfixes
+
 Changes in 2.5:
 * Added working support for Musicbrainz using a perl helper script.
 
@@ -227,7 +230,8 @@ Abcde's new mailing list is abcde-users@lists.einval.com. Visit
 to subscribe. Posts from non-subscribers are moderated to prevent
 spam.
 
-Abcde's current page is at http://code.google.com/p/abcde/
+Abcde's current page is at http://abcde.einval.com/ and the latest
+upstream code is in git at http://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git
 
 --
 Jesus Climent <jesus.climent@hispalinux.es>
