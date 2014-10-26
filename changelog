@@ -1,4 +1,4 @@
-abcde 2.5.5 UNRELEASED
+abcde 2.6
 
   * Fix finding $CDROM on OS X. Thanks to niederstrasser for the patch.
     Closes issue 71.
@@ -36,7 +36,7 @@ abcde 2.5.5 UNRELEASED
     environment and fall back to mail instead. Closes: #756289 in Debian,
     issue 111.
 
- -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
+ -- Steve McIntyre <93sam@debian.org>  Sun, 26 Oct 2014 13:17:24 -0700
 
 abcde 2.5.4
 
