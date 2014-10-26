@@ -491,7 +491,7 @@ makeids ()
 
 	case "$CDDBMETHOD" in
 		cddb)
-			printf -v DISCID "%08lx" $(( ($CDDBCKSUM % 0xff) << 24 | $TOTALTIME << 8 | $TRACKS))
+			printf -v DISCID "%08lx" $(( ($CDDBCKSUM % 0xff) * 16777216 | $TOTALTIME * 256 | $TRACKS))
 			;;
 		musicbrainz)
 			# FIXME: don't assume the first track is 1
