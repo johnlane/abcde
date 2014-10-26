@@ -113,6 +113,20 @@ f_seq ()
 	done
 }
 
+new_checkexec ()
+{
+	if [ ! "$@" = "" ]; then
+		# Cut off any command-line option we added in
+		X=$(echo $@ | cut -d' ' -f2)
+		if [ "$(which $X)" = "" ]; then
+			return 1
+		elif [ ! -x $(which $X) ]; then
+			return 2
+		fi
+	fi
+	return 0
+}
+
 COMMAND=$1
 shift
 case $COMMAND in
@@ -196,7 +210,18 @@ send) # cddb-tool send filename email@address
 	ADDRESS="$2"
 	DISCID=$(grep ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
 	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d= | tr -d \[:cntrl:\])
-	grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | mail -a "Content-Type: text/plain; charset=utf-8" -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+	# Use bsd-mailx by preference if we can, as it allows addition
+	# of extra headers. Otherwise, try to force UTF-8 via environment
+	if new_checkexec bsd-mailx; then
+		grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | bsd-mailx -a "Content-Type: text/plain; charset=utf-8" -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+	else
+		# Find the first UTF-8 locale on the system, if any
+		UTF_LOCALE=$(locale -a | awk '/UTF-8/ { print $1; exit}')
+		if [ "$UTF_LOCALE"x != ""x ] ; then
+			export LC_ALL=$UTF_LOCALE
+		fi
+		grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+	fi
 	;;
 
 query) # cddb-tool query serverurl proto user host discid...

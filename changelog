@@ -31,6 +31,10 @@ abcde 2.5.5 UNRELEASED
     Closes: #256941 in Debian.
   * Concatenate option steps on -t/-T option. Thanks to Charles
     Steinkuehler for the patch. Closes: #391294 in Debian
+  * Try to use bsd-mailx where possible to force UTF-8 for cddb-tool mail
+    submissions. If not possible, attempt to force UTF-8 via the
+    environment and fall back to mail instead. Closes: #756289 in Debian,
+    issue 111.
 
  -- Steve McIntyre <93sam@debian.org>  Sat, 25 Oct 2014 12:11:16 -0700
 
