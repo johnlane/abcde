@@ -3448,14 +3448,16 @@ if [ "$CDROM" = "" ] ; then
 fi
 
 # We used to use EXTRAVERBOSE=y to turn on more debug output. Now
-# that's changed to a number to allow for more control. If
-# EXTRAVERBOSE=y, set it to 1 for backwards compatibility.
-if [ "$EXTRAVERBOSE" = "y" ]; then
-	EXTRAVERBOSE=1
-fi
-if [ "$EXTRAVERBOSE" = "n" ]; then
-	EXTRAVERBOSE=0
-fi
+# that's changed to a number to allow for more control. Deal with
+# EXTRAVERBOSE=y/n, set it to 1/0 for backwards compatibility.
+case "$EXTRAVERBOSE"x in
+	"*y*"x|"*Y*"x)
+		EXTRAVERBOSE=1
+		;;
+	"*n*"x|"*N*")
+		EXTRAVERBOSE=0
+		;;
+esac
 
 # Parse command line options
 #while getopts 1a:bc:C:d:Dehj:klLmMnNo:pPq:r:Rs:S:t:T:vVxw:W: opt ; do
