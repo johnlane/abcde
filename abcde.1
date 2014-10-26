@@ -14,7 +14,9 @@ Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack), M4A (AAC) or Opus format(s).
 With one command, it will:
 .TP
 .B *
-Do a CDDB or Musicbrainz query over the Internet to look up your CD or use a locally stored CDDB entry
+Do a CDDB or Musicbrainz query over the Internet to look up your CD or
+use a locally stored CDDB entry, or read CD-TEXT from your CD as a
+fallback for track information
 .TP
 .B *
 Grab an audio track (or all the audio CD tracks) from your CD
@@ -553,7 +555,9 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc, opusenc).
 .TP
 .B *
-An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird, dagrab)
+An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird,
+dagrab). To read CD-TEXT information, icedax or cdda2wav will be
+needed.
 .TP
 .B *
 cd-discid, a CDDB DiscID reading program.
