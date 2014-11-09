@@ -3447,7 +3447,6 @@ fi
 # We used to use EXTRAVERBOSE=y to turn on more debug output. Now
 # that's changed to a number to allow for more control. Deal with
 # EXTRAVERBOSE=y/n, set it to 1/0 for backwards compatibility.
-echo "Looking at EXTRAVERBOSE ($EXTRAVERBOSE)"
 case "$EXTRAVERBOSE" in
 	*y*|*Y*)
 		EXTRAVERBOSE=1
