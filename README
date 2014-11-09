@@ -15,7 +15,7 @@ filename munging is customizable - edit the mungefilename function in your
 abcde.conf to change it.
 
 Many of the questions related of problems executing abcde have been moved to the
-FAQ, which should be distributed along with this package. Reffer to that file
+FAQ, which should be distributed along with this package. Refer to that file
 for more help.
 
 MAJOR CHANGES

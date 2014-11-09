@@ -74,7 +74,7 @@ Options:
 -x     Eject CD after all tracks are read
 -w <comment>
        Add a comment to the CD tracks
--W <#> Contatenate CDs: -T #01 -w "CD #"
+-W <#> Concatenate CDs: -T #01 -w "CD #"
 -z     Use debug CDROMREADERSYNTAX option (needs cdparanoia)
 
 Tracks is a space-delimited list of tracks to grab.
