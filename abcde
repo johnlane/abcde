@@ -1534,7 +1534,7 @@ do_playlist ()
 				;;
 		esac
 		# Create a playlist file for the playlist data to go into.
-		# We used to wipe it out if it existed. Now we request permision if interactive.
+		# We used to wipe it out if it existed. Now we request permission if interactive.
 		for LASTTRACK in $TRACKQUEUE; do :; done
 		ALBUMFILE="$(mungefilename "$DALBUM")"
 		ARTISTFILE="$(mungefilename "$DARTIST")"
