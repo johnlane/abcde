@@ -6,8 +6,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-#
-# $Id: abcde 232 2007-03-22 21:39:30Z data $
 
 # import those needed modules.
 
@@ -19,7 +17,7 @@ import getopt
 import string
 import select
 
-__version__ = "1.0-$Revision$"
+__version__ = "1.0"
 
 """
 abcde.py - A Better CD Encoder - python release
