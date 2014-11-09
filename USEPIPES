@@ -27,7 +27,7 @@ filename to read the information as input with the "-i" flag and output it to
 "file.ext" with the "-o" flag.
 
 Keep in mind that the example above is only that, an example, and every ripper
-and encoder differs from in each other in the way they interact with pipes. 
+and encoder differs from in each other in the way they interact with pipes.
 
 For one reason, not all the rippers and encoders are supported by abcde: the
 author (or the users) have not included support for them.

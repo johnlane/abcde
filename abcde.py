@@ -74,7 +74,7 @@ Options:
 -x     Eject CD after all tracks are read
 -w <comment>
        Add a comment to the CD tracks
--W <#> Contatenate CDs: -T #01 -w "CD #" 
+-W <#> Contatenate CDs: -T #01 -w "CD #"
 -z     Use debug CDROMREADERSYNTAX option (needs cdparanoia)
 
 Tracks is a space-delimited list of tracks to grab.
@@ -132,7 +132,7 @@ def f_seq_line (min,max):
 # Puts the blurb content, if available, on stdout.
 # Otherwise, returns "".
 def checkstatus (string, file):
-	
+
 	patern = re.compile("^"+string+"(=.*)?$")
 
 	try:
@@ -169,7 +169,7 @@ def main():
 		log("error","unknown error")
 		sys.stderr.write(usage % sys.argv[0])
 		sys.exit(1)
-	
+
 	try:
 		#abcde.setup()
 		for opt, optarg in opts:
@@ -178,7 +178,7 @@ def main():
 			if opt == "-a": o_actions = optarg
 			if opt == "-b": o_batchnormalize = "y"
 			if opt == "-B": o_nobatchreplygain = "y"
-			if opt == "-c": 
+			if opt == "-c":
 				o_configfile = str(optarg)
 				try:
 					if not re.compile("\.\/").search(o_configfile):
@@ -217,7 +217,7 @@ def main():
 			if opt == "-s": o_showcddbfields = "y"
 			if opt == "-S": o_cdspeed = optarg
 			if opt == "-t": o_starttracknumber = optarg
-			if opt == "-T": 
+			if opt == "-T":
 				o_starttracknumber = optarg
 				o_starttracknumbertag = "y"
 			if opt == "-U": o_cddbproto = 5
@@ -239,7 +239,7 @@ def main():
 					log("error","opt -W must be an integer")
 					sys.exit(1)
 
-	except: 
+	except:
 		#log("error","arguments were not correct")
 		pass
 

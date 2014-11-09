@@ -151,7 +151,7 @@ abcde 2.4.2
   * Bumped to 2.4.2
   * Fix Cue file always references "dummy.wav" bug
     patch from Chris Chiappa (Closes: #459928).
-  * Whitespace cleanup, replace single perl instance with sed 
+  * Whitespace cleanup, replace single perl instance with sed
     (Charles Steinkuehler)
   * Fix leadin/leadout computation for cue files broken bug
     Patch from Martin Michlmayr (Closes: #582175).
@@ -328,7 +328,7 @@ abcde 2.3.99.3
   * Added iconv + converted to utf-8 the charset of a ready-to-send CDDB
     entry (Closes: #345708).
   * Added AAC (Mpeg4) support.
-  * Small cd-discid update. 
+  * Small cd-discid update.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Thu, 19 Jan 2006 23:27:40 +0200
 
@@ -825,7 +825,7 @@ abcde 2.1.3
     missing): Closes: #191475.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Sat, 10 May 2003 07:49:22 +0000
- 
+
 abcde 2.1.2
 
   * Documentation updates: Closes: #186230.
@@ -848,9 +848,9 @@ abcde 2.1.2
 abcde 2.1.1
 
   * New release.
-  
+
  -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 17 Mar 2003 08:52:01 +0200
-   
+
 abcde 2.1.0-3
 
   * Since abcde does not depend on eject, an execution test ([-x]) was added,

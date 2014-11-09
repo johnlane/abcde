@@ -42,7 +42,7 @@ Delete the intermediate WAV file (or save it for later use)
 .B *
 Repeat until finished
 .P
-Alternatively, 
+Alternatively,
 .B abcde
 can also grab a CD and turn it into a single FLAC file with an embedded
 cuesheet which can be user later on as a source for other formats, and will be
@@ -134,7 +134,7 @@ Non interactive mode. Do not ask anything from the user. Just go ahead.
 .TP
 .B \-o [filetype][:filetypeoptions]
 Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc",
-"m4a", "wav" or "opus".  Specify a comma-delimited list of output types to obtain 
+"m4a", "wav" or "opus".  Specify a comma-delimited list of output types to obtain
 all specified types.  See the OUTPUTTYPE configuration variable. One can pass
 options to the encoder for a specific filetype on the command line separating
 them with a colon. The options must be escaped with double-quotes.
@@ -195,7 +195,7 @@ parentheses, these will need to be escaped. i.e. you have to write
 .TP
 .B \-W [number]
 Concatenate CD\'s. It uses the number provided to define a comment "CD #" and
-to modify the numbering of the tracks, starting with "#01". For Ogg/Vorbis and 
+to modify the numbering of the tracks, starting with "#01". For Ogg/Vorbis and
 FLAC files, it also defines a DISCNUMBER tag.
 .TP
 .B \-z
@@ -209,14 +209,14 @@ A list of tracks you want \fBabcde\fR to process. If this isn't specified, \fBab
 will process the entire CD. Accepts ranges of track numbers -
 "abcde 1-5 7 9" will process tracks 1, 2, 3, 4, 5, 7, and 9.
 .SH OUTPUT
-Each track is, by default, placed in a separate file named after the track in a 
-subdirectory named after the artist under the current directory. This can be 
-modified using the OUTPUTFORMAT and VAOUTPUTFORMAT variables in your 
-\fIabcde.conf\fR. Each file is given an extension identifying  its compression 
+Each track is, by default, placed in a separate file named after the track in a
+subdirectory named after the artist under the current directory. This can be
+modified using the OUTPUTFORMAT and VAOUTPUTFORMAT variables in your
+\fIabcde.conf\fR. Each file is given an extension identifying  its compression
 format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac', '.wav' or '.opus'.
 .SH CONFIGURATION
 \fBabcde\fR sources two configuration files on startup - \fI/etc/abcde.conf\fR and
-\fI$HOME/.abcde.conf\fR, in that order. 
+\fI$HOME/.abcde.conf\fR, in that order.
 .PP
 The configuration options stated in those files can be overridden by providing
 the appropriate flags at runtime.
@@ -224,11 +224,11 @@ the appropriate flags at runtime.
 The configuration variables have to be set as follows:
 .TP
 .B VARIABLE=value
-Except when "value" needs to be quoted or otherwise interpreted. If other 
-variables within "value" are to be expanded upon reading the configuration 
-file, then double quotes should be used. If they are only supposed to be 
+Except when "value" needs to be quoted or otherwise interpreted. If other
+variables within "value" are to be expanded upon reading the configuration
+file, then double quotes should be used. If they are only supposed to be
 expanded upon use (for example OUTPUTFORMAT) then single quotes must be used.
-.TP 
+.TP
 All shell escaping/quoting rules apply.
 .TP
 Here is a list of options \fBabcde\fR recognizes:
@@ -280,8 +280,8 @@ repository (if any). STILL NOT WORKING!!
 Store local copies of the CDDB entries under the $CDDBLOCALDIR directory.
 .TP
 .B CDDBUSELOCAL
-Actually use the stored copies of the CDDB entries. Can be overridden using the 
-"\-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give 
+Actually use the stored copies of the CDDB entries. Can be overridden using the
+"\-L" flag (if is CDDBUSELOCAL in "n"). If an entry is found, we always give
 the choice of retrieving a CDDB entry from the internet.
 .TP
 .B SHOWCDDBFIELDS
@@ -289,7 +289,7 @@ Coma-separated list of fields we want to parse during the CDDB parsing.
 Defaults to "year,genre".
 .TP
 .B OGGENCODERSYNTAX
-Specifies the style of encoder to use for the Ogg/Vorbis encoder. Valid options 
+Specifies the style of encoder to use for the Ogg/Vorbis encoder. Valid options
 are \'oggenc\' (default for Ogg/Vorbis) and \'vorbize\'.
 This affects the default location of the binary,
 the variable to pick encoder command-line options from, and where the options
@@ -342,7 +342,7 @@ behaviour with KEEPWAVS set is to keep the temporary directory and the wav
 files even you have requested the "clean" action.
 .TP
 .B PADTRACKS
-If set to "y", it adds 0's to the file numbers to complete a two-number 
+If set to "y", it adds 0's to the file numbers to complete a two-number
 holder. Useful when encoding tracks 1-9.
 .TP
 .B INTERACTIVE
@@ -365,7 +365,7 @@ CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, OGGENCOPTS,
-FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, ID3OPTS, EYED3OPTS, 
+FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, ID3OPTS, EYED3OPTS,
 MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, PIRDOPTS, CDDAFSOPTS, CDDBTOOLOPTS,
 EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS,
 METAFLACOPTS, DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
@@ -399,14 +399,14 @@ over 100MB for a machine that can encode music as fast as it can read it).
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
-Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)), 
-"wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values 
+Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)),
+"wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values
 like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats. For example
 .br
 OUTPUTTYPE=vorbis,flac
 .br
 For each value in OUTPUTTYPE, \fBabcde\fR expands a different process for encoding,
-tagging and moving, so you can use the format placeholder, OUTPUT, to create 
+tagging and moving, so you can use the format placeholder, OUTPUT, to create
 different subdirectories to hold the different types. The variable OUTPUT will
 be 'vorbis', 'mp3', 'flac', 'spx', 'mpc', 'm4a' and/or 'wav', depending on the
 OUTPUTTYPE you define. For example
@@ -417,7 +417,7 @@ OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
 Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+
 (Musepack) or M4A filenames. Variables are included using standard shell
 syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE, TRACKFILE,
-TRACKNUM, and YEAR. Default is \'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'. 
+TRACKNUM, and YEAR. Default is \'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'.
 Make sure to use single quotes around this variable. TRACKNUM is automatically
 zero-padded, when the number of encoded tracks is higher than 9. When lower,
 you can force with '\-p' in the command line.

@@ -15,7 +15,7 @@ filename munging is customizable - edit the mungefilename function in your
 abcde.conf to change it.
 
 Many of the questions related of problems executing abcde have been moved to the
-FAQ, which should be distributed along with this package. Reffer to that file 
+FAQ, which should be distributed along with this package. Reffer to that file
 for more help.
 
 MAJOR CHANGES
@@ -49,7 +49,7 @@ Changes in 2.4:
 * Added -z for debug.
 * Added -f to force the removal of left files.
 * CUE support has changed from a flag (-M) to an action (cue).
- 
+
 Changes in 2.3:
 * Support for mkcue, to create a CUE sheet of the CD structure. It can be used
   with "-1" to create a backup, so that later the original CD can be recreated.
@@ -74,7 +74,7 @@ Changes in 2.2:
   corecodecs.org. It is supposed to be Free (not only free), and released under
   the GPL...
 * New "-t <number>" option for starting the numbering of the output files at a
-  given starting number. Ideal for albums with more than one CD.  
+  given starting number. Ideal for albums with more than one CD.
 * New "-T <number>" option, similar to "-t" but also modifies the tag entries
   on the files themselves.
 * New "-w <COMMENT>" to add a comment to the tracks of a given CD rip. Use
@@ -92,16 +92,16 @@ Changes in 2.2:
   system.
 * New mungegenre function to switch off (or modify) the default behaviour of
   transforming uppercase characters to lowercase.
-* cdparanoia permits performing a query to the CD drive and obtain a list of 
+* cdparanoia permits performing a query to the CD drive and obtain a list of
   valid audio tracks. So, now we perform such query and process the results.
-* Support for "None of the above" has been added with the "0" selection. A 
+* Support for "None of the above" has been added with the "0" selection. A
   template is created, and the selection to edit it is defaulted to "y".
 
 New options in 2.1.19:
 
 * ONETRACK mode has been introduced. Setting the flag "-1" will create a
   single file with all the tracks from the CD.
-  
+
 Changes in 2.1.18:
 
 * CDSPEED option defaults to eject. However, since cdparanoia has a built-in
@@ -138,7 +138,7 @@ Modifications from 2.1.9 to 2.1.10:
 * Initial (still incomplete) MacOSX support is on the works.
 * A new tool (curl) has been added for MacOSX compatibility, as HTTPGET
   option.
-  
+
 Options modified from 2.1.8 to 2.1.9:
 
 * KEEPWAVS option now sets the clean to "no".
@@ -158,7 +158,7 @@ Options added/modified from 2.1.1 to 2.1.3:
 
 Options added/modified from 2.0.3 to 2.1.x:
 
-* -b use batch processing. It uses normalize-audio to adjust the volume of 
+* -b use batch processing. It uses normalize-audio to adjust the volume of
   the songs, and a -g gapless option from lame to remove gaps. Only available
   for mp3+lame combination.
 * a new "normalize" option has been added to -a, to normalize the volume.
@@ -170,7 +170,7 @@ Options added/modified from 2.0.3 to 2.1.x:
   OUTPUTFORMAT to create different directory structures and playlist names for
   each of the output formats selected.
 
-* DYEAR can be used as DiskYear value in CDDB data. If the data is not supplied 
+* DYEAR can be used as DiskYear value in CDDB data. If the data is not supplied
   by the CDDB server, it can be added.
 
 Other options that changed from 1.x to 2.x:
@@ -239,4 +239,3 @@ Colin Tuckley <colint@debian.org>
 Steve McIntyre <93sam@debian.org>
 
 abcde was originally created by Robert Woodcock <rcw@debian.org>
-

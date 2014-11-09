@@ -540,7 +540,7 @@ do_replaygain()
 					else
 						OUTPUTFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\")"
 					fi
-				else	
+				else
 					if [ "$VARIOUSARTISTS" = "y" ]; then
 						OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT"\")"
 					else
@@ -817,15 +817,15 @@ do_tag ()
 			if [ "$VARIOUSARTISTS" = "y" ]; then
 				TPE2="Various"
 			fi
-	
+
 			case "$ID3SYNTAX" in
 				id3);;
 				eyed3)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
 					# FIXME as well! # Older versions of eyeD3 (< 0.7.0) expect
-					# --set-encoding and --set-text-frame so perhaps some version 
-					# sniffing would be useful. Might also be better to simply cut 
+					# --set-encoding and --set-text-frame so perhaps some version
+					# sniffing would be useful. Might also be better to simply cut
 					# ties with the older eyeD3... Andrew.
 					# eyeD3 --comment syntax is also different in < and >= 0.7.0
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
@@ -877,7 +877,7 @@ do_tag ()
 					fi
 					if [ -n "$CDGENRE" ]; then
 						echo GENRE="$CDGENRE"
-					fi	
+					fi
 					echo TRACKNUMBER=${TRACKNUM:-$1}
 					if [ -n "$DISCNUMBER" ]; then
 						echo DISCNUMBER="$DISCNUMBER"
@@ -887,7 +887,7 @@ do_tag ()
 						case "$COMMENTOUTPUT" in
 							*=*) echo "$COMMENTOUTPUT";;
 							*)   echo COMMENT="$COMMENTOUTPUT";;
-						esac	
+						esac
 					fi
 					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
 						$VORBISCOMMENT $VORBISCOMMENTOPTS -w \
@@ -916,7 +916,7 @@ do_tag ()
 			fi
 			if [ -n "$CDGENRE" ]; then
 				echo GENRE="$CDGENRE"
-			fi	
+			fi
 			echo TRACKNUMBER="${TRACKNUM:-$1}"
 			if [ -n "$DISCNUMBER" ]; then
 				echo DISCNUMBER="$DISCNUMBER"
@@ -926,7 +926,7 @@ do_tag ()
 				case "$COMMENTOUTPUT" in
 					*=*) echo "$COMMENTOUTPUT";;
 					*)   echo COMMENT="$COMMENTOUTPUT";;
-				esac	
+				esac
 			fi
 			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 			;;
@@ -1000,7 +1000,7 @@ do_nogap_encode ()
 			esac
 			;;
 		esac
-	done		
+	done
 	if checkerrors "nogap-encode"; then :; else
 		if [ ! "$KEEPWAVS" = "y" ] ; then
 			if [ ! "$KEEPWAVS" = "move" ] ; then
@@ -1133,19 +1133,19 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$OPUSENCODERSYNTAX" in
-					opusenc) 
+					opusenc)
 
 					    if [ "$(eval echo ${COMMENT})" != "" ]; then
 						case "$COMMENT" in
 						    *=*) ;;
 						     *)   COMMENT="COMMENT=$COMMENT" ;;
-						esac	
+						esac
 					    fi
 					    # Tag the file at encode time, as it can't be done after encoding.
 					    if [ "$DOTAG" = "y" ]; then
 					       $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 					    else
-					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"  
+					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"
 					    fi
 					      ;;
 					esac
@@ -1174,7 +1174,7 @@ do_encode ()
 					case "$COMMENT" in
 						*=*) ;;
 						*)   COMMENT="COMMENT=$COMMENT" ;;
-					esac	
+					esac
 				fi
 				# Tag the file at encode time, as it can't be done after encoding.
 				if [ "$DOTAG" = "y" ]; then
@@ -1183,7 +1183,7 @@ do_encode ()
 					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
 				;;
-			mpc)	
+			mpc)
 				# MPP/MP+(Musepack) format (.mpc) is done locally, with inline
 				# tagging. Uses mpcenc for Musepack SV8 encoding, changed from
 				# Musepack SV7 which used mppenc....
@@ -1196,7 +1196,7 @@ do_encode ()
 					$RUN_COMMAND nice $ENCNICE $AACENC $AACENCOPTS -if "$IN" -of "$OUT"
 									elif [ ! "$DOTAG" = "y" ]; then
 					$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
-					
+
 				else
 					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
 				fi
@@ -1423,7 +1423,7 @@ do_move ()
 			else
 				OUTPUTFILE="$(eval echo \""$ONETRACKOUTPUTFORMAT"\")"
 			fi
-		else	
+		else
 			if [ "$VARIOUSARTISTS" = "y" ]; then
 				OUTPUTFILE="$(eval echo \""$VAOUTPUTFORMAT"\")"
 			else
@@ -1647,7 +1647,7 @@ abcde.cue2discid () {
 	LEADIN=88200
 	i=0
 	N=0
-	
+
 	while read line ; do
 		set -- $line
 		case "$1" in
@@ -1673,16 +1673,16 @@ abcde.cue2discid () {
 			esac
 			;;
 		esac
-		
+
 	done
-	
+
 	TRACKS=$i
 	LEADOUT=$(( $LEADOUT + $LEADIN ))
 
 	LENGTH=$(( $LEADOUT/75 - $TRACK1/75 ))
 	DISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
 	printf "%08x %i" $DISCID $TRACKS
-	
+
 	j=1
 	while [ $j -le $TRACKS ] ; do
 		eval echo -n "\" \$TRACK$j\""
@@ -2049,7 +2049,7 @@ do_discid ()
 			echo cdparanoia-audio-tracks=$CDPARANOIAAUDIOTRACKS >> "$ABCDETEMPDIR/status"
 		fi
 	fi
-	
+
 	# Create the discid file
 	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
 	if checkstatus cddbmethod > /dev/null 2>&1 ; then :; else
@@ -2150,7 +2150,7 @@ do_cddbparse ()
 do_localcddb ()
 {
 	if checkstatus cddb-readcomplete && checkstatus cddb-choice >/dev/null; then :; else
-	
+
 		CDDBLOCALSTATUS="notfound"
 		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
 		USELOCALRESP="y"
@@ -2173,7 +2173,7 @@ do_localcddb ()
 		else
 			CDDBLOCALMATCH=none
 		fi
-		
+
 		# If the user has selected to check a local CDDB repo, we proceed with it
 		case $CDDBLOCALMATCH in
 			multiple)
@@ -2184,7 +2184,7 @@ do_localcddb ()
 					# List out disc title/author and contents
 					CDDBLOCALREAD="$ABCDETEMPDIR/cddblocalread.$X"
 					cat "$RESULT" > "${CDDBLOCALREAD}"
-					{	
+					{
 						echo -n "#$X: "
 						do_cddbparse "${CDDBLOCALREAD}"
 						echo ""
@@ -2467,7 +2467,7 @@ do_cddbquery ()
 {
 	CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
 	CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBDISCID}"
-	
+
 	# Perform CDDB query if it hasn't already been done
 	if checkstatus cddb-querycomplete; then :; else
 		if [ "$CDDBAVAIL" = "n" ]; then
@@ -2595,7 +2595,7 @@ do_cddbread ()
 			echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 			echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
 			;;
-		esac	
+		esac
 		echo "cddb-readcomplete" >> "$ABCDETEMPDIR/status"
 	fi
 }
@@ -2641,7 +2641,7 @@ do_cddbedit ()
 						# It's all going to fit in one page, cat it
 						cat "$ABCDETEMPDIR/cddbchoices" >&2
 					fi
-					
+
 					CDDBCHOICENUM=""
 					# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 					CDCHOICENUM=-1
@@ -2762,7 +2762,7 @@ do_cddbedit ()
 	fi
 	if [ "$EDITCDDB" = "y" ]; then
 		CDDBDATAMD5SUM=$($MD5SUM "$CDDBDATA" | cut -d " " -f 1);
-		
+
 		# Use the debian sensible-editor wrapper to pick the editor that the
 		# user has requested via their $EDITOR environment variable
 		if [ -x "/usr/bin/sensible-editor" ]; then
@@ -3912,7 +3912,7 @@ esac
 case "$FLACENCODERSYNTAX" in
 	flac)
 		FLACENCODEROPTS="${FLACENCODEROPTSCLI:-$FLACOPTS}"
-		FLACENCODER="$FLAC"	
+		FLACENCODER="$FLAC"
 		if [ "$DOREPLAYGAIN" = "y" ]; then
 			FLACENCODEROPTS="${FLACENCODEROPTS} --replay-gain"
 		fi

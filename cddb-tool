@@ -86,7 +86,7 @@ Commands:
   query server proto user host disc-id tracks
 	Looks up disc on server (should be of form "http://host/~cddb/cddb.cgi")
 	remainder of command line is in the same form as that returned
-	by the cd-discid program.  
+	by the cd-discid program.
   read server proto user host disc-id genre
 	CDDB file is dumped to stdout. File will contain an extra
 	#CATEGORY= line, which leaves it a valid CDDB file but which will
@@ -98,7 +98,7 @@ Commands:
 	if the server supports given protocol. Most common values for proto
 	should be 5 and 3. With 3 you will not get DYEAR and DGENRE fields
 	in response.
-  help  
+  help
 	Display this.
 EOF
 }
@@ -132,7 +132,7 @@ shift
 case $COMMAND in
 parse)	# takes 1 argument, a filename, and dumps out a sh parseable version
 	CDDBFILE="$1"
-	
+
 	set -e
 	# names chosen to match usage in abcde code
 	DISCID=$(grep ^DISCID= "$CDDBFILE" | cut -f2 -d= | tr -d \[:cntrl:\])

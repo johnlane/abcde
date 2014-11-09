@@ -8,7 +8,7 @@
 # 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # abcde-musicbrainz-tool
-# 
+#
 # Helper script for abcde to work with the MusicBrainz WS API (v2)
 
 use strict;
@@ -61,7 +61,7 @@ if ($command =~ m/^id/) {
 
     printf("%s ", $disc->id());
     printf("%d ", $disc->last_track_num() + 1 - $disc->first_track_num());
-    
+
     for ( my $i = $disc->first_track_num;
           $i <= $disc->last_track_num; $i++ ) {
         printf("%d ", $disc->track_offset($i));
@@ -106,7 +106,7 @@ if ($command =~ m/^id/) {
         print OUT "DTITLE=" . $a_artist. " / " . $release->title() . "\n";
         print OUT "DYEAR=\n";
         print OUT "DGENRE=\n";
-           
+
         my @tracks = @{$release->track_list()->tracks()};
         for (my $i = 0; $i < scalar(@tracks); $i++) {
             my $track = $tracks[$i];
@@ -173,4 +173,3 @@ if ($command =~ m/^id/) {
 
     print $id;
 }
-
