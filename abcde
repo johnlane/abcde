@@ -48,7 +48,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -941,6 +941,9 @@ do_tag ()
 		mpc)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
+        wv)
+            run_command tagtrack-$OUTPUT-$1 true
+ 			;;
 		aac)
 			run_command tagtrack-$OUTPUT-$1 true
 		;;
@@ -1044,6 +1047,9 @@ do_encode ()
 				;;
 			mpc)
 				TEMPARG="PIPE_$MPCENCODER"
+				;;
+			wv)
+				TEMPARG="PIPE_$WVCENCODERSYNTAX"
 				;;
 			aac)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
@@ -1198,6 +1204,15 @@ do_encode ()
 				# tagging. Uses mpcenc for Musepack SV8 encoding, changed from
 				# Musepack SV7 which used mppenc....
 				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+				;;
+			wv)
+			 if [ "$DOTAG" = "y" ]; then
+             # wavpack tagging is done inline using Apev2 tags:
+				$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" -w Title="$TRACKNAME" \
+				-w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" -w Comment="$COMMENT" "$IN" -o "$OUT"
+			else
+			   $RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
+			 fi
 				;;
 			aac)
 			# aac container is only used to catch faac encoded files where faac 
@@ -3233,6 +3248,7 @@ OPUSENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
+WVENCODERSYNTAX=default
 AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
@@ -3288,6 +3304,8 @@ FLAC=flac
 SPEEXENC=speexenc
 # mpp (Musepack)
 MPCENC=mpcenc
+# wv (wavpack)
+WVENC=wavpack
 # m4a
 AACENC=faac
 
@@ -3343,6 +3361,8 @@ FLACGAINOPTS="--add-replay-gain"
 SPEEXENCOPTS=
 # mpc
 MPCENCOPTS=
+# wv
+WVENCOPTS=
 # m4a
 AACENCOPTS=
 
@@ -3823,6 +3843,7 @@ case "$OUTPUTTYPE" in *:*)
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			wv:*)	WVENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
@@ -3835,7 +3856,8 @@ case "$OUTPUTTYPE" in *:*)
 esac
 
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac
-# for flacs and speexenc for speex and mpcenc for mpcs and faac for m4as
+# for flacs and speexenc for speex and mpcenc for mpcs and faac for m4as and
+# wavpack for wvs...
 
 # Getting ready for multiple output changes
 for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
@@ -3869,6 +3891,10 @@ do
 		mpc)
 			[ "$MPCENCODERSYNTAX" = "default" ] && MPCENCODERSYNTAX=mpcenc
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
+			;;
+		wv)
+			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
+			[ "$DOTAG" = "y" ]
 			;;
 		aac)
 		    [ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
@@ -3967,6 +3993,12 @@ case "$MPCENCODERSYNTAX" in
 	mpcenc)
 		MPCENCODEROPTS="${MPCENCODEROPTSCLI:-$MPCENCOPTS}"
 		MPCENCODER="$MPCENC"
+		;;
+esac
+case "$WVENCODERSYNTAX" in
+	wavpack)
+		WVCENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
+		WVENCODER="$WVENC"
 		;;
 esac
 case "$AACENCODERSYNTAX" in
@@ -4101,6 +4133,8 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$SPEEXENCODER" ;;
 		mpc)
 			PIPEENCODERSVARCHECK="PIPE_$MPCENCODER" ;;
+		wv)
+			PIPEENCODERSVARCHECK="PIPE_$WVENCODER" ;;
 	esac
 	decho "PIPERIPPERSVARCHECK: $( eval echo "\$$PIPERIPPERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \
@@ -4123,7 +4157,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
-	$AACENCODER $CDDBTOOL \
+	$AACENCODER $WVENCODER $CDDBTOOL \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \

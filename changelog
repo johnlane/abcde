@@ -1,5 +1,6 @@
 abcde 2.6.1
 
+  * Support for WavPack added. Closes issue 123.
   * Fix for mp3 encoding with different versions of eyeD3.
     Thanks to Matthias Andree for this patch.
   * Major AAC encoding cleanup, including addition of the fdkaac encoder. 
