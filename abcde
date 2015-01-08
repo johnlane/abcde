@@ -819,21 +819,27 @@ do_tag ()
 
 			case "$ID3SYNTAX" in
 				id3);;
-				eyed3)
+				eyed3*)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
-					# FIXME as well! # Older versions of eyeD3 (< 0.7.0) expect
-					# --set-encoding and --set-text-frame so perhaps some version
-					# sniffing would be useful. Might also be better to simply cut
-					# ties with the older eyeD3... Andrew.
-					# eyeD3 --comment syntax is also different in < and >= 0.7.0
+					case "$ID3SYNTAX" in
+						eyed3_06) addopts=( \
+							${ENCODING:+--set-encoding="$ENCODING"} \
+							${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
+							${COMMENTOUTPUT:+--comment=::"$COMMENTOUTPUT"} \
+							);;
+						*) addopts=( \
+							${ENCODING:+--encoding="$ENCODING"} \
+							${TPE2:+--text-frame=TPE2:"$TPE2"} \
+							${COMMENTOUTPUT:+--comment "$COMMENTOUTPUT"} \
+							);;
+					esac
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
-						--comment="$COMMENTOUTPUT" -A "$DALBUM" \
+					    -A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" ${CDYEAR:+-Y "$CDYEAR"} \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
-						${ENCODING:+--encoding="$ENCODING"} \
-						${TPE2:+--text-frame=TPE2:"$TPE2"} \
+						"${addopts[@]}" \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
 				# FIXME # Still not activated...
@@ -3341,10 +3347,7 @@ MPCENCOPTS=
 AACENCOPTS=
 
 ID3OPTS=
-# FIXME # Older versions of eyeD3 (< 0.7.0) expect --set-encoding=utf16-LE
-# so perhaps some version sniffing would be useful. Or perhaps it might be
-# better to simply cut ties with the older eyeD3... Andrew.
-EYED3OPTS="--encoding utf16"
+EYED3OPTS=""
 CDPARANOIAOPTS=
 CDDA2WAVOPTS=
 DAGRABOPTS=
@@ -3979,8 +3982,16 @@ if [ "$ID3TAGV" = "1" ]; then
 	TAGGEROPTS="$ID3OPTS"
 else
 	TAGGER="$EYED3"
-	TAGGEROPTS="$EYED3OPTS"
-	ID3SYNTAX=eyed3
+	# 0.7 changed syntax
+	if $EYED3 --help 2>&1 | grep -q -- --set-encoding ; then
+		# only if it offers the --set-encoding, assume <= 0.6.x
+		ID3SYNTAX=eyed3_06
+		TAGGEROPTS="--set-encoding utf16-LE $EYED3OPTS"
+	else
+		# anything wrong, any failure, assume >= 0.7
+		ID3SYNTAX=eyed3
+		TAGGEROPTS="--encoding utf16 $EYED3OPTS"
+	fi
 fi
 
 # NOGAP is specific to lame. Other encoders fail ...

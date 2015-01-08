@@ -1,5 +1,7 @@
 abcde 2.6.1
 
+  * Fix for mp3 encoding with different versions of eyeD3.
+    Thanks to Matthias Andree for this patch.
   * Major AAC encoding cleanup, including addition of the fdkaac encoder. 
     Thanks to Doug Mcmahon for assistance with this.
 
