@@ -1,6 +1,6 @@
 .TH abcde 1
 .SH NAME
-abcde \- Grab an entire CD and compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) format.
+abcde \- Grab an entire CD and compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, AAC and/or MPP/MP+(Musepack) format.
 .SH SYNOPSIS
 .B abcde
 .I [options] [tracks]
@@ -213,7 +213,7 @@ Each track is, by default, placed in a separate file named after the track in a
 subdirectory named after the artist under the current directory. This can be
 modified using the OUTPUTFORMAT and VAOUTPUTFORMAT variables in your
 \fIabcde.conf\fR. Each file is given an extension identifying  its compression
-format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.aac', '.wav' or '.opus'.
+format, 'vorbis' for '.ogg', '.mp3', '.flac', '.spx', '.mpc', '.wav' or '.opus'.
 .SH CONFIGURATION
 \fBabcde\fR sources two configuration files on startup - \fI/etc/abcde.conf\fR and
 \fI$HOME/.abcde.conf\fR, in that order.
@@ -314,7 +314,7 @@ point we only have \'mpcenc\' available, from musepack.net.
 .TP
 .B AACENCODERSYNTAX
 Specifies the style of encoder to use for M4A (AAC) encoder. We support \'faac\'
-as \'default\' but support is there for neroAacEnc as well.
+as \'default\' as well as higher quality audio with neroAacEnc and fdkaac.
 .TP
 .B OPUSENCODERSYNTAX
 Specifies the style of encoder to use for the Opus encoder. At this point only
@@ -399,7 +399,7 @@ over 100MB for a machine that can encode music as fast as it can read it).
 Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
-Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (for M4A (AAC)),
+Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (AAC)),
 "wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values
 like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats. For example
 .br
@@ -550,7 +550,9 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 \fBabcde\fR requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder (oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc, opusenc).
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder 
+(oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, 
+neroAacEnc, fdkaac, opusenc).
 .TP
 .B *
 An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird,
@@ -594,6 +596,7 @@ information about the CD.
 .BR speexenc (1),
 .BR mpcenc (1),
 .BR faac (1),
+.BR fdkaac (1),
 .BR id3 (1),
 .BR eyeD3 (1),
 .BR wget (1),

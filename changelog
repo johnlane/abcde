@@ -1,3 +1,8 @@
+abcde 2.6.1
+
+  * Major AAC encoding cleanup, including addition of the fdkaac encoder. 
+    Thanks to Doug Mcmahon for assistance with this.
+
 abcde 2.6
 
   * Fix finding $CDROM on OS X. Thanks to niederstrasser for the patch.

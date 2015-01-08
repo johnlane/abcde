@@ -788,7 +788,7 @@ return 0
 # do_tag [tracknumber]
 # id3 tags a filename
 # variables used:
-# TRACKS, TRACKNAME, TRACKARTIST, TAGGER, TAGGEROPTS, VORBISCOMMENT, METAFLAC, ATOMICPARSLEY
+# TRACKS, TRACKNAME, TRACKARTIST, TAGGER, TAGGEROPTS, VORBISCOMMENT, METAFLAC,
 # COMMENT, DALBUM, DARTIST, CDYEAR, CDGENRE
 do_tag ()
 {
@@ -935,21 +935,23 @@ do_tag ()
 		mpc)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
+		aac)
+			run_command tagtrack-$OUTPUT-$1 true
+		;;
 		m4a)
-			#  Use a temp-file of our choice. --overWrite seems to
-			#  case core dumps with AtomicParsley 0.9.0
-			ATOMICTEMPFILE="$ABCDETEMPDIR/track$1.m4a-atomic"
-
-			VARIOUSBOOL="false"
-			if [ "$VARIOUSARTISTS" = "y" ]; then
-				VARIOUSBOOL="true"
-			fi
-
-			#It has to be command file opts for AtomicParsley
-			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $ATOMICPARSLEY "$ABCDETEMPDIR/track$1.m4a" --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --tracknum ${TRACKNUM:-$1} --year "$CDYEAR" --genre "$CDGENRE" --compilation $VARIOUSBOOL --comment "$COMMENTOUTPUT" --output $ATOMICTEMPFILE
-			if [ -f $ATOMICTEMPFILE ]; then
-				mv "$ATOMICTEMPFILE" "$ABCDETEMPDIR/track$1.m4a"
-			fi
+		  case "$AACENCODERSYNTAX" in
+		    fdkaac) # We will use inline tagging...
+		        run_command tagtrack-$OUTPUT-$1 true
+		        ;;
+		    neroAacEnc) # Tag post encode with neroAacTag...
+		     run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$NEROAACTAG" "$ABCDETEMPDIR/track$1.m4a" \
+		     -meta:artist="$TRACKARTIST" -meta:album="$DALBUM" -meta:title="$TRACKNAME" -meta:track=${TRACKNUM:-$1} \
+		     -meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
+		      ;;
+		   faac)
+		     run_command tagtrack-$OUTPUT-$1 true		    
+			;;
+		esac			
 			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -1036,6 +1038,9 @@ do_encode ()
 				;;
 			mpc)
 				TEMPARG="PIPE_$MPCENCODER"
+				;;
+			aac)
+				TEMPARG="PIPE_$AACENCODERSYNTAX"
 				;;
 			m4a)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
@@ -1188,17 +1193,34 @@ do_encode ()
 				# Musepack SV7 which used mppenc....
 				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
+			aac)
+			# aac container is only used to catch faac encoded files where faac 
+			# is compiled without mp4 support (with libmp4v2).           Andrew.
+			  $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
+			 ;;
 			m4a)
-				# Tag the file at encode time, as it can't be done after encoding.
-				if [ "$AACENC" = "neroAacEnc" ] ; then
-					DOTAG=y
-					$RUN_COMMAND nice $ENCNICE $AACENC $AACENCOPTS -if "$IN" -of "$OUT"
-									elif [ ! "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" -o "$OUT" "$IN"
-
-				else
-					$RUN_COMMAND nice $ENCNICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
-				fi
+			 case "$AACENCODERSYNTAX" in
+			   faac)
+			     if [ "$DOTAG" = "y" ]; then
+	           $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" \
+	           --album "$DALBUM" --title "$TRACKNAME" --track ${TRACKNUM:-$1} --year "$CDYEAR" \
+	           --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"			          
+	         else		         
+	           $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN" 	
+	         fi
+			   ;;
+			   neroAacEnc)
+	            $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -if "$IN" -of "$OUT"
+			   ;;
+			 fdkaac)	             
+		        if [ "$DOTAG" = "y" ]; then
+		          $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
+		          --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --long-tag Year:"$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
+			    else
+	             $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"	
+			    fi
+	         ;;
+			  esac	
 				;;
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
@@ -3268,7 +3290,8 @@ EYED3=eyeD3
 VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 AACTAG=faac
-ATOMICPARSLEY=AtomicParsley
+NEROAACTAG=neroAacTag
+FDKAAC=fdkaac
 
 CDPARANOIA=cdparanoia
 CDDA2WAV=icedax
@@ -3797,7 +3820,7 @@ case "$OUTPUTTYPE" in *:*)
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
-			m4a:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
 	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
@@ -3844,9 +3867,15 @@ do
 			[ "$MPCENCODERSYNTAX" = "default" ] && MPCENCODERSYNTAX=mpcenc
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
 			;;
+		aac)
+		    [ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
+			[ "$DOTAG" = "n" ]
+		# Neither Faac nor AtomicParsley can tag the .aac files which are used for faac
+		# compiled without libmp4v2... Andrew.
+			;;	
 		m4a)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
-			[ "$DOTAG" = "y" ] && CHECKATOMICPARSLEY=y
+			[ "$DOTAG" = "y" ] && CHECKFAACBUILD=y
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -3938,7 +3967,7 @@ case "$MPCENCODERSYNTAX" in
 		;;
 esac
 case "$AACENCODERSYNTAX" in
-	faac)
+	faac|neroAacEnc|fdkaac)
 		AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
 		AACENCODER="$AACENC"
 		;;
@@ -4084,7 +4113,6 @@ fi
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
 	$AACENCODER $CDDBTOOL \
-	${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
@@ -4096,13 +4124,20 @@ do
 	checkexec "$X"
 done
 
-if [ "$CHECKATOMICPARSLEY" = "y" ]; then
-	if ! new_checkexec "$ATOMICPARSLEY"; then
-		echo "WARNING: $ATOMICPARSLEY Not Found Not Post-Tagging!"
-		DOTAG='n'
-	else
-		echo "Using $ATOMICPARSLEY To Tag AAC Tracks."
-	fi
+# Under Debian and Ubuntu faac is compiled without libmp4v2 which means no support
+# for the mp4 container and no tagging capability. (AtomicParsley also cannot tag
+# these files). The resulting files are actually ADTS streams which belong in an 
+# aac container and with some version sniffing this is all cleaned up below. If
+# faac is compiled with libmp4v2 inline tagging occurs with faac.         Andrew. 
+
+if [ "$CHECKFAACBUILD" = "y" ] && [ "$AACENCODERSYNTAX" = "faac" ] ; then
+  if faac --help 2>&1 | grep -q -F 'MP4 support unavailable.'; then 
+   echo "WARNING: Your copy of Faac does not have mp4 support"
+   echo "WARNING: Encoding untagged files to aac..."
+   OUTPUTTYPE=aac
+  else
+   echo "Using Faac to Tag AAC Tracks..."
+  fi
 fi
 
 # And last but not least, check if we can diff between files. We do not abort,
