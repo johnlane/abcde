@@ -3360,7 +3360,10 @@ VORBISGAINOPTS="--album"
 #opus
 OPUSENCOPTS=
 # flac
-FLACOPTS=
+# The flac option is a workaround for an error where flac fails
+# to encode with error 'floating point exception'. This is flac 
+# error in get_console_width(), corrected in flac 1.3.1
+FLACOPTS="--silent"
 FLACGAINOPTS="--add-replay-gain"
 # speex
 SPEEXENCOPTS=
