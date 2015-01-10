@@ -1,5 +1,12 @@
 abcde 2.6.1
 
+  * Fix for flac floating point error. Thanks to rwvtveer
+    for the patch which closes Issue 113.
+  * Formalised 3 methods of mp3 tagging using ID3TAGV:
+      1.id3v2.4 using eyeD3 (set in abcde as the default)
+      2.id3v2.3 using id3v2
+      3.id3v1 using id3
+    Thanks to Adriaan for this patch which fixes issue 101.
   * Support for WavPack added. Closes issue 123.
   * Fix for mp3 encoding with different versions of eyeD3.
     Thanks to Matthias Andree for this patch.
