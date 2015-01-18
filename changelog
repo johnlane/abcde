@@ -1,5 +1,8 @@
 abcde 2.6.1
 
+  * Fix to allow display of the 'date' meta tag generated
+    by eyeD3 in vlc, Audacious and friends.
+    Thanks to Reuben Thomas. This closes Issue 126.
   * Fix for flac floating point error. Thanks to rwvtveer
     for the patch which closes Issue 113.
   * Formalised 3 methods of mp3 tagging using ID3TAGV:
