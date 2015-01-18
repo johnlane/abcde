@@ -1246,7 +1246,7 @@ do_encode ()
 			 fdkaac)	             
 		        if [ "$DOTAG" = "y" ]; then
 		          $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
-		          --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --long-tag Year:"$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
+		          --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
 			    else
 	             $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"	
 			    fi
