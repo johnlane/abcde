@@ -237,7 +237,17 @@ A. Since MP3 is considered non-free (you get it for free, but hardware players
 Q. Huh! Why is MPPENCODER (with MPP) and .mpc the extension?
 A. Dunno. You must ask the guys who created and defined the format. The
    standard is MPEGplus (MPP/MP+) but the files use .mpc extension.
-
+   
+Q. Why do I get .aac files instead of .m4a files when I encode with faac?
+A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some 
+   Linux distros have disabled this mp4v2 support due to a licensing issue 
+   and this leave faac only capable of generating mpeg-2/ADTS streams. 
+   These streams should correctly have the .aac file extension and some 
+   players (such as Audacious) will not even play mpeg-2/ADTS streams when
+   they are placed in an .m4a container.
+   As of version 2.6.1 abcde tests the version of faac being used for mp4v2 
+   support and then appropriately  places the audio either in .m4a or .aac. 
+   Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
 
 4. MISC PROBLEMS
    ==== ========
