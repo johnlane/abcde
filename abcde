@@ -845,23 +845,23 @@ do_tag ()
 						eyed3_06) addopts=( \
 							${ENCODING:+--set-encoding="$ENCODING"} \
 							${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
-					# We set 'recording-date' as a work around so the date tag will show 
-					# in Audacious, vlc and friends...                            Andrew.
+					# We set 'recording-date' so the date tag will show 
+					# in Audacious, vlc and friends...          Andrew.
 							${CDYEAR:+--set-text-frame="TDRC:$CDYEAR"} \
 							${COMMENTOUTPUT:+--comment=::"$COMMENTOUTPUT"} \
 							);;
 						*) addopts=( \
 							${ENCODING:+--encoding="$ENCODING"} \
 							${TPE2:+--text-frame=TPE2:"$TPE2"} \
-					# We set 'recording-date' as a work around so the date tag will show 
-					# in Audacious, vlc and friends...                            Andrew.
+					# We set 'recording-date' so the date tag will show 
+					# in Audacious, vlc and friends...           Andrew.
 							${CDYEAR:+--text-frame="TDRC:$CDYEAR"} \
 							${COMMENTOUTPUT:+--comment "$COMMENTOUTPUT"} \
 							);;
 					esac
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
 					    -A "$DALBUM" \
-						-a "$TRACKARTIST" -t "$TRACKNAME" ${CDYEAR:+-Y "$CDYEAR"} \
+						-a "$TRACKARTIST" -t "$TRACKNAME" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
 						"${addopts[@]}" \
