@@ -1,5 +1,7 @@
 abcde 2.6.1
 
+  * Details of abcde's handling of faac compiled with and 
+    without mp4v2 added as a new entry to FAQs.
   * Fix to allow display of the 'date' meta tag generated
     by eyeD3 in vlc, Audacious and friends.
     Thanks to Reuben Thomas. This closes Issue 126.
