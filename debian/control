@@ -10,14 +10,14 @@ Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 
 Package: abcde
 Architecture: all
-Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex | musepack-tools | opus-tools
+Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex | musepack-tools | opus-tools | wavpack
 Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, bsd-mailx
 Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3, normalize-audio, vorbisgain, mkcue, mp3gain
 Description: A Better CD Encoder
  frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
- Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) encoder (defaults 
- to oggenc). Grabs an entire CD and converts each track to the specified 
- formats and then comments or ID3-tags each file, with one command.
+ Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) and/or WavPack encoder 
+ (defaults to oggenc). Grabs an entire CD and converts each track to the 
+ specified formats and then comments or ID3-tags each file, with one command.
  .
  With abcde you can encode several formats with one single command, using a 
  single CD read operation. It also allows you to read and encode while not
