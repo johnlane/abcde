@@ -1255,6 +1255,9 @@ do_encode ()
 				;;
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
+				# But we need the following to allow full logging and subsequent 
+				# successful cleaning of $ABCDETEMPDIR. Andrew.
+             echo "encodetrack-$OUTPUT-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
 				;;
 			esac
 			$RUN_COMMAND_PIPES
