@@ -1160,16 +1160,10 @@ do_encode ()
 				%local*%)
 					case "$OPUSENCODERSYNTAX" in
 					opusenc)
-
-					    if [ "$(eval echo ${COMMENT})" != "" ]; then
-						case "$COMMENT" in
-						    *=*) ;;
-						     *)   COMMENT="COMMENT=$COMMENT" ;;
-						esac
-					    fi
 					    # Tag the file at encode time, as it can't be done after encoding.
 					    if [ "$DOTAG" = "y" ]; then
-					       $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					       $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
+					       --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" ${COMMENT:+--comment COMMENT="$COMMENT"} "$IN" "$OUT"
 					    else
 					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"
 					    fi
