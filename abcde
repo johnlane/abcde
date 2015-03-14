@@ -1204,10 +1204,9 @@ do_encode ()
 				fi
 				;;
 			mpc)
-				# MPP/MP+(Musepack) format (.mpc) is done locally, with inline
-				# tagging. Uses mpcenc for Musepack SV8 encoding, changed from
-				# Musepack SV7 which used mppenc....
-				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+			# Tag the file inline at encode time.
+				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
+				--track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
 				;;
 			wv)
 			 if [ "$DOTAG" = "y" ]; then
