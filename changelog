@@ -1,5 +1,13 @@
 abcde 2.6.1
 
+  * Simplify Opus tagging.This closes Issue 133.
+  * Allow 'clean' when OUTPUTTYPE=wav, broken for some time.
+   Thanks to Roger rogerx.oss<at>gmail.com for showing the
+   problem and demonstrating the fix. This closes Issue 94.
+  * Clarification that CDDBLOCALRECURSIVE=y is required for 
+    local CDDB search. Thanks to Reuben Thomas for the
+    notification. This partially resolves Issue 121.
+  * AtomicParsley removed from debian/control, WavPack added.
   * Details of abcde's handling of faac compiled with and 
     without mp4v2 added as a new entry to FAQs.
   * Fix to allow display of the 'date' meta tag generated
