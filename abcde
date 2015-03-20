@@ -48,7 +48,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -954,6 +954,12 @@ do_tag ()
         wv)
             run_command tagtrack-$OUTPUT-$1 true
  			;;
+        ape) # This tagging syntax is suitable for Robert Muth's application 'apetag', the Monkey's Audio 
+             # Console port (mac) used for encoding does not have the ability to tag.              Andrew.
+            run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "$ABCDETEMPDIR/track$1.ape" -m overwrite \
+		     -p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} \
+		     -p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
+ 			;;
 		aac)
 			run_command tagtrack-$OUTPUT-$1 true
 		;;
@@ -1060,6 +1066,9 @@ do_encode ()
 				;;
 			wv)
 				TEMPARG="PIPE_$WVCENCODERSYNTAX"
+				;;
+			ape)
+				TEMPARG="PIPE_$APENCODERSYNTAX"
 				;;
 			aac)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
@@ -1217,6 +1226,9 @@ do_encode ()
 			   $RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
 			 fi
 				;;
+			ape)
+			  $RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
+			 ;;
 			aac)
 			# aac container is only used to catch faac encoded files where faac 
 			# is compiled without mp4 support (with libmp4v2).           Andrew.
@@ -3255,6 +3267,7 @@ FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
 WVENCODERSYNTAX=default
+APENCODERSYNTAX=default
 AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
@@ -3312,6 +3325,9 @@ SPEEXENC=speexenc
 MPCENC=mpcenc
 # wv (wavpack)
 WVENC=wavpack
+# ape
+APENC=mac
+APETAG=apetag
 # m4a
 AACENC=faac
 
@@ -3373,6 +3389,10 @@ SPEEXENCOPTS=
 MPCENCOPTS=
 # wv
 WVENCOPTS=
+# ape
+# Monkey's Audio Console (mac) chokes without a mode setting
+# so we set one here.                                 Andrew.
+APENCOPTS='-c4000'
 # m4a
 AACENCOPTS=
 
@@ -3854,6 +3874,7 @@ case "$OUTPUTTYPE" in *:*)
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			wv:*)	WVENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			ape:*)	APENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
@@ -3904,6 +3925,10 @@ do
 			;;
 		wv)
 			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
+			[ "$DOTAG" = "y" ]
+			;;
+		ape)
+			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
 			[ "$DOTAG" = "y" ]
 			;;
 		aac)
@@ -4009,6 +4034,12 @@ case "$WVENCODERSYNTAX" in
 	wavpack)
 		WVCENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
 		WVENCODER="$WVENC"
+		;;
+esac
+case "$APENCODERSYNTAX" in
+	mac)
+		APENCODEROPTS="${APENCODEROPTSCLI:-$APENCOPTS}"
+		APENCODER="$APENC"
 		;;
 esac
 case "$AACENCODERSYNTAX" in
@@ -4165,6 +4196,8 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$MPCENCODER" ;;
 		wv)
 			PIPEENCODERSVARCHECK="PIPE_$WVENCODER" ;;
+		ape)
+			PIPEENCODERSVARCHECK="PIPE_$APENCODER" ;;
 	esac
 	decho "PIPERIPPERSVARCHECK: $( eval echo "\$$PIPERIPPERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \

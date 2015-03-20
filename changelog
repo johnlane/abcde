@@ -1,5 +1,7 @@
 abcde 2.6.1
 
+  * Monkey's Audio (ape) encoding added. Tagging is with
+  * Robert Muth's apetag. Thanks to Shantiq for testing.
   * Simplify Opus tagging.This closes Issue 133.
   * Allow 'clean' when OUTPUTTYPE=wav, broken for some time.
    Thanks to Roger rogerx.oss<at>gmail.com for showing the
