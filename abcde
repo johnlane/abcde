@@ -48,7 +48,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -920,14 +920,7 @@ do_tag ()
 		opus)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
-        ape)
-          case "$APENCODER" in
-           mac) # For mac use the aged apetag: http://www.muth.org/Robert/Apetag/ ... FIXME: use a more modern tagger when/if one appears.   Andrew.
-            run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "$ABCDETEMPDIR/track$1.ape" -m overwrite -p artist="$TRACKARTIST" \
-            -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} -p year="$CDYEAR" -p genre="$CDGENRE" -p comment="$COMMENT"
-           ;;
-           esac
-          ;;
+
 		flac)
 			(
 			echo ARTIST="$TRACKARTIST"
@@ -1056,9 +1049,6 @@ do_encode ()
 			opus)
 				TEMPARG="PIPE_$OPUSENCODERSYNTAX"
 				;;
-			ape)
-				TEMPARG="PIPE_$APENCODERSYNTAX"
-				;;
 			flac)
 				TEMPARG="PIPE_$FLACENCODERSYNTAX"
 				;;
@@ -1109,9 +1099,6 @@ do_encode ()
 					;;
 				opus)
 					OUTPUT=$OPUSOUTPUTCONTAINER
-					;;
-				ape)
-					OUTPUT=$APEOUTPUTCONTAINER
 					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
@@ -1188,13 +1175,6 @@ do_encode ()
 					;;
 				esac
 				;;
-			ape)
-			  case "$APENCODERSYNTAX" in
-			   mac)
-			   $RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
-			   ;;
-			  esac
-			;;
 			flac)
 				case "$2" in
 				%local*%)
@@ -1508,9 +1488,6 @@ do_move ()
 				opus)
 					OUTPUT=$OPUSOUTPUTCONTAINER
 					;;
-				ape)
-					OUTPUT=$APEOUTPUTCONTAINER
-					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
@@ -1594,9 +1571,6 @@ do_playlist ()
 				;;
 			opus)
 				OUTPUT=$OPUSOUTPUTCONTAINER
-				;;
-			ape)
-				OUTPUT=$APEOUTPUTCONTAINER
 				;;
 			flac)
 				OUTPUT=$FLACOUTPUTCONTAINER
@@ -3330,8 +3304,6 @@ VORBIZE=vorbize
 OGGENC=oggenc
 #opus
 OPUSENC=opusenc
-# ape
-APENC=mac
 # flac
 FLAC=flac
 # speex
@@ -3351,7 +3323,6 @@ METAFLAC=metaflac
 AACTAG=faac
 NEROAACTAG=neroAacTag
 FDKAAC=fdkaac
-APETAG=apetag
 
 CDPARANOIA=cdparanoia
 CDDA2WAV=icedax
@@ -3390,9 +3361,6 @@ OGGENCOPTS=
 VORBISGAINOPTS="--album"
 #opus
 OPUSENCOPTS=
-# ape
-# mac has no defaults and will choke without one so we place one... Andrew
-APENCOPTS='-c3000'
 # flac
 # The flac option is a workaround for an error where flac fails
 # to encode with error 'floating point exception'. This is flac 
@@ -3881,7 +3849,6 @@ case "$OUTPUTTYPE" in *:*)
 		case "$OUTPUT" in
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			opus:*)	OPUSENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
-			ape:*)	APENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -3915,10 +3882,6 @@ do
 		opus)
 			[ "$OPUSENCODERSYNTAX" = "default" ] && OPUSENCODERSYNTAX=opusenc
 			OPUSOUTPUTCONTAINER=opus
-			;;
-		ape)
-			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
-			APEOUTPUTCONTAINER=ape
 			;;
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
@@ -4010,12 +3973,6 @@ case "$OPUSENCODERSYNTAX" in
 	opusenc)
 		OPUSENCODEROPTS="${OPUSENCODEROPTSCLI:-$OPUSENCOPTS}"
 		OPUSENCODER="$OPUSENC"
-		;;
-esac
-case "$APENCODERSYNTAX" in
-	mac)
-		APENCODEROPTS="${APENCODEROPTSCLI:-$APENCOPTS}"
-		APENCODER="$APENC"
 		;;
 esac
 case "$FLACENCODERSYNTAX" in
@@ -4200,8 +4157,6 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$OGGENCODERSYNTAX" ;;
 		opus)
 			PIPEENCODERSVARCHECK="PIPE_$OPUSENCODERSYNTAX" ;;
-		ape)
-			PIPEENCODERSVARCHECK="PIPE_$APENCODERSYNTAX" ;;
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYNTAX" ;;
 		spx)
@@ -4232,7 +4187,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
-	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $APETAG \
+	$AACENCODER $WVENCODER $CDDBTOOL \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
