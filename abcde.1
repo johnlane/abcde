@@ -1,7 +1,7 @@
 .TH abcde 1
 .SH NAME
 abcde \- Grab an entire CD and compress it to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, AAC, 
-WavPack and/or MPP/MP+(Musepack) format.
+WavPack, Monkey's Audio (ape) and/or MPP/MP+(Musepack) format.
 .SH SYNOPSIS
 .B abcde
 .I [options] [tracks]
@@ -11,8 +11,8 @@ tagging or commenting it, is very involved.
 .BR abcde
 is designed to automate this. It will take an entire CD and convert it into
 a compressed audio format - Ogg/Vorbis, MPEG Audio Layer III, Free Lossless
-Audio Codec (FLAC), Ogg/Speex, MPP/MP+(Musepack), M4A (AAC) wv (WavPack) 
-or Opus format(s).
+Audio Codec (FLAC), Ogg/Speex, Monkey's Audio (ape), MPP/MP+(Musepack),
+M4A (AAC) wv (WavPack) or Opus format(s).
 With one command, it will:
 .TP
 .B *
@@ -27,8 +27,8 @@ Grab an audio track (or all the audio CD tracks) from your CD
 Normalize the volume of the individual file (or the album as a single unit)
 .TP
 .B *
-Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A, wv (WavPack) 
-and/or Opus format(s), all in one CD read
+Compress to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A, wv (WavPack), 
+Monkey's Audio (ape) and/or Opus format(s), all in one CD read
 .TP
 .B *
 Comment or ID3/ID3v2 tag
@@ -137,10 +137,10 @@ Non interactive mode. Do not ask anything from the user. Just go ahead.
 .TP
 .B \-o [filetype][:filetypeoptions]
 Select output type. Can be "vorbis" (or "ogg"), "mp3", "flac", "spx", "mpc",
-"m4a", "wav", "wv" or "opus".  Specify a comma-delimited list of output types to obtain
-all specified types.  See the OUTPUTTYPE configuration variable. One can pass
-options to the encoder for a specific filetype on the command line separating
-them with a colon. The options must be escaped with double-quotes.
+"m4a", "wav", "wv", "ape" or "opus".  Specify a comma-delimited list of output 
+types to obtain all specified types.  See the OUTPUTTYPE configuration variable. 
+One can pass options to the encoder for a specific filetype on the command line 
+separating them with a colon. The options must be escaped with double-quotes.
 .TP
 .B \-p
 Pads track numbers with 0\'s.
@@ -328,6 +328,10 @@ as \'default\'.
 Specifies the style of encoder to use for the Opus encoder. At this point only
 \'opusenc\' is available for Opus encoding.
 .TP
+.B APENCODERSYNTAX
+Specifies the style of encoder to use for the Monkey's Audio (ape) encoder. 
+At this point only \'mac\' is available for Monkey's Audio encoding.
+.TP
 .B NORMALIZERSYNTAX
 Specifies the style of normalizer to use.  Valid options are \'default\'
 and \'normalize'\ (and both run \'normalize-audio\'), since we only support it,
@@ -364,16 +368,16 @@ with \fBdistmp3\fR (DISTMP3NICE).
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, WVENC, OPUSENC, ID3, EYED3, METAFLAC,
-CDPARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
-VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPPGAIN, MKCUE, MKTOC,
-CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
+VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, APENC, APETAG, WVENC, OPUSENC, 
+ID3, EYED3, METAFLAC, CDPARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, 
+EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, 
+MPPGAIN, MKCUE, MKTOC, CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
 BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, WVENCOPTS, OGGENCOPTS,
-FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, ID3OPTS, EYED3OPTS,
+FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, AACENCOPTS, OPUSENCOPTS, APENCOPTS, ID3OPTS, EYED3OPTS,
 MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, PIRDOPTS, CDDAFSOPTS, CDDBTOOLOPTS,
 EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, VORBISCOMMMENTOPTS,
 METAFLACOPTS, DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
@@ -408,22 +412,23 @@ Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
 Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack)), "m4a" (AAC)),
-"wv" (WavPack", "wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values
-like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats. For example
+"wv" (WavPack", "wav" (Microsoft Waveform), "ape" (Monkey's Audio) 
+or "opus" (Opus Interactive Audio Codec). Values like "vorbis,mp3" 
+encode the tracks in both Ogg/Vorbis and MP3 formats. For example
 .br
 OUTPUTTYPE=vorbis,flac
 .br
 For each value in OUTPUTTYPE, \fBabcde\fR expands a different process for encoding,
 tagging and moving, so you can use the format placeholder, OUTPUT, to create
 different subdirectories to hold the different types. The variable OUTPUT will
-be 'vorbis', 'mp3', 'flac', 'spx', 'mpc', 'm4a', 'wv' and/or 'wav', depending on the
-OUTPUTTYPE you define. For example
+be 'vorbis', 'mp3', 'flac', 'spx', 'mpc', 'm4a', 'wv', 'ape' and/or 'wav', depending 
+on the OUTPUTTYPE you define. For example
 .br
 OUTPUTFORMAT='${OUTPUT}/${ARTISTFILE}/${ALBUMFILE}/${TRACKNUM}._${TRACKFILE}'
 .TP
 .B OUTPUTFORMAT
 Specifies the format for completed Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+
-(Musepack) or M4A filenames. Variables are included using standard shell
+(Musepack), Monkey's Audio (ape) or M4A filenames. Variables are included using standard shell
 syntax. Allowed variables are GENRE, ALBUMFILE, ARTISTFILE, TRACKFILE,
 TRACKNUM, and YEAR. Default is \'${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}-${TRACKFILE}\'.
 Make sure to use single quotes around this variable. TRACKNUM is automatically
@@ -558,9 +563,9 @@ Will extract the files contained in singletrack using the embedded cuesheet.
 \fBabcde\fR requires the following backend tools to work:
 .TP
 .B *
-An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus encoder 
-(oggenc, vorbize, lame, gogo, bladeenc, l3enc, mp3enc, flac, speexenc, mpcenc, faac, 
-neroAacEnc, fdkaac, wavpack, opusenc).
+An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder, 
+Monkey's Audio (ape) encoder or Opus encoder (oggenc, vorbize, lame, gogo, bladeenc, 
+l3enc, mp3enc, flac, speexenc, mpcenc, faac, neroAacEnc, fdkaac, wavpack, mac, opusenc).
 .TP
 .B *
 An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird,
@@ -578,6 +583,9 @@ information about the CD.
 .TP
 .B *
 (for MP3s) id3 or eyeD3, id3 v1 and v2 tagging programs.
+.TP
+.B *
+For Monkey's Audio (ape): Robert Muth's 'apetag' tagging program.
 .TP
 .B *
 (optional) distmp3, a client/server for distributed mp3 encoding.
