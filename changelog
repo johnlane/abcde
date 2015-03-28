@@ -1,11 +1,14 @@
 abcde 2.6.1
 
+  * Support added for ReplayGain with WavPack encoding.
+  * Fix for MusePack to allow the use of the SV8 ReplayGain 
+    application 'mpcgain'.
   * Monkey's Audio (ape) encoding added. Tagging is with
   * Robert Muth's apetag. Thanks to Shantiq for testing.
   * Simplify Opus tagging.This closes Issue 133.
   * Allow 'clean' when OUTPUTTYPE=wav, broken for some time.
-   Thanks to Roger rogerx.oss<at>gmail.com for showing the
-   problem and demonstrating the fix. This closes Issue 94.
+    Thanks to Roger rogerx.oss<at>gmail.com for showing the
+    problem and demonstrating the fix. This closes Issue 94.
   * Clarification that CDDBLOCALRECURSIVE=y is required for 
     local CDDB search. Thanks to Reuben Thomas for the
     notification. This partially resolves Issue 121.
