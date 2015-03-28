@@ -563,6 +563,9 @@ do_replaygain()
 				mpc)
 					run_command replaygain-mpc nice $ENCNICE $MPCGAIN "${OUTPUTFILES[@]}"
 					;;
+				wv)
+					run_command replaygain-wv nice $ENCNICE $WVGAIN $WVGAINOPTS "${OUTPUTFILES[@]}"
+					;;
 				*);;
 			esac
 		done
@@ -3356,6 +3359,11 @@ CDSPEED=eject
 VORBISGAIN=vorbisgain
 MP3GAIN=mp3gain
 MPCGAIN=mpcgain
+WVGAIN=wvgain
+# For Wavpack replay gain we set both the default of 'track gain' 
+# as well as this option for 'album gain'. Better media players
+# such as vlc can select either or neither.              Andrew.     
+WVGAINOPTS='-a'
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
@@ -3926,6 +3934,7 @@ do
 		wv)
 			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
 			[ "$DOTAG" = "y" ]
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDWVCGAIN=y
 			;;
 		ape)
 			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
@@ -4227,6 +4236,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDDISKUTIL+diskutil} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
 	${NEEDMPCGAIN+$MPCGAIN} ${NEEDCUEREADER+$CUEREADER} \
+	${NEEDWVGAIN+WVGAIN} \
 	${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	checkexec "$X"
