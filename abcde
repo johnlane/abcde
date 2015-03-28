@@ -561,7 +561,7 @@ do_replaygain()
 					run_command replaygain-mp3 nice $ENCNICE $MP3GAIN $MP3GAINOPTS "${OUTPUTFILES[@]}"
 					;;
 				mpc)
-					run_command replaygain-mpc nice $ENCNICE $MPPGAIN --auto "${OUTPUTFILES[@]}"
+					run_command replaygain-mpc nice $ENCNICE $MPCGAIN "${OUTPUTFILES[@]}"
 					;;
 				*);;
 			esac
@@ -1372,7 +1372,7 @@ do_single_gain ()
 
 # do_batch_gain
 # variables used:
-# MP3GAIN, MP3GAINOPTS, VORBISGAIN, VORBISGAINOPTS, MPPGAIN, MPPGAINOPTS
+# MP3GAIN, MP3GAINOPTS, VORBISGAIN, VORBISGAINOPTS, MPCGAIN
 # FIXME #
 do_batch_gain ()
 {
@@ -3355,7 +3355,7 @@ NORMALIZE=normalize-audio
 CDSPEED=eject
 VORBISGAIN=vorbisgain
 MP3GAIN=mp3gain
-MPPGAIN=replaygain
+MPCGAIN=mpcgain
 MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
@@ -3921,7 +3921,7 @@ do
 			;;
 		mpc)
 			[ "$MPCENCODERSYNTAX" = "default" ] && MPCENCODERSYNTAX=mpcenc
-			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPPGAIN=y
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDMPCGAIN=y
 			;;
 		wv)
 			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
@@ -4226,7 +4226,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
 	${NEEDDISKUTIL+diskutil} ${NEEDCDSPEED+$CDSPEED} \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
-	${NEEDMPPGAIN+$MPPGAIN} ${NEEDCUEREADER+$CUEREADER} \
+	${NEEDMPCGAIN+$MPCGAIN} ${NEEDCUEREADER+$CUEREADER} \
 	${NEEDCUE2DISCID+$CUE2DISCID}
 do
 	checkexec "$X"
