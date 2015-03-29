@@ -1,5 +1,10 @@
 abcde 2.6.1
 
+  * Fix for -o option use with options and multiple outputs.
+    This allows for commandline options such as the following:
+          abcde -o 'flac:-8,mp3:-b 320' 
+    Thanks to Matthias Andree for yet another quality patch! 
+    This closes Issue 136.
   * Support added for ReplayGain with WavPack encoding.
   * Fix for MusePack to allow the use of the SV8 ReplayGain 
     application 'mpcgain'.

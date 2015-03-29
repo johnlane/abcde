@@ -3886,8 +3886,10 @@ case "$OUTPUTTYPE" in *:*)
 			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
-	for OUTPUT in "$(echo "$OUTPUTTYPE" | tr , \ )"; do
-		TEMPOUTPUT=$( echo "$OUTPUT" | cut -d: -f1 )
+	# Allows commandline selection of options while using multiple outputs.
+	# Example: abcde -o 'flac:-8,mp3:-b 320'       Patch by Matthias Andree.           
+	for OUTPUT in $(echo "$OUTPUTTYPE" | tr -d ' 	' | tr , ' '); do
+		TEMPOUTPUT=${OUTPUT%%:*}
 		TEMPOUTPUTTYPE="${TEMPOUTPUTTYPE:+$TEMPOUTPUTTYPE,}$TEMPOUTPUT"
 	done
 	OUTPUTTYPE="$TEMPOUTPUTTYPE"
