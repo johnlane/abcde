@@ -1217,8 +1217,12 @@ do_encode ()
 				;;
 			mpc)
 			# Tag the file inline at encode time.
-				$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
-				--track "$1" --genre "$CDGENRE" --year "$CDYEAR" --comment "$COMMENT" "$IN" "$OUT"
+			  if [ "$DOTAG" = "y" ]; then
+				 $RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
+				--track "$1" --genre "$CDGENRE" --year "$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+				else
+				 $RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS "$IN" "$OUT"
+				fi
 				;;
 			wv)
 			 if [ "$DOTAG" = "y" ]; then
@@ -3324,7 +3328,7 @@ OPUSENC=opusenc
 FLAC=flac
 # speex
 SPEEXENC=speexenc
-# mpp (Musepack)
+# mpc (Musepack)
 MPCENC=mpcenc
 # wv (wavpack)
 WVENC=wavpack
