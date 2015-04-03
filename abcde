@@ -1228,7 +1228,7 @@ do_encode ()
 			 if [ "$DOTAG" = "y" ]; then
              # wavpack tagging is done inline using Apev2 tags:
 				$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" -w Title="$TRACKNAME" \
-				-w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" -w Comment="$COMMENT" "$IN" -o "$OUT"
+				-w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
 			else
 			   $RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
 			 fi
