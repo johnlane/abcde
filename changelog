@@ -1,5 +1,8 @@
 abcde 2.6.1
 
+  * Suggested encoding options for mp3enc added to the sample
+    abcde.conf. Last release of mp3enc in 1998 but it still
+    works flawlessly with a modern abcde!
   * Suggested encoding options for l3enc added to the sample
     abcde.conf. Congratulations to abcde which in 2015 still 
     works with l3enc which saw its final release in 1997!
