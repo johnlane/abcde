@@ -1,5 +1,8 @@
 abcde 2.6.1
 
+  * Suggested encoding options for l3enc added to the sample
+    abcde.conf. Congratulations to abcde which in 2015 still 
+    works with l3enc which saw its final release in 1997!
   * Fix for -o option use with options and multiple outputs.
     This allows for commandline options such as the following:
           abcde -o 'flac:-8,mp3:-b 320' 
