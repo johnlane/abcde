@@ -1068,7 +1068,7 @@ do_encode ()
 				TEMPARG="PIPE_$MPCENCODER"
 				;;
 			wv)
-				TEMPARG="PIPE_$WVCENCODERSYNTAX"
+				TEMPARG="PIPE_$WVENCODERSYNTAX"
 				;;
 			ape)
 				TEMPARG="PIPE_$APENCODERSYNTAX"
@@ -3940,7 +3940,7 @@ do
 		wv)
 			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
 			[ "$DOTAG" = "y" ]
-			[ "$DOREPLAYGAIN" = "y" ] && NEEDWVCGAIN=y
+			[ "$DOREPLAYGAIN" = "y" ] && NEEDWVGAIN=y
 			;;
 		ape)
 			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
@@ -4047,7 +4047,7 @@ case "$MPCENCODERSYNTAX" in
 esac
 case "$WVENCODERSYNTAX" in
 	wavpack)
-		WVCENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
+		WVENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
 		WVENCODER="$WVENC"
 		;;
 esac
