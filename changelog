@@ -1,5 +1,14 @@
 abcde 2.6.1
 
+  * Several additions to usepipes with the following encoders 
+    being added:
+      1. mp3enc: mp3
+      2. speexenc: Speex
+      3. mpcenc: Musepack SV8
+      4. wavpack: WavPack
+    The cd ripper cdda2wav (icedax) has also been added.
+  * Ripping and encoding with 'usepipes' fixed. This fix
+    closes Issue 46.
   * Suggested encoding options for mp3enc added to the sample
     abcde.conf. Last release of mp3enc in 1998 but it still
     works flawlessly with a modern abcde!

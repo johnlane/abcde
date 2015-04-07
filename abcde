@@ -1070,9 +1070,6 @@ do_encode ()
 			wv)
 				TEMPARG="PIPE_$WVENCODERSYNTAX"
 				;;
-			ape)
-				TEMPARG="PIPE_$APENCODERSYNTAX"
-				;;
 			aac)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
 				;;
@@ -1083,23 +1080,6 @@ do_encode ()
 		IN="$( eval echo "\$$TEMPARG" )"
 	else
 		IN="$ABCDETEMPDIR/track$1.wav"
-		case "$OUTPUT" in
-			mp3)
-				case "$MP3ENCODERSYNTAX" in
-					# FIXME # check if mp3enc needs -if for pipes
-					# FIXME # I have not been able to find a working mp3enc binary
-					mp3enc)
-						FILEARG="-if $IN"
-						;;
-					*)
-						FILEARG="$IN"
-						;;
-				esac
-				;;
-			*)
-				FILEARG="$IN"
-				;;
-		esac
 	fi
 	# We need IN to proceed, if we are not using pipes.
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
@@ -1145,7 +1125,6 @@ do_encode ()
 					lame|toolame|gogo) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
 					bladeenc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" ;;
 					l3enc|xingmp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
-					# FIXME # Relates to the previous FIXME since it might need the "-if" removed.
 					mp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
 					esac
 					;;
@@ -4150,19 +4129,23 @@ fi
 ###USEPIPESSUPPORT###
 
 # Rippers with USEPIPE support
-# FIXME # Include here all the rippers we can figure out support pipes
 PIPERIPPER_cdparanoia="-"
+# Note that by default in abcde cdda2wav redirects to icedax.        
+PIPERIPPER_cdda2wav="-"
 PIPERIPPER_debug="-"
 PIPERIPPER_flac="-c "
 PIPERIPPER_pird="-"
 
 # Encoders with USEPIPE support
-# FIXME # Include here all the encoders we can figure out support pipes
+PIPE_mp3enc="-sti"
 PIPE_lame="-"
 PIPE_bladeenc="-"
 PIPE_oggenc="-"
 PIPE_opusenc="-"
 PIPE_flac="-"
+PIPE_speexenc="-"
+PIPE_mpcenc="-"
+PIPE_wavpack="-"
 
 # Figure out if we can use pipes with the ripper/encoder combination
 # exit otherwise
@@ -4183,8 +4166,6 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$MPCENCODER" ;;
 		wv)
 			PIPEENCODERSVARCHECK="PIPE_$WVENCODER" ;;
-		ape)
-			PIPEENCODERSVARCHECK="PIPE_$APENCODER" ;;
 	esac
 	decho "PIPERIPPERSVARCHECK: $( eval echo "\$$PIPERIPPERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \
