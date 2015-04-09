@@ -4012,34 +4012,34 @@ case "$APENCODERSYNTAX" in
 		;;
 esac
 case "$AACENCODERSYNTAX" in
-    # Some elaborate 'if' work to keep backward compatability for those
-    # who don't realise that AACENCOPTS does not work with abcde from
-    # version 2.6.1 onwards.                                  Andrew.
+		# Some elaborate 'if' work to keep backward compatability for those
+		# who don't realise that AACENCOPTS does not work with abcde from
+		# version 2.6.1 onwards.
 	faac)
-	    if [ -z "$FAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
-	      AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
-		  AACENCODER="$FAAC"
+		if [ -z "$FAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+			AACENCODER="$FAAC"
 		else
-		  AACENCODEROPTS="${AACENCODEROPTSCLI:-$FAACENCOPTS}"
-		  AACENCODER="$FAAC"
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$FAACENCOPTS}"
+			AACENCODER="$FAAC"
 		fi
 		;;
 	neroAacEnc)
-	    if [ -z "$NEROAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
-	      AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
-		  AACENCODER="$NEROAACENC"
+		if [ -z "$NEROAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+			AACENCODER="$NEROAACENC"
 		else	    
-		  AACENCODEROPTS="${AACENCODEROPTSCLI:-$NEROAACENCOPTS}"
-		  AACENCODER="$NEROAACENC"
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$NEROAACENCOPTS}"
+			AACENCODER="$NEROAACENC"
 		fi
 		;;
 	fdkaac)
-	    if [ -z "$FDKAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
-	      AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
-		  AACENCODER="$FDKAAC"
+		if [ -z "$FDKAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+			AACENCODER="$FDKAAC"
 		else
-		 AACENCODEROPTS="${AACENCODEROPTSCLI:-$FDKAACENCOPTS}"
-		 AACENCODER="$FDKAAC"
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$FDKAACENCOPTS}"
+			AACENCODER="$FDKAAC"
 		fi
 		;;
 esac
