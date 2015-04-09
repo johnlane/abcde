@@ -1,11 +1,21 @@
 abcde 2.6.1
 
+  * New variables for m4a/aac encoding options to be 
+    manipulated in a users ~/.abcde.conf file:
+     1. FAACENCOPTS for faac encoding options
+     2. NEROAACENCOPTS for neroAacEnc options
+     3. FDKAACENCOPTS for fdkaacenc options
+    Note that these options replace the now obsolete AACENCOPTS.
+  * Check added for neroAacTag when encoding with neroAacEnc.
   * Several additions to usepipes with the following encoders 
     being added:
       1. mp3enc: mp3
       2. speexenc: Speex
       3. mpcenc: Musepack SV8
       4. wavpack: WavPack
+      5. faac: aac
+      6. neroAacEnc: aac
+      7. fdkaac: aac
     The cd ripper cdda2wav (icedax) has also been added.
   * Ripping and encoding with 'usepipes' fixed. This fix
     closes Issue 46.
