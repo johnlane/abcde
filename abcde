@@ -1044,7 +1044,8 @@ do_nogap_encode ()
 # do_encode [tracknumber] [hostname]
 # If no hostname is specified, encode locally
 # variables used:
-# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
+# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, 
+# DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
 do_encode ()
 {
 	if [ "$USEPIPES" = "y" ]; then
@@ -1107,7 +1108,7 @@ do_encode ()
 				RUN_COMMAND=""
 				# We need a way to store the creation of the files when using PIPES
 				RUN_COMMAND_PIPES="run_command encodetrack-$OUTPUT-$1 true"
-				# When pipping it does not make sense to have a higher nice for
+				# When piping it does not make sense to have a higher nice for
 				# reading than for encoding, since it will be hold by the
 				# encoding process. Setting an effective nice, to calm down a
 				# bit the reading process.
@@ -1151,14 +1152,15 @@ do_encode ()
 				%local*%)
 					case "$OPUSENCODERSYNTAX" in
 					opusenc)
-					    # Tag the file at encode time, as it can't be done after encoding.
-					    if [ "$DOTAG" = "y" ]; then
-					       $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
-					       --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" ${COMMENT:+--comment COMMENT="$COMMENT"} "$IN" "$OUT"
-					    else
-					      $RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"
-					    fi
-					      ;;
+					# Tag the file at encode time, as it can't be done after encoding.
+						if [ "$DOTAG" = "y" ]; then
+							$RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" \
+							--album "$DALBUM" --title "$TRACKNAME" --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" \
+							${COMMENT:+--comment COMMENT="$COMMENT"} "$IN" "$OUT"
+						else
+							$RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"
+						fi
+					;;
 					esac
 					;;
 				*)
@@ -1189,66 +1191,65 @@ do_encode ()
 				fi
 				# Tag the file at encode time, as it can't be done after encoding.
 				if [ "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" \
+					${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
 				;;
 			mpc)
-			# Tag the file inline at encode time.
-			  if [ "$DOTAG" = "y" ]; then
-				 $RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
-				--track "$1" --genre "$CDGENRE" --year "$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+				# Tag the file inline at encode time.
+				if [ "$DOTAG" = "y" ]; then
+					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
+					--title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 				else
-				 $RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS "$IN" "$OUT"
 				fi
 				;;
 			wv)
-			 if [ "$DOTAG" = "y" ]; then
-             # wavpack tagging is done inline using Apev2 tags:
-				$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" -w Title="$TRACKNAME" \
-				-w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
-			else
-			   $RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
-			 fi
+				if [ "$DOTAG" = "y" ]; then
+					$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" \
+					-w Title="$TRACKNAME" -w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
+				else
+					$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
+				fi
 				;;
 			ape)
-			  $RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
-			 ;;
+				$RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
+				;;
 			aac)
-			# aac container is only used to catch faac encoded files where faac 
-			# is compiled without mp4 support (with libmp4v2).           Andrew.
-			  $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
-			 ;;
+				# aac container is only used to catch faac encoded files where faac 
+				# is compiled without mp4 support (with libmp4v2).
+				$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
+				;;
 			m4a)
-			 case "$AACENCODERSYNTAX" in
-			   faac)
-			     if [ "$DOTAG" = "y" ]; then
-	           $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" \
-	           --album "$DALBUM" --title "$TRACKNAME" --track ${TRACKNUM:-$1} --year "$CDYEAR" \
-	           --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"			          
-	         else		         
-	           $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN" 	
-	         fi
-			   ;;
-			   neroAacEnc)
-	            $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -if "$IN" -of "$OUT"
-			   ;;
-			 fdkaac)	             
-		        if [ "$DOTAG" = "y" ]; then
-		          $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
-		          --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
-			    else
-	             $RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"	
-			    fi
-	         ;;
-			  esac	
+				case "$AACENCODERSYNTAX" in
+					faac)
+						if [ "$DOTAG" = "y" ]; then
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" --album "$DALBUM" \
+							--title "$TRACKNAME" --track ${TRACKNUM:-$1} --year "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
+						else 
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN" 	
+						fi
+						;;
+					neroAacEnc)
+						$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -if "$IN" -of "$OUT"
+						;;
+					fdkaac)      
+						if [ "$DOTAG" = "y" ]; then
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
+							--title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
+						else
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"
+						fi
+						;;
+					esac
 				;;
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
 				# But we need the following to allow full logging and subsequent 
-				# successful cleaning of $ABCDETEMPDIR. Andrew.
-             echo "encodetrack-$OUTPUT-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
+				# successful cleaning of $ABCDETEMPDIR.
+				echo "encodetrack-$OUTPUT-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
 				;;
 			esac
 			$RUN_COMMAND_PIPES
