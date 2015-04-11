@@ -4254,16 +4254,17 @@ done
 # for the mp4 container and no tagging capability. (AtomicParsley also cannot tag
 # these files). The resulting files are actually ADTS streams which belong in an 
 # aac container and with some version sniffing this is all cleaned up below. If
-# faac is compiled with libmp4v2 inline tagging occurs with faac.         Andrew. 
+# faac is compiled with libmp4v2 inline tagging occurs with faac.
 
+# FIXME: Should this be in this location? (Better incorporated into the checks above.)
 if [ "$CHECKFAACBUILD" = "y" ] && [ "$AACENCODERSYNTAX" = "faac" ] ; then
-  if faac --help 2>&1 | grep -q -F 'MP4 support unavailable.'; then 
-   echo "WARNING: Your copy of Faac does not have mp4 support"
-   echo "WARNING: Encoding untagged files to aac..."
-   OUTPUTTYPE=aac
-  else
-   echo "Using Faac to Tag AAC Tracks..."
-  fi
+	if faac --help 2>&1 | grep -q -F 'MP4 support unavailable.'; then 
+		echo "WARNING: Your copy of Faac does not have mp4 support"
+		echo "WARNING: Encoding untagged files to aac..."
+		OUTPUTTYPE=aac
+	else
+		echo "Using Faac to Tag AAC Tracks..."
+	fi
 fi
 
 # And last but not least, check if we can diff between files. We do not abort,
