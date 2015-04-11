@@ -3062,8 +3062,16 @@ do_cdread ()
 			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		## FIXME ## We have an exception for dagrab, since it uses -f
 		## FIXME ## Shall we just use -f $FILEARG ??
-		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM "$FILEARG" $REDIR;;
-		pird) nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$FILEARG" $REDIR ;;
+		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM -f "$FILEARG" $REDIR;;
+		pird)
+			if [ "$USEPIPES" = "y" ]; then
+				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$FILEARG"
+			else
+				# Write ripped audio data to stdout and redirect to $FILEARG.
+				# $REDIR can be ignored. Progress is written to stderr by default.
+				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$PIPERIPPER_pird" > "$FILEARG"
+			fi
+			;;
 		cddafs)
 			# Find the track's mounted path
 			REALTRACKNUM=$(expr $UTRACKNUM + 0)
@@ -3365,6 +3373,7 @@ FDKAACENCOPTS=
 ID3OPTS=
 EYED3OPTS=""
 CDPARANOIAOPTS=
+PIRDOPTS=
 CDDA2WAVOPTS=
 DAGRABOPTS=
 CDDAFSOPTS="-f"
