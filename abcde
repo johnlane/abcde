@@ -3363,12 +3363,14 @@ MPCENCOPTS=
 WVENCOPTS=
 # ape
 # Monkey's Audio Console (mac) chokes without a mode setting
-# so we set one here.                                 Andrew.
+# so we set one here.
 APENCOPTS='-c4000'
 # m4a
 FAACENCOPTS=
 NEROACENCOPTS=
-FDKAACENCOPTS=
+# fdkaac chokes without either a bitrate or bitrate-mode specified so 
+# we set bitrate here.
+FDKAACENCOPTS='192k'
 
 ID3OPTS=
 EYED3OPTS=""
