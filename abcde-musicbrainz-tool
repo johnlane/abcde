@@ -21,18 +21,28 @@ use WebService::MusicBrainz::Artist;
 use WebService::MusicBrainz::Response::Track;
 use WebService::MusicBrainz::Response::TrackList;
 use Getopt::Long;
+use Pod::Usage;
 
-my $FRAMES_PER_SEC = 75;
+my $FRAMES_PER_S = 75;
 
-my ($device, $command, $discid, @discinfo, $workdir);
+my ($device, $command, $discid, @discinfo, $workdir, $help, $man);
 Getopt::Long::Configure ('no_ignore_case');
 Getopt::Long::Configure ('no_auto_abbrev');
 GetOptions ("device=s"       => \$device,
             "command=s"      => \$command,
             "discid=s"       => \$discid,
             "discinfo=i{5,}" => \@discinfo,
-            "workdir=s"      => \$workdir);
+            "workdir=s"      => \$workdir,
+            "help|h"         => \$help,
+            "man"            => \$man) or pod2usage(-verbose => 0, -exitcode => 2);
+if (@ARGV) {
+    print STDERR "Extraneous arguments given.\n";
+    pod2usage(-verbose => 0, -exitcode => 2);
+}
+pod2usage(-verbose => 1, -exitcode => 0) if $help;
+pod2usage(-verbose => 2, -exitcode => 0) if $man;
 
+# defaults
 if (!defined($device)) {
     $device = "/dev/cdrom";
 }
@@ -66,10 +76,13 @@ if ($command =~ m/^id/) {
           $i <= $disc->last_track_num; $i++ ) {
         printf("%d ", $disc->track_offset($i));
     }
-    printf("%d\n", $disc->sectors() / $FRAMES_PER_SEC);
+    printf("%d\n", $disc->sectors() / $FRAMES_PER_S);
     undef $disc;
-
 } elsif ($command =~ m/data/) {
+    if (!defined $discid or !$discid) {
+	print STDERR "Discid undefined.\n";
+	exit(1);
+    }
     my $ws = WebService::MusicBrainz::Release->new();
     my $response = $ws->search({ DISCID => $discid });
     my @releases = $response->release_list();
@@ -92,7 +105,7 @@ if ($command =~ m/^id/) {
         my $total_len = 2000;
         my @tracks = @{$release->track_list()->tracks()};
         for (my $i = 0; $i < scalar(@tracks); $i++) {
-            printf OUT "#       %d\n", ceil($total_len * $FRAMES_PER_SEC / 1000.0);
+            printf OUT "#       %d\n", ceil($total_len * $FRAMES_PER_S / 1000.0);
             $total_len += $tracks[$i]->duration();
         }
         print OUT "#\n";
@@ -143,6 +156,11 @@ if ($command =~ m/^id/) {
 # Calculate MusicBrainz ID from disc offsets; see
 # http://musicbrainz.org/doc/DiscIDCalculation
 
+
+    if ($#discinfo < 5) {
+	print STDERR "Insufficient or missing discinfo data.\n";
+	exit(1);
+    }
     my ($first, $last, $leadin, $leadout, @offsets) = @discinfo;
 
     my $s = Digest::SHA->new(1);
@@ -172,4 +190,80 @@ if ($command =~ m/^id/) {
     $id =~ tr#=#-#;
 
     print $id;
+    if (-t STDOUT) { print "\n"; }
+} else {
+    print STDERR "Unknown commmand given.\n";
+    pod2usage(1);
+    exit(1);
 }
+__END__
+
+=head1 NAME
+
+abcde-musicbrainz-tool - Musicbrainz query tool
+
+=head1 SYNOPSIS
+
+ abcde-musicbrainz-tool [options]
+
+ Options:
+   --command {id|data|calcid} mode of operation (default: id)
+   --device <DEV>             read from CD-ROM device DEV (default: /dev/cdrom)
+   --discid <ID>              Disc ID to query with --command data.
+   --discinfo <F> <L> <LI> <LO> <TRK1OFF> [<TRK2OFF> [...]]
+                              Disc information for --command calcid.
+   --workdir <DIR>            working directory (default: /tmp)
+   --help                     print option summary
+   --man                      full documentation
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--command> I<{id|data|calcid}>
+
+Select mode of operation:
+
+=over 8
+
+=item B<id>
+
+Read the disc-ID from the disc in the given device, and print it, the number of tracks, their start sectors, and the duration of the disc in seconds, to stdout. Format:
+
+ ID TRACKCOUNT OFFSET1 [OFFSET2 [...]] LENGTH_S
+
+=item B<data>
+
+Query MusicBrainz web service and store data into the workdir into cddbread.1, cddbread.2, ... files in the workdir.
+
+=item B<calcid>
+
+Calculate MusicBrainz ID from given B<--discinfo> data.
+
+=back
+
+=item B<--device>
+
+Specify CD-ROM drive's device name, to read ID from with B<--command id>.
+
+=item B<--discid>
+
+Supply disc ID for B<--command data>.
+
+=item B<--discinfo> I<<first track> <last track> <lead-in sector> <lead-out sector> <track1 offset> [<track2 offset> [...]]>
+
+Supply disc information for B<--command calcid>.
+
+=item B<--workdir> I<directory>
+
+The cddbread.* output files from B<--command data> go into this directory.
+
+=item B<--help>
+
+Print a brief help message and exit.
+
+=item B<--man>
+
+Display full manual and exit.
+
+=back

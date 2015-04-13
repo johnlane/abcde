@@ -1,5 +1,8 @@
 abcde 2.6.1
 
+  * Added some error checking and documentation for
+    the abcde-musicbrainz-tool. Thanks yet again to
+    Matthias Andree for this work! Closes issue 138.
   * New variables for m4a/aac encoding options to be 
     manipulated in a users ~/.abcde.conf file:
      1. FAACENCOPTS for faac encoding options
