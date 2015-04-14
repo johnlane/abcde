@@ -1,5 +1,7 @@
 abcde 2.6.1
 
+  * Fix for diskutil selecting wrong disk on OS X. Thanks
+    to Richard for this fix which closes Issue 139.
   * Added some error checking and documentation for
     the abcde-musicbrainz-tool. Thanks yet again to
     Matthias Andree for this work! Closes issue 138.
