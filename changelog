@@ -1,5 +1,6 @@
 abcde 2.6.1
 
+  * Fix for encoding with bladeenc and usepipes.
   * Fix for broken ripping with dagrab. Closes Issue 140.
   * Fix for diskutil selecting wrong disk on OS X. Thanks
     to Richard for this fix which closes Issue 139.
