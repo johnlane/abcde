@@ -3012,12 +3012,9 @@ do_cdread ()
 	else
 		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
 		case "$CDROMREADERSYNTAX" in
-		## FIXME ## Find the cases for dagrab and flac, to avoid exceptions
+		## FIXME ## Find the cases for flac, to avoid exceptions
 			flac)
 				FILEARG="--output-name=$WAVDATA"
-				;;
-			dagrab)
-				FILEARG="-f $WAVDATA"
 				;;
 			*)
 				FILEARG="$WAVDATA"
@@ -3060,9 +3057,7 @@ do_cdread ()
 				fi
 			fi
 			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
-		## FIXME ## We have an exception for dagrab, since it uses -f
-		## FIXME ## Shall we just use -f $FILEARG ??
-		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -v $UTRACKNUM -f "$FILEARG" $REDIR;;
+		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -f "$FILEARG" -v $UTRACKNUM >&2 ;;
 		pird)
 			if [ "$USEPIPES" = "y" ]; then
 				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$FILEARG"
