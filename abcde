@@ -820,7 +820,6 @@ do_tag ()
 				TPE2="Various"
 			fi
 
-
 			case "$ID3SYNTAX" in
 				id3)
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
@@ -863,7 +862,7 @@ do_tag ()
 							);;
 					esac
 					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $TAGGER $TAGGEROPTS \
-					    -A "$DALBUM" \
+						-A "$DALBUM" \
 						-a "$TRACKARTIST" -t "$TRACKNAME" \
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
@@ -923,7 +922,6 @@ do_tag ()
 		opus)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
-
 		flac)
 			(
 			echo ARTIST="$TRACKARTIST"
@@ -946,7 +944,8 @@ do_tag ()
 					*)   echo COMMENT="$COMMENTOUTPUT";;
 				esac
 			fi
-			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} \
+			--import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
 			;;
 		spx)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -954,32 +953,35 @@ do_tag ()
 		mpc)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
-        wv)
-            run_command tagtrack-$OUTPUT-$1 true
+		wv)
+			run_command tagtrack-$OUTPUT-$1 true
  			;;
-        ape) # This tagging syntax is suitable for Robert Muth's application 'apetag', the Monkey's Audio 
-             # Console port (mac) used for encoding does not have the ability to tag.              Andrew.
-            run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "$ABCDETEMPDIR/track$1.ape" -m overwrite \
-		     -p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} \
-		     -p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
+		ape)
+			# This tagging syntax is suitable for Robert Muth's application 'apetag', the Monkey's Audio 
+			# Console port (mac) used for encoding does not have the ability to tag.
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "$ABCDETEMPDIR/track$1.ape" -m overwrite \
+			-p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} \
+			-p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
  			;;
 		aac)
 			run_command tagtrack-$OUTPUT-$1 true
-		;;
-		m4a)
-		  case "$AACENCODERSYNTAX" in
-		    fdkaac) # We will use inline tagging...
-		        run_command tagtrack-$OUTPUT-$1 true
-		        ;;
-		    neroAacEnc) # Tag post encode with neroAacTag...
-		     run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$NEROAACTAG" "$ABCDETEMPDIR/track$1.m4a" \
-		     -meta:artist="$TRACKARTIST" -meta:album="$DALBUM" -meta:title="$TRACKNAME" -meta:track=${TRACKNUM:-$1} \
-		     -meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
-		      ;;
-		   faac)
-		     run_command tagtrack-$OUTPUT-$1 true		    
 			;;
-		esac			
+		m4a)
+			case "$AACENCODERSYNTAX" in
+				fdkaac)
+					# We will use inline tagging...
+					run_command tagtrack-$OUTPUT-$1 true
+					;;
+				neroAacEnc)
+					# Tag post encode with neroAacTag...
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$NEROAACTAG" "$ABCDETEMPDIR/track$1.m4a" \
+					-meta:artist="$TRACKARTIST" -meta:album="$DALBUM" -meta:title="$TRACKNAME" -meta:track=${TRACKNUM:-$1} \
+					-meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
+					;;
+				faac)
+					run_command tagtrack-$OUTPUT-$1 true   
+					;;
+			esac
 			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -989,7 +991,6 @@ do_tag ()
 	if checkerrors "tagtrack-(.{3,6})-$1"; then :; else
 		run_command tagtrack-$1 true
 	fi
-
 }
 
 # do_nogap_encode
