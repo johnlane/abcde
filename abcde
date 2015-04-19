@@ -3908,11 +3908,11 @@ do
 			[ "$DOTAG" = "y" ] && NEEDAPETAG=y
 			;;
 		aac)
-		    [ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
+			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
 			[ "$DOTAG" = "n" ]
 		# Neither Faac nor AtomicParsley can tag the .aac files which are used for faac
 		# compiled without libmp4v2... Andrew.
-			;;	
+			;;
 		m4a)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
 			[ "$DOTAG" = "y" ] && CHECKFAACBUILD=y
