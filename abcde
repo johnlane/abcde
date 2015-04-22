@@ -2975,6 +2975,81 @@ do_cddbedit ()
 	echo "cddb-edit" >> "$ABCDETEMPDIR/status"
 }
 
+# do_getalbumart
+# try to download CD cover
+do_getalbumart()
+{
+	# set variables
+	ALBUMFILE="$(mungefilename "$DALBUM")"
+	ARTISTFILE="$(mungefilename "$DARTIST")"
+	# cover file name
+	if [ x"$ALBUMARTFILE" = "x" ]; then
+		ALBUMARTFILE="cover.jpg"
+	fi
+	# have we got a musicbrainz mbid or amazon asin?
+	case "$CDDBMETHOD" in
+		musicbrainz)
+			# try musicbrainz mbid
+			if [ -s "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)" ]; then
+				MBID=$(cat "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)")
+				vecho "trying to get cover from coverartarchive.orq with musicbrainz mbid $MBID" >&2
+				ALBUMARTURL="http://coverartarchive.org/release/$MBID/front"
+				vecho "cover URL: $ALBUMARTURL" >&2
+				$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
+				if [ $? -ne 0 ]; then
+					vecho "could not download cover from musicbrainz" >&2
+					# try amazon asin
+					if [ -s "$ABCDETEMPDIR/asin.$(checkstatus cddb-choice)" ]; then
+						ASIN=$(cat "$ABCDETEMPDIR/asin.$(checkstatus cddb-choice)")
+						vecho "trying to get cover from amazon.com with asin $ASIN" >&2
+						ALBUMARTURL="http://ec1.images-amazon.com/images/P/$ASIN.01.LZZZZZZZZ.jpg"
+						vecho "cover URL: $ALBUMARTURL" >&2
+						$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
+						if [ $? -ne 0 ]; then
+							vecho "could not download cover from amazon" >&2
+						fi
+					else
+						vecho "no amazon ID found" >&2
+					fi
+				fi
+			else
+				vecho "no musicbrainz ID found" >&2
+			fi
+			;;
+	esac
+	# use glyrc
+	if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+		vecho "trying to get cover with glyrc for $ARTISTFILE / $ALBUMFILE" >&2
+		$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "$ABCDETEMPDIR/$ALBUMARTFILE" $GLYRCOPTS
+		if [ $? -ne 0 ]; then
+			vecho "could not download cover with glyrc" >&2
+		else
+			ALBUMARTURL="glyrc"
+		fi
+	fi
+	# copy to target directories
+	if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+		do
+			# put cover in the same place as the album
+			if [ "$VARIOUSARTISTS" = "y" ] ; then
+				ALBUMARTDIR="$(eval echo "$VAOUTPUTFORMAT")"
+			else
+				ALBUMARTDIR="$(eval echo "$OUTPUTFORMAT")"
+			fi
+			FINALALBUMARTDIR="$(dirname "$OUTPUTDIR/$ALBUMARTDIR")"
+			vecho "copying cover to target directory $FINALALBUMARTDIR" >&2
+			mkdir -p "$FINALALBUMARTDIR"
+			cp "$ABCDETEMPDIR/$ALBUMARTFILE" "$FINALALBUMARTDIR"
+		done
+		rm -f "$ABCDETEMPDIR/$ALBUMARTFILE"
+		echo "get-album-art=$ALBUMARTURL" >> "$ABCDETEMPDIR/status"
+	else
+		log warning "could not get cover"
+		echo "get-album-art=none" >> "$ABCDETEMPDIR/status"
+	fi
+}
+
 # do_cdread [tracknumber]
 # do_cdread onetrack [firsttrack] [lasttrack]
 #
@@ -3328,6 +3403,7 @@ MKCUE=mkcue
 MKTOC=cdrdao
 DIFF=diff
 CUE2DISCID=builtin
+GLYRC=glyrc
 
 # Options for programs called from abcde
 # mp3
@@ -3386,6 +3462,7 @@ MKTOCOPTS=""
 VORBISCOMMENTOPTS="-R"
 METAFLACOPTS="--no-utf8-convert"
 DIFFOPTS=
+GLYRCOPTS="--formats jpg;jpeg"
 
 # Default to one process if -j isn't specified
 MAXPROCS=1
@@ -3689,6 +3766,7 @@ do
 		replaygain) DOCDDB=y; DOREAD=y; DOENCODE=y; DOTAG=y; DOMOVE=y; DOREPLAYGAIN=y;;
 		playlist) DOCDDB=y; DOPLAYLIST=y;;
 		clean) DOCLEAN=y;;
+		getalbumart) GETALBUMART=y;;
 	esac
 done
 
@@ -4163,6 +4241,11 @@ if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y" ]; then
 	esac
 fi
 
+if [ "$GETALBUMART" = "y" ]; then
+	NEEDHTTPGET="y"
+	NEEDGLYRC="y"
+fi
+
 ###USEPIPESSUPPORT###
 
 # Rippers with USEPIPE support
@@ -4243,7 +4326,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDVORBISGAIN+$VORBISGAIN} ${NEEDMP3GAIN+$MP3GAIN} \
 	${NEEDMPCGAIN+$MPCGAIN} ${NEEDCUEREADER+$CUEREADER} \
 	${NEEDWVGAIN+WVGAIN} ${NEEDAPETAG+$APETAG} \
-	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG}
+	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG} \
+	${NEEDGLYRC+$GLYRC}
 do
 	checkexec "$X"
 done
@@ -4381,6 +4465,10 @@ if [ ! "$ONETRACK" = "y" ]; then
 		echo Creating playlist... >&2
 		do_playlist
 	fi
+fi
+
+if [ "$GETALBUMART" = "y" ]; then
+	do_getalbumart
 fi
 
 # For the lowdisk option, only one program is running at once so the encoder

@@ -140,6 +140,16 @@ if ($command =~ m/^id/) {
         print OUT ".\n";
         close OUT;
 
+        # save release mbid
+        open (OUT, "> $workdir/mbid.$releasenum");
+        print OUT $release->id;
+        close OUT;
+
+        # save release asin
+        open (OUT, "> $workdir/asin.$releasenum");
+        print OUT $release->asin;
+        close OUT;
+
         # Check to see that this entry is unique; generate a checksum
         # and compare to any previous checksums
         my $checksum = calc_sha1("$workdir/cddbread.$releasenum");
