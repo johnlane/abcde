@@ -339,9 +339,9 @@ ATM.
 .TP
 .B CDROMREADERSYNTAX
 Specifies the style of cdrom reader to use. Valid options are \'cdparanoia\',
-\'debug\' and \'flac\'. It is used for querying the CDROM and obtain a list of
-valid tracks and DATA tracks. The special \'flac\' case is used to "rip" CD
-tracks from a single-track flac file.
+\'libcdio'\, \'debug\' and \'flac\'. It is used for querying the CDROM and 
+obtain a list of valid tracks and DATA tracks. The special \'flac\' case is u
+sed to "rip" CD tracks from a single-track flac file.
 .TP
 .B CUEREADERSYNTAX
 Specifies the syntax of the program we use to read the CD CUE sheet. Right now
@@ -369,9 +369,9 @@ with \fBdistmp3\fR (DISTMP3NICE).
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
 VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, WVENC, APENC, OPUSENC, ID3, EYED3,
-METAFLAC, CDPARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, EJECT, MD5SUM, DISTMP3,
-VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, MPCGAIN, MKCUE, MKTOC,
-CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
+METAFLAC, CDPARANOIA, CD_PARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, 
+EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, 
+MPCGAIN, MKCUE, MKTOC, CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
@@ -567,9 +567,8 @@ An Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack), M4A encoder or Opus enco
 neroAacEnc, fdkaac, wavpack, opusenc).
 .TP
 .B *
-An audio CD reading utility (cdparanoia, icedax, cdda2wav, pird,
-dagrab). To read CD-TEXT information, icedax or cdda2wav will be
-needed.
+An audio CD reading utility (cdparanoia, icedax, cdda2wav, libcdio (cd-paranoia),
+pird, dagrab). To read CD-TEXT information, icedax or cdda2wav will be needed.
 .TP
 .B *
 cd-discid, a CDDB DiscID reading program.
@@ -599,6 +598,7 @@ For Monkey's Audio (ape) tagging Robert Muth's 'apetag' is required.
 (optional) mkcue, a CD cuesheet extractor.
 .SH "SEE ALSO"
 .BR cdparanoia (1),
+.BR cd-paranoia (1)
 .BR icedax (1),
 .BR cdda2wav (1),
 .BR pird (1),
