@@ -1933,7 +1933,7 @@ do_discid ()
 	if [ -z "$TRACKQUEUE" ]; then
 		if [ ! "$STRIPDATATRACKS" = "n" ]; then
 			case "$CDROMREADERSYNTAX" in
-				cdparanoia|debug)
+				cdparanoia|libcdio|debug)
 					if [ "$WEHAVEACD" = "y" ]; then
 						vecho "Querying the CD for audio tracks..."
 						CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -Q --verbose 2>&1 )"
@@ -3067,7 +3067,7 @@ do_cdread ()
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
 			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
-			cdparanoia)
+			cdparanoia|libcdio)
 				#XX FIXME XX
 				# Add a variable to check if tracks are provided in command line and if not, use "0-" to rip the tracks
 				READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
@@ -3115,7 +3115,7 @@ do_cdread ()
 			# Avoid problems with math expressions by unpadding the given UTRACKNUM
 			STRIPTRACKNUM=$(expr $UTRACKNUM + 0)
 			nice $READNICE $FLAC -d -f --cue=${READTRACKNUMS:-$STRIPTRACKNUM.1-$(($STRIPTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
-		cdparanoia)
+		cdparanoia|libcdio)
 			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
 		cdda2wav | icedax)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
@@ -3379,6 +3379,7 @@ METAFLAC=metaflac
 NEROAACTAG=neroAacTag
 
 CDPARANOIA=cdparanoia
+CD_PARANOIA=cd-paranoia
 CDDA2WAV=icedax
 DAGRAB=dagrab
 CDDAFS=cp
@@ -3475,7 +3476,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
-DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav pird"
+DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav libcdio pird"
 
 # Assume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
 # Linux/OpenBSD. ftp is user for NetBSD.
@@ -3693,7 +3694,7 @@ if [ "$ONETRACK" = "y" ]; then
 	# FIXME # remove check as soon as we find out about the other readers
 	case "$CDROMREADERSYNTAX" in
 		flac) ;;
-		cdparanoia) ;;
+		cdparanoia | libcdio) ;;
 		cdda2wav | icedax) ;;
 		pird) ;;
 		*) log error "$CDROMREADERSYNTAX does not support ONETRACK mode"
@@ -3881,6 +3882,12 @@ fi
 case "$CDROMREADERSYNTAX" in
 	cdparanoia|debug)
 		CDROMREADER="$CDPARANOIA"
+		CDROMREADEROPTS="$CDPARANOIAOPTS"
+		;;
+	libcdio)
+		# GNU's libcdio package will use cd-paranoia but I believe will be happy with
+		# the standard cdparanoia options. If I am wrong this will need to be fixed :).
+		CDROMREADER="$CD_PARANOIA"
 		CDROMREADEROPTS="$CDPARANOIAOPTS"
 		;;
 	cdda2wav | icedax)
@@ -4233,7 +4240,7 @@ fi
 
 if [ X"$CDSPEEDVALUE" != "X" ] && [ "$DOREAD" = "y" ]; then
 	case "$CDROMREADERSYNTAX" in
-		cdparanoia|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
+		cdparanoia|libcdio|debug) CDROMREADEROPTS="$CDPARANOIAOPTS -S $CDSPEEDVALUE" ;;
 		pird) CDROMREADEROPTS="$PIRDOPTS -s $CDSPEEDVALUE" ;;
 		### FIXME ### translate "cue2discid" from python to bash
 		flac) NEEDMETAFLAC=y ; NEEDCUE2DISCID=y ; CDSPEEDVALUE="" ;;
@@ -4250,6 +4257,7 @@ fi
 
 # Rippers with USEPIPE support
 PIPERIPPER_cdparanoia="-"
+PIPERIPPER_libcdio="-"
 # Note that by default in abcde cdda2wav redirects to icedax.        
 PIPERIPPER_cdda2wav="-"
 PIPERIPPER_debug="-"
@@ -4430,7 +4438,7 @@ fi
 
 if [ X"$CDSPEEDVALUE" != "X" ]; then
 	case "$CDROMREADERSYNTAX" in
-		cdparanoia|debug) ;;
+		cdparanoia|libcdio|debug) ;;
 		pird) ;;
 		flac) ;;
 		*) do_cdspeed ;;
