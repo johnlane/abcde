@@ -36,6 +36,7 @@ echo "-D     Debugging mode (equivalent to sh -x abcde)"
 echo "-e     Erase encoded track information from status file"
 echo "-f     Force operations that otherwise are considered harmful. Read \"man abcde\""
 echo "-g     Use \"lame --nogap\" for MP3 encoding. Disables low disk and pipes flags"
+echo "-G     Get album art by using the 'getalbumart' action"
 echo "-h     This help information"
 #echo "-i    Tag files while encoding, when possible (local only) -NWY-"
 echo "-j <#> Number of encoder processes to run at once (localhost)"
@@ -3584,7 +3585,7 @@ case "$EXTRAVERBOSE" in
 esac
 
 # Parse command line options
-while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
+while getopts 1a:bc:C:d:DefgGhj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
@@ -3599,6 +3600,7 @@ while getopts 1a:bc:C:d:Defghj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 		E) ENCODING="$OPTARG" ;;
 		f) FORCE=y ;;
 		g) NOGAP=y ;;
+		G) GETALBUMART=y ;;
 		i) INLINETAG=y ;;
 		j) MAXPROCS="$OPTARG" ;;
 		k) KEEPWAVS=y ;;
