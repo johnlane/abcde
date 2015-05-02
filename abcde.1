@@ -21,6 +21,10 @@ use a locally stored CDDB entry, or read CD-TEXT from your CD as a
 fallback for track information
 .TP
 .B *
+Download the album art appropriate for your music tracks with many
+user configurable options for download and post download alterations
+.TP
+.B *
 Grab an audio track (or all the audio CD tracks) from your CD
 .TP
 .B *
@@ -62,11 +66,11 @@ flac \-a default,cue" for obtaining such a file.
 .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of: cddb, cue,
-read, normalize, encode, tag, move, replaygain, playlist, clean. Normalize and
-encode imply read. Tag implies cddb, read, encode. Move implies cddb, read,
-encode, tag. Replaygain implies cddb, read, encode, tag and move.  Playlist
-implies cddb. The default is to do all actions except cue, normalize,
-replaygain and playlist.
+read, getalbumart, normalize, encode, tag, move, replaygain, playlist, clean.
+Normalize and encode imply read. Tag implies cddb, read, encode. Move implies
+cddb, read, encode, tag. Replaygain implies cddb, read, encode, tag and move.
+Playlist implies cddb. The default is to do all actions except cue, normalize,
+replaygain, getalbumart and playlist.
 .TP
 .B \-b
 Enable batch mode normalization. See the BATCHNORM configuration variable.
@@ -106,6 +110,12 @@ is used.
 Enable lame's \-\-nogap option.  See the NOGAP variable. WARNING: lame's
 \-\-nogap disables the Xing mp3 tag.  This tag is required for mp3 players to
 correctly display track lengths when playing variable-bit-rate mp3 files.
+.TP
+.B \-G
+Download album art using the getalbumart function. This is best done with
+CDDBMETHOD set to musicbrainz and requires the installation of glyrc.
+ImageMagick is an optional but highly recommended package. Further details
+of getalbumart can be found in the abcde FAQ document packaged with abcde.
 .TP
 .B \-h
 Get help information.
@@ -371,7 +381,8 @@ respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
 VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, AACENC, WVENC, APENC, OPUSENC, ID3, EYED3,
 METAFLAC, CDPARANOIA, CD_PARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, 
 EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, 
-MPCGAIN, MKCUE, MKTOC, CUE2DISCID (see option "\-X"), DIFF and HTTPGET.
+MPCGAIN, MKCUE, MKTOC, CUE2DISCID (see option "\-X"), DIFF, HTTPGET, GLYRC,
+IDENTIFY, DISPLAYCMD and CONVERT.
 .TP
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
@@ -380,7 +391,8 @@ BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, WVENCOPTS, APE
 OGGENCOPTS, FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, FAACENCOPTS, NEROAACENCOPTS, FDKAACENCOPTS, 
 OPUSENCOPTS, ID3OPTS, EYED3OPTS, MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, PIRDOPTS, 
 CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, 
-VORBISCOMMMENTOPTS, METAFLACOPTS, DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS and HTTPGETOPTS.
+VORBISCOMMMENTOPTS, METAFLACOPTS, DIFFOPTS, FLACGAINOPTS, VORBISGAINOPTS, HTTPGETOPTS,
+GLYRCOPTS, IDENTIFYOPTS, CONVERTOPTS and DISPLAYCMDOPTS.
 .TP
 .B CDSPEEDVALUE
 Set the value of the CDROM speed. The default is to read the disc as fast as
@@ -586,6 +598,10 @@ information about the CD.
 For Monkey's Audio (ape) tagging Robert Muth's 'apetag' is required.
 .TP
 .B *
+To retrieve album art a glyrc package is required and optionally the
+ImageMagick package should be installed.
+.TP
+.B *
 (optional) distmp3, a client/server for distributed mp3 encoding.
 .TP
 .B *
@@ -612,6 +628,9 @@ For Monkey's Audio (ape) tagging Robert Muth's 'apetag' is required.
 .BR mpcenc (1),
 .BR faac (1),
 .BR fdkaac (1),
+.BR identify (1),
+.BR display (1),
+.BR convert (1),
 .BR wavpack (1),
 .BR wvgain (1),
 .BR id3 (1),

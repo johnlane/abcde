@@ -1,5 +1,13 @@
 abcde 2.6.1
 
+  * Support added for the downloading of album art. A huge
+    thank you to Johannes Gernemann who came forward with
+    the technique used and also the original patch. An equally
+    huge thanks to Richard who extended and greatly enhanced
+    the original patch. Detailed documentation added to the
+    abcde FAQ document although the sane defaults in place
+    will guarantee a good experience even for those who do
+    not read documentation! This closes Issue 33.
   * Support added for ripping with the GNU Compact Disc 
     Input and Control library (libcdio) as requested by
     both gentoo and NixOS. The utility used is cd-paranoia

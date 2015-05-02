@@ -187,7 +187,145 @@ A. Yes. When asked which one you want to select, use "X,Y" where X and Y are
 Q. I don't like CDDB/FreeDB. How can I use Musicbrainz instead?
 A. Set CDDBMETHOD=musicbrainz and try it!
 
-3. FORMATS
+4. abcde and Album Art
+   ===================
+
+Q. Can abcde download album art?   
+A. As of abcde 2.6.1 it is possible to download a suitable cover
+   image from within abcde that can be used by applications such
+   as Audacious and vlc to illustrate playback with an album cover.
+   Many hardware playback devices such as iPODs will also use this
+   image during playback and show it on the device's display.
+
+Q. How does album art downloading work?
+A. The details are contained in abcde within a new function called
+   'getalbumart' which can be called either from the commandline or 
+   from within an ~/.abcde.conf file. The technique works in 3 possible
+   ways:
+
+    1. If CDDBMETHOD is musicbrainz the album art is downloaded from
+       coverartarchive by MBID (MusicBrainz Identifier)
+    2. If 1 fails, download is tried from amazon by ASIN (Amazon 
+       Standard Identification Number)
+    3. If if 1 and 2 fail or CDDBMETHOD is cddb the album art will 
+       be downloaded using glyrc by artist + album title
+
+   You  will need to install your distro's package of glyr, a music 
+   related metadata search engine, and it is strongly advised that
+   you use 'musicbrainz' for your cddb lookups. To access the more 
+   advanced features of getalbumart it is also strongly advised that
+   you install the ImageMagick package of your distro. getalbumart 
+   will work without ImageMagick but functionality will be reduced.
+
+Q. What settings and options should I select?
+A. If you want to operate abcde from the commandline only you will
+   get reasonable results with something like either of the following:
+
+     abcde -o mp3:-V2 -a default,getalbumart
+     abcde -o mp3:-V2 -G
+
+   But to experience all of the options of getalbumart you should also
+   consider setting the following in your ~/.abcde.conf file:
+
+    #----------------------------------------------------------------#
+    CDDBMETHOD=musicbrainz       # Use MusicBrainz for CDDB 
+    ACTIONS=default,getalbumart  # Select the album art action + default
+
+    # Give the path to the metadata search application glyrc. Add any
+    # glyrc options:
+    GLYRC=glyrc
+    GLYRCOPTS= 
+
+    # Give the path to ImageMagick's 'identify' which is used to give a 
+    # commandline summary of the album art and also assist in any conversions.
+    # Add any 'identify' options:
+    IDENTIFY=identify
+    IDENTIFYOPTS=
+
+    # Give the path to ImageMagick's 'display' which will show the album art. 
+    # The options below are the abcde default, feel free to add your own:  
+    DISPLAYCMD=display
+    DISPLAYCMDOPTS="-resize 512x512 -title abcde_album_art"
+
+    # Give the path to ImageMagick's 'convert' which is used to convert album 
+    # art to the format specified in ALBUMARTTYPE. Add any 'convert' options:   
+    CONVERT=convert
+    CONVERTOPTS=
+    # If you want to run CONVERTOPTS on all files (including those specified
+    # in ALBUMARTTYPE) set the following to "y":
+    ALBUMARTALWAYSCONVERT="n"
+
+    # By default the filename will be cover.jpg and the file format will
+    # be jpeg. 'convert' will automagically change other formats to jpeg:
+    ALBUMARTFILE="cover.jpg"
+    ALBUMARTTYPE="JPEG"
+    #----------------------------------------------------------------#
+
+   There are more hints concerning commandline options in the sample 
+   abcde.conf file included with your abcde package. Good news is that
+   the existing defaults will work well without any extra adjustments :).
+
+Q. Can I manually select album art?
+A. If you have set INTERACTIVE=y (this is the default) then you will have
+   the opportunity to manually select the album art of your choice either
+   from online by typing in a URL or by typing in the path to a local file.
+   
+Q. What if I want my album art embedded?
+A. The philosophy of getalbumart at the moment is to simply place the album
+   art in the same location as the encoded files. Perhaps this will change
+   one day. In the meantime you can use abcde's post_encode function in
+   your ~/.abcde.conf file to embed the album art. Here is an example for
+   mp3 embedding using eyeD3:
+
+   #----------------------------------------------------------------#
+   post_encode ()
+   {
+    ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+    ALBUMFILE="$(mungefilename "$DALBUM")"
+
+   if [ "$OUTPUTTYPE" = "mp3" ] && [ "$TAGGER" = "$EYED3" ] ; then
+    vecho "Preparing to embed the album art..." >&2
+   else
+    vecho "Not embedding album art, you need mp3 output and eyeD3 tagging..." >&2
+    return 1
+   fi
+
+   if [ "$VARIOUSARTISTS" = "y" ] ; then
+     FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
+   else
+     FINDPATH="$(eval echo "$OUTPUTFORMAT")"
+   fi
+
+   TRIMPATH="$(dirname "$OUTPUTDIR/$FINDPATH")"
+   cd "$TRIMPATH"
+
+    if [ -e "cover.jpg" ] ; then
+      for i in *.mp3
+      do
+      eyeD3 --add-image cover.jpg:FRONT_COVER "$i"
+      done
+      mkdir backup && mv cover.jpg backup
+      vecho "Your files have had the album art embedded..." >&2
+    else
+     vecho "No album art found so no image embedded..." >&2
+    fi
+   }
+  #----------------------------------------------------------------#
+
+  Variations of the 'for' loop in this example should work for other encoding 
+  types. For example with flac:
+
+   #--------------------
+   for i in *.flac
+   do 
+    metaflac --import-picture-from=cover.jpg "$i"
+   done
+   #--------------------
+
+  With other appropriate adjustments to the $OUTPUTTYPE and $TAGGER checks of 
+  course...
+  
+4. FORMATS
    =======
 
 Q. What formats can I encode my music to?
@@ -249,8 +387,8 @@ A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some
    support and then appropriately  places the audio either in .m4a or .aac. 
    Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
 
-4. MISC PROBLEMS
-   ==== ========
+5. MISC PROBLEMS
+   =============
 
 Q. What happened with normalize?
 A. Normalize has changed its name under Debian, which is the GNU/Linux
@@ -284,3 +422,4 @@ A. The default action set includes clean, which cleans the temp directory,
 
 --
 Jesus Climent <jesus.climent@hispalinux.es>
+Andrew Strong <andrew.david.strong@gmail.com>
