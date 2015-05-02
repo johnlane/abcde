@@ -2983,10 +2983,6 @@ do_getalbumart()
 	# set variables
 	ALBUMFILE="$(mungefilename "$DALBUM")"
 	ARTISTFILE="$(mungefilename "$DARTIST")"
-	# cover file name
-	if [ x"$ALBUMARTFILE" = "x" ]; then
-		ALBUMARTFILE="cover.jpg"
-	fi
 	# have we got a musicbrainz mbid or amazon asin?
 	case "$CDDBMETHOD" in
 		musicbrainz)
@@ -3026,6 +3022,61 @@ do_getalbumart()
 			vecho "could not download cover with glyrc" >&2
 		else
 			ALBUMARTURL="glyrc"
+		fi
+	fi
+	if [ "$INTERACTIVE" = "y" ]; then
+		if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+			# display properties of coverart when identify is available
+			if new_checkexec $IDENTIFY; then
+				$IDENTIFY $IDENTIFYOPTS "$ABCDETEMPDIR/$ALBUMARTFILE" >&2
+			fi
+			# display coverart when DISPLAY is set and display command is available
+			if new_checkexec $DISPLAYCMD && [ "$DISPLAY" != "" ]; then
+				$DISPLAYCMD $DISPLAYCMDOPTS "$ABCDETEMPDIR/$ALBUMARTFILE" >&2 &
+			fi
+		else
+			# nothing downloaded yet
+			vecho "automatic album art downloading failed" >&2
+		fi
+		# see if the user can find a better album art manually
+		echo -n "Do you want to enter URL or local path for the album art [y/N]? " >&2
+		read YESNO
+		while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
+			[ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
+		do
+			echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
+			read YESNO
+		done
+		if [ "$YESNO" = "y" ] || [ "$YESNO" = "Y" ]; then
+			echo -n "Enter URL or local path (ENTER to cancel) :" >&2
+			read ALBUMARTURL
+			if [ ! -z "$ALBUMARTURL" ]; then
+				if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
+					$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
+					if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+						vecho "unable to download $ALBUMARTURL" >&2
+					fi
+				else # it's a local path
+					cp "$ALBUMARTURL" "$ABCDETEMPDIR/$ALBUMARTFILE"
+					if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+						vecho "unable to copy $ALBUMARTURL to $ABCDETEMPDIR/$ALBUMARTFILE" >&2
+					fi
+				fi
+			fi
+		fi
+	fi
+	# convert to ALBUMARTTYPE if ImageMagick is available, if not assume correct type
+	if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ] && new_checkexec $IDENTIFY; then
+		ALBUMARTURLTYPE=$($IDENTIFY "$ABCDETEMPDIR/$ALBUMARTFILE" | cut -d' ' -f2)
+		if [ "$ALBUMARTURLTYPE" != "$ALBUMARTTYPE" -o "$ALBUMARTALWAYSCONVERT" = "y" ]; then
+			if new_checkexec $CONVERT; then
+				mv "$ABCDETEMPDIR/$ALBUMARTFILE" "$ABCDETEMPDIR/$ALBUMARTFILE.tmp"
+				$CONVERT "$ABCDETEMPDIR/$ALBUMARTFILE.tmp" $CONVERTOPTS "$ABCDETEMPDIR/$ALBUMARTFILE"
+				rm -f "$ABCDETEMPDIR/$ALBUMARTFILE.tmp"
+			else
+				rm -f "$ABCDETEMPDIR/$ALBUMARTFILE"
+				vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE without ImageMagick convert" >&2
+			fi
 		fi
 	fi
 	# copy to target directories
@@ -3406,6 +3457,9 @@ MKTOC=cdrdao
 DIFF=diff
 CUE2DISCID=builtin
 GLYRC=glyrc
+IDENTIFY=identify
+CONVERT=convert
+DISPLAYCMD=display
 
 # Options for programs called from abcde
 # mp3
@@ -3464,7 +3518,15 @@ MKTOCOPTS=""
 VORBISCOMMENTOPTS="-R"
 METAFLACOPTS="--no-utf8-convert"
 DIFFOPTS=
-GLYRCOPTS="--formats jpg;jpeg"
+GLYRCOPTS=
+IDENTIFYOPTS=
+CONVERTOPTS=
+DISPLAYCMDOPTS="-resize 512x512 -title abcde_album_art"
+
+# Defaults for album art downloads
+ALBUMARTFILE="cover.jpg"
+ALBUMARTTYPE="JPEG"
+ALBUMARTALWAYSCONVERT="n"
 
 # Default to one process if -j isn't specified
 MAXPROCS=1
