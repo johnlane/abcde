@@ -3498,7 +3498,7 @@ FAACENCOPTS=
 NEROACENCOPTS=
 # fdkaac chokes without either a bitrate or bitrate-mode specified so 
 # we set bitrate here.
-FDKAACENCOPTS='192k'
+FDKAACENCOPTS='--bitrate 192k'
 
 ID3OPTS=
 EYED3OPTS=""
