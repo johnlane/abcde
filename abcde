@@ -4373,16 +4373,14 @@ if [ "$USEPIPES" = "y" ]; then
 	if [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "$" ] || \
 	   [ "$( eval echo "\$$PIPERIPPERSVARCHECK" )" = "" ] ; then
 		log error "no support for pipes with given ripper"
-		log error "read the USEPIPES file from the source tarball to get help."
-		log error "On a Debian system, it is under /usr/share/doc/abcde/USEPIPES.gz"
+		log error "read the FAQ file from the source tarball to get help."
 		exit 1;
 	fi
 	decho "PIPEENCODERSVARCHECK: $( eval echo "\$$PIPEENCODERSVARCHECK" )"
 	if [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "$" ] || \
 	   [ "$( eval echo "\$$PIPEENCODERSVARCHECK" )" = "" ] ; then
 		log error "no support for pipes with given encoder"
-		log error "read the USEPIPES file from the source tarball to help"
-		log error "on a Debian system, read /usr/share/doc/abcde/USEPIPES.gz"
+		log error "read the FAQ file from the source tarball to get help"
 		exit 1;
 	fi
 fi

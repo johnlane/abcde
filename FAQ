@@ -387,7 +387,65 @@ A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some
    support and then appropriately  places the audio either in .m4a or .aac. 
    Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
 
-5. MISC PROBLEMS
+5. USEPIPES
+   ========
+Q. What is/are 'USEPIPES'??
+A. This is a slightly different method of ripping and encoding with abcde
+   utilising Unix pipes. Using this method a program sends as output what
+   another programs expects as input without writing the information to the
+   hard disk. For it to work with abcde, a ripper must send the data of the
+   CD tracks which are ripped to the 'standard output', while sending other
+   information and error messages to 'standard error' so that the encoder
+   does not get confused. The encoder program needs to be able to encode the
+   information send to it by reading from the standard input (which is what
+   the ripper sends to the standard output).
+   Usually Unix/Linux programs deal with the standard input/output by using
+   the special file name '-', as in the following example:
+
+   cdripper -o - | audioencoder -i - -o file.ext
+
+   The 'cdripper' program uses the flag '-o' to identify the file it will
+   output the data to. For the 'audioencoder' program to be able to read
+   the output through a Unix pipe (the '|' symbol), the output needs to be
+   sent to the standard output using the '-' special filename. Once the
+   output has been piped to 'audioencoder' we use the same special filename
+   to read the information as input with the '-i' flag and output it to
+   'file.ext' with the '-o' flag.
+
+Q. How do I use USEPIPES with abcde?
+A. You can run USEPIPES in either of two ways:
+
+     1. Add USEPIPES=y to your ~/.abcde.conf file
+     2. Use the commandline option abcde -P
+
+Q. Do all rippers and encoders work with USEPIPES?
+A. No :). Keep in mind that every ripper and encoder differs from in each
+   other in the way they interact with pipes and not all rippers and encoders
+   will use or understand the '-o' and '-' options.
+
+Q. Can I add a ripper or encoder which is not supported?
+A. Sure! If you plan to use a ripper or encoder which is not supported you
+   need to know how to use the ripper/encoder. For example, cdparanoia just
+   uses '-' as the output filename and works. The program used to decode
+   FLAC files (yes, abcde supports 'ripping' from a FLAC file :) uses '-c'.
+   To add support for a ripper called 'cdripper' which uses the '-' special
+   flag for outputting to the standard output, you need to open the config
+   file (either /etc/abcde.conf or ~/.abcde.conf) and add the line:
+
+     PIPERIPPER_cdripper="-"
+   
+   For an encoder called 'audioencoder' which uses '--stdin' to read the pipe
+  input, you need to add:
+
+     PIPE_audioencoder="--stdin"
+
+  Of course, you should try your configuration and report it to the abcde
+  devleopers so that it can be included in future versions of abcde. If
+  you are familiar with POSIX shell programing, please open "abcde" and
+  take a look at the lines below the one marked with "###USEPIPESSUPPORT###",
+  the required syntax is pretty obvious.
+
+6. MISC PROBLEMS
    =============
 
 Q. What happened with normalize?
