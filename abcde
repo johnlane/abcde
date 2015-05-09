@@ -897,6 +897,11 @@ do_tag ()
 						echo GENRE="$CDGENRE"
 					fi
 					echo TRACKNUMBER=${TRACKNUM:-$1}
+					# TRACKTOTAL is not in the proposed, minimal list of standard field names from
+					# xiph.org: http://www.xiph.org/vorbis/doc/v-comment.html but is in common usage
+					# and read by mediainfo, ffprobe, vlc, Aqualung, ogg123, Foobar. And now abcde :)
+					# The tag is quietly ignored by  Audacious, MPlayer, mpv, XMMS....
+					echo TRACKTOTAL="${TRACKS}"
 					if [ -n "$DISCNUMBER" ]; then
 						echo DISCNUMBER="$DISCNUMBER"
 					fi

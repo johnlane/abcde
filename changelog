@@ -1,8 +1,7 @@
 abcde 2.6.1
 
-  * Total track number now written to flac files as well as
-    individual track number. Thanks to monkth for the
-    notification. This solves Issue 76.
+  * TRACKTOTAL now written to flac and ogg files. Thanks to 
+     monkth for the notification. This resolves Issue 76.
   * Support added for the downloading of album art. A huge
     thank you to Johannes Gernemann who came forward with
     the technique used and also the original patch. An equally
