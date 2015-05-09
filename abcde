@@ -935,6 +935,7 @@ do_tag ()
 				echo GENRE="$CDGENRE"
 			fi
 			echo TRACKNUMBER="${TRACKNUM:-$1}"
+			echo TRACKTOTAL="${TRACKS}"
 			if [ -n "$DISCNUMBER" ]; then
 				echo DISCNUMBER="$DISCNUMBER"
 			fi

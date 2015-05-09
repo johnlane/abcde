@@ -1,5 +1,8 @@
 abcde 2.6.1
 
+  * Total track number now written to flac files as well as
+    individual track number. Thanks to monkth for the
+    notification. This solves Issue 76.
   * Support added for the downloading of album art. A huge
     thank you to Johannes Gernemann who came forward with
     the technique used and also the original patch. An equally
@@ -12,11 +15,11 @@ abcde 2.6.1
     Input and Control library (libcdio) as requested by
     both gentoo and NixOS. The utility used is cd-paranoia
     and can best be called from a conf file as follows:
-     
+
      CDROMREADERSYNTAX=libcdio       
      CD_PARANOIA=cd-paranoia  
      CDPARANOIAOPTS="--never-skip=40 --verbose"
-    
+
     with the CD_PARANOIA variable giving the correct path 
     to cd-paranoia. I believe that cd-paranoia uses the same
     options as cdparanoia but if I am proven incorrect this 
