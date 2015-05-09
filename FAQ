@@ -187,6 +187,7 @@ A. Yes. When asked which one you want to select, use "X,Y" where X and Y are
 Q. I don't like CDDB/FreeDB. How can I use Musicbrainz instead?
 A. Set CDDBMETHOD=musicbrainz and try it!
 
+
 4. abcde and Album Art
    ===================
 
@@ -324,6 +325,7 @@ A. The philosophy of getalbumart at the moment is to simply place the album
 
   With other appropriate adjustments to the $OUTPUTTYPE and $TAGGER checks of 
   course...
+
   
 4. FORMATS
    =======
@@ -387,8 +389,10 @@ A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some
    support and then appropriately  places the audio either in .m4a or .aac. 
    Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
 
+
 5. USEPIPES
    ========
+
 Q. What is/are 'USEPIPES'??
 A. This is a slightly different method of ripping and encoding with abcde
    utilising Unix pipes. Using this method a program sends as output what
@@ -415,13 +419,18 @@ A. This is a slightly different method of ripping and encoding with abcde
 Q. How do I use USEPIPES with abcde?
 A. You can run USEPIPES in either of two ways:
 
-     1. Add USEPIPES=y to your ~/.abcde.conf file
-     2. Use the commandline option abcde -P
+     1. Add 'USEPIPES=y' to your ~/.abcde.conf file
+     2. Use the commandline option 'abcde -P'
 
 Q. Do all rippers and encoders work with USEPIPES?
 A. No :). Keep in mind that every ripper and encoder differs from in each
    other in the way they interact with pipes and not all rippers and encoders
-   will use or understand the '-o' and '-' options.
+   will use or understand the '-o' and '-' options. Currently (May 2015) the
+   following rippers and encoders work:
+
+   Rippers:  cdparanoia, debug, libcdio, cdda2wav, flac, pird.
+   Encoders: mp3enc, lame, bladeenc, oggenc, opusenc, flac, speexenc,
+             mpcenc, wavpack, faac, neroAacEnc, fdkaac.
 
 Q. Can I add a ripper or encoder which is not supported?
 A. Sure! If you plan to use a ripper or encoder which is not supported you
@@ -440,10 +449,10 @@ A. Sure! If you plan to use a ripper or encoder which is not supported you
      PIPE_audioencoder="--stdin"
 
   Of course, you should try your configuration and report it to the abcde
-  devleopers so that it can be included in future versions of abcde. If
+  developers so that it can be included in future versions of abcde. If
   you are familiar with POSIX shell programing, please open "abcde" and
   take a look at the lines below the one marked with "###USEPIPESSUPPORT###",
-  the required syntax is pretty obvious.
+  the required syntax is reasonably clear.
 
 6. MISC PROBLEMS
    =============
