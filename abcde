@@ -3014,6 +3014,14 @@ do_getalbumart()
 						$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
 						if [ $? -ne 0 ]; then
 							vecho "could not download cover from amazon" >&2
+						else
+							# Check that size is reasonable; sometimes when there is no cover image
+							# on amazon.com a 1x1 pixel gif image will be downloaded instead:
+							FILESIZE=$(wc -c < "$ABCDETEMPDIR/$ALBUMARTFILE")
+							if [ "$FILESIZE" -lt 1024 ]; then
+								rm "$ABCDETEMPDIR/$ALBUMARTFILE"
+								vecho "could not download cover from amazon" >&2
+							fi
 						fi
 					else
 						vecho "no amazon ID found" >&2
