@@ -87,9 +87,9 @@ log ()
 	BLURB="$1"
 	shift
 	case $BLURB in
-		error)   echo "[ERROR] abcde: $@" >&2 ;;
-		warning) echo "[WARNING] $@" >&2 ;;
-		info)    echo "[INFO] $@" ;;
+		error)   >&2 echo "[ERROR] abcde: $@" >&2 ;;
+		warning) >&2 echo "[WARNING] $@" >&2 ;;
+		info)    >&4 echo "[INFO] $@" ;;
 	esac
 }
 
@@ -3272,7 +3272,7 @@ vecho ()
 if [ x"$EXTRAVERBOSE" != "x" ] && [ $EXTRAVERBOSE -gt 0 ] ; then
 	case $1 in
 		warning) shift ; log warning "$@" ;;
-		*) echo "$@" ;;
+		*) >&4 echo "$@" ;;
 	esac
 fi
 }
@@ -3285,7 +3285,7 @@ vvecho ()
 if [ x"$EXTRAVERBOSE" != "x" ] && [ $EXTRAVERBOSE -gt 1 ] ; then
 	case $1 in
 		warning) shift ; log warning "$@" ;;
-		*) echo "$@" ;;
+		*) >&4 echo "$@" ;;
 	esac
 fi
 }
@@ -3298,9 +3298,9 @@ decho ()
 if [ x"$DEBUG" != "x" ]; then
 	if echo $1 | grep "^\[" > /dev/null 2>&1 ; then
 		DEBUGECHO=$(echo "$@" | tr -d '[]')
-		echo "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
+		echo >&4 "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
 	else
-		echo "[DEBUG] $1"
+		echo >&4 "[DEBUG] $1"
 	fi
 fi
 }
@@ -3558,6 +3558,9 @@ DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeen
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav libcdio pird"
+
+# fd for when `vecho` and `log info` called with redirected stdout
+exec 4>&1
 
 # Assume fetch if under FreeBSD. curl is used for Mac OS X. wget is used for
 # Linux/OpenBSD. ftp is user for NetBSD.
