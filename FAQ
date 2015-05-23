@@ -192,7 +192,7 @@ A. Set CDDBMETHOD=musicbrainz and try it!
    ===================
 
 Q. Can abcde download album art?   
-A. As of abcde 2.6.1 it is possible to download a suitable cover
+A. As of abcde 2.7 it is possible to download a suitable cover
    image from within abcde that can be used by applications such
    as Audacious and vlc to illustrate playback with an album cover.
    Many hardware playback devices such as iPODs will also use this
@@ -385,7 +385,7 @@ A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some
    These streams should correctly have the .aac file extension and some 
    players (such as Audacious) will not even play mpeg-2/ADTS streams when
    they are placed in an .m4a container.
-   As of version 2.6.1 abcde tests the version of faac being used for mp4v2 
+   As of version 2.7 abcde tests the version of faac being used for mp4v2 
    support and then appropriately  places the audio either in .m4a or .aac. 
    Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
 

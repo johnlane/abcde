@@ -1,4 +1,4 @@
-abcde 2.6.1
+abcde 2.7
 
   * TRACKTOTAL now written to flac and ogg files. Thanks to 
      monkth for the notification. This resolves Issue 76.
