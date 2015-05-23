@@ -23,6 +23,7 @@ MAJOR CHANGES
 =============
 
 Changes in 2.7
+* Rewrite of the mungefilename function.
 * Support added for downloading album art.
 * Support added for ripping with libcdio (cd-paranoia).
 * Some error checking and a small help file added to abcde-musicbrainz-tool. 

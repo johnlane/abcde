@@ -1460,12 +1460,6 @@ do_move ()
 		OUTPUT="$TMPOUTPUT"
 
 		# Create ALBUMFILE, ARTISTFILE, TRACKFILE
-		# Munge filenames as follows:
-		# ' ' -> '_'
-		# '/' -> '_'
-		# ''' -> ''
-		# '?' -> ''
-		# Eat control characters
 		ALBUMFILE="$(mungefilename "$DALBUM")"
 		ARTISTFILE="$(mungefilename "$TRACKARTIST")"
 		TRACKFILE="$(mungefilename "$TRACKNAME")"
@@ -3309,8 +3303,7 @@ fi
 # Custom filename munging:
 mungefilename ()
 {
-	#echo "$@" | sed s,:,\ -,g | tr \ /\* __+ | tr -d \'\"\?\[:cntrl:\]
-	echo "$@" | sed s,:,\ -,g | tr \ / __ | tr -d \'\"\?\[:cntrl:\]
+  echo "$@" | sed -e 's/^\.*//' -e 's/ /_/g' | tr -d ":><|*/\"'?[:cntrl:]"
 }
 
 # Custom genre munging:

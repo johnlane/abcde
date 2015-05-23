@@ -512,9 +512,9 @@ Specifies a comma-delimited list of systems to use for remote encoding using
 .B mungefilename
 mungefilename() is an \fBabcde\fR shell function that can be overridden via
 \fIabcde.conf\fR. It takes CDDB data as $1 and outputs the resulting filename on
-stdout. It defaults to eating control characters, apostrophes and
-question marks, translating spaces and forward slashes to underscores, and
-translating colons to an underscore and a hyphen.
+stdout. It defaults to deleting any preceding dots to filename, replacing spaces
+with an underscore and eating characters which variously Windows and Linux do
+not permit.
 .br
 If you modify this function, it is probably a good idea to keep the forward
 slash munging (UNIX cannot store a file with a '/' char in it) as well as
