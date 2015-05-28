@@ -3,7 +3,8 @@ abcde 2.7
   * Rewrite of abcde's mungefilename function. Thanks to 
     Andreas Kusalananda Kahari for this and also thanks
     to Andrew Willis for the report which triggered the
-    rewrite. This closes Issue 135.
+    rewrite. Thanks also to shughes for an earlier report.
+    This closes Issues 72 and 135.
   * TRACKTOTAL now written to flac and ogg files. Thanks to 
      monkth for the notification. This resolves Issue 76.
   * Support added for the downloading of album art. A huge
