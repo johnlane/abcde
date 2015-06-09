@@ -16,7 +16,8 @@ startTrackRegex = re.compile(r'INDEX 01 (?P<min>\d+):(?P<sec>\d\d):(?P<frame>\d\
 leadInRegex = re.compile(r'REM FLAC__lead-in (?P<sample>\d+)')
 leadOutRegex = re.compile(r'REM FLAC__lead-out 170 (?P<sample>\d+)')
 raw_framelist = list()
-
+leadInFrame = 0
+leadOutFrame_raw = 0
 numTracks = 0
 
 def cddb_sum(trackseconds):
