@@ -4,6 +4,10 @@
 
 import fileinput
 import re
+import sys
+
+if sys.version_info > (3,):
+    long = int
 
 FRAMES_PER_SECOND = 75
 SAMPLES_PER_SECOND = 44100
@@ -59,6 +63,7 @@ framelist = [i + leadInFrame + pregap for i in raw_framelist]
 secondslist = [i//FRAMES_PER_SECOND for i in framelist]
 
 n = long(sum(map(cddb_sum, secondslist)))
-t = leadOutFrame/FRAMES_PER_SECOND - framelist[0]/FRAMES_PER_SECOND
-print "%08x" % (((n % 0xff) << 24) | (t << 8) | numTracks), numTracks, 
-print " ".join([str(i) for i in framelist]), leadOutFrame/FRAMES_PER_SECOND
+t = int(leadOutFrame/FRAMES_PER_SECOND - framelist[0]/FRAMES_PER_SECOND)
+print("%08x %s %s %s" % ((((n % 0xff) << 24) | (t << 8) | numTracks), numTracks,
+                         " ".join([str(i) for i in framelist]),
+                         int(leadOutFrame/FRAMES_PER_SECOND)))
