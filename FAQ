@@ -284,21 +284,21 @@ A. The philosophy of getalbumart at the moment is to simply place the album
     ARTISTFILE="$(mungefilename "$TRACKARTIST")"
     ALBUMFILE="$(mungefilename "$DALBUM")"
 
-   if [ "$OUTPUTTYPE" = "mp3" ] && [ "$TAGGER" = "$EYED3" ] ; then
-    vecho "Preparing to embed the album art..." >&2
-   else
-    vecho "Not embedding album art, you need mp3 output and eyeD3 tagging..." >&2
-    return 1
-   fi
-
    if [ "$VARIOUSARTISTS" = "y" ] ; then
      FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
    else
      FINDPATH="$(eval echo "$OUTPUTFORMAT")"
    fi
 
-   TRIMPATH="$(dirname "$OUTPUTDIR/$FINDPATH")"
-   cd "$TRIMPATH"
+   FINALDIR="$(dirname "$OUTPUTDIR/$FINDPATH")"
+   cd "$FINALDIR"
+
+   if [ "$OUTPUTTYPE" = "mp3" ] && [ "$TAGGER" = "$EYED3" ] ; then
+    vecho "Preparing to embed the album art..." >&2
+   else
+    vecho "Not embedding album art, you need mp3 output and eyeD3 tagging..." >&2
+    return 1
+   fi
 
     if [ -e "cover.jpg" ] ; then
       for i in *.mp3
