@@ -4,20 +4,21 @@ Priority: optional
 Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
 Uploaders: Colin Tuckley <colint@debian.org>, Steve McIntyre <93sam@debian.org>
 Homepage: http://code.google.com/p/abcde/
-Standards-Version: 3.9.3
+Standards-Version: 3.9.6
 Build-Depends: debhelper (>= 8)
 Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
 
 Package: abcde
 Architecture: all
-Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex | musepack-tools | opus-tools | wavpack
+Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | bladeenc | speex | musepack-tools | opus-tools
 Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, bsd-mailx
-Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3, normalize-audio, vorbisgain, mkcue
+Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3 (<< 0.7~),
+ normalize-audio, vorbisgain, mkcue, mp3gain, atomicparsley
 Description: A Better CD Encoder
  frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
- Ogg/Vorbis, MP3, FLAC, Ogg/Speex, MPP/MP+(Musepack) and/or WavPack encoder 
- (defaults to oggenc). Grabs an entire CD and converts each track to the 
- specified formats and then comments or ID3-tags each file, with one command.
+ Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) encoder (defaults 
+ to oggenc). Grabs an entire CD and converts each track to the specified 
+ formats and then comments or ID3-tags each file, with one command.
  .
  With abcde you can encode several formats with one single command, using a 
  single CD read operation. It also allows you to read and encode while not

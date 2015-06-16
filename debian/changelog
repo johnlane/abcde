@@ -1,3 +1,65 @@
+abcde (2.6-2) unstable; urgency=medium
+
+  * Thanks to Andreas/Samuel for the previous upload attempting to fix
+    eyeD3 support, but it still seems buggy. :-(
+  * Instead, merge the upstream change that auto-detects the
+    version/syntax of eyeD3 on the system and uses the right set of
+    options. Closes: #776908
+
+ -- Steve McIntyre <93sam@debian.org>  Tue, 17 Feb 2015 23:36:34 +0930
+
+abcde (2.6-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Invoke eyeD3 with --set-encoding/--set-text-frame instead of
+    --encoding/--text-frame since Debian's version of eyeD3 is pre 0.7. Also
+    version the Suggests on eyed3 (<< 0.7~). (Patches by Samuel Thibault)
+    Closes: #772778
+
+ -- Andreas Metzler <ametzler@debian.org>  Sun, 11 Jan 2015 17:52:39 +0100
+
+abcde (2.6-1) unstable; urgency=medium
+
+  * New upstream release with lots of bug fixes:
+    + Fix finding $CDROM on OS X. Thanks to niederstrasser for the patch.
+      Closes issue 71.
+    + USEID3 and USEID3V2 variables are unused now, so remove them. Thanks
+      to vskytta for the patch. Closes issue 73.
+    + Clean up movement to eyeD3, remove id3v2 remnants. Thanks to vskytta
+      for the patch. Closes issue 74.
+    + Fix infinite loop if cddb fails. Thanks to Dominic Hargreaves for the
+      patch. Closes: #687038 in Debian
+    + Switch from Musepack SV7 to SV8. Thanks to Andrew Strong for the
+      patch.
+    + Allow aac encoding with neroAacEnc. Thanks to atheren for the patch.
+      Closes issue 8.
+    + Allow opus encoding with opusenc. Thanks to Tomasz Golinski for the
+      patch. Closes issue 70.
+    + Fix typo: s/CUEWAVEFILE/CUEWAVFILE/ so that abcde.mkcue should now
+      produce working cue files. Closes issue 78.
+    + Remove no-op -q option. Closes issue 106. Thanks to vskytta for the
+      patch.
+    + Fix issue 112: perl encoding pragma deprecation. Thanks to Alex Corrie
+      for the patch.
+    + Fix option parsing for multiple output formats. Thanks to
+      matthias.andree@gmx.de for the patch. Closes issue 115.
+    + Fix eyeD3 tagging for cddb entries without year. Thanks to vskytta for
+      the patch. Closes issue 107
+    + Add mention of CD-TEXT support in the man page. Closes issue 102.
+    + Make Y/N prompting more consistent. Closes issue 95
+    + Remove the no-op -B option. Closes: #426531 in Debian
+    + Document the need to escape parentheses in tag comments.
+      Closes: #256941 in Debian.
+    + Concatenate option steps on -t/-T option. Thanks to Charles
+      Steinkuehler for the patch. Closes: #391294 in Debian
+    + Try to use bsd-mailx where possible to force UTF-8 for cddb-tool mail
+      submissions. If not possible, attempt to force UTF-8 via the
+      environment and fall back to mail instead. Closes: #756289 in Debian,
+      issue 111.
+  * Update Standards-Version
+
+ -- Steve McIntyre <93sam@debian.org>  Sun, 26 Oct 2014 13:33:50 -0700
+
 abcde (2.5.4-1) unstable; urgency=low
 
   * New upstream release with bug fixes.
