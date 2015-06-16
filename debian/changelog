@@ -2,6 +2,7 @@ abcde (2.7-1) UNRELEASED; urgency=medium
 
   * Remove Jesus and Colin from Maintainer and Uploaders fields, as
     they've moved on. Thanks to both for their efforts!
+  * Update the Vcs- fields to point to current upstream.
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 16 Jun 2015 21:20:11 +0100
 

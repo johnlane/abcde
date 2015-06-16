@@ -5,7 +5,8 @@ Maintainer: Steve McIntyre <93sam@debian.org>
 Homepage: http://code.google.com/p/abcde/
 Standards-Version: 3.9.6
 Build-Depends: debhelper (>= 8)
-Vcs-Svn: http://abcde.googlecode.com/svn/trunk/
+Vcs-Browser: http://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git;a=summary
+Vcs-Git: http://git.einval.com/git/abcde.git
 
 Package: abcde
 Architecture: all
