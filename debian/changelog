@@ -6,6 +6,102 @@ abcde (2.7-1) UNRELEASED; urgency=medium
   * Clarify the old "public domain" mention in the license, now removed
     upstream.
   * Remove TODO file, removed upstream
+  * New upstream version, with lots of improvements and bugfixes:
+    + Rewrite of abcde's mungefilename function. Thanks to 
+      Andreas Kusalananda Kahari for this and also thanks
+      to Andrew Willis for the report which triggered the
+      rewrite. Thanks also to shughes for an earlier report.
+      This closes Issues 72 and 135.
+    + TRACKTOTAL now written to flac and ogg files. Thanks to 
+      monkth for the notification. This resolves Issue 76.
+    + Support added for the downloading of album art. A huge
+      thank you to Johannes Gernemann who came forward with
+      the technique used and also the original patch. An equally
+      huge thanks to Richard who extended and greatly enhanced
+      the original patch. Detailed documentation added to the
+      abcde FAQ document although the sane defaults in place
+      will guarantee a good experience even for those who do
+      not read documentation! This closes Issue 33.
+    + Support added for ripping with the GNU Compact Disc 
+      Input and Control library (libcdio) as requested by
+      both gentoo and NixOS. The utility used is cd-paranoia
+      and can best be called from a conf file as follows:
+
+       CDROMREADERSYNTAX=libcdio       
+       CD_PARANOIA=cd-paranoia  
+       CDPARANOIAOPTS="--never-skip=40 --verbose"
+
+      with the CD_PARANOIA variable giving the correct path 
+      to cd-paranoia. I believe that cd-paranoia uses the same
+      options as cdparanoia but if I am proven incorrect this 
+      will need to be rectified...
+    + Fix for encoding with bladeenc and usepipes.
+    + Fix for broken ripping with dagrab. Closes Issue 140.
+    + Fix for diskutil selecting wrong disk on OS X. Thanks
+      to Richard for this fix which closes Issue 139.
+    + Added some error checking and documentation for
+      the abcde-musicbrainz-tool. Thanks yet again to
+      Matthias Andree for this work! Closes issue 138.
+    + New variables for m4a/aac encoding options to be 
+      manipulated in a users ~/.abcde.conf file:
+       1. FAACENCOPTS for faac encoding options
+       2. NEROAACENCOPTS for neroAacEnc options
+       3. FDKAACENCOPTS for fdkaacenc options
+      Note that these options replace the now obsolete AACENCOPTS.
+    + Check added for neroAacTag when encoding with neroAacEnc.
+    + Several additions to usepipes with the following encoders 
+      being added:
+        1. mp3enc: mp3
+        2. speexenc: Speex
+        3. mpcenc: Musepack SV8
+        4. wavpack: WavPack
+        5. faac: aac
+        6. neroAacEnc: aac
+        7. fdkaac: aac
+      The cd ripper cdda2wav (icedax) has also been added.
+    + Ripping and encoding with 'usepipes' fixed. This fix
+      closes Issue 46.
+    + Suggested encoding options for mp3enc added to the sample
+      abcde.conf. Last release of mp3enc in 1998 but it still
+      works flawlessly with a modern abcde!
+    + Suggested encoding options for l3enc added to the sample
+      abcde.conf. Congratulations to abcde which in 2015 still 
+      works with l3enc which saw its final release in 1997!
+    + Fix for -o option use with options and multiple outputs.
+      This allows for commandline options such as the following:
+            abcde -o 'flac:-8,mp3:-b 320' 
+      Thanks to Matthias Andree for yet another quality patch! 
+      This closes Issue 136.
+    + Support added for ReplayGain with WavPack encoding.
+    + Fix for MusePack to allow the use of the SV8 ReplayGain 
+      application 'mpcgain'.
+    + Monkey's Audio (ape) encoding added. Tagging is with
+      Robert Muth's apetag. Thanks to Shantiq for testing.
+    + Simplify Opus tagging.This closes Issue 133.
+    + Allow 'clean' when OUTPUTTYPE=wav, broken for some time.
+      Thanks to Roger rogerx.oss<at>gmail.com for showing the
+      problem and demonstrating the fix. This closes Issue 94.
+    + Clarification that CDDBLOCALRECURSIVE=y is required for 
+      local CDDB search. Thanks to Reuben Thomas for the
+      notification. This partially resolves Issue 121.
+    + AtomicParsley removed from debian/control, WavPack added.
+    + Details of abcde's handling of faac compiled with and 
+      without mp4v2 added as a new entry to FAQs.
+    + Fix to allow display of the 'date' meta tag generated
+      by eyeD3 in vlc, Audacious and friends.
+      Thanks to Reuben Thomas. This closes Issue 126.
+    + Fix for flac floating point error. Thanks to rwvtveer
+      for the patch which closes Issue 113.
+    + Formalised 3 methods of mp3 tagging using ID3TAGV:
+        1.id3v2.4 using eyeD3 (set in abcde as the default)
+        2.id3v2.3 using id3v2
+        3.id3v1 using id3
+      Thanks to Adriaan for this patch which fixes issue 101.
+    + Support for WavPack added. Closes issue 123.
+    + Fix for mp3 encoding with different versions of eyeD3.
+      Thanks to Matthias Andree for this patch.
+    + Major AAC encoding cleanup, including addition of the fdkaac encoder. 
+      Thanks to Doug Mcmahon for assistance with this.
 
  -- Steve McIntyre <93sam@debian.org>  Tue, 16 Jun 2015 21:20:11 +0100
 
