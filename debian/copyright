@@ -1,15 +1,17 @@
 The software was originally developed by Robert Woodcock <rcw@debian.org>.
 It was also debianized by Robert Woodcock on Sun, 21 Feb 1999 18:50:34 -0800.
 
-It is available at: http://code.google.com/p/abcde
-
-Upstream Author: Jesus Climent <jesus.climent@hispalinux.es>
-Original Author: Robert Woodcook
+It is available at: http://abcde.einval.com/wiki/
 
 Copyright:
 
 Copyright (c) 1998-2001 Robert Woodcock <rcw@debian.org>
 Copyright (c) 2003-2009 Jesus Climent <jesus.climent@hispalinux.es>
+Copyright (c) 2009-2012 Colin Tuckley <colint@debian.org>
+Copyright (c) 2012-     Steve McIntyre <steve@einval.com>
+
+and many other contributors
+
 This code is hereby licensed for public consumption under either the
 GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
 
@@ -17,8 +19,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
-Copyright for this work is to expire January 1, 2010, after which it
-shall be public domain.
+An earlier abcde copyright included the text:
+
+  Copyright for this work is to expire January 1, 2010, after which it
+  shall be public domain.
+
+However, later versions (2.6 onwards) have been developed solely using
+the GPL. Earlier versions are still available in various places if
+you'd rather have the public domain code.
 
 See /usr/share/common-licenses/GPL-2
 
