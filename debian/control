@@ -1,8 +1,7 @@
 Source: abcde
 Section: sound
 Priority: optional
-Maintainer: Jesus Climent <jesus.climent@hispalinux.es>
-Uploaders: Colin Tuckley <colint@debian.org>, Steve McIntyre <93sam@debian.org>
+Maintainer: Steve McIntyre <93sam@debian.org>
 Homepage: http://code.google.com/p/abcde/
 Standards-Version: 3.9.6
 Build-Depends: debhelper (>= 8)
