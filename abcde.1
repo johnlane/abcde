@@ -569,8 +569,9 @@ For double+ CD settings: will create the 1st CD starting with the track number
 101, and will add a comment "CD 1" to the tracks, the second starting with 201
 and so on.
 .TP
-.B abcde \-d singletrack.flac
-Will extract the files contained in singletrack using the embedded cuesheet.
+.B abcde \-d singletrack.flac -o vorbis:"-q 6"
+Will extract the files contained in singletrack FLAC file using the embedded
+cuesheet and then encode the output files to Ogg/Vorbis with a quality setting of 6.
 .SH BACKEND TOOLS
 \fBabcde\fR requires the following backend tools to work:
 .TP
