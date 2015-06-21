@@ -990,6 +990,9 @@ do_tag ()
 				faac)
 					run_command tagtrack-$OUTPUT-$1 true   
 					;;
+				qaac)
+					run_command tagtrack-$OUTPUT-$1 true   
+					;;
 			esac
 			;;
 		wav)
@@ -1251,6 +1254,14 @@ do_encode ()
 							--title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
 						else
 							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"
+						fi
+						;;
+					qaac)
+						if [ "$DOTAG" = "y" ]; then
+							$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" --album "$DALBUM" \
+							--title "$TRACKNAME" --track ${TRACKNUM:-$1} --date "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
+						else 
+							$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
 						fi
 						;;
 					esac
@@ -3431,6 +3442,10 @@ APETAG=apetag
 FAAC=faac
 NEROAACENC=neroAacEnc
 FDKAAC=fdkaac
+# Note that the qaac PATH will almost always require adjustment
+# as it is a Windows application being run through Wine. More
+# detailed notes in the sample abcde.conf file in the abcde tarball.
+QAAC=qaac
 
 ID3=id3
 ID3V2=id3v2
@@ -3439,6 +3454,7 @@ VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 NEROAACTAG=neroAacTag
 
+WINE=wine
 CDPARANOIA=cdparanoia
 CD_PARANOIA=cd-paranoia
 CDDA2WAV=icedax
@@ -3508,6 +3524,7 @@ NEROACENCOPTS=
 # fdkaac chokes without either a bitrate or bitrate-mode specified so 
 # we set bitrate here.
 FDKAACENCOPTS='--bitrate 192k'
+QAACENCOPTS=
 
 ID3OPTS=
 EYED3OPTS=""
@@ -4078,6 +4095,7 @@ do
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
 			[ "$DOTAG" = "y" ] && CHECKFAACBUILD=y
 			[ "$AACENCODERSYNTAX" = "neroAacEnc" ] && NEEDNEROAACTAG=y
+			[ "$AACENCODERSYNTAX" = "qaac" ] && NEEDWINE=y
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -4209,6 +4227,15 @@ case "$AACENCODERSYNTAX" in
 		else
 			AACENCODEROPTS="${AACENCODEROPTSCLI:-$FDKAACENCOPTS}"
 			AACENCODER="$FDKAAC"
+		fi
+		;;
+	qaac)
+		if [ -z "$QAACENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+			AACENCODER="$QAAC"
+		else
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$QAACENCOPTS}"
+			AACENCODER="$QAAC"
 		fi
 		;;
 esac
@@ -4351,6 +4378,7 @@ PIPE_speexenc="-"
 PIPE_mpcenc="-"
 PIPE_wavpack="-"
 PIPE_faac="-"
+PIPE_qaac="-"
 # Both neroAacEnc and fdkaac seem to manage without the addition of
 # the 'ignorelength' option in PIPE_$AACENCODERSYNTAX when piping
 # in this manner.                                           Andrew.
@@ -4409,7 +4437,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDMPCGAIN+$MPCGAIN} ${NEEDCUEREADER+$CUEREADER} \
 	${NEEDWVGAIN+WVGAIN} ${NEEDAPETAG+$APETAG} \
 	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG} \
-	${NEEDGLYRC+$GLYRC}
+	${NEEDGLYRC+$GLYRC} ${NEEDWINE+$WINE}
 do
 	checkexec "$X"
 done

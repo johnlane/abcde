@@ -1,3 +1,14 @@
+abcde 2.7.1
+
+  * Support added for AAC encoding with qaac via Wine. This
+    also allows for Apple Lossless Audio Coding (alac) when
+    using:
+
+     QAACENCOPTS="--alac"
+
+    This closes Issue 142, thanks to Bernd Fischer-Krellenberg
+    for the enhancement request.
+
 abcde 2.7
 
   * Rewrite of abcde's mungefilename function. Thanks to 
