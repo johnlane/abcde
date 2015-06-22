@@ -4199,7 +4199,7 @@ case "$APENCODERSYNTAX" in
 		;;
 esac
 case "$AACENCODERSYNTAX" in
-		# Some elaborate 'if' work to keep backward compatability for those
+		# Some elaborate 'if' work to keep backward compatibility for those
 		# who don't realise that AACENCOPTS does not work with abcde from
 		# version 2.7 onwards.
 	faac)
