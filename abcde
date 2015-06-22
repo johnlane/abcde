@@ -2346,7 +2346,7 @@ do_cdtext ()
 		CDTEXT_READER=icedax
 	elif new_checkexec cdda2wav; then
 		CDTEXT_READER=cdda2wav
-    else
+	else
 		# Didn't find either, bail
 		return 0
 	fi
@@ -4676,7 +4676,7 @@ if [ "$EJECTCD" = "y" ]; then
 		$eject $EJECTOPTS $cd
 	elif [ X"$(uname)" = X"Darwin" ] ; then
 		diskutil eject ${CDROM#/dev/} 0
-    elif [ -x $(which $EJECT) ]; then
+	elif [ -x $(which $EJECT) ]; then
 		$EJECT $EJECTOPTS "$CDROM"
 	fi
 	#fi
