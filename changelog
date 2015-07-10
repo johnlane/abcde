@@ -1,5 +1,8 @@
 abcde 2.7.1
 
+  * AAC encoding with fhgaacenc via Wine. Tagging is provided
+    by AtomicParsley which has been added back to abcde :). This
+    allows encoding with HE-AAC v2, unavailable with qaac.
   * Support added for AAC encoding with qaac via Wine. This
     also allows for Apple Lossless Audio Coding (alac) when
     using:

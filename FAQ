@@ -427,12 +427,12 @@ A. You can run USEPIPES in either of two ways:
 Q. Do all rippers and encoders work with USEPIPES?
 A. No :). Keep in mind that every ripper and encoder differs from in each
    other in the way they interact with pipes and not all rippers and encoders
-   will use or understand the '-o' and '-' options. Currently (May 2015) the
+   will use or understand the '-o' and '-' options. Currently (July 2015) the
    following rippers and encoders work:
 
    Rippers:  cdparanoia, debug, libcdio, cdda2wav, flac, pird.
    Encoders: mp3enc, lame, bladeenc, oggenc, opusenc, flac, speexenc,
-             mpcenc, wavpack, faac, neroAacEnc, fdkaac, qaac.
+             mpcenc, wavpack, faac, neroAacEnc, fdkaac, qaac, fhgaacenc.
 
 Q. Can I add a ripper or encoder which is not supported?
 A. Sure! If you plan to use a ripper or encoder which is not supported you
