@@ -1000,6 +1000,9 @@ do_tag ()
 					--artist="$TRACKARTIST" --album="$DALBUM" --title="$TRACKNAME" --tracknum=${TRACKNUM:-$1} \
 					--year="$CDYEAR" --genre="$CDGENRE" --comment="$COMMENT" $ATOMICPARSLEYOPTS --overWrite
 					;;
+				ffmpeg)
+					run_command tagtrack-$OUTPUT-$1 true   
+				;;
 			esac
 			;;
 		wav)
@@ -1273,6 +1276,15 @@ do_encode ()
 						;;
 					fhgaacenc)
 						$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS "$IN" "$OUT"
+						;;
+					ffmpeg)
+						if [ "$DOTAG" = "y" ]; then
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER -i "$IN" $AACENCODEROPTS -metadata artist="$TRACKARTIST" \
+							-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track=${TRACKNUM:-$1} -metadata date="$CDYEAR" \
+							-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
+						else 
+							$RUN_COMMAND nice $EFFECTIVE_NICE -i "$IN" $AACENCODER $AACENCODEROPTS "$OUT"
+						fi
 						;;
 					esac
 				;;
@@ -3457,6 +3469,8 @@ FDKAAC=fdkaac
 # detailed notes in the sample abcde.conf file in the abcde tarball.
 QAAC=qaac
 FHGAACENC=fhgaacenc
+# The path to 'avconv' rather than 'ffmpeg'can be used here:
+FFMPEG=ffmpeg
 
 ID3=id3
 ID3V2=id3v2
@@ -3538,6 +3552,7 @@ NEROACENCOPTS=
 FDKAACENCOPTS='--bitrate 192k'
 QAACENCOPTS=
 FHGAACENCOPTS=
+FFMPEGENCOPTS=
 
 ID3OPTS=
 EYED3OPTS=""
@@ -4111,6 +4126,7 @@ do
 			[ "$AACENCODERSYNTAX" = "neroAacEnc" ] && NEEDNEROAACTAG=y
 			[ "$AACENCODERSYNTAX" = "qaac" ] && NEEDWINE=y
 			[ "$AACENCODERSYNTAX" = "fhgaacenc" ] && NEEDWINE=y && NEEDATOMICPARSLEY=y
+			[ "$AACENCODERSYNTAX" = "ffmpeg" ] &&  [ "$DOTAG" = "y" ]
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -4262,6 +4278,15 @@ case "$AACENCODERSYNTAX" in
 			AACENCODER="$FHGAACENC"
 		fi
 		;;
+	ffmpeg)
+		if [ -z "$FFMPEGENCOPTS" ] && [ -n "$AACENCOPTS" ]; then
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$AACENCOPTS}"
+			AACENCODER="$FFMPEG"
+		else
+			AACENCODEROPTS="${AACENCODEROPTSCLI:-$FFMPEGENCOPTS}"
+			AACENCODER="$FFMPEG"
+		fi
+		;;
 esac
 
 # and which tagger
@@ -4404,6 +4429,7 @@ PIPE_wavpack="-"
 PIPE_faac="-"
 PIPE_qaac="-"
 PIPE_fhgaacenc="-"
+PIPE_ffmpeg="-"
 # Both neroAacEnc and fdkaac seem to manage without the addition of
 # the 'ignorelength' option in PIPE_$AACENCODERSYNTAX when piping
 # in this manner.                                           Andrew.

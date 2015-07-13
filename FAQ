@@ -390,7 +390,32 @@ A. Faac uses mp4v2 to create aac files in an m4a or mp4 container. Some
    As of version 2.7 abcde tests the version of faac being used for mp4v2 
    support and then appropriately  places the audio either in .m4a or .aac. 
    Note that tagging is not possible with mpeg-2/ADTS streams in .aac.
+   
+Q. How do I encode to Apple Lossless Audio Codec (alac)?
+A. As of abcde 2.7.1 there are 3 ways to encode to alac: using qaac, refalac
+   or FFmpeg. To use qaac or refalac follow the installation directions here:
 
+   http://www.andrews-corner.org/qaac.html#installation
+
+   and then set your ~/.abcde.conf file as follows:
+
+   AACENCODERSYNTAX=qaac
+   QAAC="$HOME/.wine/drive_c/qaac/qaac.exe"
+   # Or use the Open Source alac encoder with this small hack:
+   # QAAC="$HOME/.wine/drive_c/qaac/refalac.exe"
+   QAACENCOPTS="--alac --threading --verbose"
+   OUTPUTTYPE="m4a"
+
+   To use FFmpeg (or avconv) set your ~/.abcde.conf file as follows:
+
+   AACENCODERSYNTAX=ffmpeg
+   FFMPEG=ffmpeg
+   # Or give the path to avconv instead:
+   # FFMPEG=avconv
+   FFMPEGENCOPTS="-c:a alac"
+   OUTPUTTYPE="m4a"
+
+  And then sit back and enjoy the music :) 
 
 5. USEPIPES
    ========
@@ -432,7 +457,8 @@ A. No :). Keep in mind that every ripper and encoder differs from in each
 
    Rippers:  cdparanoia, debug, libcdio, cdda2wav, flac, pird.
    Encoders: mp3enc, lame, bladeenc, oggenc, opusenc, flac, speexenc,
-             mpcenc, wavpack, faac, neroAacEnc, fdkaac, qaac, fhgaacenc.
+             mpcenc, wavpack, faac, neroAacEnc, fdkaac, qaac, fhgaacenc,
+             ffmpeg.
 
 Q. Can I add a ripper or encoder which is not supported?
 A. Sure! If you plan to use a ripper or encoder which is not supported you
