@@ -1296,7 +1296,7 @@ do_encode ()
 							-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track=${TRACKNUM:-$1} -metadata date="$CDYEAR" \
 							-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
 						else 
-							$RUN_COMMAND nice $EFFECTIVE_NICE -i "$IN" $AACENCODER $AACENCODEROPTS "$OUT"
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER -i "$IN"  $AACENCODEROPTS "$OUT"
 						fi
 						;;
 					esac
