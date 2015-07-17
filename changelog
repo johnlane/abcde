@@ -1,5 +1,7 @@
 abcde 2.7.1
 
+  * Encoding to WavPack with FFmpeg. Some slight changes to WavPack
+    syntax with backward compatibility built in for abcde 2.7. 
   * Encoding to m4a container with FFmpeg or avconv. This allows
     for alac encoding with FFmpeg's reverse engineered alac encoder.
   * AAC encoding with fhgaacenc via Wine. Tagging is provided

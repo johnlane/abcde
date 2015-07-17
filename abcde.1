@@ -336,7 +336,7 @@ are Windows applications which require Wine to be installed.
 .TP
 .B WVENCODERSYNTAX
 Specifies the style of encoder to use for WavPack. We support \'wavpack\'
-as \'default\'.
+as \'default\' but \'ffmpeg'\ is the other option.
 .TP
 .B APENCODERSYNTAX
 Specifies the style of encoder to use for Monkey's Audio (ape). We support \'mac\',
@@ -382,7 +382,7 @@ with \fBdistmp3\fR (DISTMP3NICE).
 .B PATHNAMES
 The following configuration file options specify the pathnames of their
 respective utilities: LAME, TOOLAME, GOGO, BLADEENC, L3ENC, XINGMP3ENC, MP3ENC,
-VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, WVENC, APENC, OPUSENC, ID3, EYED3,
+VORBIZE, OGGENC, FLAC, SPEEXENC, MPCENC, WAVEPACK, APENC, OPUSENC, ID3, EYED3,
 METAFLAC, CDPARANOIA, CD_PARANOIA, CDDA2WAV, PIRD, CDDAFS, CDDISCID, CDDBTOOL, 
 EJECT, MD5SUM, DISTMP3, VORBISCOMMENT, NORMALIZE, CDSPEED, MP3GAIN, VORBISGAIN, 
 MPCGAIN, MKCUE, MKTOC, CUE2DISCID (see option "\-X"), DIFF, HTTPGET, GLYRC,
@@ -391,7 +391,7 @@ IDENTIFY, DISPLAYCMD, CONVERT, QAAC, WINE, FHGAACENC, ATOMICPARSLEY and FFMPEG.
 .B COMMAND-LINE OPTIONS
 If you wish to specify command-line options to any of the programs \fBabcde\fR uses,
 set the following configuration file options: LAMEOPTS, TOOLAMEOPTS, GOGOOPTS,
-BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, WVENCOPTS, APENCOPTS,
+BLADEENCOPTS, L3ENCOPTS, XINGMP3ENCOPTS, MP3ENCOPTS, VORBIZEOPTS, WAVEPACKENCOPTS, APENCOPTS,
 OGGENCOPTS, FLACOPTS, SPEEXENCOPTS, MPCENCOPTS, FAACENCOPTS, NEROAACENCOPTS, FDKAACENCOPTS, 
 OPUSENCOPTS, ID3OPTS, EYED3OPTS, MP3GAINOPTS, CDPARANOIAOPTS, CDDA2WAVOPTS, PIRDOPTS, 
 CDDAFSOPTS, CDDBTOOLOPTS, EJECTOPTS, DISTMP3OPTS, NORMALIZEOPTS, CDSPEEDOPTS, MKCUEOPTS, 
@@ -429,7 +429,7 @@ Specifies the encoding format to output, as well as the default extension and
 encoder. Defaults to "vorbis". Valid settings are "vorbis" (or "ogg")
 (Ogg/Vorbis), "mp3" (MPEG-1 Audio Layer III), "flac" (Free Lossless Audio
 Codec), "spx" (Ogg/Speex), "mpc" (MPP/MP+ (Musepack), "m4a" (AAC or ALAC),
-"wv" (WavPack", "wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values
+"wv" (WavPack"), "wav" (Microsoft Waveform) or "opus" (Opus Interactive Audio Codec). Values
 like "vorbis,mp3" encode the tracks in both Ogg/Vorbis and MP3 formats. For example
 .br
 OUTPUTTYPE=vorbis,flac

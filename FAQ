@@ -415,7 +415,31 @@ A. As of abcde 2.7.1 there are 3 ways to encode to alac: using qaac, refalac
    FFMPEGENCOPTS="-c:a alac"
    OUTPUTTYPE="m4a"
 
-  And then sit back and enjoy the music :) 
+   And then sit back and enjoy the music :)
+
+Q. Will FFmpeg be used with abcde for any other audio formats?
+A. The plan is to use FFmpeg (or avconv) when FFmpeg has a good quality native
+   encoder available. For example FFmpeg has a low quality native native encoder
+   for Vorbis and AAC which will not be used but a great reverse engineered alac
+   encoder that has been used in abcde. FFmpeg also has a good WavPack encoder
+   that has been added in abcde 2.7.1 which can be added into your ~/.abcde.conf
+   file as follows:
+
+   # WVENCODERSYNTAX=wavpack
+   WVENCODERSYNTAX=ffmpeg
+   # Appropriate PATH:
+   WAVPACK=wavpack
+   FFMPEG=ffmpeg
+   # Appropriate options:
+   FFMPEGENCOPTS="-c:a wavpack -compression_level 6"
+   WAVPACKENCOPTS="-hx3"
+   # Correct output type:
+   OUTPUTTYPE="wv"
+
+   You can see in this example how easy it is to switch from one WavPack encoder to
+   another by changing the comment mark '#' on the WVENCODERSYNTAX line. Plans are
+   to use FFmpeg for True Type Audio (tta) as well as MPEG-1 Audio Layer II (mp2) as
+   well as respectively ttaenc and twolame.
 
 5. USEPIPES
    ========

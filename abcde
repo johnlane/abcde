@@ -1230,12 +1230,25 @@ do_encode ()
 				fi
 				;;
 			wv)
-				if [ "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" \
-					-w Title="$TRACKNAME" -w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
-				else
-					$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
-				fi
+			case "$WVENCODERSYNTAX" in
+				wavpack)
+					if [ "$DOTAG" = "y" ]; then
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" \
+						-w Title="$TRACKNAME" -w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
+					else
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
+					fi
+				;;
+				ffmpeg)
+					if [ "$DOTAG" = "y" ]; then
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER -i "$IN" $WVENCODEROPTS -metadata artist="$TRACKARTIST" \
+						-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track=${TRACKNUM:-$1} -metadata date="$CDYEAR" \
+						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
+					else 
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER -i "$IN" $WVENCODEROPTS "$OUT"
+					fi
+				;;
+			esac
 				;;
 			ape)
 				$RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
@@ -3456,7 +3469,10 @@ SPEEXENC=speexenc
 # mpc (Musepack)
 MPCENC=mpcenc
 # wv (wavpack)
+# WVENC is retained in abcde 2.7.1 for backwards compatibility
+# with abcde 2.7:
 WVENC=wavpack
+WAVPACK=wavpack
 # ape
 APENC=mac
 APETAG=apetag
@@ -3539,7 +3555,7 @@ SPEEXENCOPTS=
 # mpc
 MPCENCOPTS=
 # wv
-WVENCOPTS=
+WAVPACKENCOPTS=
 # ape
 # Monkey's Audio Console (mac) chokes without a mode setting
 # so we set one here.
@@ -4109,6 +4125,7 @@ do
 			[ "$WVENCODERSYNTAX" = "default" ] && WVENCODERSYNTAX=wavpack
 			[ "$DOTAG" = "y" ]
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDWVGAIN=y
+			[ "$WVENCODERSYNTAX" = "ffmpeg" ] && DOREPLAYGAIN=n
 			;;
 		ape)
 			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
@@ -4219,8 +4236,19 @@ case "$MPCENCODERSYNTAX" in
 esac
 case "$WVENCODERSYNTAX" in
 	wavpack)
-		WVENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
-		WVENCODER="$WVENC"
+		# Syntax changed slightly between abcde 2.7 and abcde 2.7.1,
+		# and in the interests of backward compatibility:
+		if [ -z "$WAVPACKENCOPTS" ] && [ -n "$WVENCOPTS" ]; then
+			WVENCODEROPTS="${WVENCODEROPTSCLI:-$WVENCOPTS}"
+			WVENCODER="$WAVPACK"
+		else
+			WVENCODEROPTS="${WVENCODEROPTSCLI:-$WAVPACKENCOPTS}"
+			WVENCODER="$WAVPACK"
+		fi
+		;;
+	ffmpeg)
+		WVENCODEROPTS="${WVENCODEROPTSCLI:-$FFMPEGENCOPTS}"
+		WVENCODER="$FFMPEG"
 		;;
 esac
 case "$APENCODERSYNTAX" in
