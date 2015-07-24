@@ -47,7 +47,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape,mp2). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -972,6 +972,13 @@ do_tag ()
 			-p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} \
 			-p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
  			;;
+ 		mp2)
+			# Using Mutagen's mid3v2 for tagging with id3v2.4.0. Interesting enough vlc, MPlayer and XMMS ignore
+			# these tags but they are read by Audacious, Xine, Aqualung, mediainfo, ffplay, ffprobe. Curious...
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
+			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
+			"$ABCDETEMPDIR/track$1.mp2"
+			;;
 		aac)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
@@ -1028,7 +1035,7 @@ do_nogap_encode ()
 		case "$OUTPUT" in
 		mp3)
 			case "$MP3ENCODERSYNTAX" in
-			lame|toolame)
+			lame)
 				(
 				cd "$ABCDETEMPDIR"
 				TRACKFILES=
@@ -1146,7 +1153,7 @@ do_encode ()
 				case "$2" in
 				%local*%)
 					case "$MP3ENCODERSYNTAX" in
-					lame|toolame|gogo) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
+					lame|gogo) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS "$IN" "$OUT" ;;
 					bladeenc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER $MP3ENCODEROPTS -quit "$IN" "$OUT" ;;
 					l3enc|xingmp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER "$IN" "$OUT" $MP3ENCODEROPTS ;;
 					mp3enc) $RUN_COMMAND nice $EFFECTIVE_NICE $MP3ENCODER -if "$IN" -of "$OUT" $MP3ENCODEROPTS ;;
@@ -1252,6 +1259,9 @@ do_encode ()
 				;;
 			ape)
 				$RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
+				;;
+			mp2)
+				$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER $MP2ENCODEROPTS "$IN" "$OUT" 
 				;;
 			aac)
 				# aac container is only used to catch faac encoded files where faac 
@@ -3413,6 +3423,7 @@ SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
 WVENCODERSYNTAX=default
 APENCODERSYNTAX=default
+MP2ENCODERSYNTAX=default
 AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
@@ -3451,7 +3462,6 @@ CDPARANOIACDROMBUS="d"
 # program paths - defaults to checking your $PATH
 # mp3
 LAME=lame
-TOOLAME=toolame
 GOGO=gogo
 BLADEENC=bladeenc
 L3ENC=l3enc
@@ -3476,6 +3486,8 @@ WAVPACK=wavpack
 # ape
 APENC=mac
 APETAG=apetag
+# mp2
+TWOLAME=twolame
 # m4a
 FAAC=faac
 NEROAACENC=neroAacEnc
@@ -3490,6 +3502,7 @@ FFMPEG=ffmpeg
 
 ID3=id3
 ID3V2=id3v2
+MID3V2=mid3v2
 EYED3=eyeD3
 VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
@@ -3531,7 +3544,6 @@ DISPLAYCMD=display
 # Options for programs called from abcde
 # mp3
 LAMEOPTS=
-TOOLAMEOPTS=
 GOGOOPTS=
 BLADEENCOPTS=
 L3ENCOPTS=
@@ -3560,6 +3572,8 @@ WAVPACKENCOPTS=
 # Monkey's Audio Console (mac) chokes without a mode setting
 # so we set one here.
 APENCOPTS='-c4000'
+# mp2
+TWOLAMENCOPTS=
 # m4a
 FAACENCOPTS=
 NEROACENCOPTS=
@@ -3607,7 +3621,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 
 # This option is basically for Debian package dependencies:
 # List of preferred outputs - by default, run with whatever we have in the path
-DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:toolame,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav libcdio pird"
@@ -4071,6 +4085,7 @@ case "$OUTPUTTYPE" in *:*)
 			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			wv:*)	WVENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			ape:*)	APENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			mp2:*)	MP2ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 		esac
 	done
@@ -4131,6 +4146,10 @@ do
 			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
 			[ "$DOTAG" = "y" ] && NEEDAPETAG=y
 			;;
+		mp2)
+			[ "$MP2ENCODERSYNTAX" = "default" ] && MP2ENCODERSYNTAX=twolame
+			[ "$DOTAG" = "y" ] && NEEDMID3V2=y
+			;;
 		aac)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
 			[ "$DOTAG" = "n" ]
@@ -4162,10 +4181,6 @@ case "$MP3ENCODERSYNTAX" in
 	lame)
 		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$LAMEOPTS}"
 		MP3ENCODER="$LAME"
-		;;
-	toolame)
-		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$TOOLAMEOPTS}"
-		MP3ENCODER="$TOOLAME"
 		;;
 	gogo)
 		MP3ENCODEROPTS="${MP3ENCODEROPTSCLI:-$GOGOOPTS}"
@@ -4255,6 +4270,12 @@ case "$APENCODERSYNTAX" in
 	mac)
 		APENCODEROPTS="${APENCODEROPTSCLI:-$APENCOPTS}"
 		APENCODER="$APENC"
+		;;
+esac
+case "$MP2ENCODERSYNTAX" in
+	twolame)
+		MP2ENCODEROPTS="${MP2ENCODEROPTSCLI:-$TWOLAMENCOPTS}"
+		MP2ENCODER="$TWOLAME"
 		;;
 esac
 case "$AACENCODERSYNTAX" in
@@ -4507,7 +4528,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
-	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER \
+	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $MP2ENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
@@ -4516,7 +4537,8 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDMPCGAIN+$MPCGAIN} ${NEEDCUEREADER+$CUEREADER} \
 	${NEEDWVGAIN+WVGAIN} ${NEEDAPETAG+$APETAG} \
 	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG} \
-	${NEEDGLYRC+$GLYRC} ${NEEDWINE+$WINE} ${NEEDATOMICPARSLEY+$ATOMICPARSLEY}
+	${NEEDGLYRC+$GLYRC} ${NEEDWINE+$WINE} ${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
+	${NEEDMID3V2+$MID3V2}
 do
 	checkexec "$X"
 done

@@ -1,5 +1,7 @@
 abcde 2.7.1
 
+  * Support added for encoding to MPEG-1 Audio Layer II (mp2)
+    with twolame. Tagging with mid3v2.
   * Encoding to WavPack with FFmpeg. Some slight changes to WavPack
     syntax with backward compatibility built in for abcde 2.7. 
   * Encoding to m4a container with FFmpeg or avconv. This allows
