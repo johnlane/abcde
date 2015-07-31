@@ -974,8 +974,9 @@ do_tag ()
  			;;
  		mp2)
 			# Using Mutagen's mid3v2 for tagging with id3v2.4.0. Interesting enough vlc, MPlayer and XMMS ignore
-			# these tags but they are read by Audacious, Xine, Aqualung, mediainfo, ffplay, ffprobe. Curious...
-			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
+			# these tags but they are read by Audacious, Xine, Aqualung, mediainfo, ffplay, ffprobe. FFmpeg does
+			# not currently tag mp2 audio so twolame and FFmpeg will both use mid3v2...
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
 			"$ABCDETEMPDIR/track$1.mp2"
 			;;
@@ -1261,7 +1262,14 @@ do_encode ()
 				$RUN_COMMAND nice $EFFECTIVE_NICE $APENCODER "$IN" "$OUT" $APENCODEROPTS
 				;;
 			mp2)
-				$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER $MP2ENCODEROPTS "$IN" "$OUT" 
+				case "$MP2ENCODERSYNTAX" in
+					twolame)
+					$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER $MP2ENCODEROPTS "$IN" "$OUT"
+					;;
+					ffmpeg)
+					$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER -i "$IN" $MP2ENCODEROPTS "$OUT" 
+					;;
+				esac
 				;;
 			aac)
 				# aac container is only used to catch faac encoded files where faac 
@@ -4149,6 +4157,7 @@ do
 		mp2)
 			[ "$MP2ENCODERSYNTAX" = "default" ] && MP2ENCODERSYNTAX=twolame
 			[ "$DOTAG" = "y" ] && NEEDMID3V2=y
+			[ "$MP2ENCODERSYNTAX" = "ffmpeg" ] && [ "$DOTAG" = "y" ]  && NEEDMID3V2=y
 			;;
 		aac)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
@@ -4162,7 +4171,7 @@ do
 			[ "$AACENCODERSYNTAX" = "neroAacEnc" ] && NEEDNEROAACTAG=y
 			[ "$AACENCODERSYNTAX" = "qaac" ] && NEEDWINE=y
 			[ "$AACENCODERSYNTAX" = "fhgaacenc" ] && NEEDWINE=y && NEEDATOMICPARSLEY=y
-			[ "$AACENCODERSYNTAX" = "ffmpeg" ] &&  [ "$DOTAG" = "y" ]
+			[ "$AACENCODERSYNTAX" = "ffmpeg" ] && [ "$DOTAG" = "y" ]
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -4276,6 +4285,10 @@ case "$MP2ENCODERSYNTAX" in
 	twolame)
 		MP2ENCODEROPTS="${MP2ENCODEROPTSCLI:-$TWOLAMENCOPTS}"
 		MP2ENCODER="$TWOLAME"
+		;;
+	ffmpeg)
+		MP2ENCODEROPTS="${MP2ENCODEROPTSCLI:-$FFMPEGENCOPTS}"
+		MP2ENCODER="$FFMPEG"
 		;;
 esac
 case "$AACENCODERSYNTAX" in
