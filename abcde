@@ -47,7 +47,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape,mp2). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,wv,ape,mp2,tta). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -1013,6 +1013,12 @@ do_tag ()
 				;;
 			esac
 			;;
+		tta)
+			# We use mid3v2 tagging for True Audio:
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
+			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
+			"$ABCDETEMPDIR/track$1.tta"
+			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
@@ -1101,6 +1107,9 @@ do_encode ()
 				;;
 			wv)
 				TEMPARG="PIPE_$WVENCODERSYNTAX"
+				;;
+			tta)
+				TEMPARG="PIPE_$TTAENCODERSYNTAX"
 				;;
 			aac)
 				TEMPARG="PIPE_$AACENCODERSYNTAX"
@@ -1236,6 +1245,9 @@ do_encode ()
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS "$IN" "$OUT"
 				fi
+				;;
+			tta)
+				$RUN_COMMAND nice $EFFECTIVE_NICE $TTAENCODER -e $TTAENCODEROPTS "$IN" -o "$OUT"
 				;;
 			wv)
 			case "$WVENCODERSYNTAX" in
@@ -3430,6 +3442,7 @@ FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
 WVENCODERSYNTAX=default
+TTAENCODERSYNTAX=default
 APENCODERSYNTAX=default
 MP2ENCODERSYNTAX=default
 AACENCODERSYNTAX=default
@@ -3491,6 +3504,8 @@ MPCENC=mpcenc
 # with abcde 2.7:
 WVENC=wavpack
 WAVPACK=wavpack
+# True Audio
+TTAENC=ttaenc
 # ape
 APENC=mac
 APETAG=apetag
@@ -3576,6 +3591,8 @@ SPEEXENCOPTS=
 MPCENCOPTS=
 # wv
 WAVPACKENCOPTS=
+# True Audio has no useful options but it is here anyway :)
+TTAENCOPTS=
 # ape
 # Monkey's Audio Console (mac) chokes without a mode setting
 # so we set one here.
@@ -4092,6 +4109,7 @@ case "$OUTPUTTYPE" in *:*)
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mpc:*)	MPCENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			wv:*)	WVENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			tta:*)	TTAENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			ape:*)	APENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp2:*)	MP2ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			m4a:*|aac:*)  AACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -4158,6 +4176,10 @@ do
 			[ "$MP2ENCODERSYNTAX" = "default" ] && MP2ENCODERSYNTAX=twolame
 			[ "$DOTAG" = "y" ] && NEEDMID3V2=y
 			[ "$MP2ENCODERSYNTAX" = "ffmpeg" ] && [ "$DOTAG" = "y" ]  && NEEDMID3V2=y
+			;;
+		tta)
+			[ "$TTAENCODERSYNTAX" = "default" ] && TTAENCODERSYNTAX=ttaenc
+			[ "$DOTAG" = "y" ] && NEEDMID3V2=y
 			;;
 		aac)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
@@ -4273,6 +4295,12 @@ case "$WVENCODERSYNTAX" in
 	ffmpeg)
 		WVENCODEROPTS="${WVENCODEROPTSCLI:-$FFMPEGENCOPTS}"
 		WVENCODER="$FFMPEG"
+		;;
+esac
+case "$TTAENCODERSYNTAX" in
+	ttaenc)
+		TTAENCODEROPTS="${TTAENCODEROPTSCLI:-$TTAENCOPTS}"
+		TTAENCODER="$TTAENC"
 		;;
 esac
 case "$APENCODERSYNTAX" in
@@ -4492,6 +4520,7 @@ PIPE_faac="-"
 PIPE_qaac="-"
 PIPE_fhgaacenc="-"
 PIPE_ffmpeg="-"
+PIPE_ttaenc="-"
 # Both neroAacEnc and fdkaac seem to manage without the addition of
 # the 'ignorelength' option in PIPE_$AACENCODERSYNTAX when piping
 # in this manner.                                           Andrew.
@@ -4517,6 +4546,8 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$MPCENCODERSYNTAX" ;;
 		wv)
 			PIPEENCODERSVARCHECK="PIPE_$WVENCODERSYNTAX" ;;
+		tta)
+			PIPEENCODERSVARCHECK="PIPE_$TTAENCODERSYNTAX" ;;
 		m4a)
 			PIPEENCODERSVARCHECK="PIPE_$AACENCODERSYNTAX" ;;
 		aac)
@@ -4541,7 +4572,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
-	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $MP2ENCODER \
+	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $MP2ENCODER $TTAENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \
