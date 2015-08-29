@@ -1,7 +1,7 @@
 abcde 2.7.1
 
-  * Support added for encoding to True Audio using ttaenc. Tagging
-    is with mid3v2.
+  * Support added for encoding to True Audio using tta while still
+    supporting the older ttaenc. Tagging is with mid3v2.
   * Support added for encoding to MPEG-1 Audio Layer II (mp2)
     with either twolame or FFmpeg / avconv. Tagging with mid3v2.
   * Encoding to WavPack with FFmpeg. Some slight changes to WavPack

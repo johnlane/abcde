@@ -482,7 +482,7 @@ A. No :). Keep in mind that every ripper and encoder differs from in each
    Rippers:  cdparanoia, debug, libcdio, cdda2wav, flac, pird.
    Encoders: mp3enc, lame, bladeenc, oggenc, opusenc, flac, speexenc,
              mpcenc, wavpack, faac, neroAacEnc, fdkaac, qaac, fhgaacenc,
-             ffmpeg, ttaenc.
+             ffmpeg, tta, ttaenc.
 
 Q. Can I add a ripper or encoder which is not supported?
 A. Sure! If you plan to use a ripper or encoder which is not supported you

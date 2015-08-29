@@ -1247,7 +1247,15 @@ do_encode ()
 				fi
 				;;
 			tta)
-				$RUN_COMMAND nice $EFFECTIVE_NICE $TTAENCODER -e $TTAENCODEROPTS "$IN" -o "$OUT"
+				case "$TTAENCODERSYNTAX" in
+				# tta is the newer version with a small syntax change...
+					tta)
+					$RUN_COMMAND nice $EFFECTIVE_NICE $TTAENCODER -e $TTAENCODEROPTS "$IN" "$OUT"
+					;;
+					ttaenc)
+					$RUN_COMMAND nice $EFFECTIVE_NICE $TTAENCODER -e $TTAENCODEROPTS "$IN" -o "$OUT"
+					;;
+				esac
 				;;
 			wv)
 			case "$WVENCODERSYNTAX" in
@@ -3504,7 +3512,8 @@ MPCENC=mpcenc
 # with abcde 2.7:
 WVENC=wavpack
 WAVPACK=wavpack
-# True Audio
+# True Audio: 'tta' is the newer version, 'ttaenc' is the older version:
+TTA=tta
 TTAENC=ttaenc
 # ape
 APENC=mac
@@ -4178,8 +4187,9 @@ do
 			[ "$MP2ENCODERSYNTAX" = "ffmpeg" ] && [ "$DOTAG" = "y" ]  && NEEDMID3V2=y
 			;;
 		tta)
-			[ "$TTAENCODERSYNTAX" = "default" ] && TTAENCODERSYNTAX=ttaenc
+			[ "$TTAENCODERSYNTAX" = "default" ] && TTAENCODERSYNTAX=tta
 			[ "$DOTAG" = "y" ] && NEEDMID3V2=y
+			[ "$TTAENCODERSYNTAX" = "ttaenc" ] && [ "$DOTAG" = "y" ] && NEEDMID3V2=y
 			;;
 		aac)
 			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
@@ -4298,6 +4308,10 @@ case "$WVENCODERSYNTAX" in
 		;;
 esac
 case "$TTAENCODERSYNTAX" in
+	tta)
+		TTAENCODEROPTS="${TTAENCODEROPTSCLI:-$TTAENCOPTS}"
+		TTAENCODER="$TTA"
+		;;
 	ttaenc)
 		TTAENCODEROPTS="${TTAENCODEROPTSCLI:-$TTAENCOPTS}"
 		TTAENCODER="$TTAENC"
@@ -4520,6 +4534,7 @@ PIPE_faac="-"
 PIPE_qaac="-"
 PIPE_fhgaacenc="-"
 PIPE_ffmpeg="-"
+PIPE_tta="-"
 PIPE_ttaenc="-"
 # Both neroAacEnc and fdkaac seem to manage without the addition of
 # the 'ignorelength' option in PIPE_$AACENCODERSYNTAX when piping
