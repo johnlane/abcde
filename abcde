@@ -3069,6 +3069,8 @@ do_getalbumart()
 	# set variables
 	ALBUMFILE="$(mungefilename "$DALBUM")"
 	ARTISTFILE="$(mungefilename "$DARTIST")"
+	GENRE="$(mungegenre "$GENRE")"
+	YEAR=${CDYEAR:-$CDYEAR}
 	# have we got a musicbrainz mbid or amazon asin?
 	case "$CDDBMETHOD" in
 		musicbrainz)

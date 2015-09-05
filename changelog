@@ -1,5 +1,8 @@
 abcde 2.7.1
 
+  * Add YEAR and GENRE variables to do_getalbumart(). Thanks to
+    Johannes Gernemann for this patch which closes issue 9:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=9
   * Support added for encoding to True Audio using tta while still
     supporting the older ttaenc. Tagging is with mid3v2.
   * Support added for encoding to MPEG-1 Audio Layer II (mp2)
