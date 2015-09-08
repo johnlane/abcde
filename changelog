@@ -1,5 +1,8 @@
 abcde 2.7.1
 
+  * Make id3 happy when 'Genre' field is empty. Thanks to Martin
+    Husemann for the fix which closes Issue 8:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=8
   * Add YEAR and GENRE variables to do_getalbumart(). Thanks to
     Johannes Gernemann for this patch which closes issue 9:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=9
