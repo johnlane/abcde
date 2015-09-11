@@ -3,8 +3,8 @@ abcde 2.7.1
   * Fix incorrect use of 'break'. Thanks to Reuben Thomas for the
     bug report and fix which closes Issue 6:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=6
-  * Make id3 happy when 'Genre' field is empty. Thanks to Martin
-    Husemann for the fix which closes Issue 8:
+  * Make older versions of id3 happy when 'Genre' field is empty.
+    Thanks to Martin Husemann for the fix which closes Issue 8:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=8
   * Add YEAR and GENRE variables to do_getalbumart(). Thanks to
     Johannes Gernemann for this patch which closes issue 9:
