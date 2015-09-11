@@ -4873,24 +4873,25 @@ fi
 #BACK
 if [ "$BATCHNORM" = "y" ] || [ "$NOGAP" = "y" ]; then
 	read GOAHEAD # For blocking - will contain either "NO" or "NEXTTRACK"
-	if [ "$GOAHEAD" = "NO" ]; then break; fi
-	for LASTTRACK in $TRACKQUEUE; do :; done
-	if checkstatus readtrack-$LASTTRACK; then
-		if [ "$DONORMALIZE" = "y" ] && [ "$BATCHNORM" = "y" ]; then
-			if checkstatus normalizetrack-$LASTTRACK; then :; else do_batch_normalize; fi
-			if checkerrors batch-normalize; then exit 1; fi
-		fi
-		if [ "$DOENCODE" = "y" ] && [ "$NOGAP" = "y" ]; then
-			if [ "$DONORMALIZE" = "y" ]; then
-				for UTRACKNUM in $TRACKQUEUE
-				do
-					if checkstatus readtrack-$UTRACKNUM; then
-						if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
-					fi
-				done
+	if [ "$GOAHEAD" != "NO" ]; then
+		for LASTTRACK in $TRACKQUEUE; do :; done
+		if checkstatus readtrack-$LASTTRACK; then
+			if [ "$DONORMALIZE" = "y" ] && [ "$BATCHNORM" = "y" ]; then
+				if checkstatus normalizetrack-$LASTTRACK; then :; else do_batch_normalize; fi
+				if checkerrors batch-normalize; then exit 1; fi
 			fi
-			if checkstatus encodetrack-$LASTTRACK; then :; else do_nogap_encode; fi
-			if checkerrors nogap-encode; then exit 1; fi
+			if [ "$DOENCODE" = "y" ] && [ "$NOGAP" = "y" ]; then
+				if [ "$DONORMALIZE" = "y" ]; then
+					for UTRACKNUM in $TRACKQUEUE
+					do
+						if checkstatus readtrack-$UTRACKNUM; then
+							if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
+						fi
+					done
+				fi
+				if checkstatus encodetrack-$LASTTRACK; then :; else do_nogap_encode; fi
+				if checkerrors nogap-encode; then exit 1; fi
+			fi
 		fi
 	fi
 fi
