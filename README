@@ -22,6 +22,19 @@ for more help.
 MAJOR CHANGES
 =============
 
+Changes in 2.7.1
+* Rewrite and improvement of the abcde Makefile.
+* Support added for True Audio encoding.
+* Support added for encoding to MPEG-1 Audio Layer II (mp2) with either
+  twolame or FFmpeg.
+* Support added for encoding to WavPack with FFmpeg.
+* Support added for encoding to m4a with either FFmpeg or avconv. This
+  allows usage of the FFmpeg / avconv native alac encoder.
+* Support added for AAC encoding with fhgaacenc via Wine.
+* Support added for AAC encoding with qaac via Wine. (Also alac encoding
+  with the open source refalac).
+* Several bug fixes. See the changelog for more details.
+
 Changes in 2.7
 * Rewrite of the mungefilename function.
 * Support added for downloading album art.
