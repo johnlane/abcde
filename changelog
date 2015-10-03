@@ -28,6 +28,9 @@ abcde 2.7.1
     also allows for Apple Lossless Audio Coding (alac) using
     either qaac or refalac. This closes Issue 142, thanks to
     Bernd Fischer-Krellenberg for the enhancement request.
+  * Grab year information too when using musicbrainz. Thanks to
+    Marco Hoppstaedter for the patch. Closes issue 10:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=10
 
 abcde 2.7
 

@@ -95,6 +95,9 @@ if ($command =~ m/^id/) {
         if ($a_artist =~ /Various Artists/) {
             $va = 1;
         }
+	my @events = @{$release->release_event_list()->events()};
+	my $rel_year =  substr($events[0]->date(),0,4);
+
         $releasenum++;
         open (OUT, "> $workdir/cddbread.$releasenum");
         binmode OUT, ":utf8";
@@ -117,8 +120,8 @@ if ($command =~ m/^id/) {
         print OUT "#CATEGORY=none\n";
         print OUT "DISCID=" . $discid . "\n";
         print OUT "DTITLE=" . $a_artist. " / " . $release->title() . "\n";
-        print OUT "DYEAR=\n";
-        print OUT "DGENRE=\n";
+        print OUT "DYEAR=" . $rel_year . "\n";
+        print OUT "DGENRE=\n";        
 
         my @tracks = @{$release->track_list()->tracks()};
         for (my $i = 0; $i < scalar(@tracks); $i++) {
