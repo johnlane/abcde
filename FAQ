@@ -437,9 +437,21 @@ A. The plan is to use FFmpeg (or avconv) when FFmpeg has a good quality native
    OUTPUTTYPE="wv"
 
    You can see in this example how easy it is to switch from one WavPack encoder to
-   another by changing the comment mark '#' on the WVENCODERSYNTAX line. Plans are
-   to use FFmpeg for True Type Audio (tta) as well as MPEG-1 Audio Layer II (mp2) as
-   well as respectively ttaenc and twolame.
+   another by changing the comment mark '#' on the WVENCODERSYNTAX line. For mp2
+   encoding with FFmpeg try the following:
+   
+   # MP2ENCODERSYNTAX=twolame
+   MP2ENCODERSYNTAX=ffmpeg
+   # Appropriate PATH:
+   TWOLAME=twolame
+   FFMPEG=ffmpeg
+   FFMPEGENCOPTS='-c:a mp2 -b:a 320k'
+   TWOLAMENCOPTS='--bitrate 320'
+   # Correct output type:
+   OUTPUTTYPE="mp2"
+   
+   So currently FFmpeg supports: alac, wavpack and mp2. FFmpeg native aac support will
+   be added when it comes out of 'experimental'.
 
 5. USEPIPES
    ========
