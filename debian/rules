@@ -12,7 +12,6 @@ build-indep: build-stamp
 build-stamp:
 	dh_testdir
 
-	
 	# Add here commands to compile the package.
 	$(MAKE) 
 
@@ -36,7 +35,8 @@ install-stamp: build-stamp
 	dh_installdirs
 
 	# Add here commands to install the package into debian/abcde.
-	$(MAKE) install DESTDIR=`pwd`/debian/abcde
+	$(MAKE) install DESTDIR=`pwd`/debian/abcde prefix=/usr sysconfdir=/etc docdir=/usr/share/doc/abcde
+	rm -f `pwd`/debian/abcde/usr/share/doc/abcde/COPYING*
 	install -d `pwd`/debian/abcde/usr/share/doc/abcde/examples
 	install -m 644 examples/* `pwd`/debian/abcde/usr/share/doc/abcde/examples
 
