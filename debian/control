@@ -2,7 +2,7 @@ Source: abcde
 Section: sound
 Priority: optional
 Maintainer: Steve McIntyre <93sam@debian.org>
-Homepage: http://code.google.com/p/abcde/
+Homepage: http://abcde.einval.com/
 Standards-Version: 3.9.6
 Build-Depends: debhelper (>= 8)
 Vcs-Browser: http://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git;a=summary
