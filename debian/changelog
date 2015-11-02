@@ -1,4 +1,42 @@
-abcde (2.7-1) UNRELEASED; urgency=medium
+abcde (2.7.1-1) unstable; urgency=medium
+
+  * New upstream version, with lots of improvements and bugfixes:
+    + Rebuild of the abcde Makefile. Thanks to Reuben Thomas and Steve
+      McIntyre as well as ReaperX7, bobzilla, 55020, GazL and dugan from
+      the Slackware Forums. This closes Issue 4:
+      http://abcde.einval.com/bugzilla/show_bug.cgi?id=4
+    + Fix incorrect use of 'break'. Thanks to Reuben Thomas for the
+      bug report and fix which closes Issue 6:
+      http://abcde.einval.com/bugzilla/show_bug.cgi?id=6
+    + Make older versions of id3 happy when 'Genre' field is empty.
+      Thanks to Martin Husemann for the fix which closes Issue 8:
+      http://abcde.einval.com/bugzilla/show_bug.cgi?id=8
+    + Add YEAR and GENRE variables to do_getalbumart(). Thanks to
+      Johannes Gernemann for this patch which closes issue 9:
+      http://abcde.einval.com/bugzilla/show_bug.cgi?id=9
+    + Support added for encoding to True Audio using tta while still
+      supporting the older ttaenc. Tagging is with mid3v2.
+    + Support added for encoding to MPEG-1 Audio Layer II (mp2)
+      with either twolame or FFmpeg / avconv. Tagging with mid3v2.
+    + Encoding to WavPack with FFmpeg. Some slight changes to WavPack
+      syntax with backward compatibility built in for abcde 2.7.
+    + Encoding to m4a container with FFmpeg or avconv. This allows
+      for alac encoding with FFmpeg's reverse engineered alac encoder.
+    + AAC encoding with fhgaacenc via Wine. Tagging is provided
+      by AtomicParsley which has been added back to abcde :). This
+      allows encoding with HE-AAC v2, unavailable with qaac.
+    + Support added for AAC encoding with qaac via Wine. This
+      also allows for Apple Lossless Audio Coding (alac) using
+      either qaac or refalac. This closes Issue 142, thanks to
+      Bernd Fischer-Krellenberg for the enhancement request.
+    + Grab year information too when using musicbrainz. Thanks to
+      Marco Hoppstaedter for the patch. Closes issue 10:
+      http://abcde.einval.com/bugzilla/show_bug.cgi?id=10
+   * Update debian/watch to match tne new upstream home.
+
+ -- Steve McIntyre <93sam@debian.org>  Mon, 02 Nov 2015 18:29:19 +0000
+
+abcde (2.7-1) unstable; urgency=medium
 
   * Remove Jesus and Colin from Maintainer and Uploaders fields, as
     they've moved on. Thanks to both for their efforts!
@@ -103,7 +141,7 @@ abcde (2.7-1) UNRELEASED; urgency=medium
     + Major AAC encoding cleanup, including addition of the fdkaac encoder. 
       Thanks to Doug Mcmahon for assistance with this.
 
- -- Steve McIntyre <93sam@debian.org>  Tue, 16 Jun 2015 21:20:11 +0100
+ -- Steve McIntyre <93sam@debian.org>  Fri, 19 Jun 2015 13:18:14 +0200
 
 abcde (2.6-2) unstable; urgency=medium
 
