@@ -1,3 +1,10 @@
+abcde 2.7.2
+
+  * Allow getalbumart to correctly place cover image when single
+    track is selected. Thanks to Nino Burini for the bug report
+    and also the fix. This closes Issue 25:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=25
+    
 abcde 2.7.1
 
   * Rebuild of the abcde Makefile. Thanks to Reuben Thomas and Steve

@@ -3180,11 +3180,19 @@ do_getalbumart()
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
 			# put cover in the same place as the album
+			if [ "$ONETRACK" = "y" ] ; then
+				if [ "$VARIOUSARTISTS" = "y" ] ; then
+					ALBUMARTDIR="$(eval echo "$VAONETRACKOUTPUTFORMAT")"
+				else
+					ALBUMARTDIR="$(eval echo "$ONETRACKOUTPUTFORMAT")"
+			fi
+		else
 			if [ "$VARIOUSARTISTS" = "y" ] ; then
 				ALBUMARTDIR="$(eval echo "$VAOUTPUTFORMAT")"
 			else
 				ALBUMARTDIR="$(eval echo "$OUTPUTFORMAT")"
 			fi
+		fi
 			FINALALBUMARTDIR="$(dirname "$OUTPUTDIR/$ALBUMARTDIR")"
 			vecho "copying cover to target directory $FINALALBUMARTDIR" >&2
 			mkdir -p "$FINALALBUMARTDIR"
