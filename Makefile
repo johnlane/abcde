@@ -1,10 +1,10 @@
-abcde_version = abcde-2.7.1
+abcde_version = abcde-2.7.2
 INSTALL = /usr/bin/install -c
 
 prefix = /usr/local
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
-sysconfdir = $(prefix)/etc
+sysconfdir = /etc
 datarootdir = $(prefix)/share
 docdir = $(datarootdir)/doc/$(abcde_version)
 mandir = $(datarootdir)/man

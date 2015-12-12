@@ -1,5 +1,9 @@
 abcde 2.7.2
 
+  * Makefile adjusted to allow the sample abcde.conf file to be
+    installed by default to /etc rather than $(prefix)/etc.
+    Thanks to Volker Schmidt from archlinux for the bug report:
+    https://bugs.archlinux.org/task/46671
   * Allow getalbumart to correctly place cover image when single
     track is selected. Thanks to Nino Burini for the bug report
     and also the fix. This closes Issue 25:
