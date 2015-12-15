@@ -3239,7 +3239,6 @@ do_cdread ()
 	if [ "$USEPIPES" = "y" ]; then
 		TEMPARG="PIPERIPPER_$CDROMREADERSYNTAX"
 		FILEARG="$( eval echo "\$$TEMPARG" )"
-		REDIR=""
 		PIPE_MESSAGE="and encoding "
 	else
 		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
@@ -3252,7 +3251,6 @@ do_cdread ()
 				FILEARG="$WAVDATA"
 				;;
 		esac
-		REDIR=">&2"
 	fi
 	if [ "$1" = "onetrack" ]; then
 		echo "Grabbing ${PIPE_MESSAGE}tracks $UTRACKNUM - $LASTTRACK as one track ..." >&2
@@ -3272,8 +3270,13 @@ do_cdread ()
 			STRIPTRACKNUM=$(expr $UTRACKNUM + 0)
 			nice $READNICE $FLAC -d -f --cue=${READTRACKNUMS:-$STRIPTRACKNUM.1-$(($STRIPTRACKNUM + 1)).0} "$FILEARG" "$CDROM" ;;
 		cdparanoia|libcdio)
-			nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
-		cdda2wav | icedax)
+			if [ "$USEPIPES" = "y" ]; then
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
+			else
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
+			fi
+			 ;;
+		cdda2wav|icedax)
 			if [ "$OSFLAVOUR" = "OSX" ] ; then
 				# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
 				diskutil unmount ${CDROM#/dev/}
@@ -3288,17 +3291,25 @@ do_cdread ()
 					CDDA2WAVCDROM="$CDROMID"
 				fi
 			fi
-			nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" $REDIR ;;
-		dagrab) nice $READNICE $CDROMREADER -d "$CDROM" -f "$FILEARG" -v $UTRACKNUM >&2 ;;
+			if [ "$USEPIPES" = "y" ]; then
+				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG"
+			else
+				nice $READNICE $CDROMREADER -D $CDDA2WAVCDROM -t ${READTRACKNUMS:-$UTRACKNUM} "$FILEARG" >&2
+			fi
+		;;
+		dagrab)
+					# I cannot get USEPIPES to work with dagrab so just this:
+				nice $READNICE $CDROMREADER -d "$CDROM" -f "$FILEARG" -v $UTRACKNUM >&2
+		;;
 		pird)
 			if [ "$USEPIPES" = "y" ]; then
 				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$FILEARG"
 			else
 				# Write ripped audio data to stdout and redirect to $FILEARG.
-				# $REDIR can be ignored. Progress is written to stderr by default.
+				# Progress is written to stderr by default and thus >&2 is not required.
 				nice $READNICE $CDROMREADER -j ${READTRACKNUMS:-$UTRACKNUM} "$CDROM" "$PIPERIPPER_pird" > "$FILEARG"
 			fi
-			;;
+		;;
 		cddafs)
 			# Find the track's mounted path
 			REALTRACKNUM=$(expr $UTRACKNUM + 0)
@@ -3306,11 +3317,21 @@ do_cdread ()
 			FILEPATH=$(find "$FILEPATH" | grep "/$REALTRACKNUM ");
 			# If the file exists, copy it
 			if [ -e "$FILEPATH" ] ; then
-				nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" $REDIR
+				if [ "$USEPIPES" = "y" ]; then
+					nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG"
+				else
+				nice $READNICE $CDROMREADER "$FILEPATH" "$FILEARG" >&2
+			fi
 			else
 				false
 			fi ;;
-		debug) nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" $REDIR ;;
+		debug)
+			if [ "$USEPIPES" = "y" ]; then
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG"
+			else
+				nice $READNICE $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -w $UTRACKNUM-[:1] "$FILEARG" >&2
+			fi
+		;;
 	esac
 	RETURN=$?
 	# If we get some error or we get some missing wav

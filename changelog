@@ -1,5 +1,8 @@
 abcde 2.7.2
 
+  * Fix for 'expansion of $REDIR' bug on MacOSX. Thanks to Von Welch
+    for the bug report. This closes Issue 22:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=22
   * Makefile adjusted to allow the sample abcde.conf file to be
     installed by default to /etc rather than $(prefix)/etc.
     Thanks to Volker Schmidt from archlinux for the bug report:
