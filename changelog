@@ -46,6 +46,8 @@ abcde 2.7.1
     Marco Hoppstaedter for the patch. Closes issue 10:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=10
 
+ -- Andrew Strong <andrew.david.strong@gmail.com>  Sun, 4 Oct 2015 09:31:07 +0000
+
 abcde 2.7
 
   * Rewrite of abcde's mungefilename function. Thanks to 
@@ -143,6 +145,8 @@ abcde 2.7
     Thanks to Matthias Andree for this patch.
   * Major AAC encoding cleanup, including addition of the fdkaac encoder. 
     Thanks to Doug Mcmahon for assistance with this.
+
+ -- Andrew Strong <andrew.david.strong@gmail.com>  Thu, 18 Jun 2015 12:27:52 +0000
 
 abcde 2.6
 
