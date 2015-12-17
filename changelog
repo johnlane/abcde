@@ -1,5 +1,8 @@
 abcde 2.7.2
 
+  * Allow for cddb response 500. Thanks again to Von Welch for the
+    bug report and patch. This closes Issue 26:
+    http://abcde.einval.com/bugzilla/show_bug.cgi?id=26
   * Fix for 'expansion of $REDIR' bug on MacOSX. Thanks to Von Welch
     for the bug report. This closes Issue 22:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=22

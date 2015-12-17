@@ -2669,12 +2669,14 @@ do_cddbread ()
 			done
 			echo >> "$ABCDETEMPDIR/cddbchoices"
 			;;
-		202|403|409|503)
-			# No match
+		202|403|409|500|503)
+			# TODO: Explain these error codes a little more accurately:
+			# http://ftp.freedb.org/pub/freedb/misc/freedb_CDDB_protcoldoc.zip
+			# No match response:
 			case "$RESPONSECODE" in
 			202) echo "No CDDB match." >> "$ABCDETEMPDIR/cddbchoices" ;;
 			403|409) echo "CDDB entry is corrupt, or the handshake failed." >> "$ABCDETEMPDIR/cddbchoices" ;;
-			503) echo "CDDB unavailable." >> "$ABCDETEMPDIR/cddbchoices" ;;
+			500|503) echo "CDDB unavailable." >> "$ABCDETEMPDIR/cddbchoices" ;;
 			esac
 			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
 			# List out disc title/author and contents of template
