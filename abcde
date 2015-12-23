@@ -839,6 +839,16 @@ do_tag ()
 						${TPE2:+--TPE2 "$TPE2"} \
 						"$ABCDETEMPDIR/track$1.$OUTPUT"
 					;;
+				id3tag)
+					# FIXME # track numbers in mp3 come with 1/10, so we cannot
+					# happily substitute them with $TRACKNUM
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
+						$TAGGER $TAGGEROPTS -c "$COMMENTOUTPUT" \
+						-A "$DALBUM" -a "$TRACKARTIST" -s "$TRACKNAME" \
+						-y "$CDYEAR" -g "$GENREID" \
+						-t "${TRACKNUM:-$1}" ${TRACKNUM:+-T "$TRACKS"} \
+						"$ABCDETEMPDIR/track$1.$OUTPUT"
+					;;
 				eyed3*)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
 					# happily substitute them with $TRACKNUM
@@ -3569,6 +3579,7 @@ ID3=id3
 ID3V2=id3v2
 MID3V2=mid3v2
 EYED3=eyeD3
+ID3TAG=id3tag
 VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 NEROAACTAG=neroAacTag
@@ -3652,6 +3663,7 @@ FHGAACENCOPTS=
 FFMPEGENCOPTS=
 
 ID3OPTS=
+ID3TAGOPTS=
 EYED3OPTS=""
 ATOMICPARSLEYOPTS=
 CDPARANOIAOPTS=
@@ -3714,7 +3726,7 @@ elif [ X$(uname) = "XDarwin" ] ; then
 	# We won't find the eject program in OSX, and doing checkexec will fail further below...
 	unset EJECT
 elif [ X$(uname) = "XOpenBSD" ] ; then
-	HTTPGET=wget
+	HTTPGET=ftp
 	MD5SUM=md5
 	OSFLAVOUR=OBSD
 elif [ X$(uname) = "XNetBSD" ] ; then
@@ -4437,6 +4449,11 @@ case "$ID3TAGV" in
 		TAGGER="$ID3V2"
 		ID3SYNTAX=id3v2
 		TAGGEROPTS="$ID3V2OPTS"
+		;;
+	id3tag)
+		TAGGER="$ID3TAG"
+		ID3SYNTAX=id3tag
+		TAGGEROPTS="$ID3TAGOPTS"
 		;;
 	id3v2.4)
 		TAGGER="$EYED3"
