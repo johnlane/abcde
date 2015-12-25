@@ -1,5 +1,8 @@
 abcde 2.7.2
 
+  * Add id3tag mp3 tagger as this is the tagger available to
+    OpenBSD users. Thanks to Christopher Zimmermann for the
+    notification and patch.
   * Allow for cddb response 500. Thanks again to Von Welch for the
     bug report and patch. This closes Issue 26:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=26
