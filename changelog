@@ -1,5 +1,15 @@
 abcde 2.7.2
 
+  * Support for output to the Matroska container (mka). Encoder
+    is FFmpeg (or avconv). Typical conf file syntax would be:
+
+     MKAENCODERSYNTAX=ffmpeg
+     FFMPEG=ffmpeg
+     FFMPEGENCOPTS="-c:a ac3 -b:a 448k"
+     OUTPUTTYPE="mka"
+
+    Thanks to Shantiq and Fakeoutdoorsman of the Ubuntu Forums
+    for the idea.
   * Add id3tag mp3 tagger as this is the tagger available to
     OpenBSD users. Thanks to Christopher Zimmermann for the
     notification and patch.

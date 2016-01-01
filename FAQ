@@ -451,7 +451,18 @@ A. The plan is to use FFmpeg (or avconv) when FFmpeg has a good quality native
    OUTPUTTYPE="mp2"
    
    So currently FFmpeg supports: alac, wavpack and mp2. FFmpeg native aac support will
-   be added when it comes out of 'experimental'.
+   be added when it comes out of 'experimental'. FFmpeg is also used as the default
+   encoder for the Matroska or mka container. A typical example, using the FFmpeg
+   native ac3 encoder, is:
+
+   MKAENCODERSYNTAX=ffmpeg
+   FFMPEG=ffmpeg
+   FFMPEGENCOPTS="-c:a ac3 -b:a 448k"
+   OUTPUTTYPE="mka"
+
+   Other suitable codecs for this usage are Vorbis, MP2, MP3, LC-AAC, HE-AAC, WMAv1,
+   WMAv2, eAC3 and Opus. There is much more to come in the future for abcde and FFmpeg!
+
 
 5. USEPIPES
    ========
