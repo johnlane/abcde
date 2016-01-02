@@ -2299,13 +2299,13 @@ do_cddbparse ()
 	fi
 	echo "---- $(grep DTITLE "${CDDBPARSEFILE}" | cut '-d=' -f2- | tr -d \\r\\n ) ----"
 	if [ X"$SHOWCDDBYEAR" = "Xy" ]; then
-		PARSEDYEAR=$(grep DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
+		PARSEDYEAR=$(grep -a DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
 		if [ ! X"$PARSEDYEAR" = "X" ]; then
 			echo "Year: $PARSEDYEAR"
 		fi
 	fi
 	if [ X"$SHOWCDDBGENRE" = "Xy" ]; then
-		PARSEDGENRE=$(grep DGENRE "${CDDBPARSEFILE}" | cut '-d=' -f2-)
+		PARSEDGENRE=$(grep -a DGENRE "${CDDBPARSEFILE}" | cut '-d=' -f2-)
 		if [ ! X"$PARSEDGENRE" = "X" ]; then
 			echo "Genre: $PARSEDGENRE"
 		fi
@@ -2313,7 +2313,7 @@ do_cddbparse ()
 	if [ ! "$ONETRACK" = "y" ]; then
 		for TRACK in $(f_seq_row 1 $TRACKS)
 		do
-			echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "${CDDBPARSEFILE}" | cut -f2- -d= | tr -d \\r\\n)"
+			echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "${CDDBPARSEFILE}" | cut -f2- -d= | tr -d \\r\\n)"
 		done
 	fi
 }
@@ -2494,14 +2494,14 @@ do_cdtext ()
 	echo "done." >> "$ABCDETEMPDIR/cddbchoices"
 	echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 	echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-	ATITLE=$(grep -e '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- )
+	ATITLE=$(grep -ae '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- )
 	echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 	# List out disc title/author and contents
 	echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
 	for TRACK in $(f_seq_row 1 $TRACKS)
 	do
 		TRACKM1=$(($TRACK - 1))
-		TITLE="$(grep -E ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
+		TITLE="$(grep -aE ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
 		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
 		sed "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbread.new" && \
 			mv -f "$ABCDETEMPDIR/cddbread.new" "$ABCDETEMPDIR/cddbread.1"
