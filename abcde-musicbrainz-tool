@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Copyright (c) 2012 Steve McIntyre <93sam@debian.org>
+# Copyright (c) 2012-2016 Steve McIntyre <93sam@debian.org>
 # This code is hereby licensed for public consumption under either the
 # GNU GPL v2 or greater, or Larry Wall's Artistic license - your choice.
 #
@@ -96,7 +96,10 @@ if ($command =~ m/^id/) {
             $va = 1;
         }
 	my @events = @{$release->release_event_list()->events()};
-	my $rel_year =  substr($events[0]->date(),0,4);
+        my $rel_year = "";
+        if ($release->release_event_list()->count() > 0) {
+	    $rel_year =  substr($events[0]->date(),0,4);
+	}
 
         $releasenum++;
         open (OUT, "> $workdir/cddbread.$releasenum");

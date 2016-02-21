@@ -1,5 +1,9 @@
 abcde 2.7.2
 
+  * When using musicbrainz, don't assume that there will be release
+    events attached to a particular CD release. Bug fix for the addition
+    of year information support in 2.7.1. Thanks to Ed Oehler and Alan W.
+    Kerr for debugging help.
   * Support for output to the Matroska container (mka). Encoder
     is FFmpeg (or avconv). Typical conf file syntax would be:
 
