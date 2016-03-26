@@ -22,6 +22,12 @@ for more help.
 MAJOR CHANGES
 =============
 
+Changes in 2.7.2
+* Support for output to the Matroska container (mka).
+* Add id3tag mp3 tagger as this is the tagger available to
+  OpenBSD users. 
+* Several bug fixes. See the changelog for more details.
+
 Changes in 2.7.1
 * Rewrite and improvement of the abcde Makefile.
 * Support added for True Audio encoding.
