@@ -268,8 +268,7 @@ Abcde's current page is at https://abcde.einval.com/ and the latest
 upstream code is in git at https://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git
 
 --
-Jesus Climent <jesus.climent@hispalinux.es>
-Colin Tuckley <colint@debian.org>
 Steve McIntyre <93sam@debian.org>
+Andrew Strong <andrew.david.strong@gmail.com>
 
 abcde was originally created by Robert Woodcock <rcw@debian.org>
