@@ -2,11 +2,11 @@ Source: abcde
 Section: sound
 Priority: optional
 Maintainer: Steve McIntyre <93sam@debian.org>
-Homepage: http://abcde.einval.com/
+Homepage: https://abcde.einval.com/
 Standards-Version: 3.9.6
 Build-Depends: debhelper (>= 8)
-Vcs-Browser: http://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git;a=summary
-Vcs-Git: http://git.einval.com/git/abcde.git
+Vcs-Browser: https://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git;a=summary
+Vcs-Git: https://git.einval.com/git/abcde.git
 
 Package: abcde
 Architecture: all
