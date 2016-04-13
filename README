@@ -259,13 +259,13 @@ abcde requires the following backend tools to work:
 
 Abcde's new mailing list is abcde-users@lists.einval.com. Visit
 
-  http://lists.einval.com/cgi-bin/mailman/listinfo/abcde-users
+  https://lists.einval.com/cgi-bin/mailman/listinfo/abcde-users
 
 to subscribe. Posts from non-subscribers are moderated to prevent
 spam.
 
-Abcde's current page is at http://abcde.einval.com/ and the latest
-upstream code is in git at http://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git
+Abcde's current page is at https://abcde.einval.com/ and the latest
+upstream code is in git at https://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git
 
 --
 Jesus Climent <jesus.climent@hispalinux.es>

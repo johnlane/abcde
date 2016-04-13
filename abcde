@@ -893,7 +893,7 @@ do_tag ()
 					fi
 					(
 					# These are from
-					# http://www.xiph.org/vorbis/doc/v-comment.html
+					# https://www.xiph.org/vorbis/doc/v-comment.html
 
 					echo ARTIST="$TRACKARTIST"
 					echo ALBUM="$DALBUM"
@@ -906,7 +906,7 @@ do_tag ()
 					fi
 					echo TRACKNUMBER=${TRACKNUM:-$1}
 					# TRACKTOTAL is not in the proposed, minimal list of standard field names from
-					# xiph.org: http://www.xiph.org/vorbis/doc/v-comment.html but is in common usage
+					# xiph.org: https://www.xiph.org/vorbis/doc/v-comment.html but is in common usage
 					# and read by mediainfo, ffprobe, vlc, Aqualung, ogg123, Foobar. And now abcde :)
 					# The tag is quietly ignored by  Audacious, MPlayer, mpv, XMMS....
 					echo TRACKTOTAL="${TRACKS}"
@@ -952,7 +952,7 @@ do_tag ()
 			fi
 			echo TRACKNUMBER="${TRACKNUM:-$1}"
 			# TRACKTOTAL is not in the proposed, minimal list of standard field names from
-			# xiph.org: http://www.xiph.org/vorbis/doc/v-comment.html but is in common usage
+			# xiph.org: https://www.xiph.org/vorbis/doc/v-comment.html but is in common usage
 			# and read by mediainfo, ffprobe, vlc, Aqualung, ogg123, Foobar. And now abcde :)
 			# The tag is quietly ignored by  Audacious, MPlayer, mpv, XMMS....
 			echo TRACKTOTAL="${TRACKS}"

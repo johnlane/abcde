@@ -170,7 +170,7 @@ if ($command =~ m/^id/) {
     }
 } elsif ($command =~ m/calcid/) {
 # Calculate MusicBrainz ID from disc offsets; see
-# http://musicbrainz.org/doc/DiscIDCalculation
+# https://musicbrainz.org/doc/DiscIDCalculation
 
 
     if ($#discinfo < 5) {
