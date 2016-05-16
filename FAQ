@@ -563,5 +563,5 @@ A. The default action set includes clean, which cleans the temp directory,
    UPDATE: KEEPWAVS unselects now the clean action.
 
 --
-Jesus Climent <jesus.climent@hispalinux.es>
+Steve McIntyre <93sam@@debian.org>
 Andrew Strong <andrew.david.strong@gmail.com>
