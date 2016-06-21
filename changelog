@@ -37,6 +37,8 @@ abcde 2.7.2
     track is selected. Thanks to Nino Burini for the bug report
     and also the fix. This closes Issue 25:
     http://abcde.einval.com/bugzilla/show_bug.cgi?id=25
+
+ -- Andrew Strong <andrew.david.strong@gmail.com>  Wed, 6 Apr 2016 08:47:56 +0000
     
 abcde 2.7.1
 
