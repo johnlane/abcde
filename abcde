@@ -1066,7 +1066,7 @@ do_nogap_encode ()
 				nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS --nogap $TRACKFILES
 				RETURN=$?
 				if [ "$RETURN" != "0" ]; then
-					echo "nogap-encode: $ENCODER returned code $RETURN" >> errors
+					echo "nogap-encode: $ENCODER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 				else
 					for UTRACKNUM in $TRACKQUEUE
 					do
@@ -1503,11 +1503,11 @@ do_batch_gain ()
 	$NORMALIZER -b $NORMALIZEROPTS $TRACKFILES
 	RETURN=$?
 	if [ "$RETURN" != "0" ]; then
-		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> errors
+		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 	else
 		for UTRACKNUM in $TRACKQUEUE
 		do
-			echo normalizetrack-$UTRACKNUM >> status
+			echo "normalizetrack-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
 		done
 	fi
 	)
@@ -1532,11 +1532,11 @@ do_batch_normalize ()
 	$NORMALIZER -b $NORMALIZEROPTS $TRACKFILES
 	RETURN=$?
 	if [ "$RETURN" != "0" ]; then
-		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> errors
+		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
 	else
 		for UTRACKNUM in $TRACKQUEUE
 		do
-			echo normalizetrack-$UTRACKNUM >> status
+			echo "normalizetrack-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
 		done
 	fi
 	)

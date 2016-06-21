@@ -1,3 +1,9 @@
+abcde 2.7.3
+
+  * Fix for some erroneous error and status logging. Thanks to Christian
+    Wasem for the bug report and fix. This closes Issue 32:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=32
+
 abcde 2.7.2
 
   * When using musicbrainz, don't assume that there will be release
