@@ -4706,7 +4706,8 @@ if [ "$CHECKFAACBUILD" = "y" ] && [ "$AACENCODERSYNTAX" = "faac" ] ; then
 	if faac --help 2>&1 | grep -q -F 'MP4 support unavailable.'; then 
 		echo "WARNING: Your copy of Faac does not have mp4 support"
 		echo "WARNING: Encoding untagged files to aac..."
-		OUTPUTTYPE=aac
+		# Replace m4a with aac for single and multi-output encodes:
+		OUTPUTTYPE=$(echo "$OUTPUTTYPE" | sed 's/m4a/aac/')
 	else
 		echo "Using Faac to Tag AAC Tracks..."
 	fi
