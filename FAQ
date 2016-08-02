@@ -184,6 +184,17 @@ Q. After requesting CDDB data, I received several answers which seem to be
 A. Yes. When asked which one you want to select, use "X,Y" where X and Y are
    the numbers of the selections you want to find the difference between.
 
+Q. I get stuck at the screen with multiple CDDB results. How do I exit this
+   screen so I can make my final selection?
+A. abcde tries to use the system's default pager to display these results
+   and thus the actual application used and the method to exit from this
+   application may vary from system to system.
+   Many systems will be using the applications 'more' or 'less' as their
+   pager and the common key to exit this screen is the letter 'q'. If this
+   does not work on your system you should investigate what your system's
+   default pager application is and from there learn the correct method of
+   exiting this screen.
+
 Q. I don't like CDDB/FreeDB. How can I use Musicbrainz instead?
 A. Set CDDBMETHOD=musicbrainz and try it!
 
