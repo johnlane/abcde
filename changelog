@@ -1,5 +1,10 @@
 abcde 2.7.3
 
+  * Split user-definable mungefilename function into mungetrackname,
+    mungeartistname, and mungealbumname, each of which default to
+    mungefilename Thanks to Gerald Turner for the patch and enhancement
+    request. This closes Issue 39:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=39
   * FAQs: Clarify the exit from multi-result CDDB search.
   * Fix to allow multiple output formats when aac fallback is triggered.
     Thanks to Birk Bremer for the bug report. This closes Issue 35:

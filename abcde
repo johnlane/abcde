@@ -526,9 +526,9 @@ do_replaygain()
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 				getcddbinfo TRACKNAME
 				splitvarious
-				TRACKFILE="$(mungefilename "$TRACKNAME")"
-				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-				ALBUMFILE="$(mungefilename "$DALBUM")"
+				TRACKFILE="$(mungetrackname "$TRACKNAME")"
+				ARTISTFILE="$(mungeartistname "$TRACKARTIST")"
+				ALBUMFILE="$(mungealbumname "$DALBUM")"
 				GENRE="$(mungegenre "$GENRE")"
 				YEAR=${CDYEAR:-$CDYEAR}
 				gettracknum
@@ -1574,9 +1574,9 @@ do_move ()
 		OUTPUT="$TMPOUTPUT"
 
 		# Create ALBUMFILE, ARTISTFILE, TRACKFILE
-		ALBUMFILE="$(mungefilename "$DALBUM")"
-		ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-		TRACKFILE="$(mungefilename "$TRACKNAME")"
+		ALBUMFILE="$(mungealbumname "$DALBUM")"
+		ARTISTFILE="$(mungeartistname "$TRACKARTIST")"
+		TRACKFILE="$(mungetrackname "$TRACKNAME")"
 		GENRE="$(mungegenre "$GENRE")"
 		YEAR=${CDYEAR:-$CDYEAR}
 		# If we want to start the tracks with a given number, we need to modify
@@ -1707,8 +1707,8 @@ do_playlist ()
 		# Create a playlist file for the playlist data to go into.
 		# We used to wipe it out if it existed. Now we request permission if interactive.
 		for LASTTRACK in $TRACKQUEUE; do :; done
-		ALBUMFILE="$(mungefilename "$DALBUM")"
-		ARTISTFILE="$(mungefilename "$DARTIST")"
+		ALBUMFILE="$(mungealbumname "$DALBUM")"
+		ARTISTFILE="$(mungeartistname "$DARTIST")"
 		GENRE="$(mungegenre "$GENRE")"
 		YEAR=${CDYEAR:-$CDYEAR}
 		if [ "$VARIOUSARTISTS" = "y" ] ; then
@@ -1747,9 +1747,9 @@ do_playlist ()
 				CDDBTRACKNUM=$(expr $UTRACKNUM - 1)
 				getcddbinfo TRACKNAME
 				splitvarious
-				TRACKFILE="$(mungefilename "$TRACKNAME")"
-				ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-				ALBUMFILE="$(mungefilename "$DALBUM")"
+				TRACKFILE="$(mungetrackname "$TRACKNAME")"
+				ARTISTFILE="$(mungeartistname "$TRACKARTIST")"
+				ALBUMFILE="$(mungealbumname "$DALBUM")"
 				# If we want to start the tracks with a given number, we need to modify the
 				# TRACKNUM value before evaluation
 				gettracknum
@@ -1903,9 +1903,9 @@ abcde.mkcue () {
 	fi
 
 	vecho "One track is $ONETRACK"
-	TRACKFILE="$(mungefilename "$TRACKNAME")"
-	ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-	ALBUMFILE="$(mungefilename "$DALBUM")"
+	TRACKFILE="$(mungetrackname "$TRACKNAME")"
+	ARTISTFILE="$(mungeartistname "$TRACKARTIST")"
+	ALBUMFILE="$(mungealbumname "$DALBUM")"
 	if [ "$ONETRACK" = "y" ]; then
 		if [ "$VARIOUSARTISTS" = "y" ]; then
 			CUEWAVFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
@@ -2264,9 +2264,9 @@ do_cleancue()
 				elif [ "$ONETRACK" = "y" ] &&
 						echo "$line" | grep '^FILE "dummy.wav" WAVE' > /dev/null 2>&1 ; then
 
-					TRACKFILE="$(mungefilename "$TRACKNAME")"
-					ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-					ALBUMFILE="$(mungefilename "$DALBUM")"
+					TRACKFILE="$(mungetrackname "$TRACKNAME")"
+					ARTISTFILE="$(mungeartistname "$TRACKARTIST")"
+					ALBUMFILE="$(mungealbumname "$DALBUM")"
 
 					if [ "$VARIOUSARTISTS" = "y" ]; then
 						OUTPUTFILE="$(eval echo \""$VAONETRACKOUTPUTFORMAT"\" | sed -e 's@^.*/@@').$OUTPUT"
@@ -3108,8 +3108,8 @@ do_cddbedit ()
 do_getalbumart()
 {
 	# set variables
-	ALBUMFILE="$(mungefilename "$DALBUM")"
-	ARTISTFILE="$(mungefilename "$DARTIST")"
+	ALBUMFILE="$(mungealbumname "$DALBUM")"
+	ARTISTFILE="$(mungeartistname "$DARTIST")"
 	GENRE="$(mungegenre "$GENRE")"
 	YEAR=${CDYEAR:-$CDYEAR}
 	# have we got a musicbrainz mbid or amazon asin?
@@ -3458,6 +3458,24 @@ fi
 mungefilename ()
 {
 	echo "$@" | sed -e 's/^\.*//' -e 's/ /_/g' | tr -d ":><|*/\"'?[:cntrl:]"
+}
+
+# Custom filename munging specific to track names:
+mungetrackname ()
+{
+	mungefilename $@
+}
+
+# Custom filename munging specific to artist names:
+mungeartistname ()
+{
+	mungefilename $@
+}
+
+# Custom filename munging specific to album names:
+mungealbumname ()
+{
+	mungefilename $@
 }
 
 # Custom genre munging:

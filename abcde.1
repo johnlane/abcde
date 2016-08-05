@@ -545,6 +545,10 @@ If you modify this function, it is probably a good idea to keep the forward
 slash munging (UNIX cannot store a file with a '/' char in it) as well as
 the control character munging (NULs can't be in a filename either, and
 newlines and such in filenames are typically not desirable).
+.br
+New to abcde 2.7.3 are the user definable functions mungetrackname, mungeartistname
+and mungealbumname which default to mungefilename. These permit finer-grained
+control of track name, artist name and album name for the ultra-fastidious.
 .TP
 .B mungegenre
 mungegenre () is a shell function used to modify the $GENRE variable. As
