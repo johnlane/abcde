@@ -1,4 +1,4 @@
-abcde 2.7.3
+abcde 2.8
 
   * Split user-definable mungefilename function into mungetrackname,
     mungeartistname, and mungealbumname, each of which default to
