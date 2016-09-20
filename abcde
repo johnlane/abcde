@@ -2532,21 +2532,31 @@ do_musicbrainz ()
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
 		if [ ! -f "${ABCDETEMPDIR}/cddbread.1" ] ; then
-			# No matches. Use the normal cddb template for the user to
-			# fill in
-			echo "No Musicbrainz match." >> "$ABCDETEMPDIR/cddbchoices"
-			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
-			# List out disc title/author and contents of template
-			echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
-			UNKNOWNDISK=y
-			for TRACK in $(f_seq_row 1 $TRACKS)
-			do
-				echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo >> "$ABCDETEMPDIR/cddbchoices"
-			echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
-			echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
-			echo 503 > "$ABCDETEMPDIR/cddbquery"
+			if [ $CDDBLASTMETHOD = "y" ]
+			then
+				# We're the end of the line.
+				#
+				# No matches. Use the normal cddb template for the user to
+				# fill in
+				vecho "Unable to find a match with ${CDDBMETHCHOICE}, generating CDDB template."
+				echo "No Musicbrainz match." >> "$ABCDETEMPDIR/cddbchoices"
+				$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
+				# List out disc title/author and contents of template
+				echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
+				UNKNOWNDISK=y
+				for TRACK in $(f_seq_row 1 $TRACKS)
+				do
+					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+				done
+				echo >> "$ABCDETEMPDIR/cddbchoices"
+				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
+				echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
+				echo 503 > "$ABCDETEMPDIR/cddbquery"
+			else
+				# Neat, we'll let the next guy take care of this CDDB
+				# file junk.
+				vecho "Unable to find a match with ${CDDBMETHCHOICE}, moving on to the next option."
+			fi
 		else
 			# We have some matches
 			NUM_RESPONSES=$(echo "${ABCDETEMPDIR}"/cddbread.* | wc -w)
@@ -2712,22 +2722,31 @@ do_cddbread ()
 			# TODO: Explain these error codes a little more accurately:
 			# http://ftp.freedb.org/pub/freedb/misc/freedb_CDDB_protcoldoc.zip
 			# No match response:
-			case "$RESPONSECODE" in
-			202) echo "No CDDB match." >> "$ABCDETEMPDIR/cddbchoices" ;;
-			403|409) echo "CDDB entry is corrupt, or the handshake failed." >> "$ABCDETEMPDIR/cddbchoices" ;;
-			500|503) echo "CDDB unavailable." >> "$ABCDETEMPDIR/cddbchoices" ;;
-			esac
-			$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
-			# List out disc title/author and contents of template
-			echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
-			UNKNOWNDISK=y
-			for TRACK in $(f_seq_row 1 $TRACKS)
-			do
-				echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo >> "$ABCDETEMPDIR/cddbchoices"
-			echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
-			echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
+			if [ $CDDBLASTMETHOD = "y" ]
+			then
+				# We're the caboose, so we need to generate the CDDB
+				# template.
+				vecho "Unable to find a match with ${CDDBMETHCHOICE}, generating CDDB template."
+				case "$RESPONSECODE" in
+				202) echo "No CDDB match." >> "$ABCDETEMPDIR/cddbchoices" ;;
+				403|409) echo "CDDB entry is corrupt, or the handshake failed." >> "$ABCDETEMPDIR/cddbchoices" ;;
+				500|503) echo "CDDB unavailable." >> "$ABCDETEMPDIR/cddbchoices" ;;
+				esac
+				$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
+				# List out disc title/author and contents of template
+				echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
+				UNKNOWNDISK=y
+				for TRACK in $(f_seq_row 1 $TRACKS)
+				do
+					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+				done
+				echo >> "$ABCDETEMPDIR/cddbchoices"
+				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
+				echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
+			else
+				# Template's the next chump's job.
+				vecho "Unable to find a match with ${CDDBMETHCHOICE}, moving on to the next option."
+			fi
 			;;
 		210|211)
 			# Multiple exact, (possibly multiple) inexact matches
@@ -3525,6 +3544,10 @@ CDDBLOCALPOLICY="always"
 CDDBLOCALRECURSIVE="y"
 CDDBLOCALDIR="$HOME/.cddb"
 CDDBUSELOCAL="n"
+# pre-declare a variable we'll use if the user provides a
+# comma-separated list of CDDBMETHODs
+declare -a CDDBMETHODS
+CDDBLASTMETHOD="n"
 
 # List of fields we parse and show during the CDDB parsing...
 SHOWCDDBFIELDS="year,genre"
@@ -4560,6 +4583,23 @@ case "$CDDBTOOL" in
 	musicbrainz) ;;
 esac
 
+# 2016-08-30: adding comma-separated list (in this case, to be used in
+# sequence until successful) support ala OUTPUTYPE. -GR
+idx=0
+for CDDBCHOICE in $(echo "$CDDBMETHOD"  | tr -d '	 ' | tr , ' ')
+do
+	# The OUTPUTTYPE code uses bash-specific syntax (var=${var:+var}),
+	# but then doesn't just use an array to store the output, which seems
+	# weird. So I'm going to use an array for this...? -GR
+	CDDBMETHODS[$idx]=$CDDBCHOICE
+	vvecho "CDDB method $idx: $CDDBCHOICE"
+	idx=$((idx + 1))
+done
+
+# Just so CDDBMETHOD is a legible value for functions, in case I
+# miss something, set it to the first choice: -GR
+CDDBMETHOD=${CDDBMETHODS[0]}
+
 # Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
 if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
 	log error "FLAC on an Ogg container is not yet supported"
@@ -4755,6 +4795,7 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 # Here it used to say:
 # One thousand lines in, we can start doing stuff with things
 # Well, right now we are at line 3737 ;)
+# Hey, for grins, as of 2016-08-30 this is now line 4814! -GR
 
 # Export needed things so they can be read in this subshell
 export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
@@ -4784,7 +4825,23 @@ if [ "$DOCDDB" = "y" ]; then
 		:
 	else
 		if [ "$CDDBLOCALSTATUS" = "notfound" ] ; then
-			case "$CDDBMETHOD" in
+			for CDDBMETHCHOICE in ${CDDBMETHODS[@]}
+			do
+				vecho "Trying CDDB method ${CDDBMETHCHOICE}."
+				if [ $CDDBLASTMETHOD = "n" ]
+				then
+					if [ ${#CDDBMETHODS[@]} -le 1 ]
+					# (number of items)
+					then
+						CDDBLASTMETHOD="y"
+					else
+						CDDBMETHODS=("${CDDBMETHODS[@]:1}")
+						# (performs shift on an array in bash)
+					fi
+				else
+					vvecho "(Last chance before manual entry...)"
+				fi
+				case "$CDDBMETHCHOICE" in
 				cddb)
 					do_cddbstat
 					do_cddbquery
@@ -4793,7 +4850,13 @@ if [ "$DOCDDB" = "y" ]; then
 				musicbrainz)
 					do_musicbrainz
 					;;
-			esac
+				esac
+				if [ -f "$ABCDETEMPDIR/cddbchoices" ]
+				then
+					# If this pass found something, we're done.
+					break
+				fi
+			done
 		fi
 		CHOICE=$(checkstatus cddb-choice)
 		if [ "$CHOICE" = 0 ] ; then

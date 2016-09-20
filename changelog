@@ -12,6 +12,9 @@ abcde 2.8
   * Fix for some erroneous error and status logging. Thanks to Christian
     Wasem for the bug report and fix. This closes Issue 32:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=32
+  * Add support for trying multiple CD lookup services in order. Thanks to
+    Gabriel Rosenkoetter for the patch. Closes Issue 42:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
 
 abcde 2.7.2
 
