@@ -1,5 +1,7 @@
 abcde 2.8
 
+  * Make fdkaac the default for m4a encoding. Faac can still be selected
+    for m4a encding via ~/.abcde.conf file but best not to :).
   * Split user-definable mungefilename function into mungetrackname,
     mungeartistname, and mungealbumname, each of which default to
     mungefilename Thanks to Gerald Turner for the patch and enhancement

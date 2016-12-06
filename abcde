@@ -3771,7 +3771,7 @@ ACTIONS=cddb,read,encode,tag,move,clean
 
 # This option is basically for Debian package dependencies:
 # List of preferred outputs - by default, run with whatever we have in the path
-DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex,m4a:faac:opus
+DEFAULT_OUTPUT_BINARIES=vorbis:oggenc,flac:flac,mp3:lame,mp3:bladeenc,spx:speex,m4a:fdkaac:opus
 
 # List of preferred cdromreaders - by default, run whichever we have in the path
 DEFAULT_CDROMREADERS="cdparanoia icedax cdda2wav libcdio pird"
@@ -4252,7 +4252,7 @@ case "$OUTPUTTYPE" in *:*)
 esac
 
 # If nothing has been specified, use oggenc for oggs and lame for mp3s and flac
-# for flacs and speexenc for speex and mpcenc for mpcs and faac for m4as and
+# for flacs and speexenc for speex and mpcenc for mpcs and fdkaac for m4as and
 # wavpack for wvs...
 
 # Getting ready for multiple output changes
@@ -4319,8 +4319,8 @@ do
 		# compiled without libmp4v2... Andrew.
 			;;
 		m4a)
-			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=faac
-			[ "$DOTAG" = "y" ] && CHECKFAACBUILD=y
+			[ "$AACENCODERSYNTAX" = "default" ] && AACENCODERSYNTAX=fdkaac
+			[ "$AACENCODERSYNTAX" = "faac" ] && [ "$DOTAG" = "y" ] && CHECKFAACBUILD=y	
 			[ "$AACENCODERSYNTAX" = "neroAacEnc" ] && NEEDNEROAACTAG=y
 			[ "$AACENCODERSYNTAX" = "qaac" ] && NEEDWINE=y
 			[ "$AACENCODERSYNTAX" = "fhgaacenc" ] && NEEDWINE=y && NEEDATOMICPARSLEY=y
