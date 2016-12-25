@@ -294,6 +294,7 @@ A. The philosophy of getalbumart at the moment is to simply place the album
    {
     ARTISTFILE="$(mungefilename "$TRACKARTIST")"
     ALBUMFILE="$(mungefilename "$DALBUM")"
+    YEAR=${CDYEAR:-$CDYEAR}
 
    if [ "$VARIOUSARTISTS" = "y" ] ; then
      FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
