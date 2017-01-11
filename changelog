@@ -17,6 +17,8 @@ abcde 2.8
   * Add support for trying multiple CD lookup services in order. Thanks to
     Gabriel Rosenkoetter for the patch. Closes Issue 42:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
+  * Add Recommends on glyrc and imagemagick in Debian packaging. Closes
+    Debian Bug #827626
 
 abcde 2.7.2
 

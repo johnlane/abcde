@@ -11,7 +11,7 @@ Vcs-Git: https://git.einval.com/git/abcde.git
 Package: abcde
 Architecture: all
 Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | speex | musepack-tools | opus-tools
-Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, bsd-mailx
+Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, bsd-mailx, glyrc, imagemagick
 Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3 (<< 0.7~),
  normalize-audio, vorbisgain, mkcue, mp3gain, atomicparsley
 Description: A Better CD Encoder
