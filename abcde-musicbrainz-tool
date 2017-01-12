@@ -95,9 +95,9 @@ if ($command =~ m/^id/) {
         if ($a_artist =~ /Various Artists/) {
             $va = 1;
         }
-	my @events = @{$release->release_event_list()->events()};
-        my $rel_year = "";
-        if ($release->release_event_list()->count() > 0) {
+	if ($release->release_event_list()->count() > 0) {
+	    my @events = @{$release->release_event_list()->events()};
+	    my $rel_year = "";
 	    $rel_year =  substr($events[0]->date(),0,4);
 	}
 

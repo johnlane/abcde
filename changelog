@@ -23,6 +23,9 @@ abcde 2.8
     from a whole-CD flac file or using cdparanoia in one-track
     mode. Thanks to Matthias König for the patch. Closes Issue 44:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=44
+  * Tweak the fix in musicbrainz for handling sketchy returned data
+    some more. Hopefully closes Issue 30:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=30
 
 abcde 2.7.2
 
