@@ -19,6 +19,10 @@ abcde 2.8
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
   * Add Recommends on glyrc and imagemagick in Debian packaging. Closes
     Debian Bug #827626
+  * Fix up handling of the first few sectors when reading
+    from a whole-CD flac file or using cdparanoia in one-track
+    mode. Thanks to Matthias König for the patch. Closes Issue 44:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=44
 
 abcde 2.7.2
 

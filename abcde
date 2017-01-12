@@ -3282,11 +3282,13 @@ do_cdread ()
 		LASTTRACK=$(expr $3 + 0)
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
-			flac) READTRACKNUMS="$FIRSTTRACK.1-$(($LASTTRACK + 1)).0" ;;
+			flac) READTRACKNUMS="-" ;;
 			cdparanoia|libcdio)
 				#XX FIXME XX
-				# Add a variable to check if tracks are provided in command line and if not, use "0-" to rip the tracks
-				READTRACKNUMS="$FIRSTTRACK-$LASTTRACK" ;;
+				# Add a variable to check if tracks are provided in command line and if not, rip the whole CD
+				# We must make sure to rip from sector 0, both lines below work
+				# READTRACKNUMS="-- -$LASTTRACK" ;;
+				READTRACKNUMS="[.0]-" ;;
 			cdda2wav | icedax) READTRACKNUMS="$FIRSTTRACK+$LASTTRACK" ;;
 			pird) READTRACKNUMS="$FIRSTTRACK..$LASTTRACK" ;;
 			*) echo "abcde error: $CDROMREADERSYNTAX does not support ONETRACK mode"
