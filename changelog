@@ -26,6 +26,9 @@ abcde 2.8
   * Tweak the fix in musicbrainz for handling sketchy returned data
     some more. Hopefully closes Issue 30:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=30
+  * Re-enable some commented out cdparanoia/debug code in do_discid.
+    Closes Issue 14:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=14
 
 abcde 2.7.2
 

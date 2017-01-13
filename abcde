@@ -2000,20 +2000,20 @@ do_discid ()
 					exit 1
 				fi
 				;;
-#			cdparanoia|debug)
-#				CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -Q --verbose 2>&1 )"
-#				RET=$?
-#				if [ ! "$RET" = "0" ];then
-#					log warning "something went wrong while querying the CD... Maybe a DATA CD?"
-#				fi
-#
-#				TRACKS="$(echo "$CDPARANOIAOUTPUT" | grep -E '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
-#				CDPARANOIAAUDIOTRACKS="$TRACKS"
-#
-#				LEADOUT="$(echo "$CDPARANOIAOUTPUT" | grep -Eo '^TOTAL[[:space:]]+([[:digit:]]+)' | get_last)"
-#				OFFSETS="$(echo "$CDPARANOIAOUTPUT" | sed -n -e's/^ .* \([0-9]\+\) \[.*/\1/p')"
-#				makeids
-#				;;
+			cdparanoia|debug)
+				CDPARANOIAOUTPUT="$( $CDROMREADER -$CDPARANOIACDROMBUS "$CDROM" -Q --verbose 2>&1 )"
+				RET=$?
+				if [ ! "$RET" = "0" ];then
+					log warning "something went wrong while querying the CD... Maybe a DATA CD?"
+				fi
+
+				TRACKS="$(echo "$CDPARANOIAOUTPUT" | grep -E '^[[:space:]]+[[:digit:]]' | tail -n 1 | get_first | tr -d "." | tr '\n' ' ')"
+				CDPARANOIAAUDIOTRACKS="$TRACKS"
+
+				LEADOUT="$(echo "$CDPARANOIAOUTPUT" | grep -Eo '^TOTAL[[:space:]]+([[:digit:]]+)' | get_last)"
+				OFFSETS="$(echo "$CDPARANOIAOUTPUT" | sed -n -e's/^ .* \([0-9]\+\) \[.*/\1/p')"
+				makeids
+				;;
 			*)
 				case "$CDDBMETHOD" in
 					cddb) TRACKINFO=$($CDDISCID "$CDROM") ;;
