@@ -33,6 +33,10 @@ abcde 2.8
     e.g. non-ascii text in track titles!
     Closes Issue 24:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=24
+  * Add "-L" to default curl options, to follow redirects if needed
+    Closes Issue 40:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=40
+    Thanks to Gabriel Rosenkoetter for the patch.
 
 abcde 2.7.2
 

@@ -3846,7 +3846,7 @@ fi
 if [ "$HTTPGETOPTS" = "" ] ; then
 	case $HTTPGET in
 		wget) HTTPGETOPTS="-q -nv -e timestamping=off -O -";;
-		curl) HTTPGETOPTS="-f -s";;
+		curl) HTTPGETOPTS="-f -s -L";;
 		fetch)HTTPGETOPTS="-q -o -";;
 		ftp)  HTTPGETOPTS="-a -V -o - ";;
 		*) log warning "HTTPGET in non-standard and HTTPGETOPTS are not defined." ;;
