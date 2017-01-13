@@ -411,13 +411,13 @@ getcddbinfo()
 {
 	case $1 in
 	TRACKNAME1)
-		TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+		TRACKNAME="$(grep -a ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | head -n 1 | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 		;;
 	TRACKNAME)
-		TRACKNAME="$(grep ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
+		TRACKNAME="$(grep -a ^TTITLE$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\ \+$//')"
 		;;
 	TRACK-INFO)
-		grep ^EXTT$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\\n/\n/g'
+		grep -a ^EXTT$CDDBTRACKNUM= "$CDDBDATA" | cut -f2- -d= | tr -d \[:cntrl:\] | sed 's/\\n/\n/g'
 		;;
 	esac
 }
@@ -2297,7 +2297,7 @@ do_cddbparse ()
 	if [ "$ONETRACK" = "y" ]; then
 		vecho "ONETRACK mode selected: displaying only the title of the CD..."
 	fi
-	echo "---- $(grep DTITLE "${CDDBPARSEFILE}" | cut '-d=' -f2- | tr -d \\r\\n ) ----"
+	echo "---- $(grep -a DTITLE "${CDDBPARSEFILE}" | cut '-d=' -f2- | tr -d \\r\\n ) ----"
 	if [ X"$SHOWCDDBYEAR" = "Xy" ]; then
 		PARSEDYEAR=$(grep -a DYEAR "${CDDBPARSEFILE}" | cut '-d=' -f2-)
 		if [ ! X"$PARSEDYEAR" = "X" ]; then
@@ -2479,7 +2479,7 @@ do_cdtext ()
 
 	# Do we have CD-Text on the disc (and can the drive read it?)
 	${CDTEXT_READER} -J -N -D ${CDDA2WAVCDROM} > "$ABCDETEMPDIR/cd-text" 2>&1
-	grep -q '^CD-Text: detected' "$ABCDETEMPDIR/cd-text"
+	grep -a -q '^CD-Text: detected' "$ABCDETEMPDIR/cd-text"
 	ERRORCODE=$?
 	if [ $ERRORCODE -ne 0 ]; then
 		# No CD-Text found, bail
@@ -2546,7 +2546,7 @@ do_musicbrainz ()
 				UNKNOWNDISK=y
 				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
-					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 				done
 				echo >> "$ABCDETEMPDIR/cddbchoices"
 				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
@@ -2566,13 +2566,13 @@ do_musicbrainz ()
 				echo "done." >> "$ABCDETEMPDIR/cddbchoices"
 				echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-				ATITLE=$(grep -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.1" | cut -c8- )
+				ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.1" | cut -c8- )
 				echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 				# List out disc title/author and contents
 				echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
 				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
-					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 				done
 				echo >> "$ABCDETEMPDIR/cddbchoices"
 			else
@@ -2582,13 +2582,13 @@ do_musicbrainz ()
 				do
 					X=$(echo $file | sed 's/^.*cddbread\.//g')
 					echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
-					ATITLE=$(grep -e '^DTITLE=' "${ABCDETEMPDIR}"/cddbread.$X | cut -c8- )
+					ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}"/cddbread.$X | cut -c8- )
 					echo "none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 					# List out disc title/author and contents
 					echo "#$X: ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
 					for TRACK in $(f_seq_row 1 $TRACKS)
 					do
-						echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+						echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 					done
 					echo >> "$ABCDETEMPDIR/cddbchoices"
 				done
@@ -2714,7 +2714,7 @@ do_cddbread ()
 			echo ---- "$(cut '-d ' -f4- "$ABCDETEMPDIR/cddbquery")" ---- >> "$ABCDETEMPDIR/cddbchoices"
 			for TRACK in $(f_seq_row 1 $TRACKS)
 			do
-				echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+				echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 			done
 			echo >> "$ABCDETEMPDIR/cddbchoices"
 			;;
@@ -2738,7 +2738,7 @@ do_cddbread ()
 				UNKNOWNDISK=y
 				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
-					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 				done
 				echo >> "$ABCDETEMPDIR/cddbchoices"
 				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
@@ -2773,7 +2773,7 @@ do_cddbread ()
 				echo \#$X: ---- "$DISCINFO" ---- >> "$ABCDETEMPDIR/cddbchoices"
 				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
-					echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 				done
 				echo >> "$ABCDETEMPDIR/cddbchoices"
 			done )
@@ -2784,7 +2784,7 @@ do_cddbread ()
 			# Using local copy.
 			for TRACK in $(f_seq_row 1 $TRACKS)
 			do
-				echo $TRACK: "$(grep ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+				echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
 			done
 			echo >> "$ABCDETEMPDIR/cddbchoices"
 			echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
@@ -2815,7 +2815,7 @@ do_cddbedit ()
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
 					case $CDDBCHOICES in
-						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep "^$" > /dev/null 2>&1 ; then
+						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep -a "^$" > /dev/null 2>&1 ; then
 								log error "CDDB query failed!"
 								exit 1
 							else
@@ -2882,7 +2882,7 @@ do_cddbedit ()
 						UNKNOWNDISK=y
 						$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
 					else
-						echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
+						echo "Selected: #$CDCHOICENUM ($(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 						do_cddbparse "$ABCDETEMPDIR/cddbread.$CDCHOICENUM"
 					fi
 					echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
@@ -2931,7 +2931,7 @@ do_cddbedit ()
 				CDCHOICENUM=1
 				echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
 			fi
-			echo "Selected: #$CDCHOICENUM ($(grep ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
+			echo "Selected: #$CDCHOICENUM ($(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 		fi
 	fi
 
@@ -2999,7 +2999,7 @@ do_cddbedit ()
 
 	# Some heuristics first. Look at Disc Title, and if it starts with
 	# "Various", then we'll assume Various Artists
-	if [ "$(grep ^DTITLE= "$CDDBDATA" | cut -f2- -d= | grep -Eci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
+	if [ "$(grep -a ^DTITLE= "$CDDBDATA" | cut -f2- -d= | grep -aEci '^(various|soundtrack|varios|sonora|ost)')" != "0" ]; then
 		echo "Looks like a Multi-Artist CD" >&2
 		VARIOUSARTISTS=y
 	else
@@ -3015,14 +3015,14 @@ do_cddbedit ()
 		# Set a default
 		DEFAULTSTYLE=1
 		# Need NUMTRACKS before cddb-tool will return it:
-		NUMTRACKS=$(grep -E '^TTITLE[0-9]+=' "$CDDBDATA" | wc -l)
-		if [ "$(grep -c "^TTITLE.*\/" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
+		NUMTRACKS=$(grep -a -E '^TTITLE[0-9]+=' "$CDDBDATA" | wc -l)
+		if [ "$(grep -ac "^TTITLE.*\/" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
 			# More than 1/2 tracks contain a "/", so guess forward
 			DEFAULTSTYLE=1
-		elif [ "$(grep -c "^TTITLE.*\-" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
+		elif [ "$(grep -ac "^TTITLE.*\-" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
 			# More than 1/2 contain a "-", so guess forward-dash
 			DEFAULTSTYLE=2
-		elif [ "$(grep -c "^TTITLE.*(.*)" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
+		elif [ "$(grep -ac "^TTITLE.*(.*)" "$CDDBDATA")" -gt "$(expr $NUMTRACKS / 2 )" ]; then
 			# More than 1/2 contain something in parens, so guess trailing-paren
 			DEFAULTSTYLE=6
 		fi

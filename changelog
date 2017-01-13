@@ -29,6 +29,10 @@ abcde 2.8
   * Re-enable some commented out cdparanoia/debug code in do_discid.
     Closes Issue 14:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=14
+  * Add "-a" to lots of grep calls in case of "binary" looking data,
+    e.g. non-ascii text in track titles!
+    Closes Issue 24:
+    https://abcde.einval.com/bugzilla/show_bug.cgi?id=24
 
 abcde 2.7.2
 
