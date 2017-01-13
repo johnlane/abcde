@@ -3535,8 +3535,8 @@ post_encode ()
 # Builtin defaults
 
 # CDDB
-# Defaults to FreeDB, but musicbrainz can be used too, via the abcde-musicbrainz-tool script
-CDDBMETHOD=cddb
+# Currently two supported options ("musicbrainz" and "cddb" for freedb.org)
+CDDBMETHOD=musicbrainz
 CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
 CDDBSUBMIT=freedb-submit@freedb.org
 CDDBPROTO=6

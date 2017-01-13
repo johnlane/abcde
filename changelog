@@ -37,6 +37,8 @@ abcde 2.8
     Closes Issue 40:
     https://abcde.einval.com/bugzilla/show_bug.cgi?id=40
     Thanks to Gabriel Rosenkoetter for the patch.
+  * Switch default from "cddb" to "musicbrainz" for track lookup
+    Closes Debian Bug #842178
 
 abcde 2.7.2
 
