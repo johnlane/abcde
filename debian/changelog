@@ -1,3 +1,49 @@
+abcde (2.8-1) unstable; urgency=medium
+  * New upstream version with various improvements and bugfixes:
+    + Make fdkaac the default for m4a encoding. Faac can still be selected
+      for m4a encding via ~/.abcde.conf file but best not to :).
+    + Split user-definable mungefilename function into mungetrackname,
+      mungeartistname, and mungealbumname, each of which default to
+      mungefilename Thanks to Gerald Turner for the patch and enhancement
+      request. This closes Issue 39:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=39
+    + FAQs: Clarify the exit from multi-result CDDB search.
+    + Fix to allow multiple output formats when aac fallback is triggered.
+      Thanks to Birk Bremer for the bug report. This closes Issue 35:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=35
+    + Fix for some erroneous error and status logging. Thanks to Christian
+      Wasem for the bug report and fix. This closes Issue 32:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=32
+    + Add support for trying multiple CD lookup services in order. Thanks to
+      Gabriel Rosenkoetter for the patch. Closes Issue 42:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
+    + Add Recommends on glyrc and imagemagick in Debian packaging.
+      Closes: #827626
+    + Fix up handling of the first few sectors when reading
+      from a whole-CD flac file or using cdparanoia in one-track
+      mode. Thanks to Matthias König for the patch. Closes Issue 44:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=44
+    + Tweak the fix in musicbrainz for handling sketchy returned data
+      some more. Hopefully closes Issue 30:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=30
+    + Re-enable some commented out cdparanoia/debug code in do_discid.
+      Closes Issue 14:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=14
+    + Add "-a" to lots of grep calls in case of "binary" looking data,
+      e.g. non-ascii text in track titles!
+      Closes Issue 24:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=24
+    + Add "-L" to default curl options, to follow redirects if needed
+      Closes Issue 40:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=40
+      Thanks to Gabriel Rosenkoetter for the patch.
+    + Switch default from "cddb" to "musicbrainz" for track lookup
+      Closes: #842178
+  * Update debhelper compat level to 10, and tweak debian/rules to fix
+    debhelper warnings.
+
+ -- Steve McIntyre <93sam@debian.org>  Sat, 14 Jan 2016 17:16:20 +0000
+
 abcde (2.7.2-1) unstable; urgency=medium
 
   * New upstream version with various improvements and bugfixes:
