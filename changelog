@@ -48,6 +48,8 @@ abcde 2.8
   * Switch default from "cddb" to "musicbrainz" for track lookup
     Closes Debian Bug #842178
 
+ -- Steve McIntyre <93sam@debian.org>  Sat, 14 Jan 2017 00:53:48 +0000
+
 abcde 2.7.2
 
   * When using musicbrainz, don't assume that there will be release
