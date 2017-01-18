@@ -1,3 +1,11 @@
+abcde 2.8.1.
+
+ * Fix silly error introduced in abcde-musicbrainz-tool when fixing bug
+   30. Thanks to Thomas Klausner for the bug/patch. Closes Issue 52:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=52
+
+ -- Steve McIntyre <93sam@debian.org>  Wed, 18 Jan 2017 11:02:38 +0000
+
 abcde 2.8
 
   * Make fdkaac the default for m4a encoding. Faac can still be selected
