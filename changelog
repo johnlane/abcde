@@ -1,3 +1,9 @@
+abcde 2.8.2
+
+ * Add some documentation for the aged CD ripper dagrab. Thanks to 
+   Teika Kazura for the notification and suggested documentation. This 
+   closes Issue 50: https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
+   
 abcde 2.8.1.
 
  * Fix silly error introduced in abcde-musicbrainz-tool when fixing bug
