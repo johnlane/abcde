@@ -133,19 +133,19 @@ parse)	# takes 1 argument, a filename, and dumps out a sh parseable version
 
 	set -e
 	# names chosen to match usage in abcde code
-	DISCID=$(grep ^DISCID= "$CDDBFILE" | cut -f2 -d= | tr -d \[:cntrl:\])
-	DARTISTALBUM="$(grep ^DTITLE= "$CDDBFILE" | cut -f2- -d= | tr -d \\n | sed 's- / -~-g' | tr -d \[:cntrl:\])"
+	DISCID=$(grep -a ^DISCID= "$CDDBFILE" | cut -f2 -d= | tr -d \[:cntrl:\])
+	DARTISTALBUM="$(grep -a ^DTITLE= "$CDDBFILE" | cut -f2- -d= | tr -d \\n | sed 's- / -~-g' | tr -d \[:cntrl:\])"
 	DARTIST="$(echo "$DARTISTALBUM" | cut -f1 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])"
 	DALBUM="$(echo "$DARTISTALBUM" | cut -f2 -d~ | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\])"
-	CDDBGENRE="$(grep '^#CATEGORY=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])"
-	if grep "^DYEAR" "$CDDBFILE" 2>&1 > /dev/null ; then
-		CDYEAR=$(grep "^DYEAR" "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
-	elif grep YEAR "$CDDBFILE" 2>&1 > /dev/null ; then
-		CDYEAR=$(grep "YEAR" "$CDDBFILE" | grep -v "DYEAR" | awk 'BEGIN{FS="YEAR:"}{print $2}' | awk '{print $1}')
+	CDDBGENRE="$(grep -a '^#CATEGORY=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])"
+	if grep -a "^DYEAR" "$CDDBFILE" 2>&1 > /dev/null ; then
+		CDYEAR=$(grep -a "^DYEAR" "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
+	elif grep -a YEAR "$CDDBFILE" 2>&1 > /dev/null ; then
+		CDYEAR=$(grep -a "YEAR" "$CDDBFILE" | grep -a -v "DYEAR" | awk 'BEGIN{FS="YEAR:"}{print $2}' | awk '{print $1}')
 	else
 		CDYEAR=""
 	fi
-	CDGENRE=$(grep '^DGENRE=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
+	CDGENRE=$(grep -a '^DGENRE=' "$CDDBFILE" | cut -f2- -d= | tr -d \[:cntrl:\])
 
 	set +e
 	echo DISCID="\"$DISCID\""
@@ -154,13 +154,13 @@ parse)	# takes 1 argument, a filename, and dumps out a sh parseable version
 	echo CDDBGENRE="\"$CDDBGENRE\""
 	echo CDYEAR="\"$CDYEAR\""
 	echo CDGENRE="\"$CDGENRE\""
-	NUMTRACKS=$(grep -E '^TTITLE[0-9]+=' "$CDDBFILE" | wc -l)
+	NUMTRACKS=$(grep -a -E '^TTITLE[0-9]+=' "$CDDBFILE" | wc -l)
 	CURRTRACK=0
 	while [ "$CURRTRACK" -lt $NUMTRACKS ]; do
 		CURRTRACKM1=$CURRTRACK # Track minus 1 (cddb numbers from 0)
 		CURRTRACK=$(expr $CURRTRACK + 1)
 		echo -n "TRACK${CURRTRACK}=\""
-		grep ^TTITLE${CURRTRACKM1}= "$CDDBFILE" | cut -f2 -d= | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\]
+		grep -a ^TTITLE${CURRTRACKM1}= "$CDDBFILE" | cut -f2 -d= | sed 's,\\,\\\\,g;s,\([\"\$\`]\),\\\1,g' | tr -d \[:cntrl:\]
 		echo \"
 	done
 	;;
@@ -206,19 +206,19 @@ template)
 send) # cddb-tool send filename email@address
 	FILE="$1"
 	ADDRESS="$2"
-	DISCID=$(grep ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
-	CDDBGENRE=$(grep '^#CATEGORY=' "$FILE" | cut -f2- -d= | tr -d \[:cntrl:\])
+	DISCID=$(grep -a ^DISCID= "$FILE" | cut -f2 -d= | tr -d \[:cntrl:\])
+	CDDBGENRE=$(grep -a '^#CATEGORY=' "$FILE" | cut -f2- -d= | tr -d \[:cntrl:\])
 	# Use bsd-mailx by preference if we can, as it allows addition
 	# of extra headers. Otherwise, try to force UTF-8 via environment
 	if new_checkexec bsd-mailx; then
-		grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | bsd-mailx -a "Content-Type: text/plain; charset=utf-8" -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+		grep -a -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | bsd-mailx -a "Content-Type: text/plain; charset=utf-8" -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
 	else
 		# Find the first UTF-8 locale on the system, if any
 		UTF_LOCALE=$(locale -a | awk '/UTF-8/ { print $1; exit}')
 		if [ "$UTF_LOCALE"x != ""x ] ; then
 			export LC_ALL=$UTF_LOCALE
 		fi
-		grep -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
+		grep -a -v "^#CATEGORY=" "$FILE" | iconv -t utf-8 | mail -s "cddb $CDDBGENRE $DISCID" "$ADDRESS"
 	fi
 	;;
 
