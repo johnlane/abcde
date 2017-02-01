@@ -4,11 +4,10 @@
 Q. Who created abcde? Who develops it nowadays?
 A. It was originally created by Robert Woodcook. He decided to give up
    maintaining it at some point in 2002 and Jesus Climent took over. In 2012,
-   Colin Tuckley and Steve McIntyre joined in to help. Currently Steve maintains
-   abcde along with Andrew Strong. Contact either with comments or suggestions
-   at the following email addresses:
+   Colin Tuckley and Steve McIntyre joined in to help. During 2015-2016 Andrew
+   Strong helped out. Currently Steve maintains abcde. Contact Steve with
+   comments or suggestions at the following email address:
       Steve McIntyre <93sam@@debian.org>
-      Andrew Strong <andrew.david.strong@gmail.com>
 
 
 1. INSTALLATION
@@ -574,4 +573,3 @@ A. The default action set includes clean, which cleans the temp directory,
 
 --
 Steve McIntyre <93sam@@debian.org>
-Andrew Strong <andrew.david.strong@gmail.com>
