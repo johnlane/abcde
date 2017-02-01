@@ -3,6 +3,12 @@ abcde 2.8.2
  * Add some documentation for the aged CD ripper dagrab. Thanks to 
    Teika Kazura for the notification and suggested documentation. This 
    closes Issue 50: https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
+ * Work by Matthias Andree <matthias.andree@gmx.de> to address the issue
+   where abcde fails with accented characters from CD-TEXT. The issue and
+   partial fix applied here documented in Issue 53:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=53
+   and also in the abcde mailing list:
+   https://lists.einval.com/pipermail/abcde-users/2017-January/000232.html
    
 abcde 2.8.1.
 

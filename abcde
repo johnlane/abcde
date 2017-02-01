@@ -2478,7 +2478,10 @@ do_cdtext ()
 	fi
 
 	# Do we have CD-Text on the disc (and can the drive read it?)
-	${CDTEXT_READER} -J -N -D ${CDDA2WAVCDROM} > "$ABCDETEMPDIR/cd-text" 2>&1
+	(
+		cd "$ABCDETEMPDIR" && rm -f audio.* audio_*
+		${CDTEXT_READER} -J -v titles -D ${CDDA2WAVCDROM} > "$ABCDETEMPDIR/cd-text" 2>&1
+	)
 	grep -a -q '^CD-Text: detected' "$ABCDETEMPDIR/cd-text"
 	ERRORCODE=$?
 	if [ $ERRORCODE -ne 0 ]; then
@@ -2494,21 +2497,25 @@ do_cdtext ()
 	echo "done." >> "$ABCDETEMPDIR/cddbchoices"
 	echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
 	echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-	ATITLE=$(grep -ae '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- )
+	#ATITLE=$(grep -ae '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- | sed "s~'\(.*\)'.*\[from \(.*\)]$~\2 / \1~")
+	ATITLE=$(grep -ae '^DTITLE=' "${ABCDETEMPDIR}/audio.cddb" | cut -c8-)
 	echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
 	# List out disc title/author and contents
-	echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
-	for TRACK in $(f_seq_row 1 $TRACKS)
-	do
-		TRACKM1=$(($TRACK - 1))
-		TITLE="$(grep -aE ^Track\ +$TRACK: "$ABCDETEMPDIR/cd-text" | tr -d \\r\\n | sed 's~^Track ..: .~~g;'"s~'$~~g")"
-		echo "$TRACK: $TITLE" >> "$ABCDETEMPDIR/cddbchoices"
-		sed "s~^TTITLE${TRACKM1}=.*~TTITLE${TRACKM1}=${TITLE}~" "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbread.new" && \
-			mv -f "$ABCDETEMPDIR/cddbread.new" "$ABCDETEMPDIR/cddbread.1"
-	done
-	sed "s~^DTITLE=.*~DTITLE=${ATITLE}~" "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbread.new" && \
-		mv -f "$ABCDETEMPDIR/cddbread.new" "$ABCDETEMPDIR/cddbread.1"
-	rm -f "$ABCDETEMPDIR/cddbread.new" # In case a sed error occurred
+	echo "---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
+	sed -n 's~^Track \(..:\) .\(.*\).$~\1 \2~gp;' "$ABCDETEMPDIR/cd-text" >>"$ABCDETEMPDIR/cddbchoices"
+	rm -f "$ABCDETEMPDIR/cddbread.1"
+	# XXX FIXME - this is a hack and should be replaced by proper
+	# character set tracking for the CDDB data we have.
+	if test "$CDDBPROTO" -ge 6 ; then
+		# convert to Unicode
+		iconv -f iso-8859-1 -t utf-8 <"$ABCDETEMPDIR/audio.cddb" >"$ABCDETEMPDIR/cddbread.1"
+	else
+		# copy verbatim, assuming CD-TEXT is in ISO-8859-1 format
+		# apparently icedax/cdda2wav have no support for 16-bit
+		# characters yet, either
+		cp -p "$ABCDETEMPDIR/audio.cddb" "$ABCDETEMPDIR/cddbread.1"
+	fi
+	( cd "$ABCDETEMPDIR" && rm -f audio_* audio.* )
 	echo >> "$ABCDETEMPDIR/cddbchoices"
 	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
 }
