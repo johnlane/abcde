@@ -282,61 +282,18 @@ A. If you have set INTERACTIVE=y (this is the default) then you will have
    from online by typing in a URL or by typing in the path to a local file.
    
 Q. What if I want my album art embedded?
-A. The philosophy of getalbumart at the moment is to simply place the album
-   art in the same location as the encoded files. Perhaps this will change
-   one day. In the meantime you can use abcde's post_encode function in
-   your ~/.abcde.conf file to embed the album art. Here is an example for
-   mp3 embedding using eyeD3:
-
-   #----------------------------------------------------------------#
-   post_encode ()
-   {
-    ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-    ALBUMFILE="$(mungefilename "$DALBUM")"
-    YEAR=${CDYEAR:-$CDYEAR}
-
-   if [ "$VARIOUSARTISTS" = "y" ] ; then
-     FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
-   else
-     FINDPATH="$(eval echo "$OUTPUTFORMAT")"
-   fi
-
-   FINALDIR="$(dirname "$OUTPUTDIR/$FINDPATH")"
-   cd "$FINALDIR"
-
-   if [ "$OUTPUTTYPE" = "mp3" ] && [ "$TAGGER" = "$EYED3" ] ; then
-    vecho "Preparing to embed the album art..." >&2
-   else
-    vecho "Not embedding album art, you need mp3 output and eyeD3 tagging..." >&2
-    return 1
-   fi
-
-    if [ -e "cover.jpg" ] ; then
-      for i in *.mp3
-      do
-      eyeD3 --add-image cover.jpg:FRONT_COVER "$i"
-      done
-      mkdir backup && mv cover.jpg backup
-      vecho "Your files have had the album art embedded..." >&2
-    else
-     vecho "No album art found so no image embedded..." >&2
-    fi
-   }
-  #----------------------------------------------------------------#
-
-  Variations of the 'for' loop in this example should work for other encoding 
-  types. For example with flac:
-
-   #--------------------
-   for i in *.flac
-   do 
-    metaflac --import-picture-from=cover.jpg "$i"
-   done
-   #--------------------
-
-  With other appropriate adjustments to the $OUTPUTTYPE and $TAGGER checks of 
-  course...
-
+A. As of abcde 2.8.2 it is possible to have the album art automatically 
+   embedded in the mp3 container using eyeD3, embedded in the flac container
+   using metaflac and embedded in the m4a container using AtomicParsley.
+   
+   There are 3 different ways to accomplish this:
+   
+     1. Use the command line '-B' option (this will also call getalbumart)
+     2. Use the command line '-a embedalbumart' option to add to list of actions
+     3. Use 'embedalbumart' in the 'ACTIONS' list in ~/.abcde.conf
+     
+   Next in line will be embedding album art in WavPack files using wvtag
+   and perhaps after that embedding in Ape files...
   
 4. FORMATS
    =======

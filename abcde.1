@@ -23,6 +23,7 @@ fallback for track information
 .B *
 Download the album art appropriate for your music tracks with many
 user configurable options for download and post download alterations
+including automated embedding of the album art for some containers
 .TP
 .B *
 Grab an audio track (or all the audio CD tracks) from your CD
@@ -66,14 +67,23 @@ flac \-a default,cue" for obtaining such a file.
 .TP
 .B \-a [actions]
 Comma-delimited list of actions to perform. Can be one or more of: cddb, cue,
-read, getalbumart, normalize, encode, tag, move, replaygain, playlist, clean.
-Normalize and encode imply read. Tag implies cddb, read, encode. Move implies
-cddb, read, encode, tag. Replaygain implies cddb, read, encode, tag and move.
-Playlist implies cddb. The default is to do all actions except cue, normalize,
-replaygain, getalbumart and playlist.
+read, getalbumart, embedalbumart, normalize, encode, tag, move, replaygain,
+playlist, clean. Normalize and encode imply read. Tag implies cddb, read,
+encode. Move implies cddb, read, encode, tag. Replaygain implies cddb, read,
+encode, tag and move. Playlist implies cddb. embedalbumart implies getalbumart.
+The default is to do all actions except cue, normalize, replaygain, getalbumart,
+embedalbumart and playlist.
 .TP
 .B \-b
 Enable batch mode normalization. See the BATCHNORM configuration variable.
+.TP
+.B \-B
+Enable automatic embedding of album art with certain containers. As of
+abcde 2.8.2 supported containers are mp3 (using eyeD3), flac (using
+metaflac) and m4a (using AtomicParsley). This command line option also
+calls the getalbumart function. Further details of album art embedding
+using the embedalbumart function can be found in the abcde FAQ document
+packaged with abcde.
 .TP
 .B \-c [filename]
 Specifies an additional configuration file to parse. Configuration options
@@ -594,6 +604,10 @@ Will create both Ogg/Vorbis and Ogg/FLAC files.
 .B abcde \-o vorbis:"-b 192"
 Will pass "\-b 192" to the Ogg/Vorbis encoder, without having to modify the
 config file
+.TP
+.B abcde \-o mp3,flac,m4a -B
+abcde will create mp3, flac and m4a files and also select suitable album art,
+download and embed the album art into all 3 sets of tracks.
 .TP
 .B abcde \-W 1
 For double+ CD settings: will create the 1st CD starting with the track number

@@ -21,9 +21,10 @@ echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
 echo "       Actions to perform:"
-echo "       cddb,read,getalbumart,normalize,encode,tag,move,replaygain,playlist,clean"
+echo "       cddb,read,getalbumart,embedalbumart,normalize,encode,tag,move,replaygain,playlist,clean"
 #echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Enable batch normalization"
+echo "-B     Embed albumart (this also activates getalbumart)"
 echo "-c <file>"
 echo "       Specify a configuration file (overrides system and user config files)"
 echo "-C <discid#>"
@@ -3273,6 +3274,73 @@ do_getalbumart()
 	fi
 }
 
+# Optionally embed the albumart downloaded by the getalbumart fuction.
+# FIXME: It would be nice to have this also selectable from within the
+# FIXME: getalbumart function itself. Andrew
+do_embedalbumart()
+{
+	# Set variables:
+	ARTISTFILE="$(mungefilename "$TRACKARTIST")"
+	ALBUMFILE="$(mungefilename "$DALBUM")"
+	YEAR=${CDYEAR:-$CDYEAR}
+
+	# Allow for multiple output formats:
+	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+	do
+
+		# Find the output directory:
+		if [ "$VARIOUSARTISTS" = "y" ] ; then
+			FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
+		else
+			FINDPATH="$(eval echo "$OUTPUTFORMAT")"
+		fi
+
+	FINALDIR="$(dirname "$OUTPUTDIR/$FINDPATH")"
+	cd "$FINALDIR"
+
+# Instructions for each format, feel free to add more. A good one to add in
+# next would be WavPack embedding using the the new wvtag utility shipped
+# with WavPack 5.1.0 and greater... Andrew.
+	if [ -e "$ALBUMARTFILE" ] ; then
+		case  "$OUTPUT" in
+			mp3)
+				for i in *.mp3
+				do
+				"$EYED3" --add-image "$ALBUMARTFILE":FRONT_COVER "$i"
+				done
+				# FIXME: Make the backup process selectable... 
+				mkdir "$FINALDIR"/albumart_backup
+				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
+				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
+			;;
+			flac)
+				for i in *.flac
+				do 
+				"$METAFLAC" --import-picture-from="$ALBUMARTFILE" "$i"
+				done
+				# FIXME: Make the backup process selectable... 
+				mkdir "$FINALDIR"/albumart_backup
+				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
+				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
+			;;
+			m4a)
+				for i in *.m4a
+				do
+				"$ATOMICPARSLEY" "$i" --artwork "$ALBUMARTFILE" --overWrite 
+				done
+				# FIXME: Make the backup process selectable... 
+				mkdir "$FINALDIR"/albumart_backup
+				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
+				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
+				;;
+			*) vecho "Sorry, abcde does not embed album art for the $OUTPUT container..." >&2
+		esac
+	else
+	vecho "Suitable cover image not found, no embedding done..." >&2
+	fi
+done
+}
+
 # do_cdread [tracknumber]
 # do_cdread onetrack [firsttrack] [lasttrack]
 #
@@ -3894,12 +3962,13 @@ case "$EXTRAVERBOSE" in
 esac
 
 # Parse command line options
-while getopts 1a:bc:C:d:DefgGhj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
+while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pPr:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
 		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCHNORM=y ;;
+		B) GETALBUMART=y ; EMBEDALBUMART=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
 		C) DISCID="$( echo ${OPTARG#abcde.} | tr -d /)" ;;
 		d) CDROM="$OPTARG" ;;
@@ -4079,6 +4148,7 @@ do
 		playlist) DOCDDB=y; DOPLAYLIST=y;;
 		clean) DOCLEAN=y;;
 		getalbumart) GETALBUMART=y;;
+		embedalbumart) GETALBUMART=y; EMBEDALBUMART=y;;
 	esac
 done
 
@@ -4286,12 +4356,14 @@ do
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
 			[ "$DOTAG" = "y" ] && NEEDTAGGER=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMP3GAIN=y
+			[ "$EMBEDALBUMART" = "y" ] && NEEDEYED3=y
 			;;
 		flac)
 			[ "$FLACENCODERSYNTAX" = "default" ] && FLACENCODERSYNTAX=flac
 			[ "$DOTAG" = "y" ] && NEEDMETAFLAC=y
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDMETAFLAC=y
 			[ "$ONETRACK" = "y" ] && [ "$DOCUE" = "y" ] && NEEDMETAFLAC=y
+			[ "$EMBEDALBUMART" = "y" ] && NEEDMETAFLAC=y
 			;;
 		spx)
 			[ "$SPEEXENCODERSYNTAX" = "default" ] && SPEEXENCODERSYNTAX=speexenc
@@ -4334,6 +4406,7 @@ do
 			[ "$AACENCODERSYNTAX" = "qaac" ] && NEEDWINE=y
 			[ "$AACENCODERSYNTAX" = "fhgaacenc" ] && NEEDWINE=y && NEEDATOMICPARSLEY=y
 			[ "$AACENCODERSYNTAX" = "ffmpeg" ] && [ "$DOTAG" = "y" ]
+			[ "$EMBEDALBUMART" = "y" ] && NEEDATOMICPARSLEY=y
 			;;
 		wav)
 			if [ "$KEEPWAVS" = "y" ]; then
@@ -4757,7 +4830,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDWVGAIN+WVGAIN} ${NEEDAPETAG+$APETAG} \
 	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG} \
 	${NEEDGLYRC+$GLYRC} ${NEEDWINE+$WINE} ${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
-	${NEEDMID3V2+$MID3V2}
+	${NEEDMID3V2+$MID3V2} ${NEEDEYED3+$EYED3}
 do
 	checkexec "$X"
 done
@@ -5225,6 +5298,10 @@ fi
 wait
 if [ "$DOREPLAYGAIN" = "y" ]; then
 	do_replaygain
+fi
+
+if [ "$EMBEDALBUMART" = "y" ]; then
+	do_embedalbumart
 fi
 
 # Execute the user-defined post_encode function before cleaning up

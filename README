@@ -15,6 +15,9 @@ an underscore and a hyphen. The end result usually looks like:
 Our_Lady_Peace/01.Supermans_Dead.ogg. This filename munging is customizable,
 edit the mungefilename function in your abcde.conf to change it.
 
+abcde also has the ability to search for and download suitable album art as
+well as automatically embed the album art into the tracks of some containers.
+
 Many of the questions related of problems executing abcde have been moved to the
 FAQ, which should be distributed along with this package. Refer to that file
 for more help.
