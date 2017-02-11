@@ -97,14 +97,15 @@ if ($command =~ m/^id/) {
     foreach my $release (@releases) {
         my $a_artist = $release->artist()->name();
         my $va = 0;
-	my $rel_year = "";
+        my $rel_year = "";
         if ($a_artist =~ /Various Artists/) {
             $va = 1;
         }
-	if ($release->release_event_list()->count() > 0) {
-	    my @events = @{$release->release_event_list()->events()};
-	    $rel_year =  substr($events[0]->date(),0,4);
-	}
+        my $release_event_list = $release->release_event_list();
+        if ($release_event_list) {
+            my @events = @{$release->release_event_list()->events()};
+            $rel_year =  substr($events[0]->date(),0,4);
+        }
 
         $releasenum++;
         open (OUT, "> $workdir/cddbread.$releasenum");

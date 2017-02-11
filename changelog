@@ -68,6 +68,9 @@ abcde 2.8.2
  * Add more comprehensive examples for filename munging in the example
    config file. Closes Issue 49:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=49
+ * Add a more better fix for the year lookup problem in abcde-musicbrainz-tool
+   Thanks to Tom Samstag for the patch. Closes Issue 57:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=57
    
 abcde 2.8.1.
 
