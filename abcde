@@ -3298,9 +3298,9 @@ do_embedalbumart()
 	FINALDIR="$(dirname "$OUTPUTDIR/$FINDPATH")"
 	cd "$FINALDIR"
 
-# Instructions for each format, feel free to add more. A good one to add in
-# next would be WavPack embedding using the the new wvtag utility shipped
-# with WavPack 5.1.0 and greater... Andrew.
+# Instructions for each format, feel free to add more. It would be nice to
+# make the backup directory selectable and perhaps also have an option for
+# the bold to simply have the image deleted. Work for another day... Andrew.
 	if [ -e "$ALBUMARTFILE" ] ; then
 		case  "$OUTPUT" in
 			mp3)
@@ -3308,7 +3308,6 @@ do_embedalbumart()
 				do
 				"$EYED3" --add-image "$ALBUMARTFILE":FRONT_COVER "$i"
 				done
-				# FIXME: Make the backup process selectable... 
 				mkdir "$FINALDIR"/albumart_backup
 				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
 				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
@@ -3318,7 +3317,6 @@ do_embedalbumart()
 				do 
 				"$METAFLAC" --import-picture-from="$ALBUMARTFILE" "$i"
 				done
-				# FIXME: Make the backup process selectable... 
 				mkdir "$FINALDIR"/albumart_backup
 				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
 				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
@@ -3328,7 +3326,15 @@ do_embedalbumart()
 				do
 				"$ATOMICPARSLEY" "$i" --artwork "$ALBUMARTFILE" --overWrite 
 				done
-				# FIXME: Make the backup process selectable... 
+				mkdir "$FINALDIR"/albumart_backup
+				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
+				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
+				;;
+			wv)
+				for i in *.wv
+				do
+				"$WVTAG" --write-binary-tag "Cover Art (Front)=@"$ALBUMARTFILE"" "$i"
+				done
 				mkdir "$FINALDIR"/albumart_backup
 				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
 				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
@@ -3732,6 +3738,7 @@ VORBISCOMMENT=vorbiscomment
 METAFLAC=metaflac
 NEROAACTAG=neroAacTag
 ATOMICPARSLEY=AtomicParsley
+WVTAG=wvtag
 
 WINE=wine
 CDPARANOIA=cdparanoia
@@ -4378,6 +4385,7 @@ do
 			[ "$DOTAG" = "y" ]
 			[ "$DOREPLAYGAIN" = "y" ] && NEEDWVGAIN=y
 			[ "$WVENCODERSYNTAX" = "ffmpeg" ] && DOREPLAYGAIN=n
+			[ "$EMBEDALBUMART" = "y" ] && NEEDWVTAG=y
 			;;
 		ape)
 			[ "$APENCODERSYNTAX" = "default" ] && APENCODERSYNTAX=mac
@@ -4830,7 +4838,7 @@ for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	${NEEDWVGAIN+WVGAIN} ${NEEDAPETAG+$APETAG} \
 	${NEEDCUE2DISCID+$CUE2DISCID} ${NEEDNEROAACTAG+$NEROAACTAG} \
 	${NEEDGLYRC+$GLYRC} ${NEEDWINE+$WINE} ${NEEDATOMICPARSLEY+$ATOMICPARSLEY} \
-	${NEEDMID3V2+$MID3V2} ${NEEDEYED3+$EYED3}
+	${NEEDMID3V2+$MID3V2} ${NEEDEYED3+$EYED3} ${NEEDWVTAG+$WVTAG}
 do
 	checkexec "$X"
 done

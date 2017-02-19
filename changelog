@@ -10,8 +10,9 @@ abcde 2.8.2
    and also in the abcde mailing list:
    https://lists.einval.com/pipermail/abcde-users/2017-January/000232.html
  * Allow for embedding of  album art downloaded by the getalbumart fuction. 
-   Currently this is available for flac (using metaflac), mp3 (using eyed3)
-    and m4a (using AtomicParsley). This can be invoked in 3 ways:
+   Currently this is available for flac (using metaflac), mp3 (using eyed3),
+    m4a (using AtomicParsley) and WavPack aka wv (using wvtag).
+    This can be invoked in 3 ways:
      
      1. Use the commandline '-B' option (this will also call getalbumart)
      2. Use the commandline '-a embedalbumart' option to add to list of actions

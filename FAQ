@@ -284,7 +284,8 @@ A. If you have set INTERACTIVE=y (this is the default) then you will have
 Q. What if I want my album art embedded?
 A. As of abcde 2.8.2 it is possible to have the album art automatically 
    embedded in the mp3 container using eyeD3, embedded in the flac container
-   using metaflac and embedded in the m4a container using AtomicParsley.
+   using metaflac, embedded in the m4a container using AtomicParsley and
+   embedded in the wv container using wvtag.
    
    There are 3 different ways to accomplish this:
    
@@ -292,8 +293,9 @@ A. As of abcde 2.8.2 it is possible to have the album art automatically
      2. Use the command line '-a embedalbumart' option to add to list of actions
      3. Use 'embedalbumart' in the 'ACTIONS' list in ~/.abcde.conf
      
-   Next in line will be embedding album art in WavPack files using wvtag
-   and perhaps after that embedding in Ape files...
+   Adding newer containers for album art embedding should be fairly straightforward
+   and these will be added when the right combination of available abcde developer
+   time and abcde user interest occurs...
   
 4. FORMATS
    =======
