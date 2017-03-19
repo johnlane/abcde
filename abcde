@@ -3874,6 +3874,8 @@ if [ X$(uname) = "XFreeBSD" ] ; then
 	OSFLAVOUR=FBSD
 elif [ X$(uname) = "XDarwin" ] ; then
 	HTTPGET=curl
+# By default md5sum is not installed, use md5 instead:
+	MD5SUM=md5
 	OSFLAVOUR=OSX
 	# We should have diskutil in OSX, but let's be sure...
 	NEEDDISKUTIL=y

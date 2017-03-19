@@ -19,6 +19,9 @@ abcde 2.8.2
      3. Use 'embedalbumart' in the 'ACTIONS' list in ~/.abcde.conf
      
    Still needs more development but it is perfectly usable at the moment!
+ * Use md5 rather than md5sum under macOS. Thanks to JCount for the bug
+   report and also the fix. This solves Issue 59:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=59
    
 abcde 2.8.1.
 
