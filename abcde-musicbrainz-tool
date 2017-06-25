@@ -208,7 +208,7 @@ if ($command =~ m/^id/) {
     print $id;
     if (-t STDOUT) { print "\n"; }
 } else {
-    print STDERR "Unknown commmand given.\n";
+    print STDERR "Unknown command given.\n";
     pod2usage(1);
     exit(1);
 }

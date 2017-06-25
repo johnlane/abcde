@@ -233,7 +233,7 @@ cdenc ()
 	abcde -Nx -d $CDROM $VALIDTRACKS > /dev/null 2>&1
 		
 
-	# If the disc is unknwon, give a warning and unique folder name.
+	# If the disc is unknown, give a warning and unique folder name.
 	
 	if [ -d "$PROCDIR/Unknown Artist - Unknown Album/" ]
 	then

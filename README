@@ -2,7 +2,7 @@ ABCDE
 =====
 
 abcde is a frontend command-line utility (actually, a shell script) that
-grabs tracks off a CD or a singletrack flac file with an embeded cuesheet,
+grabs tracks off a CD or a singletrack flac file with an embedded cuesheet,
 encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, M4A, Opus, WavPack,
 Monkey's Audio (ape) and/or MPP/MP+(Musepack) format, and tags them, all
 in one go.
@@ -84,7 +84,7 @@ Changes in 2.4:
 * Added the possibility of embeding a cuesheet on a singletrack flac file. A
   single BACKUP flag is most likely needed to use all the needed flags:
   "abcde -1 -o flac -a default,cue"
-* Added the possibility of using a singletrack flac file with an embeded
+* Added the possibility of using a singletrack flac file with an embedded
   cuesheet as a source to extract tracks from (use -X to specify an external
   CUE2DISCID implementation; check under examples in the distributed source
   code or package).

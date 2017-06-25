@@ -629,7 +629,7 @@ abcde (2.3.99-1) unstable; urgency=low
     parsed CDDB output.
   * Suggests mkcue, and erase old cdgrab info since sarge is out.
   * Changed cdparanoia-audio-tracks to use the status file to save the data.
-  * Added the possibility of using a singletrack flac file with an embeded
+  * Added the possibility of using a singletrack flac file with an embedded
     cuesheet as a source of tracks.
   * Added -z for easy and quick debug.
   * BATCH has been split into two options: BATCHNORM which allows, by using
@@ -748,7 +748,7 @@ abcde (2.2.4-1) unstable; urgency=low
   * DOSPLAYLIST was not included in the list of options.
   * Options passed to the encoder by using <-o ogg:"-b 192"> are now
     supported. One can modify the way abcde encodes just for the current CD.
-  * Unfortunatelly I forgot to add the starting number for tags in Ogg. For
+  * Unfortunately I forgot to add the starting number for tags in Ogg. For
     MP3 is a bit more difficult, since it needs changing the X/YY code.
   * Also, the order of the tags in metaflac is important for the utf8 names.
     Thanks to Frederik Juul Christiani (Closes: #297482)
@@ -913,7 +913,7 @@ abcde (2.1.15-1) unstable; urgency=low
     cleaner, works faster and some not needed network operations are no
     longer performed when we are working with local CDDB repositories.
   * Added "-V" for extra verbosity (on slow networks the user might be waiting
-    and wondering is somethins is happening).
+    and wondering is something is happening).
   * Solved a bug with the non-interactive code.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 16 Feb 2004 00:13:12 +0000
@@ -1079,7 +1079,7 @@ abcde (2.1.5-1) unstable; urgency=low
       should use the right variables for the HTTPGET command.
     + Tagging also use TRACKS and CDGENRE for MP3 files (kudos to Dirk
       Ruediger)
-    + FLAC encoding now uses dismp3 to encode remotelly (kudos to Taylor and
+    + FLAC encoding now uses dismp3 to encode remotely (kudos to Taylor and
       Kevin Cramer). HANDLE WITH CARE ;)
       Also FLAC now uses CDGENRE and CDYEAR for tagging.
   * Debian specific:
