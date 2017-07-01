@@ -829,6 +829,165 @@ echo ${id}
 return 0
 }
 
+do_getgenre () {
+local id="$1"
+local genre=""
+	case ${id} in
+		  0)	genre="Blues"		;;
+		  1)	genre="Classic Rock"	;;
+		  2)	genre="Country"		;;
+		  3)	genre="Dance"		;;
+		  4)	genre="Disco"		;;
+		  5)	genre="Funk"		;;
+		  6)	genre="Grunge"		;;
+		  7)	genre="Hip-Hop"		;;
+		  8)	genre="Jazz"		;;
+		  9)	genre="Metal"		;;
+		 10)	genre="New Age"		;;
+		 11)	genre="Oldies"		;;
+		 12)	genre="Other"		;;
+		 13)	genre="Pop"		;;
+		 14)	genre="R&B"		;;
+		 15)	genre="Rap"		;;
+		 16)	genre="Reggae"		;;
+		 17)	genre="Rock"		;;
+		 18)	genre="Techno"		;;
+		 19)	genre="Industrial"	;;
+		 20)	genre="Alternative"	;;
+		 21)	genre="Ska"		;;
+		 22)	genre="Death Metal"	;;
+		 23)	genre="Pranks"		;;
+		 24)	genre="Soundtrack"	;;
+		 25)	genre="Euro-Techno"	;;
+		 26)	genre="Ambient"		;;
+		 27)	genre="Trip-hop"	;;
+		 28)	genre="Vocal"		;;
+		 29)	genre="Jazz+Funk"	;;
+		 30)	genre="Fusion"		;;
+		 31)	genre="Trance"		;;
+		 32)	genre="Classical"	;;
+		 33)	genre="Instrumental"	;;
+		 34)	genre="Acid"		;;
+		 35)	genre="House"		;;
+		 36)	genre="Game"		;;
+		 37)	genre="Sound Clip"	;;
+		 38)	genre="Gospel"		;;
+		 39)	genre="Noise"		;;
+		 40)	genre="Alt. Rock"	;;
+		 41)	genre="Bass"		;;
+		 42)	genre="Soul"		;;
+		 43)	genre="Punk"		;;
+		 44)	genre="Space"		;;
+		 45)	genre="Meditative"	;;
+		 46)	genre="Instrumental Pop";;
+		 47)	genre="instrumental Rock";;
+		 48)	genre="Ethnic"		;;
+		 49)	genre="Gothic"		;;
+		 50)	genre="Darkwave"	;;
+		 51)	genre="Techno-Industrial";;
+		 52)	genre="Electronic"	;;
+		 53)	genre="Pop-Folk"	;;
+		 54)	genre="Eurodance"	;;
+		 55)	genre="Dream"		;;
+		 56)	genre="Southern rock"	;;
+		 57)	genre="Comedy"		;;
+		 58)	genre="Cult"		;;
+		 59)	genre="Gangsta"		;;
+		 60)	genre="Top 40"		;;
+		 61)	genre="Christian Rap"	;;
+		 62)	genre="Pop / Funk"	;;
+		 63)	genre="Jungle"		;;
+		 64)	genre="Native american";;
+		 65)	genre="Cabaret"		;;
+		 66)	genre="New Wave"	;;
+		 67)	genre="Psychadelic"	;;
+		 68)	genre="Rave"		;;
+		 69)	genre="Showtunes"	;;
+		 70)	genre="Trailer"		;;
+		 71)	genre="Lo-Fi"		;;
+		 72)	genre="Tribal"		;;
+		 73)	genre="Acid Punk"	;;
+		 74)	genre="Acid Jazz"	;;
+		 75)	genre="Polka"		;;
+		 76)	genre="Retro"		;;
+		 77)	genre="Musical"		;;
+		 78)	genre="Rock & Roll"	;;
+		 79)	genre="Hard Rock"	;;
+		 80)	genre="Folk"		;;
+		 81)	genre="Folk/Rock"	;;
+		 82)	genre="National Folk"	;;
+		 83)	genre="Swing"		;;
+		 84)	genre="Fusion"		;;
+		 85)	genre="Bebob"		;;
+		 86)	genre="Latin"		;;
+		 87)	genre="Revival"		;;
+		 88)	genre="Celtic"		;;
+		 89)	genre="Bluegrass"	;;
+		 90)	genre="Avantgarde"	;;
+		 91)	genre="Gothic Rock"	;;
+		 92)	genre="Progressive Rock";;
+		 93)	genre="psychadelic Rock";;
+		 94)	genre="Symphonic Rock"	;;
+		 95)	genre="Slow Rock"	;;
+		 96)	genre="Big Band"	;;
+		 97)	genre="Chorus"		;;
+		 98)	genre="Easy Listening"	;;
+		 99)	genre="Acoustic"	;;
+		100)	genre="Humour"		;;
+		101)	genre="Speech"		;;
+		102)	genre="Chanson"		;;
+		103)	genre="Opera"		;;
+		104)	genre="Chamber Music"	;;
+		105)	genre="Sonata"		;;
+		106)	genre="Symphony"	;;
+		107)	genre="Booty Bass"	;;
+		108)	genre="Primus"		;;
+		109)	genre="Porn Groove"	;;
+		110)	genre="Satire"		;;
+		111)	genre="Slow jam"	;;
+		112)	genre="Club"		;;
+		113)	genre="Tango"		;;
+		114)	genre="Samba"		;;
+		115)	genre="Folklore"	;;
+		116)	genre="Ballad"		;;
+		117)	genre="Power Ballad"	;;
+		118)	genre="Rhythmic Soul"	;;
+		119)	genre="Freestyle"	;;
+		120)	genre="Duet"		;;
+		121)	genre="Punk Rock"	;;
+		122)	genre="Drum Solo"	;;
+		123)	genre="A Capella"	;;
+		124)	genre="Euro-House"	;;
+		125)	genre="Dance Hall"	;;
+		126)	genre="Goa"		;;
+		127)	genre="Drum & Bass"	;;
+		128)	genre="Club-House"	;;
+		129)	genre="Hardcore"	;;
+		130)	genre="Terror"		;;
+		131)	genre="Indie"		;;
+		132)	genre="Britpop"		;;
+		133)	genre="Negerpunk"	;;
+		134)	genre="Polsk Punk"	;;
+		135)	genre="Beat"		;;
+		136)	genre="Christian Gangsta Rap";;
+		137)	genre="Heavy Metal"	;;
+		138)	genre="Black Metal"	;;
+		139)	genre="Crossover"	;;
+		140)	genre="Contemporary Christian";;
+		141)	genre="Christian Rock"	;;
+		142)	genre="Merengue"	;;
+		143)	genre="Salsa"		;;
+		144)	genre="Thrash Metal"	;;
+		145)	genre="Anime"		;;
+		146)	genre="JPop"		;;
+		147)	genre="Synthpop"	;;
+		148)	genre="Rock / Pop"	;;
+		*)                     return 1 ;;
+	esac
+echo ${genre}
+return 0
+}
+
 # do_tag [tracknumber]
 # id3 tags a filename
 # variables used:
@@ -3536,6 +3695,112 @@ do_embedalbumart()
 done
 }
 
+do_genre ()
+{
+
+	local g="$(checkstatus genre)"; [[ -n $g ]] && { CDGENRE=$g; return; }
+
+        local change_genre=n
+
+	# Do we have a recognised genre
+	GENREID=$(do_getgenreid "${CDGENRE}")
+        if [[ $? == 0 ]]; then
+		echo -n "Genre is '($GENREID)${CDGENRE}'. Change [y/N] ?" >&2
+
+		if [ "$INTERACTIVE" = "y" ]; then
+			read change_genre
+			[ -z "$change_genre" ] && change_genre=n
+		else
+			echo n >&2
+			change_genre=n
+		fi
+	else
+		echo "Genre '${CDGENRE}' is unknown. Select a genre :" >&2
+                CDGENRE='Other'
+		change_genre=y
+	fi
+
+        if [[ $change_genre == "y" ]]; then
+
+	        # Display Genres
+	        cat <<- EOF >&2
+		  0: Blues		1: Classic Rock		2: Country
+		  3: Dance		4: Disco		5: Funk
+		  6: Grunge		7: Hip-Hop		8: Jazz
+		  9: Metal		10: New Age		11: Oldies
+		 12: Other		13: Pop			14: R&B
+		 15: Rap		16: Reggae		17: Rock
+		 18: Techno		19: Industrial		20: Alternative
+		 21: Ska		22: Death Metal		23: Pranks
+		 24: Soundtrack		25: Euro-Techno		26: Ambient
+		 27: Trip-Hop		28: Vocal		29: Jazz+Funk
+		 30: Fusion		31: Trance		32: Classical
+		 33: Instrumental	34: Acid		35: House
+		 36: Game		37: Sound Clip		38: Gospel
+		 39: Noise		40: AlternRock		41: Bass
+		 42: Soul		43: Punk		44: Space
+		 45: Meditative		46: Instrumental Pop	47: Instrumental Rock
+		 48: Ethnic		49: Gothic		50: Darkwave
+		 51: Techno-Industrial	52: Electronic		53: Pop-Folk
+		 54: Eurodance		55: Dream		56: Southern Rock
+		 57: Comedy		58: Cult		59: Gangsta Rap
+		 60: Top 40		61: Christian Rap	62: Pop / Funk
+		 63: Jungle		64: Native American	65: Cabaret
+		 66: New Wave		67: Psychedelic		68: Rave
+		 69: Showtunes		70: Trailer		71: Lo-Fi
+		 72: Tribal		73: Acid Punk		74: Acid Jazz
+		 75: Polka		76: Retro		77: Musical
+		 78: Rock & Roll	79: Hard Rock		80: Folk
+		 81: Folk-Rock		82: National Folk	83: Swing
+		 84: Fast  Fusion	85: Bebob		86: Latin
+		 87: Revival		88: Celtic		89: Bluegrass
+		 90: Avantgarde		91: Gothic Rock		92: Progressive Rock
+		 93: Psychedelic Rock	94: Symphonic Rock	95: Slow Rock
+		 96: Big Band		97: Chorus		98: Easy Listening
+		 99: Acoustic		100: Humour		101: Speech
+		102: Chanson		103: Opera		104: Chamber Music
+		105: Sonata		106: Symphony		107: Booty Bass
+		108: Primus		109: Porn Groove	110: Satire
+		111: Slow Jam		112: Club		113: Tango
+		114: Samba		115: Folklore		116: Ballad
+		117: Power Ballad	118: Rhythmic Soul	119: Freestyle
+		120: Duet		121: Punk Rock		122: Drum Solo
+		123: A Cappella		124: Euro-House		125: Dance Hall
+		126: Goa		127: Drum & Bass	128: Club-House
+		129: Hardcore		130: Terror		131: Indie
+		132: BritPop		133: Negerpunk		134: Polsk Punk
+		135: Beat		136: Christ Gangsta Rap	137: Heavy Metal
+		138: Black Metal	139: Crossover		140: Contemporary Christian
+		141: Christian Rock	142: Merengue		143: Salsa
+		144: Thrash Metal	145: Anime		146: JPop
+		147: Synthpop		148: Rock/Pop
+		EOF
+
+                GENREID=$(do_getgenreid "${CDGENRE}")
+		echo -n "Genre is '${CDGENRE}'. Enter new id (${GENREID}) [0-148] : " >&2
+
+                until false; do
+
+			read input
+
+			[[ -z $input ]] && input=$GENREID
+
+			(( $input>=0 && $input<=148 )) && {
+				GENREID=$input
+                                break
+			} || {
+				echo "Invalid entry: please enter an id between 0 and 148." >&2
+				echo -n "Selection [0-148]: " >&2
+			}
+		done
+	fi
+
+	CDGENRE=$(do_getgenre $GENREID)
+	echo "Genre is '($GENREID)${CDGENRE}'." >&2
+	addstatus "genre=$CDGENRE"
+
+}
+
 # do_cdread [tracknumber]
 # do_cdread onetrack [firsttrack] [lasttrack]
 #
@@ -5232,6 +5497,7 @@ if [ "$DOCDDB" = "y" ]; then
 	eval "$($CDDBTOOL parse "$CDDBDATA")"
 
 	do_albumartist
+	do_genre
 fi
 
 # Before reading tracks, we set the speed of the device
