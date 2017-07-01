@@ -856,7 +856,13 @@ do_tag ()
 			# Set TPE2 in case we have a Various Artists rip.
 			TPE2=""
 			if [ "$VARIOUSARTISTS" = "y" ]; then
-				TPE2="Various"
+				TPE2="${VARIOUSARTISTSALBUMARTIST}"
+			fi
+
+			# Set TCMP so itunes correctly handles Various Artists rips.
+			TCMP=""
+			if [ "$COMPILATION" = "y" ]; then
+				TCMP=1
 			fi
 
 			case "$ID3SYNTAX" in
@@ -896,6 +902,7 @@ do_tag ()
 						eyed3_06) addopts=( \
 							${ENCODING:+--set-encoding="$ENCODING"} \
 							${TPE2:+--set-text-frame=TPE2:"$TPE2"} \
+						        ${TCMP:+--set-text-frame=TCMP:"$TCMP"} \
 					# We set 'recording-date' so the date tag will show 
 					# in Audacious, vlc and friends...          Andrew.
 							${CDYEAR:+--set-text-frame="TDRC:$CDYEAR"} \
@@ -904,6 +911,7 @@ do_tag ()
 						*) addopts=( \
 							${ENCODING:+--encoding="$ENCODING"} \
 							${TPE2:+--text-frame=TPE2:"$TPE2"} \
+							${TCMP:+--text-frame=TCMP:"$TCMP"} \
 					# We set 'recording-date' so the date tag will show 
 					# in Audacious, vlc and friends...           Andrew.
 							${CDYEAR:+--text-frame="TDRC:$CDYEAR"} \
@@ -2880,6 +2888,8 @@ do_cddbedit ()
 		CDDBDATA="${ABCDETEMPDIR}/cddbread.$(checkstatus cddb-choice)"
 		VARIOUSARTISTS="$(checkstatus variousartists)"
 		VARIOUSARTISTSTYLE="$(checkstatus variousartiststyle)"
+		VARIOUSARTISTSALBUMARTIST="$(checkstatus variousartistsalbumartist)"
+		COMPILATION="$(checkstatus compilation)"
 		return 0
 	fi
 	if [ "$INTERACTIVE" = "y" ]; then
@@ -3144,10 +3154,22 @@ do_cddbedit ()
 			VARIOUSARTISTS=n
 			;;
 		esac
+
+	fi
+
+	echo -n "Is the CD a compilation " >&2
+	[ "$VARIOUSARTISTS" = "y" ] && echo -n "[Y/n] ? " >&2 || echo -n "[y/N] ? " >&2
+	if [ "$INTERACTIVE" = "y" ]; then
+		read COMPILATION
+		[ -z "$COMPILATION" ] && COMPILATION=$VARIOUSARTISTS
+	else
+		echo n >&2
+		COMPILATION=n
 	fi
 
 	echo "variousartists=$VARIOUSARTISTS" >> "${ABCDETEMPDIR}/status"
 	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "${ABCDETEMPDIR}/status"
+	echo "compilation=$COMPILATION" >> "${ABCDETEMPDIR}/status"
 
 	if [ "$EDITCDDB" = "y" ] && [ "$CDDBSOURCE" = "cddb" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
 		if [ "$CDDBDATAMD5SUM" != "" ]  && [ "$CDDBDATAMD5SUM" != "$($MD5SUM "$CDDBDATA" | cut -d " " -f 1)" ]; then
@@ -3190,6 +3212,33 @@ do_cddbedit ()
 	fi
 
 	echo "cddb-edit" >> "${ABCDETEMPDIR}/status"
+}
+
+do_albumartist ()
+{
+	checkstatus variousartistsalbumartist && return
+
+	if [ "$VARIOUSARTISTS" = "y" ] && [ ! "$ONETRACK" = "y" ]; then
+
+		DEFAULTVARIOUSARTISTSALBUMARTIST=${DARTIST:-$VARIOUSARTISTSALBUMARTIST}
+		echo -n "Enter the Album Artist ($DEFAULTVARIOUSARTISTSALBUMARTIST) : " >&2
+		if [ "$INTERACTIVE" = "y" ]; then
+			read VARIOUSARTISTSALBUMARTIST
+		else
+			echo $DEFAULTVARIOUSARTISTSALBUMARTIST >&2
+			VARIOUSARTISTSALBUMARTIST=$DEFAULTVARIOUSARTISTSALBUMARTIST
+		fi
+		if [ -z "$VARIOUSARTISTSALBUMARTIST" ]; then
+			VARIOUSARTISTSALBUMARTIST=$DEFAULTVARIOUSARTISTSALBUMARTIST
+		fi
+		echo "Album Artist is set to $VARIOUSARTISTSALBUMARTIST" >&2
+
+	fi
+
+	echo "variousartistsalbumartist=$VARIOUSARTISTSALBUMARTIST" >> "$ABCDETEMPDIR/status"
+
+	addstatus "variousartistsalbumartist=$VARIOUSARTISTSALBUMARTIST"
+
 }
 
 # do_getalbumart
@@ -3790,6 +3839,8 @@ MP2ENCODERSYNTAX=default
 AACENCODERSYNTAX=default
 NORMALIZERSYNTAX=default
 CUEREADERSYNTAX=default
+
+VARIOUSARTISTSALBUMARTIST='Various Artists'
 
 OUTPUTFORMAT='${ARTISTFILE}-${ALBUMFILE}/${TRACKNUM}.${TRACKFILE}'
 # Use the following VAOUTPUTFORMAT to revert to 2.0.x VA format:
@@ -5179,6 +5230,8 @@ if [ "$DOCDDB" = "y" ]; then
 	do_cddbedit
 
 	eval "$($CDDBTOOL parse "$CDDBDATA")"
+
+	do_albumartist
 fi
 
 # Before reading tracks, we set the speed of the device
