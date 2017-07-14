@@ -25,6 +25,12 @@ abcde 2.8.2
  * Support added for encoding with Audio Interchange File Format (AIFF). 
    Thanks to Massimo Villa for the feature request. FFmpeg is required
    for the encoding, the container and suffix are 'aiff'.
+ * Allow selection of either cddb or musicbrainz from the command line:
+ 
+  -Q   Select CDDBMETHOD from the command line. Choice is cddb or musicbrainz.
+  
+   Command line letters are fast running out but the 'Q' option quite neatly
+   stands for 'Query'!
    
 abcde 2.8.1.
 
