@@ -4,10 +4,10 @@ ABCDE
 abcde is a frontend command-line utility (actually, a shell script) that
 grabs tracks off a CD or a singletrack flac file with an embedded cuesheet,
 encodes them to Ogg/Vorbis, MP3, FLAC, Ogg/Speex, M4A, Opus, WavPack,
-Monkey's Audio (ape) and/or MPP/MP+(Musepack) format, and tags them, all
-in one go.
+Monkey's Audio (ape), MPP/MP+(Musepack) and/or AIFF format, and tags
+them, all in one go.
 
-Your finished Ogg/MP3/FLAC/Speex/M4A/Opus,WavPack/Ape/MPP's are, by default,
+Your finished Ogg/MP3/FLAC/Speex/M4A/Opus,WavPack/Ape/MPP/AIFF's are, by default,
 stored in a subdirectory of the current directory (named after the artist)
 with a filename based on the track title. Spaces are replaced by underscores,
 and apostrophes and control codes are filtered out. Colons are replaced with
