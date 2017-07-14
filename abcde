@@ -48,7 +48,7 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta). Defaults to vorbis"
+echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta,aiff). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-r <host1[,host2]...>"
@@ -940,6 +940,9 @@ do_tag ()
 		mka)
 			run_command tagtrack-$OUTPUT-$1 true
 			;;
+		aiff)
+			run_command tagtrack-$OUTPUT-$1 true
+			;;
 		flac)
 			(
 			echo ARTIST="$TRACKARTIST"
@@ -1113,6 +1116,9 @@ do_encode ()
 			mka)
 				TEMPARG="PIPE_$MKAENCODERSYNTAX"
 				;;
+			aiff)
+				TEMPARG="PIPE_$AIFFENCODERSYNTAX"
+				;;
 			flac)
 				TEMPARG="PIPE_$FLACENCODERSYNTAX"
 				;;
@@ -1152,6 +1158,9 @@ do_encode ()
 					;;
 				mka)
 					OUTPUT=$MKAOUTPUTCONTAINER
+					;;
+				aiff)
+					OUTPUT=$AIFFOUTPUTCONTAINER
 					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
@@ -1237,6 +1246,19 @@ do_encode ()
 						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT"
 					else
 						$RUN_COMMAND nice $EFFECTIVE_NICE $MKAENCODER -i "$IN" $MKAENCODEROPTS "$OUT"
+					fi
+				;;
+				esac
+				;;
+			aiff)
+				case "$AIFFENCODERSYNTAX" in
+				ffmpeg)
+					if [ "$DOTAG" = "y" ]; then
+						$RUN_COMMAND nice $EFFECTIVE_NICE $AIFFENCODER -i "$IN" $AIFFENCODEROPTS -metadata artist="$TRACKARTIST" \
+						-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track=${TRACKNUM:-$1} -metadata date="$CDYEAR" \
+						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT"
+					else
+						$RUN_COMMAND nice $EFFECTIVE_NICE $AIFFENCODER -i "$IN" $AIFFENCODEROPTS "$OUT"
 					fi
 				;;
 				esac
@@ -1611,6 +1633,9 @@ do_move ()
 				mka)
 					OUTPUT=$MKAOUTPUTCONTAINER
 					;;
+				aiff)
+					OUTPUT=$AIFFOUTPUTCONTAINER
+					;;
 				flac)
 					OUTPUT=$FLACOUTPUTCONTAINER
 					;;
@@ -1697,6 +1722,9 @@ do_playlist ()
 				;;
 			mka)
 				OUTPUT=$MKAOUTPUTCONTAINER
+				;;
+			aiff)
+				OUTPUT=$AIFFOUTPUTCONTAINER
 				;;
 			flac)
 				OUTPUT=$FLACOUTPUTCONTAINER
@@ -3643,6 +3671,7 @@ MP3ENCODERSYNTAX=default
 OGGENCODERSYNTAX=default
 OPUSENCODERSYNTAX=default
 MKAENCODERSYNTAX=default
+AIFFENCODERSYNTAX=default
 FLACENCODERSYNTAX=default
 SPEEXENCODERSYNTAX=default
 MPCENCODERSYNTAX=default
@@ -3772,7 +3801,13 @@ IDENTIFY=identify
 CONVERT=convert
 DISPLAYCMD=display
 
-# Options for programs called from abcde
+# Options for programs called from abcde:
+#
+# aiff
+# These options needed by FFmpeg for tagging and selection of id3v2 version:
+#  1. '-write_id3v2 1' allows id3v2 tagging while '-write_id3v2 0' disables tagging
+#  2. '-id3v2_version 4' gives version id3v2.4 while '3' gives id3v2.3 
+AIFFENCOPTS="-write_id3v2 1 -id3v2_version 4"
 # mp3
 LAMEOPTS=
 GOGOOPTS=
@@ -4318,6 +4353,7 @@ case "$OUTPUTTYPE" in *:*)
 			vorbis:*|ogg:*)	OGGENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			opus:*)	OPUSENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mka:*)	MKAENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
+			aiff:*)	AIFFENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			mp3:*)	MP3ENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			flac:*)	FLACENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
 			spx:*)	SPEEXENCODEROPTSCLI="$( echo $OUTPUT | cut -d: -f2- )" ;;
@@ -4360,6 +4396,10 @@ do
 		mka)
 			[ "$MKAENCODERSYNTAX" = "default" ] && MKAENCODERSYNTAX=ffmpeg
 			MKAOUTPUTCONTAINER=mka
+			;;
+		aiff)
+			[ "$AIFFENCODERSYNTAX" = "default" ] && AIFFENCODERSYNTAX=ffmpeg
+			AIFFOUTPUTCONTAINER=aiff
 			;;
 		mp3)
 			[ "$MP3ENCODERSYNTAX" = "default" ] && MP3ENCODERSYNTAX=lame
@@ -4477,6 +4517,12 @@ case "$MKAENCODERSYNTAX" in
 	ffmpeg)
 		MKAENCODEROPTS="${MKAENCODEROPTSCLI:-$FFMPEGENCOPTS}"
 		MKAENCODER="$FFMPEG"
+		;;
+esac
+case "$AIFFENCODERSYNTAX" in
+	ffmpeg)
+		AIFFENCODEROPTS="${AIFFENCODEROPTSCLI:-$AIFFENCOPTS}"
+		AIFFENCODER="$FFMPEG"
 		;;
 esac
 case "$FLACENCODERSYNTAX" in
@@ -4796,6 +4842,8 @@ if [ "$USEPIPES" = "y" ]; then
 			PIPEENCODERSVARCHECK="PIPE_$OPUSENCODERSYNTAX" ;;
 		mka)
 			PIPEENCODERSVARCHECK="PIPE_$MKAENCODERSYNTAX" ;;
+		aiff)
+			PIPEENCODERSVARCHECK="PIPE_$AIFFENCODERSYNTAX" ;;
 		flac)
 			PIPEENCODERSVARCHECK="PIPE_$FLACENCODERSYNTAX" ;;
 		spx)
@@ -4830,7 +4878,7 @@ fi
 # Make sure a buncha things exist
 for X in $CDROMREADER $CDDISCID ${NEEDTAGGER+$TAGGER} $MP3ENCODER \
 	$OGGENCODER $OPUSENCODER $MKAENCODER $FLACENCODER $SPEEXENCODER $MPCENCODER \
-	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $MP2ENCODER $TTAENCODER \
+	$AACENCODER $WVENCODER $CDDBTOOL $APENCODER $MP2ENCODER $TTAENCODER $AIFFENCODER \
 	${NEEDHTTPGET+$HTTPGET} ${NEEDDISTMP3+$DISTMP3} \
 	${NEEDCOMMENTER+$VORBISCOMMENT} ${NEEDMETAFLAC+$METAFLAC} \
 	${NEEDNORMALIZER+$NORMALIZER} ${NEEDEJECT+$EJECT} \

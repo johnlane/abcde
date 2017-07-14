@@ -22,6 +22,9 @@ abcde 2.8.2
  * Use md5 rather than md5sum under macOS. Thanks to JCount for the bug
    report and also the fix. This solves Issue 59:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=59
+ * Support added for encoding with Audio Interchange File Format (AIFF). 
+   Thanks to Massimo Villa for the feature request. FFmpeg is required
+   for the encoding, the container and suffix are 'aiff'.
    
 abcde 2.8.1.
 
