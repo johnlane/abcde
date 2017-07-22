@@ -301,9 +301,10 @@ A. As of abcde 2.8.2 it is possible to have the album art automatically
    =======
 
 Q. What formats can I encode my music to?
-A. As for version 2.2, abcde includes support for MP3, Ogg/Vorbis,
-   Ogg/Speex, Flac and MPP/MP+(Musepack). Support for AAC will be added once
-   an FLOSS encoder/decoder is working.
+A. As of version 2.8.2 abcde includes support for MP3, Ogg/Vorbis,
+   Ogg/Speex, Flac, MPP/MP+(Musepack), AAC, AIFF (Audio Interchange File Format),
+   Alac, WavPack, TTA (True Type Audio), APE (Monkey's Audio), Opus,
+   AC3 and MP2.
 
 Q. I want the new *put the newest and coolest codec there* format to be
    supported by abcde. Abcde is so cool but i want to encode also to this
