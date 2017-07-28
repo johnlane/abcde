@@ -3316,12 +3316,21 @@ do_embedalbumart()
 	# Allow for multiple output formats:
 	for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 	do
-
-		# Find the output directory:
-		if [ "$VARIOUSARTISTS" = "y" ] ; then
-			FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
-		else
-			FINDPATH="$(eval echo "$OUTPUTFORMAT")"
+		# Find the output directory for multi track encodes:
+		if [ "$ONETRACK" != "y" ] ; then
+			if [ "$VARIOUSARTISTS" = "y" ] ; then
+				FINDPATH="$(eval echo "$VAOUTPUTFORMAT")"
+			else
+				FINDPATH="$(eval echo "$OUTPUTFORMAT")"
+			fi
+		fi
+		# Find the output directory for single track encodes:
+		if [ "$ONETRACK" = "y" ] ; then
+			if [ "$VARIOUSARTISTS" = "y" ] ; then
+				FINDPATH="$(eval echo "$VAONETRACKOUTPUTFORMAT")"
+				else
+				FINDPATH="$(eval echo "$ONETRACKOUTPUTFORMAT")"
+			fi
 		fi
 
 	FINALDIR="$(dirname "$OUTPUTDIR/$FINDPATH")"

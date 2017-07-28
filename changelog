@@ -31,6 +31,10 @@ abcde 2.8.2
   
    Command line letters are fast running out but the 'Q' option quite neatly
    stands for 'Query'!
+ * Allow for embedding with do_embedalbumart() for single track encodes when
+   OUTPUTFORMAT and ONETRACKOUTPUTFORMAT are different. Thanks to Ashley Gittins
+   for the bug report. This closes Issue 63:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=63
    
 abcde 2.8.1.
 
