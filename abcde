@@ -3377,6 +3377,71 @@ do_embedalbumart()
 				mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
 				vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
 				;;
+			ogg)
+			# ----------------
+			# This technique is drawn from 2 sources (the first link being the primary source):
+			# 	1. https://github.com/biapy/howto.biapy.com/blob/master/various/mussync-tools
+			# 	2. https://github.com/acabal/scripts/blob/master/ogg-cover-art
+			# In abcde a few steps are used in this sequence:
+			#
+			# 	1. Create a 'legal' header for the cover art image
+			# 	2. Makes a copy of the existing tags
+			#	3. base64 the cover art image
+			#	4. Copy the original tags + the base64 image back to the original ogg file
+			#
+			# Might need some fine tuning but it is a start for abcde 2.8.2         Andrew.
+			# FIXME: I am not sure if there is a maximum size for images converted in this
+			# way, but this could be perhaps handled by CONVERTOPTS called from do_getalbumart.
+			# ----------------
+			# First some variables we can reuse:
+			# Use MIMETYPECOVER to allow use of either png or the more common jpeg:
+			MIMETYPECOVER=$(file -b --mime-type "$ALBUMARTFILE")
+			EXPORTTAGS="$ABCDETEMPDIR/export_ogg_tags"
+			BUILDHEADER="$ABCDETEMPDIR/build_header"
+			# Now build the header, gory details are here:
+			# https://xiph.org/flac/format.html#metadata_block_picture
+				# Picture Type:
+				printf "0: %.8x" 3 | xxd -r -g0 > "$BUILDHEADER"
+				# Mime type length
+				printf "0: %.8x" $(echo -n "$MIMETYPECOVER" | wc -c) | xxd -r -g0 >> "$BUILDHEADER"
+				# Mime type:
+				echo -n "$MIMETYPECOVER" >> "$BUILDHEADER"
+				# Description length. FIXME: I have used 'Cover Image' but I am not sure
+				# if this is better left as an empty field.      Andrew
+				printf "0: %.8x" $(echo -n "Cover Image" | wc -c) | xxd -r -g0 >> "$BUILDHEADER"
+				# Description:
+				echo -n "Cover Image" >> "$BUILDHEADER"
+				# Picture width:
+				printf "0: %.8x" 0 | xxd -r -g0  >> "$BUILDHEADER"
+				# Picture height:
+				printf "0: %.8x" 0 | xxd -r -g0 >> "$BUILDHEADER"
+				# Picture color depth:
+				printf "0: %.8x" 0 | xxd -r -g0 >> "$BUILDHEADER"
+				# Picture color count:
+				printf "0: %.8x" 0 | xxd -r -g0 >> "$BUILDHEADER"
+				# Image file size:
+				printf "0: %.8x" $(wc -c "$ALBUMARTFILE" | cut --delimiter=' ' --fields=1) | xxd -r -g0 >> "$BUILDHEADER"
+				# cat the image file:
+				cat "$ALBUMARTFILE" >> "$BUILDHEADER"
+			# Now process each ogg file by first exporting the original tags then
+			# appending the cover image and finally copying the whole thing back
+			# to the original image:
+			for i in *.ogg
+			do
+				# Make a backup of the existing tags:
+				"$VORBISCOMMENT" --list --raw "$i" > "EXPORTTAGS"
+				# base64 the file and then mix it all together with the exported tags:
+				echo "metadata_block_picture=$(base64 --wrap=0 < "$BUILDHEADER")" >> "EXPORTTAGS"
+				# Update the original ogg file with exported tags and the appended base64'd image:
+				"$VORBISCOMMENT" --write --raw --commentfile "EXPORTTAGS" "$i"
+				# Delete the EXPORTTAGS file ready to be recreated for the next file in the loop,
+				# note that the header file BUILDHEADER will be reused for each file in the loop:
+				rm "EXPORTTAGS"
+			done
+			mkdir "$FINALDIR"/albumart_backup
+			mv "$ALBUMARTFILE" "$FINALDIR"/albumart_backup
+			vecho "Successfully embedded the album art into your $OUTPUT tracks" >&2
+			;;
 			*) vecho "Sorry, abcde does not embed album art for the $OUTPUT container..." >&2
 		esac
 	else

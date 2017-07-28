@@ -35,6 +35,17 @@ abcde 2.8.2
    OUTPUTFORMAT and ONETRACKOUTPUTFORMAT are different. Thanks to Ashley Gittins
    for the bug report. This closes Issue 63:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=63
+ * Experimental support for embedding albumart with ogg files. The slightly
+   tortuous technique drawn from 2 sources:
+
+   1. https://github.com/biapy/howto.biapy.com/blob/master/various/mussync-tools
+   2. https://github.com/acabal/scripts/blob/master/ogg-cover-art
+   
+   Testing is strongly encouraged, perhaps the simplest way to test is with:
+   
+       abcde -o ogg -B
+    
+    Or the appropriate settings in an ~/.abcde.conf file.
    
 abcde 2.8.1.
 
