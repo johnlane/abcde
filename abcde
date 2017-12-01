@@ -3309,8 +3309,9 @@ do_getalbumart()
 do_embedalbumart()
 {
 	# Set variables:
-	ARTISTFILE="$(mungefilename "$TRACKARTIST")"
-	ALBUMFILE="$(mungefilename "$DALBUM")"
+	ALBUMFILE="$(mungealbumname "$DALBUM")"
+	ARTISTFILE="$(mungeartistname "$DARTIST")"
+	GENRE="$(mungegenre "$GENRE")"
 	YEAR=${CDYEAR:-$CDYEAR}
 
 	# Allow for multiple output formats:
