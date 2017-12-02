@@ -588,6 +588,13 @@ post_read () is a shell function which is executed after the CDROM is read
 from the CDROM, or to try to read the DATA areas from the CD (if any exist).
 The default function is empty.
 .TP
+.B post_encode
+post_encode () is a shell function which is executed after the encoding process.
+It can be used to move completed files to another location, run any sort of testing
+on the completed files or embed album art if the built in embedding provided by
+abcde's embedalbumart function is not to your taste.
+The default function is empty.
+.TP
 .B EJECTCD
 If set to "y", \fBabcde\fR will call \fBeject\fR(1) to eject the cdrom from the drive
 after all tracks have been read. It has no effect when CDROM is set to a flac
