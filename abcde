@@ -1980,7 +1980,7 @@ abcde.mkcue () {
 }
 
 # do_discid
-# This essentially the start of things
+# This is essentially the start of things
 do_discid ()
 {
 	if [ -z "$CDDBDISCID" ]; then
