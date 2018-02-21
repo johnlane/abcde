@@ -55,7 +55,8 @@ abcde 2.8.2
    CDDBMETHOD and the code will now call all of them in the sequence
    listed. All the results will be combined into one list at the end for
    the user to select, just like would have previously worked for one
-   source only.
+   source only. Closes Issue 42:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
  * Fix Musicbrainz ID calculation in makeids()
    Apply fix suggested by petecollins24@gmail.com; add PREGAP to
    LEADOUT to correct Musicbrainz ID calculation. Hopefully closes
