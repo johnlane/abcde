@@ -1,0 +1,76 @@
+abcde interfaces
+================
+
+abcde uses a lot of files as it runs in order to keep track of current
+status and to store the various bits of data it's using, like cddb
+lookups and results, user choices, encoding etc.
+
+Here is (the start of!) a quick guide to what each file is used
+for. Each file lives in $ABCDETEMPDIR at runtime, which is the
+per-disc working directory that abcde uses. Once the "clean" operation
+has happened, they all go away.
+
+CD lookups
+----------
+
+cddbchoices - concatenation of all the lookups with some status
+              information. Displayed to the user once all the lookups
+              are complete, as the list of results to choose from.
+
+cddbread.X -  generic-ish results from a disc lookup, for match number
+              X. Based on the format used by *cddb*, but the
+              musicbrainz and cdtext lookup methods have been written
+              to (roughly) output this format as an interface so the
+              rest of the abcde code doesn't need massive adaptation
+              to new formats. Match number 0 is special - it's a blank
+              template file ready for the user to edit in case there's
+              no correct match.
+
+cddbquery   - result code and summary of a disc lookup. Based on the
+	      format used by *cddb*, and faked up by the other lookup
+	      methods. A single successful match will look like:
+
+	      200 $genre $discid $artist / $album
+
+	      Multiple successful matches will show up as
+
+	      210 Found exact matches, list follows (until terminating `.')
+	      $genre1 $discid $artist1 / $album1
+	      $genre2 $discid $artist2 / $album2
+	      .
+
+	      Other response codes are possible, 999 is special and
+	      used internally by abcde to denote a local cddb data
+	      cache
+
+cue-<discid>.txt - cue file generated from the track data on the disc
+
+cddbdiscid  - raw data showing the cddb discid and the track info numbers
+	      used to calculate it
+
+mbdiscid    - raw data showing a musicbrainz discid and the track info
+	      numbers used to calculate it
+
+status 	    - log file of all the operations carried out thus far. Format
+	      is important - things are looked up here regularly to
+	      work out what's happened and what should be done
+	      next. See usage of the checkstatus() function to look
+	      for things.
+
+Files specific to lookups using *cddb*, in the data-cddb subdir:
+
+ * cddbstat - status from a cddb server, downloaded as a check that
+              the server is working correctly (ish!)
+
+Files specific to lookups using *musicbrainz*:
+
+ * asin.X   -\ details about musicbrainz-specific information for
+ * mbid.X   -/ match number X.
+
+specific to lookups using *cdtext*, in the data-cdtext subdir:
+
+ * cd-text  - the raw CD-Text information as returned by icedax/cdda2wav
+
+...
+
+More to follow...?
