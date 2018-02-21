@@ -1928,7 +1928,7 @@ abcde.mkcue () {
 	local i OFFSET LBA
 	local CUEWAVFILE
 
-	if [ "$1" = --wholedisc ] ; then
+	if [ "$1" = --wholedisk ] ; then
 		MODE=INDEX
 	else
 		MODE=PREGAP
@@ -4699,6 +4699,10 @@ fi
 case "$CUEREADERSYNTAX" in
 	default|mkcue)
 		CUEREADEROPTS="${CDROM}"
+		CUEREADER="$MKCUE"
+		;;
+	abcde.mkcue)
+		CUEREADEROPTS="$MKCUEOPTS ${CDROM}"
 		CUEREADER="$MKCUE"
 		;;
 esac

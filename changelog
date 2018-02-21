@@ -61,6 +61,10 @@ abcde 2.8.2
    Apply fix suggested by petecollins24@gmail.com; add PREGAP to
    LEADOUT to correct Musicbrainz ID calculation. Hopefully closes
    Issue 54: https://abcde.einval.com/bugzilla/show_bug.cgi?id=54
+ * Fix abcde.mkcue() when handling the --wholedisk option. Thanks to
+   Nino Burini for the patch. Closes Issue 47 and maybe also 45:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=47
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=45
    
 abcde 2.8.1.
 
