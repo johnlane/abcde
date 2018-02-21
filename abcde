@@ -633,8 +633,8 @@ splitvarious ()
 }
 
 do_getgenreid () {
-local genre=$(echo "${@}" | tr '[A-Z]' '[a-z]')
-local id=""
+	local genre=$(echo "${@}" | tr '[A-Z]' '[a-z]')
+	local id=""
 	case ${genre} in
 		"blues")                 id=0 ;;
 		"classic rock")          id=1 ;;
