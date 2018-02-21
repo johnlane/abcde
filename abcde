@@ -396,7 +396,7 @@ diffentries ()
 			done
 			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/$FILENAME.diff"
 			$DIFF $DIFFOPTS "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/$FILENAME.diff"
-			if [ $(cat "$ABCDETEMPDIR/$FILENAME.diff" | wc -l) -ge 24 ]; then
+			if [ $(cat "$ABCDETEMPDIR/$FILENAME.diff" | wc -l) -ge $LINES ]; then
 				page "$ABCDETEMPDIR/$FILENAME.diff"
 			else
 				cat "$ABCDETEMPDIR/$FILENAME.diff" >&2
@@ -2402,7 +2402,7 @@ do_localcddb_read ()
 						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
 					} >> "$ABCDETEMPDIR/cddblocalchoices"
 				done
-				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge 24 ] && [ "$INTERACTIVE" = "y" ]; then
+				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge $LINES ] && [ "$INTERACTIVE" = "y" ]; then
 					page "$ABCDETEMPDIR/cddblocalchoices"
 				else
 					# It's all going to fit in one page, cat it
@@ -2774,7 +2774,7 @@ do_cddbedit ()
 					esac
 				else
 					# The user has a choice to make, display the info in a pager if necessary
-					if [ $(cat "$ABCDETEMPDIR/cddbchoices" | wc -l) -ge 24 ]; then
+					if [ $(cat "$ABCDETEMPDIR/cddbchoices" | wc -l) -ge $LINES ]; then
 						page "$ABCDETEMPDIR/cddbchoices"
 					else
 						# It's all going to fit in one page, cat it
@@ -2804,7 +2804,7 @@ do_cddbedit ()
 									done
 									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/cddbread.diff"
 									$DIFF $DIFFOPTS "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/cddbread.diff"
-									if [ $(cat "$ABCDETEMPDIR/cddbread.diff" | wc -l) -ge 24 ]; then
+									if [ $(cat "$ABCDETEMPDIR/cddbread.diff" | wc -l) -ge $LINES ]; then
 										page "$ABCDETEMPDIR/cddbread.diff"
 									else
 										cat "$ABCDETEMPDIR/cddbread.diff" >&2
@@ -3922,6 +3922,12 @@ CDDBAVAIL=y
 # variables.
 GREP_OPTIONS=""
 GREP_COLOR=""
+
+# Length of the terminal *should* be in $LINES. If it's not, guess at
+# a reasonable number instead
+if [ -z "$LINES" ]; then
+	LINES=24
+fi
 
 if [ -z "$OUTPUTDIR" ]; then
 	OUTPUTDIR=$(pwd)
