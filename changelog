@@ -65,6 +65,9 @@ abcde 2.8.2
    Nino Burini for the patch. Closes Issue 47 and maybe also 45:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=47
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=45
+ * Add more comprehensive examples for filename munging in the example
+   config file. Closes Issue 49:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=49
    
 abcde 2.8.1.
 
