@@ -487,6 +487,8 @@ makeids ()
 	PREGAP=$(($(echo $OFFSETS | cut -f1 -d' ')))
 	TOTALTIME=$(( (($LEADOUT + $LEADIN + $PREGAP) / $CDFRAMES) - (($LEADIN + $PREGAP) / $CDFRAMES)))
 
+	vvecho "makeids: PREGAP $PREGAP, LEADIN $LEADIN, LEADOUT $LEADOUT"
+
 	# Calculate both the cddb discid *and* the musicbrainz discid
 	# now. We'll use the cddb discid for reference in most cases
 	# for consistency, but we also have the musicbrainz discid for
@@ -497,7 +499,7 @@ makeids ()
 	case $CDDBMETHOD in
 		*musicbrainz*)
 			# FIXME: don't assume the first track is 1
-			MBDISCID=$($MUSICBRAINZ --command calcid --discinfo 1 $TRACKS $LEADIN $LEADOUT $OFFSETS)
+			MBDISCID=$($MUSICBRAINZ --command calcid --discinfo 1 $TRACKS $LEADIN $(($PREGAP + $LEADOUT)) $OFFSETS)
 			MBTRACKINFO="${MBDISCID} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
 			;;
 	esac
