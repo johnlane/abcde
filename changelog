@@ -46,6 +46,17 @@ abcde 2.8.2
        abcde -o ogg -B
     
     Or the appropriate settings in an ~/.abcde.conf file.
+
+ * Massive rework of CD lookup code so support multiple sources
+   better. Thanks to Gabriel Rosenkoetter for his initial idea in this
+   area, and to Tomasz Goliński on irc for initial inspiration on how
+   this should work better.
+   There are now 3 different options for CD lookup: cddb, musicbrainz and
+   cdtext. They can all be listed in a comma-separated list for
+   CDDBMETHOD and the code will now call all of them in the sequence
+   listed. All the results will be combined into one list at the end for
+   the user to select, just like would have previously worked for one
+   source only.
    
 abcde 2.8.1.
 

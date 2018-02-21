@@ -51,7 +51,7 @@ echo "-o <type1[,type2]...>"
 echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta,aiff). Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
-echo "-Q     Select CDDBMETHOD from the command line. Choice is cddb or musicbrainz".
+echo "-Q     Select CDDBMETHOD method(s) from the command line. Choose from any/all of musicbrainz,cddb,cdtext. Defaults to musicbrainz".
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-s <field>"
@@ -487,18 +487,20 @@ makeids ()
 	PREGAP=$(($(echo $OFFSETS | cut -f1 -d' ')))
 	TOTALTIME=$(( (($LEADOUT + $LEADIN + $PREGAP) / $CDFRAMES) - (($LEADIN + $PREGAP) / $CDFRAMES)))
 
-	case "$CDDBMETHOD" in
-		cddb)
-			printf -v DISCID "%08lx" $(( ($CDDBCKSUM % 0xff) * 16777216 | $TOTALTIME * 256 | $TRACKS))
-			;;
-		musicbrainz)
+	# Calculate both the cddb discid *and* the musicbrainz discid
+	# now. We'll use the cddb discid for reference in most cases
+	# for consistency, but we also have the musicbrainz discid for
+	# when we need it
+	printf -v CDDBDISCID "%08lx" $(( ($CDDBCKSUM % 0xff) * 16777216 | $TOTALTIME * 256 | $TRACKS))
+	CDDBTRACKINFO="${CDDBDISCID} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
+
+	case $CDDBMETHOD in
+		*musicbrainz*)
 			# FIXME: don't assume the first track is 1
-			echo "dasd: 1 $TRACKS $LEADIN $LEADOUT $OFFSETS "
-			DISCID=$($MUSICBRAINZ --command calcid --discinfo 1 $TRACKS $LEADIN $LEADOUT $OFFSETS)
+			MBDISCID=$($MUSICBRAINZ --command calcid --discinfo 1 $TRACKS $LEADIN $LEADOUT $OFFSETS)
+			MBTRACKINFO="${MBDISCID} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
 			;;
 	esac
-
-	TRACKINFO="${DISCID} $((TRACKS)) ${COOKEDOFFSETS} $((($LEADOUT + $LEADIN + $IDMAGICNUM) / $CDFRAMES))"
 }
 
 do_replaygain()
@@ -800,9 +802,7 @@ do_tag ()
 	if [ -z "$COMMENTOUTPUT" ]; then
 		COMMENTOUTPUT="$(getcddbinfo TRACK-INFO)"
 	fi
-	if [ "$CDDBMETHOD" = "cddb" ]; then
-		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
-	fi
+	CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
 	run_command '' echo "Tagging track $1 of $TRACKS: $TRACKNAME..."
 	# If we want to start the tracks with a given number, we need to modify the
 	# TRACKNUM value before evaluation
@@ -1883,8 +1883,8 @@ abcde.cue2discid () {
 	LEADOUT=$(( $LEADOUT + $LEADIN ))
 
 	LENGTH=$(( $LEADOUT/75 - $TRACK1/75 ))
-	DISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
-	printf "%08x %i" $DISCID $TRACKS
+	CDDBDISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
+	printf "%08x %i" $CDDBDISCID $TRACKS
 
 	j=1
 	while [ $j -le $TRACKS ] ; do
@@ -1915,7 +1915,7 @@ abcde.cue2discid () {
 #   Remaining track index values offset by <pregap value>
 #
 # Variables used:
-# TRACKINFO
+# CDDBTRACKINFO
 abcde.mkcue () {
 
 	echomsf () {
@@ -1947,7 +1947,7 @@ abcde.mkcue () {
 		CUEWAVFILE="dummy.wav"
 	fi
 
-	set -- $TRACKINFO
+	set -- $CDDBTRACKINFO
 
 	DISCID=$1
 	TRACKS=$2
@@ -1983,12 +1983,7 @@ abcde.mkcue () {
 # This essentially the start of things
 do_discid ()
 {
-	# Query the CD to get the track info, unless the user specified -C
-	# or we are using some actions which do not need the CDDB data at all
-	#if [ ! X"$EXPACTIONS" = "X" ]; then
-	#	:
-	#elif [ -z "$DISCID" ]; then
-	if [ -z "$DISCID" ]; then
+	if [ -z "$CDDBDISCID" ]; then
 		vecho -n "Getting CD track info... "
 		# In OSX, unmount the disc before a query
 		if [ "$OSFLAVOUR" = "OSX" ]; then
@@ -2022,7 +2017,7 @@ do_discid ()
 						;;
 						*)
 							#vecho "Using external python cue2discid implementation..."
-							TRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" | $CUE2DISCID)
+							CDDBTRACKINFO=$($METAFLAC $METAFLACOPTS --export-cuesheet-to=- "$CDROM" | $CUE2DISCID)
 						;;
 					esac
 				else
@@ -2045,11 +2040,19 @@ do_discid ()
 				makeids
 				;;
 			*)
-				case "$CDDBMETHOD" in
-					cddb) TRACKINFO=$($CDDISCID "$CDROM") ;;
-					musicbrainz) TRACKINFO=$($MUSICBRAINZ --command id --device "$CDROM") ;;
+				# Calculate the cddb discid in all
+				# cases now. We'll use the cddb discid
+				# for reference in most cases for
+				# consistency. Also calculate the
+				# musicbrainz discid if we need it.
+				CDDBTRACKINFO=$($CDDISCID "$CDROM")
+				CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
+				case $CDDBMETHOD in
+					*musicbrainz*)
+						MBTRACKINFO=$($MUSICBRAINZ --command id --device "$CDROM")
+						MBDISCID=$(echo $MBTRACKINFO | cut -d' ' -f1)
+						;;
 				esac
-				;;
 		esac
 		# Make sure there's a CD in there by checking cd-discid's return code
 		if [ ! "$?" = "0" ]; then
@@ -2067,9 +2070,9 @@ do_discid ()
 			diskutil mount ${CDROM#/dev/}
 		fi
 		WEHAVEACD=y
-		DISCID=$(echo $TRACKINFO | cut -f1 -d' ')
+		CDDBDISCID=$(echo $CDDBTRACKINFO | cut -f1 -d' ')
 	else
-		TRACKINFO=$(cat "$WAVOUTPUTDIR/abcde.$DISCID/discid")
+		CDDBTRACKINFO=$(cat "$WAVOUTPUTDIR/abcde.$CDDBDISCID/cddbdiscid")
 	fi
 
 	# Get a full enumeration of tracks, sort it, and put it in the TRACKQUEUE.
@@ -2084,7 +2087,7 @@ do_discid ()
 		TRACKNUMPADDING=2
 	fi
 
-	ABCDETEMPDIR="$WAVOUTPUTDIR/abcde.$(echo $TRACKINFO | cut -f1 -d' ')"
+	ABCDETEMPDIR="$WAVOUTPUTDIR/abcde.$(echo $CDDBTRACKINFO | cut -f1 -d' ')"
 	if [ -z "$TRACKQUEUE" ]; then
 		if [ ! "$STRIPDATATRACKS" = "n" ]; then
 			case "$CDROMREADERSYNTAX" in
@@ -2105,14 +2108,14 @@ do_discid ()
 							rm -f "$ABCDETEMPDIR/cdparanoia-audio-tracks"
 						fi
 						if [ -f "$ABCDETEMPDIR/status" ] && TRACKS=$(checkstatus cdparanoia-audio-tracks); then :; else
-							TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
+							TRACKS=$(echo $CDDBTRACKINFO | cut -f2 -d' ')
 						fi
 					fi
 					;;
-				*)	TRACKS=$(echo $TRACKINFO | cut -f2 -d' ') ;;
+				*)	TRACKS=$(echo $CDDBTRACKINFO | cut -f2 -d' ') ;;
 			esac
 		else
-			TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
+			TRACKS=$(echo $CDDBTRACKINFO | cut -f2 -d' ')
 		fi
 		if echo "$TRACKS" | grep "[[:digit:]]" > /dev/null 2>&1 ;then :;else
 			log info "The disc does not contain any tracks. Giving up..."
@@ -2131,7 +2134,7 @@ do_discid ()
 		done
 		echo $TRACKQUEUE
 	else
-		TRACKS=$(echo $TRACKINFO | cut -f2 -d' ')
+		TRACKS=$(echo $CDDBTRACKINFO | cut -f2 -d' ')
 		# User-supplied track queue.
 		# Weed out non-numbers, whitespace, then sort and weed out duplicates
 		TRACKQUEUE=$(echo $TRACKQUEUE | sed 's-[^0-9 ]--g' | tr ' ' '\n' | grep -v ^$ | sort -n | uniq | tr '\n' ' ' | sed 's- $--g')
@@ -2176,9 +2179,9 @@ do_discid ()
 		fi
 		echo .
 		# See if it's populated
-		if [ ! -f "$ABCDETEMPDIR/discid" ]; then
+		if [ ! -f "$ABCDETEMPDIR/cddbdiscid" ]; then
 			# Wipe and start fresh
-			echo "abcde: $ABCDETEMPDIR/discid not found. Abcde must remove and recreate" >&2
+			echo "abcde: $ABCDETEMPDIR/cddbdiscid not found. Abcde must remove and recreate" >&2
 			echo -n "this directory to continue. Continue [y/N]? " >&2
 			if [ "$INTERACTIVE" = "y" ]; then
 				read ANSWER
@@ -2224,7 +2227,7 @@ do_discid ()
 	fi
 	if [ X"$DOCUE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
-			CUEFILE=cue-$(echo "$TRACKINFO" | cut -f1 -d' ').txt
+			CUEFILE=cue-$(echo "$CDDBTRACKINFO" | cut -f1 -d' ').txt
 			vecho "Creating cue file..."
 			case $CDROMREADERSYNTAX in
 				flac)
@@ -2253,11 +2256,13 @@ do_discid ()
 		fi
 	fi
 
-	# Create the discid file
-	echo "$TRACKINFO" > "$ABCDETEMPDIR/discid"
-	if checkstatus cddbmethod > /dev/null 2>&1 ; then :; else
-		echo "cddbmethod=$CDDBMETHOD" >> "$ABCDETEMPDIR/status"
-	fi
+	# Create the discid files
+	echo "$CDDBTRACKINFO" > "$ABCDETEMPDIR/cddbdiscid"
+	case $CDDBMETHOD in
+		*musicbrainz*)
+			echo "$MBTRACKINFO" > "$ABCDETEMPDIR/mbdiscid"
+			;;
+	esac
 }
 
 # do_cleancue
@@ -2348,14 +2353,14 @@ do_cddbparse ()
 	fi
 }
 
-# do_localcddb
+# do_localcddb_read
 # Check for a local CDDB file, and report success
-do_localcddb ()
+do_localcddb_read ()
 {
 	if checkstatus cddb-readcomplete && checkstatus cddb-choice >/dev/null; then :; else
 
 		CDDBLOCALSTATUS="notfound"
-		CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
+		CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
 		USELOCALRESP="y"
 
 		if [ "$CDDBLOCALRECURSIVE" = "y" ]; then
@@ -2430,6 +2435,7 @@ do_localcddb ()
 					#echo "Using local copy of CDDB data"
 					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
 					cat "$ABCDETEMPDIR/cddblocalread.$CDDBLOCALCHOICENUM" >> "$ABCDETEMPDIR/cddbread.1"
+					echo "local" > "$ABCDETEMPDIR/datasource.1"
 					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
 					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
 					do_cddbparse "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbchoices"
@@ -2462,6 +2468,7 @@ do_localcddb ()
 					#echo "Using local copy of CDDB data"
 					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
 					cat "${CDDBLOCALFILE}" >> "$ABCDETEMPDIR/cddbread.1"
+					echo "local" > "$ABCDETEMPDIR/datasource.1"
 					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
 					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
 					do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
@@ -2479,9 +2486,9 @@ do_localcddb ()
 	fi
 }
 
-# do_cdtext
+# do_cdtext_read
 # Try to read CD-Text from the drive using icedax / cdda2wav
-do_cdtext ()
+do_cdtext_read ()
 {
 	if new_checkexec icedax; then
 		CDTEXT_READER=icedax
@@ -2491,6 +2498,11 @@ do_cdtext ()
 		# Didn't find either, bail
 		return 0
 	fi
+
+	vecho "Obtaining CD-Text results..."
+	CDTDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
+	local SOURCE_WORKDIR="$ABCDETEMPDIR/data-cdtext"
+	mkdir -p "${SOURCE_WORKDIR}"
 
 	if [ "$OSFLAVOUR" = "OSX" ] ; then
 		# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
@@ -2509,149 +2521,107 @@ do_cdtext ()
 
 	# Do we have CD-Text on the disc (and can the drive read it?)
 	(
-		cd "$ABCDETEMPDIR" && rm -f audio.* audio_*
-		${CDTEXT_READER} -J -v titles -D ${CDDA2WAVCDROM} > "$ABCDETEMPDIR/cd-text" 2>&1
+		cd "${SOURCE_WORKDIR}" && rm -f audio.* audio_*
+		${CDTEXT_READER} -J -v titles -D ${CDDA2WAVCDROM} > "${SOURCE_WORKDIR}/cd-text" 2>&1
 	)
-	grep -a -q '^CD-Text: detected' "$ABCDETEMPDIR/cd-text"
+	grep -a -q '^CD-Text: detected' "${SOURCE_WORKDIR}/cd-text"
 	ERRORCODE=$?
 	if [ $ERRORCODE -ne 0 ]; then
 		# No CD-Text found, bail
 		return 0
 	fi
 
-	rm -f "$ABCDETEMPDIR/cddbchoices"
-	CDDBCHOICES=1
+	NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
 	# Make an empty template
-	$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.1"
-	echo -n "Retrieved 1 CD-Text match..." >> "$ABCDETEMPDIR/cddbchoices"
-	echo "done." >> "$ABCDETEMPDIR/cddbchoices"
-	echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
-	echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-	#ATITLE=$(grep -ae '^Album title:' "${ABCDETEMPDIR}/cd-text" | cut -c14- | sed "s~'\(.*\)'.*\[from \(.*\)]$~\2 / \1~")
-	ATITLE=$(grep -ae '^DTITLE=' "${ABCDETEMPDIR}/audio.cddb" | cut -c8-)
-	echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
-	# List out disc title/author and contents
-	echo "---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
-	sed -n 's~^Track \(..:\) .\(.*\).$~\1 \2~gp;' "$ABCDETEMPDIR/cd-text" >>"$ABCDETEMPDIR/cddbchoices"
-	rm -f "$ABCDETEMPDIR/cddbread.1"
+	$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+	echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
+	rm -f "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+
 	# XXX FIXME - this is a hack and should be replaced by proper
 	# character set tracking for the CDDB data we have.
 	if test "$CDDBPROTO" -ge 6 ; then
 		# convert to Unicode
-		iconv -f iso-8859-1 -t utf-8 <"$ABCDETEMPDIR/audio.cddb" >"$ABCDETEMPDIR/cddbread.1"
+		iconv -f iso-8859-1 -t utf-8 <"${SOURCE_WORKDIR}/audio.cddb" >"${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 	else
 		# copy verbatim, assuming CD-TEXT is in ISO-8859-1 format
 		# apparently icedax/cdda2wav have no support for 16-bit
 		# characters yet, either
-		cp -p "$ABCDETEMPDIR/audio.cddb" "$ABCDETEMPDIR/cddbread.1"
+		cp -p "${SOURCE_WORKDIR}/audio.cddb" "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 	fi
-	( cd "$ABCDETEMPDIR" && rm -f audio_* audio.* )
-	echo >> "$ABCDETEMPDIR/cddbchoices"
+
+	CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
+	ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
+	echo "CD-Text" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
+	echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
+
+	( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
+	cp "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "$ABCDETEMPDIR"
 	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
 }
 
-# do_musicbrainz
+# do_musicbrainz_read
 # Work with the musicbrainz WS API, then transform the results here so
 # they look (very) like the results from CDDB. Maybe not the best way
 # to go, but it Works For Me (TM)
-
-do_musicbrainz ()
+#
+# List out all the matches individually into $SOURCE_WORKDIR/cddbread.X
+#
+do_musicbrainz_read ()
 {
 	if checkstatus musicbrainz-readcomplete; then :; else
 		vecho "Obtaining Musicbrainz results..."
 		# If MB is to be used, interpret the query results and read all
 		# the available entries.
-		rm -f "$ABCDETEMPDIR/cddbchoices"
-		CDDBCHOICES=1 # Overridden by multiple matches
-		MBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
-		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir "$ABCDETEMPDIR"
+		CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
+		MBDISCID=$(echo $MBTRACKINFO | cut -d' ' -f1)
+		local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-musicbrainz"
+		mkdir -p "${SOURCE_WORKDIR}"
+		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir "${SOURCE_WORKDIR}" --start ${NUM_CDDB_MATCHES}
 
+		# Check for no matches.
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
-		if [ ! -f "${ABCDETEMPDIR}/cddbread.1" ] ; then
-			if [ $CDDBLASTMETHOD = "y" ]
-			then
-				# We're the end of the line.
-				#
-				# No matches. Use the normal cddb template for the user to
-				# fill in
-				vecho "Unable to find a match with ${CDDBMETHCHOICE}, generating CDDB template."
-				echo "No Musicbrainz match." >> "$ABCDETEMPDIR/cddbchoices"
-				$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
-				# List out disc title/author and contents of template
-				echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
-				UNKNOWNDISK=y
-				for TRACK in $(f_seq_row 1 $TRACKS)
-				do
-					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-				done
-				echo >> "$ABCDETEMPDIR/cddbchoices"
-				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
-				echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
-				echo 503 > "$ABCDETEMPDIR/cddbquery"
-			else
-				# Neat, we'll let the next guy take care of this CDDB
-				# file junk.
-				vecho "Unable to find a match with ${CDDBMETHCHOICE}, moving on to the next option."
-			fi
-		else
-			# We have some matches
-			NUM_RESPONSES=$(echo "${ABCDETEMPDIR}"/cddbread.* | wc -w)
-			if [ "$NUM_RESPONSES" -eq 1 ] ; then
-				# One exact match
-				echo -n "Retrieved 1 Musicbrainz match..." >> "$ABCDETEMPDIR/cddbchoices"
-				echo "done." >> "$ABCDETEMPDIR/cddbchoices"
-				echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
-				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-				ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.1" | cut -c8- )
-				echo "200 none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
-				# List out disc title/author and contents
-				echo ---- ${ATITLE} ---- >> "$ABCDETEMPDIR/cddbchoices"
-				for TRACK in $(f_seq_row 1 $TRACKS)
-				do
-					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-				done
-				echo >> "$ABCDETEMPDIR/cddbchoices"
-			else
-				echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
-				echo "Multiple Musicbrainz matches:" >> "$ABCDETEMPDIR/cddbchoices"
-				for file in "$ABCDETEMPDIR"/cddbread.*
-				do
-					X=$(echo $file | sed 's/^.*cddbread\.//g')
-					echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
-					ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}"/cddbread.$X | cut -c8- )
-					echo "none ${ATITLE}" >> "$ABCDETEMPDIR/cddbquery"
-					# List out disc title/author and contents
-					echo "#$X: ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
-					for TRACK in $(f_seq_row 1 $TRACKS)
-					do
-						echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-					done
-					echo >> "$ABCDETEMPDIR/cddbchoices"
-				done
-				echo "." >> "$ABCDETEMPDIR/cddbquery"
-			fi
+		NUM_RESPONSES=$(echo "${SOURCE_WORKDIR}"/cddbread.* | wc -w)
+		if [ "$NUM_RESPONSES" -gt 0 ] ; then
+			# One or more exact matches
+			i=1
+			while [ $i -le $NUM_RESPONSES ]; do
+				NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+				i=$(($i + 1))
+				echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
+				ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
+				echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
+				echo "Musicbrainz" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
+				cp -f "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "$ABCDETEMPDIR"
+			done
 		fi
 		echo "musicbrainz-readcomplete" >> "$ABCDETEMPDIR/status"
 	fi
 }
 
-# do_cddbstat
-do_cddbstat ()
+# do_cddb_read
+do_cddb_read ()
 {
+	local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-cddb"
+	mkdir -p "${SOURCE_WORKDIR}"
+
+	###########
+	# cddbstat
+	###########
+
 	# Perform CDDB protocol version check if it hasn't already been done
 	if checkstatus cddb-statcomplete; then :; else
 		if [ "$CDDBAVAIL" = "n" ]; then
 			ERRORCODE=no_query
-			echo 503 > "$ABCDETEMPDIR/cddbstat"
+			echo 503 > "${SOURCE_WORKDIR}/cddbstat"
 		else
 			rc=1
 			CDDBUSER=$(echo $HELLOINFO | cut -f1 -d'@')
 			CDDBHOST=$(echo $HELLOINFO | cut -f2- -d'@')
 			while test $rc -eq 1 -a $CDDBPROTO -ge 3; do
 				vecho "Checking CDDB server status..."
-				$CDDBTOOL stat $CDDBURL $CDDBUSER $CDDBHOST $CDDBPROTO > "$ABCDETEMPDIR/cddbstat"
-				RESPONSECODE=$(head -n 1 "$ABCDETEMPDIR/cddbstat" | cut -f1 -d' ')
+				$CDDBTOOL stat $CDDBURL $CDDBUSER $CDDBHOST $CDDBPROTO > "${SOURCE_WORKDIR}/cddbstat"
+				RESPONSECODE=$(head -n 1 "${SOURCE_WORKDIR}/cddbstat" | cut -f1 -d' ')
 				case "$RESPONSECODE" in
 				210)    # 210 OK, status information follows (until terminating `.')
 					rc=0
@@ -2661,8 +2631,8 @@ do_cddbstat ()
 					;;
 				*)	# Try a cddb query, since freedb2.org doesn't support the stat or ver commands
 					# FreeDB TESTCD disc-id is used for query
-					$CDDBTOOL query $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST 03015501 1 296 344 > "$ABCDETEMPDIR/cddbstat"
-					RESPONSECODE=$(head -n 1 "$ABCDETEMPDIR/cddbstat" | cut -f1 -d' ')
+					$CDDBTOOL query $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST 03015501 1 296 344 > "${SOURCE_WORKDIR}/cddbstat"
+					RESPONSECODE=$(head -n 1 "${SOURCE_WORKDIR}/cddbstat" | cut -f1 -d' ')
 					case "$RESPONSECODE" in
 						2??)	# Server responded, everything seems OK
 							rc=0
@@ -2680,20 +2650,19 @@ do_cddbstat ()
 		fi
 		echo cddb-statcomplete >> "$ABCDETEMPDIR/status"
 	fi
-}
 
+	###########
+	# cddbquery
+	###########
 
-# do_cddbquery
-do_cddbquery ()
-{
-	CDDBDISCID=$(echo $TRACKINFO | cut -d' ' -f1)
+	CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
 	CDDBLOCALFILE="${CDDBLOCALDIR}/${CDDBDISCID}"
 
 	# Perform CDDB query if it hasn't already been done
 	if checkstatus cddb-querycomplete; then :; else
 		if [ "$CDDBAVAIL" = "n" ]; then
 			ERRORCODE=no_query
-			echo 503 > "$ABCDETEMPDIR/cddbquery"
+			echo 503 > "${SOURCE_WORKDIR}/cddbquery"
 		# The default CDDBLOCALSTATUS is "notfound"
 		# This part will be triggered if the user CDDB repo does not
 		# contain the entry, or if we are not trying to use the repo.
@@ -2701,18 +2670,17 @@ do_cddbquery ()
 			vecho "Querying the CDDB server..."
 			CDDBUSER=$(echo $HELLOINFO | cut -f1 -d'@')
 			CDDBHOST=$(echo $HELLOINFO | cut -f2- -d'@')
-			$CDDBTOOL query $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $TRACKINFO > "$ABCDETEMPDIR/cddbquery"
+			$CDDBTOOL query $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $CDDBTRACKINFO > "${SOURCE_WORKDIR}/cddbquery"
 			ERRORCODE=$?
 			case $ERRORCODE in
 				0)  # success
 				;;
 				12|13|14)
-					# no match found in database,
-					# wget/fetch error, or user requested not to use CDDB
-					# Make up an error code (503) that abcde
-					# will recognize in do_cddbread
+					# no match found in database, wget/fetch error,
+					# or user requested not to use CDDB. Make up an
+					# error code (503) that abcde will recognize later
 					# and compensate by making a template
-					echo 503 > "$ABCDETEMPDIR/cddbquery"
+					echo 503 > "${SOURCE_WORKDIR}/cddbquery"
 				;;
 				*) # strange and unknown error
 					echo ERRORCODE=$ERRORCODE
@@ -2722,113 +2690,56 @@ do_cddbquery ()
 		fi
 		echo cddb-querycomplete >> "$ABCDETEMPDIR/status"
 	fi
-}
 
-# do_cddbread
-do_cddbread ()
-{
+	###########
+	# cddbread
+	###########
+
 	# If it's not to be used, generate a template.
 	# Then, display it (or them) and let the user choose/edit it
 	if checkstatus cddb-readcomplete; then :; else
+		RESPONSECODE=$(head -n 1 "${SOURCE_WORKDIR}/cddbquery" | cut -f1 -d' ')
 		vecho "Obtaining CDDB results..."
-		# If CDDB is to be used, interpret the query results and read all
-		# the available entries.
-		rm -f "$ABCDETEMPDIR/cddbchoices"
-		CDDBCHOICES=1 # Overridden by multiple matches
-		RESPONSECODE=$(head -n 1 "$ABCDETEMPDIR/cddbquery" | cut -f1 -d' ')
 		case "$RESPONSECODE" in
 		200)
 			# One exact match, retrieve it
 			# 200 [section] [discid] [artist] / [title]
-			if checkstatus cddb-read-1-complete; then :; else
-				echo -n "Retrieving 1 CDDB match..." >> "$ABCDETEMPDIR/cddbchoices"
-				$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(cut -f2,3 -d' ' "$ABCDETEMPDIR/cddbquery") > "$ABCDETEMPDIR/cddbread.1"
-				echo "done." >> "$ABCDETEMPDIR/cddbchoices"
-				echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
-				echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-			fi
-			# List out disc title/author and contents
-			echo ---- "$(cut '-d ' -f4- "$ABCDETEMPDIR/cddbquery")" ---- >> "$ABCDETEMPDIR/cddbchoices"
-			for TRACK in $(f_seq_row 1 $TRACKS)
-			do
-				echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo >> "$ABCDETEMPDIR/cddbchoices"
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+			$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(cut -f2,3 -d' ' "${SOURCE_WORKDIR}/cddbquery") > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+			cat ${SOURCE_WORKDIR}/cddbquery | cut -f2- -d' ' > ${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}
+			echo "cddb" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
+			echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
 			;;
 		202|403|409|500|503)
 			# TODO: Explain these error codes a little more accurately:
 			# http://ftp.freedb.org/pub/freedb/misc/freedb_CDDB_protcoldoc.zip
 			# No match response:
-			if [ $CDDBLASTMETHOD = "y" ]
-			then
-				# We're the caboose, so we need to generate the CDDB
-				# template.
-				vecho "Unable to find a match with ${CDDBMETHCHOICE}, generating CDDB template."
-				case "$RESPONSECODE" in
-				202) echo "No CDDB match." >> "$ABCDETEMPDIR/cddbchoices" ;;
-				403|409) echo "CDDB entry is corrupt, or the handshake failed." >> "$ABCDETEMPDIR/cddbchoices" ;;
-				500|503) echo "CDDB unavailable." >> "$ABCDETEMPDIR/cddbchoices" ;;
-				esac
-				$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
-				# List out disc title/author and contents of template
-				echo ---- Unknown Artist / Unknown Album ---- >> "$ABCDETEMPDIR/cddbchoices"
-				UNKNOWNDISK=y
-				for TRACK in $(f_seq_row 1 $TRACKS)
-				do
-					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-				done
-				echo >> "$ABCDETEMPDIR/cddbchoices"
-				echo cddb-read-0-complete >> "$ABCDETEMPDIR/status"
-				echo cddb-choice=0 >> "$ABCDETEMPDIR/status"
-			else
-				# Template's the next chump's job.
-				vecho "Unable to find a match with ${CDDBMETHCHOICE}, moving on to the next option."
-			fi
 			;;
 		210|211)
 			# Multiple exact, (possibly multiple) inexact matches
-			IN=
-			if [ "$RESPONSECODE" = "211" ]; then IN=in; fi
-			if [ "$(wc -l < "$ABCDETEMPDIR/cddbquery" | tr -d ' ')" -eq 3 ]; then
-				echo "One ${IN}exact match:" >> "$ABCDETEMPDIR/cddbchoices"
-				tail -n +2 "$ABCDETEMPDIR/cddbquery" | head -n 1 >> "$ABCDETEMPDIR/cddbchoices"
-							echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
-			else
-				echo "Multiple ${IN}exact matches:" >> "$ABCDETEMPDIR/cddbchoices"
-			fi
 			vecho -n "Retrieving multiple matches... "
-			grep -v ^[.]$ "$ABCDETEMPDIR/cddbquery" | ( X=0
-			read DISCINFO # eat top line
-			while read DISCINFO
-			do
-				X=$(expr $X + 1)
-				if checkstatus cddb-read-$X-complete; then :; else
-					$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(echo $DISCINFO | cut -f1,2 -d' ') > "$ABCDETEMPDIR/cddbread.$X"
-					echo cddb-read-$X-complete >> "$ABCDETEMPDIR/status"
-				fi
-				# List out disc title/author and contents
-				echo \#$X: ---- "$DISCINFO" ---- >> "$ABCDETEMPDIR/cddbchoices"
-				for TRACK in $(f_seq_row 1 $TRACKS)
+			grep -v ^[.]$ "${SOURCE_WORKDIR}/cddbquery" | (
+				read DISCINFO # eat top line
+				while read DISCINFO
 				do
-					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-				done
-				echo >> "$ABCDETEMPDIR/cddbchoices"
-			done )
+					NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+					if checkstatus cddb-read-${NUM_CDDB_MATCHES}-complete; then :; else
+						$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(echo $DISCINFO | cut -f1,2 -d' ') > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+						echo "$DISCINFO" > ${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}
+						echo "cddb/$CDDBHOST" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
+						echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
+					fi
+				done )
 			vecho "done."
-			CDDBCHOICES=$(expr $(cat "$ABCDETEMPDIR/cddbquery" | wc -l) - 2)
 			;;
 		999)
 			# Using local copy.
-			for TRACK in $(f_seq_row 1 $TRACKS)
-			do
-				echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.1" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
-			done
-			echo >> "$ABCDETEMPDIR/cddbchoices"
-			echo cddb-read-1-complete >> "$ABCDETEMPDIR/status"
-			echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+			echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
 			;;
 		esac
 		echo "cddb-readcomplete" >> "$ABCDETEMPDIR/status"
+		cp -f "${SOURCE_WORKDIR}/"*.* "$ABCDETEMPDIR"
 	fi
 }
 
@@ -2848,20 +2759,14 @@ do_cddbedit ()
 			# Display the $ABCDETEMPDIR/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
-				CDDBCHOICES=$(expr $(cat "$ABCDETEMPDIR/cddbquery" | wc -l) - 2)
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
-					case $CDDBCHOICES in
-						-1) if head -1 "$ABCDETEMPDIR/cddbquery" | grep -a "^$" > /dev/null 2>&1 ; then
-								log error "CDDB query failed!"
-								exit 1
-							else
-								cat "$ABCDETEMPDIR/cddbchoices"
-							fi
-							;;
+					case $NUM_CDDB_MATCHES in
 						1) cat "$ABCDETEMPDIR/cddbchoices" ;;
 						*)
-						echo "Selected: #$CHOICE"
+						ATITLE=$(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CHOICE" | cut -f2- -d= | tr -d \\r\\n)
+						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CHOICE")
+						echo "Selected: #$CDCHOICENUM ($SOURCE) ($ATITLE)"
 						do_cddbparse "$ABCDETEMPDIR/cddbread.$CHOICE"
 						;;
 					esac
@@ -2878,18 +2783,18 @@ do_cddbedit ()
 					# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 					CDCHOICENUM=-1
 					# I'll take CDDB read #3 for $400, Alex
-					while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; do
-						echo -n "Which entry would you like abcde to use (0 for none)? [0-$CDDBCHOICES]: " >&2
+					while [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $NUM_CDDB_MATCHES ]; do
+						echo -n "Which entry would you like abcde to use (0 for none)? [0-$NUM_CDDB_MATCHES]: " >&2
 						read CDDBCHOICE
 						[ X"$CDDBCHOICE" = "X" ] && CDDBCHOICE=1
 						if echo $CDDBCHOICE | grep -E "[[:space:]]*[[:digit:]]+,[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							if [ ! X"$DIFF" = "X" ]; then
 								PARSECHOICE1=$(echo $CDDBCHOICE | cut -d"," -f1 | xargs printf %d 2>/dev/null)
 								PARSECHOICE2=$(echo $CDDBCHOICE | cut -d"," -f2 | xargs printf %d 2>/dev/null)
-								if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $CDDBCHOICES ] || \
-								   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $CDDBCHOICES ] || \
+								if [ $PARSECHOICE1 -lt 1 ] || [ $PARSECHOICE1 -gt $NUM_CDDB_MATCHES ] || \
+								   [ $PARSECHOICE2 -lt 1 ] || [ $PARSECHOICE2 -gt $NUM_CDDB_MATCHES ] || \
 								   [ $PARSECHOICE1 -eq $PARSECHOICE2 ]; then
-									echo "Invalid diff range. Please select two comma-separated numbers between 1 and $CDDBCHOICES" >&2
+									echo "Invalid diff range. Please select two comma-separated numbers between 1 and $NUM_CDDB_MATCHES" >&2
 								else
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
@@ -2904,22 +2809,24 @@ do_cddbedit ()
 									fi
 								fi
 							else
-								echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBCHOICES." >&2
+								echo "The diff program was not found in your path. Please choose a number between 0 and $NUM_CDDB_MATCHES." >&2
 							fi
 						elif echo $CDDBCHOICE | grep -E "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
 							CDCHOICENUM=$(echo $CDDBCHOICE | xargs printf %d 2>/dev/null)
-							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $CDDBCHOICES ]; then
-								echo "Invalid selection. Please choose a number between 0 and $CDDBCHOICES." >&2
+							if [ $CDCHOICENUM -lt 0 ] || [ $CDCHOICENUM -gt $NUM_CDDB_MATCHES ]; then
+								echo "Invalid selection. Please choose a number between 0 and $NUM_CDDB_MATCHES." >&2
 							fi
 						fi
 					done
 					if [ "$CDCHOICENUM" = "0" ]; then
 						vecho "Creating empty CDDB template..."
 						UNKNOWNDISK=y
-						$CDDBTOOL template $(cat "$ABCDETEMPDIR/discid") > "$ABCDETEMPDIR/cddbread.0"
+						$CDDBTOOL template $(cat "$ABCDETEMPDIR/cddbdiscid") > "$ABCDETEMPDIR/cddbread.0"
 					else
-						echo "Selected: #$CDCHOICENUM ($(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
+						ATITLE=$(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n)
+						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CDCHOICENUM")
+						echo "Selected: #$CDCHOICENUM ($SOURCE) ($ATITLE)" >&2
 						do_cddbparse "$ABCDETEMPDIR/cddbread.$CDCHOICENUM"
 					fi
 					echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
@@ -2931,11 +2838,10 @@ do_cddbedit ()
 			# Display the $ABCDETEMPDIR/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
-				CDDBCHOICES=$(expr $(cat "$ABCDETEMPDIR/cddbquery" | wc -l) - 2)
 				CHOICE=$(checkstatus cddb-choice)
 				if [ "$USELOCALRESP" = "y" ]; then :; else
 					if [ -n "$CHOICE" ] ; then
-						case $CDDBCHOICES in
+						case $NUM_CDDB_MATCHES in
 							0)
 							UNKNOWNDISK=y
 							echo "Selected template."
@@ -2978,6 +2884,7 @@ do_cddbedit ()
 		exit 1
 	fi
 	CDDBDATA="$ABCDETEMPDIR/cddbread.$(checkstatus cddb-choice)"
+	CDDBSOURCE=$(cat "$ABCDETEMPDIR/datasource.$(checkstatus cddb-choice)")
 	echo -n "Edit selected CDDB data " >&2
 	if [ "$INTERACTIVE" = "y" ]; then
 		if [ "$UNKNOWNDISK" = "y" ]; then
@@ -3118,7 +3025,7 @@ do_cddbedit ()
 	echo "variousartists=$VARIOUSARTISTS" >> "$ABCDETEMPDIR/status"
 	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "$ABCDETEMPDIR/status"
 
-	if [ "$EDITCDDB" = "y" ] && [ "$CDDBMETHOD" = "cddb" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
+	if [ "$EDITCDDB" = "y" ] && [ "$CDDBSOURCE" = "cddb" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
 		if [ "$CDDBDATAMD5SUM" != "" ]  && [ "$CDDBDATAMD5SUM" != "$($MD5SUM "$CDDBDATA" | cut -d " " -f 1)" ]; then
 			# This works but does not have the necessary error checking
 			# yet. If you are familiar with the CDDB spec
@@ -3153,7 +3060,7 @@ do_cddbedit ()
 	if [ "$CDDBCOPYLOCAL" = "y" ]; then
 		# Make sure the cache directory exists
 		mkdir -p $CDDBLOCALDIR
-		cat "$CDDBDATA" | tail -n $(expr $(cat "$CDDBDATA" | wc -l ) - 1 ) > ${CDDBLOCALDIR}/$(echo "$TRACKINFO" | cut -d' ' -f1)
+		cat "$CDDBDATA" | tail -n $(expr $(cat "$CDDBDATA" | wc -l ) - 1 ) > ${CDDBLOCALDIR}/$(echo "$CDDBTRACKINFO" | cut -d' ' -f1)
 	fi
 
 	echo "cddb-edit" >> "$ABCDETEMPDIR/status"
@@ -3170,7 +3077,7 @@ do_getalbumart()
 	YEAR=${CDYEAR:-$CDYEAR}
 	# have we got a musicbrainz mbid or amazon asin?
 	case "$CDDBMETHOD" in
-		musicbrainz)
+		*musicbrainz*)
 			# try musicbrainz mbid
 			if [ -s "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)" ]; then
 				MBID=$(cat "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)")
@@ -3720,7 +3627,7 @@ post_encode ()
 # Builtin defaults
 
 # CDDB
-# Currently two supported options ("musicbrainz" and "cddb" for freedb.org)
+# Currently three supported options ("musicbrainz", "cddb" for freedb.org and "cdtext")
 CDDBMETHOD=musicbrainz
 CDDBURL="http://freedb.freedb.org/~cddb/cddb.cgi"
 CDDBSUBMIT=freedb-submit@freedb.org
@@ -3731,10 +3638,6 @@ CDDBLOCALPOLICY="always"
 CDDBLOCALRECURSIVE="y"
 CDDBLOCALDIR="$HOME/.cddb"
 CDDBUSELOCAL="n"
-# pre-declare a variable we'll use if the user provides a
-# comma-separated list of CDDBMETHODs
-declare -a CDDBMETHODS
-CDDBLASTMETHOD="n"
 
 # List of fields we parse and show during the CDDB parsing...
 SHOWCDDBFIELDS="year,genre"
@@ -4090,7 +3993,7 @@ while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pP:Q:r:s:S:t:T:UvVxX:w:W:z opt ; do
 		b) BATCHNORM=y ;;
 		B) GETALBUMART=y ; EMBEDALBUMART=y ;;
 		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
-		C) DISCID="$( echo ${OPTARG#abcde.} | tr -d /)" ;;
+		C) CDDBDISCID="$( echo ${OPTARG#abcde.} | tr -d /)" ;;
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
 		h) usage; exit ;;
@@ -4172,8 +4075,8 @@ if echo "$CDROM" | grep -i '.flac$' > /dev/null 2>&1 ; then
 	EJECTCD=n
 fi
 
-# If the user provided a DISCID, disable eject
-if [ -n "$DISCID" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
+# If the user provided a CDDBDISCID, disable eject
+if [ -n "$CDDBDISCID" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
 
 # Check the available cd rippers in the system, from the ones we know.
 if [ "$CDROMREADERSYNTAX" = "" ]; then
@@ -4798,23 +4701,6 @@ case "$CDDBTOOL" in
 	musicbrainz) ;;
 esac
 
-# 2016-08-30: adding comma-separated list (in this case, to be used in
-# sequence until successful) support ala OUTPUTYPE. -GR
-idx=0
-for CDDBCHOICE in $(echo "$CDDBMETHOD"  | tr -d '	 ' | tr , ' ')
-do
-	# The OUTPUTTYPE code uses bash-specific syntax (var=${var:+var}),
-	# but then doesn't just use an array to store the output, which seems
-	# weird. So I'm going to use an array for this...? -GR
-	CDDBMETHODS[$idx]=$CDDBCHOICE
-	vvecho "CDDB method $idx: $CDDBCHOICE"
-	idx=$((idx + 1))
-done
-
-# Just so CDDBMETHOD is a legible value for functions, in case I
-# miss something, set it to the first choice: -GR
-CDDBMETHOD=${CDDBMETHODS[0]}
-
 # Check if both OGGEOUTPUTCONTAINER and FLACOUTPUTCONTAINER are the same, and differentiante them
 if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; then
 	log error "FLAC on an Ogg container is not yet supported"
@@ -4848,11 +4734,11 @@ if [ "$EJECTCD" = "y" ]; then
 	NEEDEJECT=y
 fi
 if [ ! "$CDDBAVAIL" = "n" ] && [ "$DOCDDB" = "y" ]; then
-	if [ "$CDDBMETHOD" = "cddb" ]; then
-		NEEDHTTPGET=y
-	elif [ "$CDDBMETHOD" = "musicbrainz" ]; then
-		:
-	fi
+	# Need an http tool to be able to do CDDB
+	case $CDDBMETHOD in
+		*cddb*)
+			NEEDHTTPGET=y;;
+	esac
 fi
 if [ "$DOCUE" = "y" ]; then
 	NEEDCUEREADER=y
@@ -4998,8 +4884,8 @@ fi
 ## Now that we have metaflac, check if we need cue2discid
 #case $CDROMREADERSYNTAX in
 #	flac)
-#		TRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | grep -E "[a-f0-9]{8}")
-#		if [ "$TRACKINFO" = "" ]; then
+#		CDDBTRACKINFO=$($METAFLAC --show-tag=CDDB $CDROM | cut -d"=" -f2 | grep -E "[a-f0-9]{8}")
+#		if [ "$CDDBTRACKINFO" = "" ]; then
 #			checkexec ${NEEDCUE2DISCID+$CUE2DISCID}
 #		fi
 #		;;
@@ -5036,51 +4922,91 @@ if [ "$DOCDDB" = "y" ]; then
 	# start with a sane default:
 	CDDBLOCALSTATUS=notfound
 	if [ $CDDBUSELOCAL = "y" ]; then
-		do_localcddb
+		do_localcddb_read
 	fi
 	if checkstatus cddb-choice > /dev/null; then
 		:
 	else
+	        NUM_CDDB_MATCHES=0
 		if [ "$CDDBLOCALSTATUS" = "notfound" ] ; then
-			for CDDBMETHCHOICE in ${CDDBMETHODS[@]}
+			idx=0
+			for CDDBMETHCHOICE in $(echo "$CDDBMETHOD"  | tr -d '	 ' | tr , ' ')
 			do
-				vecho "Trying CDDB method ${CDDBMETHCHOICE}."
-				if [ $CDDBLASTMETHOD = "n" ]
-				then
-					if [ ${#CDDBMETHODS[@]} -le 1 ]
-					# (number of items)
-					then
-						CDDBLASTMETHOD="y"
-					else
-						CDDBMETHODS=("${CDDBMETHODS[@]:1}")
-						# (performs shift on an array in bash)
-					fi
-				else
-					vvecho "(Last chance before manual entry...)"
-				fi
+			        addstatus "CDDB method $idx: $CDDBMETHCHOICE"
+				idx=$(($idx + 1))
+				vecho "Trying CDDB method ${CDDBMETHCHOICE}, found $NUM_CDDB_MATCHES matches so far"
+
+				# Run all the desired data acquisition methods, in the order
+				# specified by the user. Each will use its own temporary
+				# subdirectory, then copy the cddbread.* etc. files up into
+				# $ABCDETEMPDIR
 				case "$CDDBMETHCHOICE" in
 				cddb)
-					do_cddbstat
-					do_cddbquery
-					do_cddbread
+					do_cddb_read
 					;;
 				musicbrainz)
-					do_musicbrainz
+					do_musicbrainz_read
+					;;
+				cdtext)
+					do_cdtext_read
+					;;
+				*)
+					echo "Unknown CDDB method $CDDBMETHCHOICE. Aborting." >&2
+					exit 1
 					;;
 				esac
-				if [ -f "$ABCDETEMPDIR/cddbchoices" ]
-				then
-					# If this pass found something, we're done.
-					break
-				fi
+
 			done
-		fi
-		CHOICE=$(checkstatus cddb-choice)
-		if [ "$CHOICE" = 0 ] ; then
-			# We don't have any information at all; try to fall back
-			# to CD-Text for basic information
-			vecho "No CDDB information found, trying cdtext from the CD"
-			do_cdtext
+
+			rm -f "${ABCDETEMPDIR}/cddbchoices"
+			CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
+
+			if [ $NUM_CDDB_MATCHES = 0 ]; then
+				# If we got no matches, we need to
+				# generate a blank CDDB template.
+				vecho "Unable to find any matches, generating unknown template."
+				echo "No CDDB match." >> "${ABCDETEMPDIR}/cddbchoices"
+				$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${ABCDETEMPDIR}/cddbread.0"
+				# List out disc title/author and contents of template
+				echo ---- Unknown Artist / Unknown Album ---- >> "${ABCDETEMPDIR}/cddbchoices"
+				UNKNOWNDISK=y
+				for TRACK in $(f_seq_row 1 $TRACKS)
+				do
+					echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "${ABCDETEMPDIR}/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "${ABCDETEMPDIR}/cddbchoices"
+				done
+				echo >> "${ABCDETEMPDIR}/cddbchoices"
+				echo cddb-read-0-complete >> "${ABCDETEMPDIR}/status"
+				echo cddb-choice=0 >> "${ABCDETEMPDIR}/status"
+				echo 503 > "$ABCDETEMPDIR/cddbquery"
+			else
+				# We have matches; create the cddbchoices and cddbquery
+				# files from all the inputs we have
+				if [ $NUM_CDDB_MATCHES = 1 ]; then
+					echo "Retrieved 1 match..." >> "$ABCDETEMPDIR/cddbchoices"
+					echo -n "200 " > "$ABCDETEMPDIR/cddbquery"
+					cat "$ABCDETEMPDIR/cddbquery.1" >> "$ABCDETEMPDIR/cddbquery"
+				else
+					echo "Retrieved $NUM_CDDB_MATCHES matches..." >> "$ABCDETEMPDIR/cddbchoices"
+					echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
+					for X in $(f_seq_row 1 $NUM_CDDB_MATCHES)
+					do
+						cat "$ABCDETEMPDIR/cddbquery.$X" >> "$ABCDETEMPDIR/cddbquery"
+					done
+					echo "." >> "$ABCDETEMPDIR/cddbquery"
+				fi
+
+				for X in $(f_seq_row 1 $NUM_CDDB_MATCHES)
+				do
+					ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.$X" | cut -c8- | tr -d \\r\\n)
+					SOURCE=$(cat ${ABCDETEMPDIR}/datasource.$X)
+					echo "#$X ($SOURCE): ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
+                                        for TRACK in $(f_seq_row 1 $TRACKS)
+                                        do
+                                                echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+                                        done
+                                        echo >> "$ABCDETEMPDIR/cddbchoices"
+				done
+			fi
 		fi
 	fi
 	do_cddbedit
@@ -5216,7 +5142,7 @@ if [ "$EJECTCD" = "y" ]; then
 	# CD tray. If not, we do not eject the CD, since it might be so that the
 	# user ejected it manually.
 	#CURRENTTRACKINFO=$($CDDISCID $CDROM)
-	#if if [ "$?" != "1" ] && [ "$CURRENTTRACKINFO" = "$TRACKINFO" ] ; then
+	#if if [ "$?" != "1" ] && [ "$CURRENTTRACKINFO" = "$CDDBTRACKINFO" ] ; then
 	# More FreeBSD bits.
 	if [ X"$(uname)" = X"FreeBSD" ] ; then
 		# FreeBSD eject uses the EJECT environment variable to name the CDROM
@@ -5461,7 +5387,7 @@ if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 		log warning "The encoded formats does not match with the moved ones"
 		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
 		log warning "Formats moved: $( echo $MOVED_FORMATS | tr "|" " " )"
-		log warning "Use \"abcde -a clean -f -C $DISCID\" to force the removal of the remaining data."
+		log warning "Use \"abcde -a clean -f -C $CDDBDISCID\" to force the removal of the remaining data."
 		DOCLEAN=n
 	fi
 fi
