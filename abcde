@@ -2721,6 +2721,8 @@ do_cddb_read ()
 			# Multiple exact, (possibly multiple) inexact matches
 			vecho -n "Retrieving multiple matches... "
 			grep -v ^[.]$ "${SOURCE_WORKDIR}/cddbquery" | (
+				# IN A SUB-SHELL - VARIABLES MODIFIED
+				# HERE DO NOT PERSIST IN THE PARENT
 				read DISCINFO # eat top line
 				while read DISCINFO
 				do
@@ -2732,6 +2734,10 @@ do_cddb_read ()
 						echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
 					fi
 				done )
+			# Need to re-count the entries here to be able
+			# to incrememnt $NUM_CDDB_MATCHES in the
+			# parent
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $(ls -1 ${SOURCE_WORKDIR}/datasource.* | wc -l)))
 			vecho "done."
 			;;
 		999)
