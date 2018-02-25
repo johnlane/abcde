@@ -33,7 +33,6 @@ GetOptions ("device=s"       => \$device,
             "discid=s"       => \$discid,
             "discinfo=i{5,}" => \@discinfo,
             "workdir=s"      => \$workdir,
-            "workdir=s"      => \$workdir,
             "start=s"        => \$start,
             "help|h"         => \$help,
             "man"            => \$man) or pod2usage(-verbose => 0, -exitcode => 2);
