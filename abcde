@@ -2557,7 +2557,11 @@ do_cdtext_read ()
 	echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 
 	( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
-	cp "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "$ABCDETEMPDIR"
+	for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
+		if [ -f $file ]; then
+			cp $file "$ABCDETEMPDIR"
+		fi
+	done
 	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
 }
 
@@ -2737,7 +2741,7 @@ do_cddb_read ()
 			# Need to re-count the entries here to be able
 			# to incrememnt $NUM_CDDB_MATCHES in the
 			# parent
-			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $(ls -1 ${SOURCE_WORKDIR}/datasource.* | wc -l)))
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $(echo ${SOURCE_WORKDIR}/datasource.* | wc -w)))
 			vecho "done."
 			;;
 		999)
@@ -2747,7 +2751,11 @@ do_cddb_read ()
 			;;
 		esac
 		echo "cddb-readcomplete" >> "$ABCDETEMPDIR/status"
-		cp -f "${SOURCE_WORKDIR}/"*.* "$ABCDETEMPDIR"
+		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
+			if [ -f $file ]; then
+				cp $file "$ABCDETEMPDIR"
+			fi
+		done
 	fi
 }
 
