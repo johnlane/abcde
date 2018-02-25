@@ -339,9 +339,9 @@ new_checkexec ()
 	if [ ! "$@" = "" ]; then
 		# Cut off any command-line option we added in
 		X=$(echo $@ | cut -d' ' -f2)
-		if [ "$(which $X)" = "" ]; then
+		if [ "$(which $X 2>/dev/null)" = "" ]; then
 			return 1
-		elif [ ! -x $(which $X) ]; then
+		elif [ ! -x $(which $X 2>/dev/null) ]; then
 			return 2
 		fi
 	fi
@@ -355,7 +355,7 @@ checkexec ()
 		X=$(echo $@ | cut -d' ' -f2)
 		# Test for built-in abcde.function
 		[ "$X" != "${X#abcde.}" ] && type $X >/dev/null 2>&1 && return
-		if [ "$(which $X)" = "" ]; then
+		if [ "$(which $X 2>/dev/null)" = "" ]; then
 			log error "$X is not in your path." >&2
 			log info  "Define the full path to the executable if it exists on your system." >&2
 			if [ -e /etc/debian_* ] ; then
@@ -366,7 +366,7 @@ checkexec ()
 				log info "Hint: sudo apt-get install $MISSING_PACKAGE" >&2
 			fi
 			exit 1
-		elif [ ! -x "$(which $X)" ]; then
+		elif [ ! -x "$(which $X 2>/dev/null)" ]; then
 			log error "$X is not executable." >&2
 			exit 1
 		fi
