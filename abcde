@@ -2730,7 +2730,7 @@ do_cddb_read ()
 					if checkstatus cddb-read-${NUM_CDDB_MATCHES}-complete; then :; else
 						$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(echo $DISCINFO | cut -f1,2 -d' ') > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 						echo "$DISCINFO" > ${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}
-						echo "cddb/$CDDBHOST" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
+						echo "cddb" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
 						echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
 					fi
 				done )
