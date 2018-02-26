@@ -2600,12 +2600,10 @@ do_musicbrainz_read ()
 		local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-musicbrainz"
 		mkdir -p "${SOURCE_WORKDIR}"
 		${MUSICBRAINZ} --command data --discid "${MBDISCID}" --workdir "${SOURCE_WORKDIR}" --start ${NUM_CDDB_MATCHES}
-		# To have got this far, must have been able to run
-		# $MUSICBRAINZ earlier to calculate the ID. Errors here are
-		# non-fatal, maybe a lookup failure? Log and continue.
 		error=$?
 		if [ $error != 0 ]; then
-			log error "$MUSICBRAINZ failed to run"
+			log error "$MUSICBRAINZ failed to run; ABORT"
+			exit $error
 		fi
 
 		# Check for no matches.
