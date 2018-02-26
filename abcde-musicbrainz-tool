@@ -16,10 +16,7 @@ use utf8;
 use POSIX qw(ceil);
 use Digest::SHA;
 use MusicBrainz::DiscID;
-use WebService::MusicBrainz::Release;
-use WebService::MusicBrainz::Artist;
-use WebService::MusicBrainz::Response::Track;
-use WebService::MusicBrainz::Response::TrackList;
+use WebService::MusicBrainz;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -87,23 +84,30 @@ if ($command =~ m/^id/) {
 	print STDERR "Discid undefined.\n";
 	exit(1);
     }
-    my $ws = WebService::MusicBrainz::Release->new();
-    my $response = $ws->search({ DISCID => $discid });
-    my @releases = $response->release_list();
+    my $ws = WebService::MusicBrainz->new();
+    my $response = $ws->search(discid => {
+	discid => $discid,
+	inc => ['artists', 'artist-credits', 'recordings']
+        });
+    my @releases = @{ $response->{'releases'} };
     my $releasenum = $start;
     my @sums;
 
     foreach my $release (@releases) {
-        my $a_artist = $release->artist()->name();
+        my $a_artist = "";
+        if (@{ $release->{'artist-credit'} } > 0) {
+            $a_artist = @{ $release->{'artist-credit'} }[0]->{'name'};
+        }
         my $va = 0;
         my $rel_year = "";
         if ($a_artist =~ /Various Artists/) {
             $va = 1;
         }
-        my $release_event_list = $release->release_event_list();
-        if ($release_event_list) {
-            my @events = @{$release->release_event_list()->events()};
-            $rel_year =  substr($events[0]->date(),0,4);
+
+        my @release_events = @{ $release->{'release-events'} };
+
+        if (@release_events > 0) {
+            $rel_year =  substr(@release_events[0]->{'date'},0,4);
         }
 
         $releasenum++;
@@ -112,13 +116,36 @@ if ($command =~ m/^id/) {
         print OUT "# xmcd style database file\n";
         print OUT "#\n";
         print OUT "# Track frame offsets:\n";
-        # Assume standard pregap
-        my $total_len = 2000;
-        my @tracks = @{$release->track_list()->tracks()};
-        for (my $i = 0; $i < scalar(@tracks); $i++) {
-            printf OUT "#       %d\n", ceil($total_len * $FRAMES_PER_S / 1000.0);
-            $total_len += $tracks[$i]->duration();
+
+        my @offsets = @{ $response->{'offsets'}};
+        foreach my $offset (@offsets) {
+            printf OUT "#       %d\n", $offset;
         }
+
+        # Locate the media that contains a disc with the discid we requested
+        # initially. The API may return multiple media associated with the
+        # release, including media with different discids
+        my @mediums = grep {
+            my @disks = @{ $_->{'discs'} };
+            grep { $_->{'id'} eq $discid } @disks;
+        } @{ $release->{'media'} };
+
+        if (not @mediums) {
+            # This release doesn't have a media with our requested dicsid
+            # Shouldn't happen (?), skip it
+            next;
+        }
+
+        # Only consider the first medium
+        my $medium = @mediums[0];
+        my @tracks = @{ $medium->{'tracks'} };
+
+        my $total_len = 0;
+        for (my $i = 0; $i < scalar(@tracks); $i++) {
+            my $track = $tracks[$i];
+            $total_len += $track->{'length'};
+        }
+
         print OUT "#\n";
         printf OUT "# Disc length: %d seconds\n", $total_len / 1000.0;
         print OUT "#\n";
@@ -127,16 +154,15 @@ if ($command =~ m/^id/) {
         print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
         print OUT "#CATEGORY=none\n";
         print OUT "DISCID=" . $discid . "\n";
-        print OUT "DTITLE=" . $a_artist. " / " . $release->title() . "\n";
+        print OUT "DTITLE=" . $a_artist. " / " . $release->{'title'} . "\n";
         print OUT "DYEAR=" . $rel_year . "\n";
         print OUT "DGENRE=\n";        
 
-        my @tracks = @{$release->track_list()->tracks()};
         for (my $i = 0; $i < scalar(@tracks); $i++) {
             my $track = $tracks[$i];
-            my $t_name = $track->title;
-            if ($va) {
-                my $t_artist = $track->artist->name;
+            my $t_name = $track->{'title'};
+            if ($va and @{ $track->{'artist-credit'} } > 0) {
+                my $t_artist = $track->{'artist-credit'}->[0]->{'name'};
                 printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
             } else {
                 printf OUT "TTITLE%d=%s\n", $i, $t_name;
@@ -153,12 +179,12 @@ if ($command =~ m/^id/) {
 
         # save release mbid
         open (OUT, "> $workdir/mbid.$releasenum");
-        print OUT $release->id;
+        print OUT $release->{'id'};
         close OUT;
 
         # save release asin
         open (OUT, "> $workdir/asin.$releasenum");
-        print OUT $release->asin;
+        print OUT $release->{'asin'};
         close OUT;
 
         # Check to see that this entry is unique; generate a checksum
@@ -174,9 +200,8 @@ if ($command =~ m/^id/) {
         push (@sums, $checksum);
     }
 } elsif ($command =~ m/calcid/) {
-# Calculate MusicBrainz ID from disc offsets; see
-# https://musicbrainz.org/doc/DiscIDCalculation
-
+    # Calculate MusicBrainz ID from disc offsets; see
+    # https://musicbrainz.org/doc/DiscIDCalculation
 
     if ($#discinfo < 5) {
 	print STDERR "Insufficient or missing discinfo data.\n";
