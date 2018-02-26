@@ -2057,6 +2057,9 @@ do_discid ()
 				# consistency. Also calculate the
 				# musicbrainz discid if we need it.
 				CDDBTRACKINFO=$($CDDISCID "$CDROM")
+				if [ "$CDDISCID_NEEDS_PAUSE"x = "y"x ]; then
+					sleep 6
+				fi
 				CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
 				case $CDDBMETHOD in
 					*musicbrainz*)
@@ -2525,7 +2528,7 @@ do_cdtext_read ()
 		diskutil unmount ${CDROM#/dev/}
 		# Also, in OSX the cdrom device for cdda2wav/icedax changes...
 		CDDA2WAVCDROM="IODVDServices"
-	elif [ "$OSFLAVOUR" = "FBSD" ] ; then
+	elif [ "$OSFLAVOUR" = "FBSD" ] || [ "$OSFLAVOUR" = "IRIX" ]; then
 		CDDA2WAVCDROM="$CDROMID"
 	else
 		if [ "$CDROMID" = "" ]; then
@@ -3473,7 +3476,7 @@ do_cdread ()
 				diskutil unmount ${CDROM#/dev/}
 				# Also, in OSX the cdrom device for cdda2wav/icedax changes...
 				CDDA2WAVCDROM="IODVDServices"
-			elif [ "$OSFLAVOUR" = "FBSD" ] ; then
+			elif [ "$OSFLAVOUR" = "FBSD" ] || [ "$OSFLAVOUR" = "IRIX" ]; then
 				CDDA2WAVCDROM="$CDROMID"
 			else
 				if [ "$CDROMID" = "" ]; then
@@ -3945,6 +3948,13 @@ elif [ X$(uname) = "SunOS" ] ; then
 	HTTPGET=""
 	MD5SUM=md5
 	OSFLAVOUR=SunOS
+elif [ X$(uname) = X"IRIX64" ] ; then
+	HTTPGET="wget"
+	OSFLAVOUR=IRIX
+	NEEDCDROMID=y
+	# Apparently necessary - see
+	# https://abcde.einval.com/bugzilla/show_bug.cgi?id=29
+	CDDISCID_NEEDS_PAUSE=y
 else
 	HTTPGET=wget
 fi
@@ -4234,9 +4244,14 @@ done
 
 # At this point a CDROM has to be defined, so we check it exists.
 if [ X"$CDROM" != "X" ] ; then
-	if ( [ "$CDROMREADERSYNTAX" = "cdda2wav" ] || [ "$CDROMREADERSYNTAX" = "icedax" ] ) && [ "$NEEDCDROMID" = "y" ] ; then
-		if [ "$OSFLAVOUR" = "FBSD" ]; then
-			if echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then :; else
+	if [ "$NEEDCDROMID" = "y" ] ; then
+		if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] || [ "$CDROMREADERSYNTAX" = "icedax" ]; then
+			if [ "$OSFLAVOUR" = "IRIX" ]; then
+				if [ -z "$CDROMID" ]; then
+					CDROMID="`echo "$CDROM" | sed -e 's;/dev/scsi/sc\([0-9]*\)d\([0-9]*\)l\([0-9]*\)$;\1,\2,\3;'`"
+				fi
+			fi
+			if ! echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then
 				log error "CDROMID not in the right format for $CDROMREADERSYNTAX"
 				log error "Use \"cdrecord -scanbus\" to obtain an adequate ID and set CDROMID accordingly"
 				exit 1

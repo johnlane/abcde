@@ -74,6 +74,8 @@ abcde 2.8.2
  * Redirect stderr on "which" calls to clear up error noise on some
    systems. Closes Issue 56:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=56
+ * Add Irix support, based on a patch by abcde@canavan.de. Closes: Issue 29:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=29
    
 abcde 2.8.1.
 
