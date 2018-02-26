@@ -926,7 +926,7 @@ do_tag ()
 					if [ -n "$DISCNUMBER" ]; then
 						echo DISCNUMBER="$DISCNUMBER"
 					fi
-					echo CDDB=$CDDBDISCID
+					echo CDDB="${CDDBDISCID}"
 					if [ "$(eval echo ${COMMENT})" != "" ]; then
 						case "$COMMENTOUTPUT" in
 							*=*) echo "$COMMENTOUTPUT";;
@@ -975,7 +975,7 @@ do_tag ()
 			if [ -n "$DISCNUMBER" ]; then
 				echo DISCNUMBER="$DISCNUMBER"
 			fi
-			echo CDDB="$CDDBDISCID"
+			echo CDDB="${CDDBDISCID}"
 			if [ "$(eval echo ${COMMENT})" != "" ]; then
 				case "$COMMENTOUTPUT" in
 					*=*) echo "$COMMENTOUTPUT";;
@@ -1895,7 +1895,7 @@ abcde.cue2discid () {
 
 	LENGTH=$(( $LEADOUT/75 - $TRACK1/75 ))
 	CDDBDISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
-	printf "%08x %i" $CDDBDISCID $TRACKS
+	printf "%08x %i" ${CDDBDISCID} $TRACKS
 
 	j=1
 	while [ $j -le $TRACKS ] ; do
@@ -1994,7 +1994,7 @@ abcde.mkcue () {
 # This is essentially the start of things
 do_discid ()
 {
-	if [ -z "$CDDBDISCID" ]; then
+	if [ -z "${CDDBDISCID}" ]; then
 		vecho -n "Getting CD track info... "
 		# In OSX, unmount the disc before a query
 		if [ "$OSFLAVOUR" = "OSX" ]; then
@@ -2088,7 +2088,7 @@ do_discid ()
 		WEHAVEACD=y
 		CDDBDISCID=$(echo $CDDBTRACKINFO | cut -f1 -d' ')
 	else
-		CDDBTRACKINFO=$(cat "$WAVOUTPUTDIR/abcde.$CDDBDISCID/cddbdiscid")
+		CDDBTRACKINFO=$(cat "$WAVOUTPUTDIR/abcde.${CDDBDISCID}/cddbdiscid")
 	fi
 
 	# Get a full enumeration of tracks, sort it, and put it in the TRACKQUEUE.
@@ -2568,7 +2568,7 @@ do_cdtext_read ()
 	CDDBDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
 	ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
 	echo "CD-Text" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
-	echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
+	echo "none ${CDDBDISCID} ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 
 	( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
 	for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
@@ -2596,7 +2596,7 @@ do_musicbrainz_read ()
 		MBDISCID=$(echo $MBTRACKINFO | cut -d' ' -f1)
 		local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-musicbrainz"
 		mkdir -p "${SOURCE_WORKDIR}"
-		${MUSICBRAINZ} --command data --discid "$MBDISCID" --workdir "${SOURCE_WORKDIR}" --start ${NUM_CDDB_MATCHES}
+		${MUSICBRAINZ} --command data --discid "${MBDISCID}" --workdir "${SOURCE_WORKDIR}" --start ${NUM_CDDB_MATCHES}
 		# To have got this far, must have been able to run
 		# $MUSICBRAINZ earlier to calculate the ID. Errors here are
 		# non-fatal, maybe a lookup failure? Log and continue.
@@ -2617,7 +2617,7 @@ do_musicbrainz_read ()
 				i=$(($i + 1))
 				echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
 				ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
-				echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
+				echo "none ${CDDBDISCID} ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 				echo "Musicbrainz" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
 				cp -f "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "${ABCDETEMPDIR}"
 			done
@@ -4119,7 +4119,7 @@ if echo "$CDROM" | grep -i '.flac$' > /dev/null 2>&1 ; then
 fi
 
 # If the user provided a CDDBDISCID, disable eject
-if [ -n "$CDDBDISCID" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
+if [ -n "${CDDBDISCID}" ] || [ "$CDROMREADERSYNTAX" = "flac" ]; then EJECTCD=n ; fi
 
 # Check the available cd rippers in the system, from the ones we know.
 if [ "$CDROMREADERSYNTAX" = "" ]; then
@@ -5435,7 +5435,7 @@ if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
 		log warning "The encoded formats does not match with the moved ones"
 		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
 		log warning "Formats moved: $( echo $MOVED_FORMATS | tr "|" " " )"
-		log warning "Use \"abcde -a clean -f -C $CDDBDISCID\" to force the removal of the remaining data."
+		log warning "Use \"abcde -a clean -f -C ${CDDBDISCID}\" to force the removal of the remaining data."
 		DOCLEAN=n
 	fi
 fi
