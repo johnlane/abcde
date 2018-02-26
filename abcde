@@ -76,7 +76,7 @@ echo ""
 
 addstatus ()
 {
-	echo "$@" >> "$ABCDETEMPDIR/status"
+	echo "$@" >> "${ABCDETEMPDIR}/status"
 }
 
 # log [level] [message]
@@ -153,7 +153,7 @@ checkstatus ()
 {
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(=.*)?$"
-	BLURB=$(grep -E $PATTERN "$ABCDETEMPDIR/status" | tail -n 1)
+	BLURB=$(grep -E $PATTERN "${ABCDETEMPDIR}/status" | tail -n 1)
 
 	if [ -z "$BLURB" ]; then
 		# No matches found
@@ -175,12 +175,12 @@ checkstatus ()
 # Otherwise, returns "".
 checkwarnings ()
 {
-	if [ -e "$ABCDETEMPDIR/warnings" ]; then :; else
+	if [ -e "${ABCDETEMPDIR}/warnings" ]; then :; else
 		return 1
 	fi
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(:.*)?$"
-	BLURB="$(grep -E $PATTERN "$ABCDETEMPDIR/warnings" | tail -n 1)"
+	BLURB="$(grep -E $PATTERN "${ABCDETEMPDIR}/warnings" | tail -n 1)"
 
 	if [ -z "$BLURB" ]; then
 		# negative, we did not have a negative...
@@ -198,12 +198,12 @@ checkwarnings ()
 # Otherwise, returns "".
 checkerrors ()
 {
-	if [ -e "$ABCDETEMPDIR/errors" ]; then :; else
+	if [ -e "${ABCDETEMPDIR}/errors" ]; then :; else
 		return 1
 	fi
 	# Take the last line in the status file if there's multiple matches
 	PATTERN="^$1(:.*)?$"
-	BLURB="$(grep -E $PATTERN "$ABCDETEMPDIR/errors" | tail -n 1)"
+	BLURB="$(grep -E $PATTERN "${ABCDETEMPDIR}/errors" | tail -n 1)"
 
 	if [ -z "$BLURB" ]; then
 		# negative, we did not have a negative...
@@ -277,11 +277,11 @@ run_command ()
 		if [ "$BLURB" ]; then
 			TWEAK="$BLURB: "
 		fi
-		echo "${TWEAK}returned code $RETURN: $@" >> "$ABCDETEMPDIR/errors"
+		echo "${TWEAK}returned code $RETURN: $@" >> "${ABCDETEMPDIR}/errors"
 		return $RETURN # Do not pass go, do not update the status file
 	fi
 	if [ "$BLURB" ]; then
-		echo $BLURB >> "$ABCDETEMPDIR/status"
+		echo $BLURB >> "${ABCDETEMPDIR}/status"
 	fi
 }
 
@@ -392,14 +392,14 @@ diffentries ()
 		else
 			# We parse the 2 choices to diff, store them in temporary files and diff them.
 			for PARSECHOICE in $(echo $CDDBDIFFCHOICE | tr , \ ); do
-				do_cddbparse "$ABCDETEMPDIR/$FILENAME.$PARSECHOICE" > "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE"
+				do_cddbparse "${ABCDETEMPDIR}/$FILENAME.$PARSECHOICE" > "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE"
 			done
-			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/$FILENAME.diff"
-			$DIFF $DIFFOPTS "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/$FILENAME.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/$FILENAME.diff"
-			if [ $(cat "$ABCDETEMPDIR/$FILENAME.diff" | wc -l) -ge $LINES ]; then
-				page "$ABCDETEMPDIR/$FILENAME.diff"
+			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/$FILENAME.diff"
+			$DIFF $DIFFOPTS "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/$FILENAME.diff"
+			if [ $(cat "${ABCDETEMPDIR}/$FILENAME.diff" | wc -l) -ge $LINES ]; then
+				page "${ABCDETEMPDIR}/$FILENAME.diff"
 			else
-				cat "$ABCDETEMPDIR/$FILENAME.diff" >&2
+				cat "${ABCDETEMPDIR}/$FILENAME.diff" >&2
 			fi
 		fi
 	else
@@ -830,7 +830,7 @@ do_tag ()
 						-A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 						-y "$CDYEAR" -g "$GENREID" \
 						-T "${TRACKNUM:-$1}" \
-						"$ABCDETEMPDIR/track$1.$OUTPUT"
+						"${ABCDETEMPDIR}/track$1.$OUTPUT"
 					;;
 				id3v2)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
@@ -841,7 +841,7 @@ do_tag ()
 						-y "$CDYEAR" -g "$GENREID" \
 						-T "${TRACKNUM:-$1}/$TRACKS" \
 						${TPE2:+--TPE2 "$TPE2"} \
-						"$ABCDETEMPDIR/track$1.$OUTPUT"
+						"${ABCDETEMPDIR}/track$1.$OUTPUT"
 					;;
 				id3tag)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
@@ -851,7 +851,7 @@ do_tag ()
 						-A "$DALBUM" -a "$TRACKARTIST" -s "$TRACKNAME" \
 						-y "$CDYEAR" -g "$GENREID" \
 						-t "${TRACKNUM:-$1}" ${TRACKNUM:+-T "$TRACKS"} \
-						"$ABCDETEMPDIR/track$1.$OUTPUT"
+						"${ABCDETEMPDIR}/track$1.$OUTPUT"
 					;;
 				eyed3*)
 					# FIXME # track numbers in mp3 come with 1/10, so we cannot
@@ -880,7 +880,7 @@ do_tag ()
 						-G "$GENREID" -n "${TRACKNUM:-$1}" \
 						${TRACKNUM:+-N "$TRACKS"} \
 						"${addopts[@]}" \
-						"$ABCDETEMPDIR/track$1.$OUTPUT"
+						"${ABCDETEMPDIR}/track$1.$OUTPUT"
 					;;
 				*)
 					log error "Internal error: ID3SYNTAX has an illegal value"
@@ -892,8 +892,8 @@ do_tag ()
 			case "$OGGENCODERSYNTAX" in
 				vorbize|oggenc)
 					# vorbiscomment can't do in-place modification, mv the file first
-					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" -a ! -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
-						mv "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
+					if [ -f "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" -a ! -f "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
+						mv "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					fi
 					(
 					# These are from
@@ -926,13 +926,13 @@ do_tag ()
 					fi
 					) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE \
 						$VORBISCOMMENT $VORBISCOMMENTOPTS -w \
-						"$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+						"${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
 					# Doublecheck that the commented file was created
 					# successfully before wiping the original
-					if [ -f "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER" ]; then
-						rm -f "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER"
+					if [ -f "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" ]; then
+						rm -f "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					else
-						mv "$ABCDETEMPDIR/track$1.uncommented.$OGGOUTPUTCONTAINER" "$ABCDETEMPDIR/track$1.$OGGOUTPUTCONTAINER"
+						mv "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
 					fi
 					;;
 			esac
@@ -973,8 +973,8 @@ do_tag ()
 					*)   echo COMMENT="$COMMENTOUTPUT";;
 				esac
 			fi
-			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} \
-			--import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+			) | run_command tagtrack-$OUTPUT-$1 nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="${ABCDETEMPDIR}/$CUEFILE"} \
+			--import-tags-from=- "${ABCDETEMPDIR}/track$1.$FLACOUTPUTCONTAINER"
 			;;
 		spx)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -988,7 +988,7 @@ do_tag ()
 		ape)
 			# This tagging syntax is suitable for Robert Muth's application 'apetag', the Monkey's Audio 
 			# Console port (mac) used for encoding does not have the ability to tag.
-			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "$ABCDETEMPDIR/track$1.ape" -m overwrite \
+			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$APETAG" -i "${ABCDETEMPDIR}/track$1.ape" -m overwrite \
 			-p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track=${TRACKNUM:-$1} \
 			-p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
  			;;
@@ -998,7 +998,7 @@ do_tag ()
 			# not currently tag mp2 audio so twolame and FFmpeg will both use mid3v2...
 			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
-			"$ABCDETEMPDIR/track$1.mp2"
+			"${ABCDETEMPDIR}/track$1.mp2"
 			;;
 		aac)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -1011,7 +1011,7 @@ do_tag ()
 					;;
 				neroAacEnc)
 					# Tag post encode with neroAacTag...
-					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$NEROAACTAG" "$ABCDETEMPDIR/track$1.m4a" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$NEROAACTAG" "${ABCDETEMPDIR}/track$1.m4a" \
 					-meta:artist="$TRACKARTIST" -meta:album="$DALBUM" -meta:title="$TRACKNAME" -meta:track=${TRACKNUM:-$1} \
 					-meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
 					;;
@@ -1024,7 +1024,7 @@ do_tag ()
 				fhgaacenc)
 					# Tag post encode with AtomicParsley. Note that previous problems with seg fault when using
 					# 'overWrite' cannot be reproduced with newer versions: https://bitbucket.org/wez/atomicparsley
-					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$ATOMICPARSLEY" "$ABCDETEMPDIR/track$1.m4a" \
+					run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$ATOMICPARSLEY" "${ABCDETEMPDIR}/track$1.m4a" \
 					--artist="$TRACKARTIST" --album="$DALBUM" --title="$TRACKNAME" --tracknum=${TRACKNUM:-$1} \
 					--year="$CDYEAR" --genre="$CDGENRE" --comment="$COMMENT" $ATOMICPARSLEYOPTS --overWrite
 					;;
@@ -1037,7 +1037,7 @@ do_tag ()
 			# We use mid3v2 tagging for True Audio:
 			run_command tagtrack-$OUTPUT-$1 nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
 			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
-			"$ABCDETEMPDIR/track$1.tta"
+			"${ABCDETEMPDIR}/track$1.tta"
 			;;
 		wav)
 			run_command tagtrack-$OUTPUT-$1 true
@@ -1064,7 +1064,7 @@ do_nogap_encode ()
 			case "$MP3ENCODERSYNTAX" in
 			lame)
 				(
-				cd "$ABCDETEMPDIR"
+				cd "${ABCDETEMPDIR}"
 				TRACKFILES=
 				for UTRACKNUM in $TRACKQUEUE
 				do
@@ -1073,7 +1073,7 @@ do_nogap_encode ()
 				nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS --nogap $TRACKFILES
 				RETURN=$?
 				if [ "$RETURN" != "0" ]; then
-					echo "nogap-encode: $ENCODER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+					echo "nogap-encode: $ENCODER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 				else
 					for UTRACKNUM in $TRACKQUEUE
 					do
@@ -1146,7 +1146,7 @@ do_encode ()
 		esac
 		IN="$( eval echo "\$$TEMPARG" )"
 	else
-		IN="$ABCDETEMPDIR/track$1.wav"
+		IN="${ABCDETEMPDIR}/track$1.wav"
 	fi
 	# We need IN to proceed, if we are not using pipes.
 	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
@@ -1172,7 +1172,7 @@ do_encode ()
 					OUTPUT=$TMPOUTPUT
 					;;
 			esac
-			OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+			OUT="${ABCDETEMPDIR}/track$1.$OUTPUT"
 			if [ "$NOGAP" = "y" ] && checkstatus encodetrack-$OUTPUT-$1 ; then
 				continue
 			fi
@@ -1400,8 +1400,8 @@ do_encode ()
 			wav)
 				# In case of wav output we need nothing. Just keep the wavs.
 				# But we need the following to allow full logging and subsequent 
-				# successful cleaning of $ABCDETEMPDIR.
-				echo "encodetrack-$OUTPUT-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
+				# successful cleaning of ${ABCDETEMPDIR}.
+				echo "encodetrack-$OUTPUT-$UTRACKNUM" >> "${ABCDETEMPDIR}/status"
 				;;
 			esac
 			$RUN_COMMAND_PIPES
@@ -1427,12 +1427,12 @@ do_encode ()
 # TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
 #do_preprocess ()
 #{
-#	IN="$ABCDETEMPDIR/track$1.wav"
+#	IN="${ABCDETEMPDIR}/track$1.wav"
 #	# We need IN to proceed.
 #	if [ -s "$IN" ] ; then
 #		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 #		do
-#			#OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+#			#OUT="${ABCDETEMPDIR}/track$1.$OUTPUT"
 #			run_command '' echo "Pre-processing track $1 of $TRACKS..."
 #			case "$POSTPROCESSFORMAT" in
 #			all|wav*)
@@ -1470,10 +1470,10 @@ do_encode ()
 #{
 #	for POSTPROCESSFORMAT in $(echo $POSTPROCESSFORMATS | tr , \ )
 #	do
-#		IN="$ABCDETEMPDIR/track$1.$POSTPROCESSFORMAT"
+#		IN="${ABCDETEMPDIR}/track$1.$POSTPROCESSFORMAT"
 #		# We need IN to proceed.
 #		if [ -s "$IN" ] ; then
-#			#OUT="$ABCDETEMPDIR/track$1.$OUTPUT"
+#			#OUT="${ABCDETEMPDIR}/track$1.$OUTPUT"
 #			run_command '' echo "Post-processing track $1 of $TRACKS..."
 #			case "$POSTPROCESSFORMAT" in
 #				mp3)
@@ -1518,7 +1518,7 @@ do_batch_gain ()
 	# The commands here don't go through run_command because they're never supposed to be silenced
 	echo "Batch analizing gain in tracks: $TRACKQUEUE"
 	(
-	cd "$ABCDETEMPDIR"
+	cd "${ABCDETEMPDIR}"
 	BLURB=
 	TRACKFILES=
 	for UTRACKNUM in $TRACKQUEUE
@@ -1529,11 +1529,11 @@ do_batch_gain ()
 	$NORMALIZER -b $NORMALIZEROPTS $TRACKFILES
 	RETURN=$?
 	if [ "$RETURN" != "0" ]; then
-		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 	else
 		for UTRACKNUM in $TRACKQUEUE
 		do
-			echo "normalizetrack-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
+			echo "normalizetrack-$UTRACKNUM" >> "${ABCDETEMPDIR}/status"
 		done
 	fi
 	)
@@ -1547,7 +1547,7 @@ do_batch_normalize ()
 	# The commands here don't go through run_command because they're never supposed to be silenced
 	echo "Batch normalizing tracks: $TRACKQUEUE"
 	(
-	cd "$ABCDETEMPDIR"
+	cd "${ABCDETEMPDIR}"
 	BLURB=
 	TRACKFILES=
 	for UTRACKNUM in $TRACKQUEUE
@@ -1558,11 +1558,11 @@ do_batch_normalize ()
 	$NORMALIZER -b $NORMALIZEROPTS $TRACKFILES
 	RETURN=$?
 	if [ "$RETURN" != "0" ]; then
-		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+		echo "batch-normalize: $NORMALIZER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 	else
 		for UTRACKNUM in $TRACKQUEUE
 		do
-			echo "normalizetrack-$UTRACKNUM" >> "$ABCDETEMPDIR/status"
+			echo "normalizetrack-$UTRACKNUM" >> "${ABCDETEMPDIR}/status"
 		done
 	fi
 	)
@@ -1573,7 +1573,7 @@ do_batch_normalize ()
 # TRACKS, TRACKNAME, NORMALIZER, NORMALIZEROPTS
 do_normalize ()
 {
-	IN="$ABCDETEMPDIR/track$1.wav"
+	IN="${ABCDETEMPDIR}/track$1.wav"
 	if [ -e "$IN" ] ; then
 		run_command '' echo "Normalizing track $1 of $TRACKS: $TRACKNAME..."
 		run_command normalizetrack-$1 $NORMALIZER $NORMALIZEROPTS "$IN"
@@ -1656,7 +1656,7 @@ do_move ()
 					else
 						# mkdir -p shouldn't return an error if the directory already exists
 						mkdir -p "$OUTPUTFILEDIR"
-						run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+						run_command movetrack-$1 mv "${ABCDETEMPDIR}/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 						if checkstatus movetrack-output-$OUTPUT; then :; else
 							run_command movetrack-output-$OUTPUT true
 						fi
@@ -1665,7 +1665,7 @@ do_move ()
 				*)
 					# mkdir -p shouldn't return an error if the directory already exists
 					mkdir -p "$OUTPUTFILEDIR"
-					run_command movetrack-$1 mv "$ABCDETEMPDIR/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
+					run_command movetrack-$1 mv "${ABCDETEMPDIR}/track$1.$OUTPUT" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT"
 					if checkstatus movetrack-output-$OUTPUT; then :; else
 						run_command movetrack-output-$OUTPUT true
 					fi
@@ -1673,7 +1673,7 @@ do_move ()
 			esac
 			# Lets move the cue file
 			if CUEFILE=$(checkstatus cuefile) >/dev/null ; then
-				if [ -r "$ABCDETEMPDIR/$CUEFILE" ]; then
+				if [ -r "${ABCDETEMPDIR}/$CUEFILE" ]; then
 					if checkstatus movecue-$OUTPUT; then :; else
 						# Silence the Copying output since it overlaps with encoding processes...
 						#run_command '' vecho "Copying cue file to its destination directory..."
@@ -1684,22 +1684,22 @@ do_move ()
 										# We dont have the dir, since it was not created before.
 										:
 									else
-										run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
+										run_command movecue-$OUTPUT cp "${ABCDETEMPDIR}/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
 									fi
 									;;
 								# NOTE: Creating a cue file with the 3-char-extension files is to comply with
 								# http://brianvictor.tripod.com/mp3cue.htm#details
 								[a-z0-9][a-z0-9][a-z0-9])
-									run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
+									run_command movecue-$OUTPUT cp "${ABCDETEMPDIR}/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.cue"
 									;;
 								*)
-									run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT.cue"
+									run_command movecue-$OUTPUT cp "${ABCDETEMPDIR}/$CUEFILE" "$OUTPUTDIR/$OUTPUTFILE.$OUTPUT.cue"
 									;;
 							esac
 						else
-							run_command movecue-$OUTPUT cp "$ABCDETEMPDIR/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
+							run_command movecue-$OUTPUT cp "${ABCDETEMPDIR}/$CUEFILE" "$OUTPUTFILEDIR/$CUEFILE"
 						fi
-						echo movecue-$OUTPUT >> "$ABCDETEMPDIR/status"
+						echo movecue-$OUTPUT >> "${ABCDETEMPDIR}/status"
 					fi
 				fi
 			fi
@@ -1808,11 +1808,11 @@ do_playlist ()
 		## this will convert the playlist to have CRLF line-endings, if specified
 		## (some hardware players insist on CRLF endings)
 		if [ "$DOSPLAYLIST" = "y" ]; then
-			awk '{sub("\r$",""); printf "%s\r\n", $0}' "$OUTPUTDIR/$PLAYLISTFILE" > "$ABCDETEMPDIR/PLAYLISTFILE.tmp"
-#			mv -f "$ABCDETEMPDIR/PLAYLISTFILE.tmp" "$OUTPUTDIR/$PLAYLISTFILE"
-			cat "$ABCDETEMPDIR/PLAYLISTFILE.tmp" | sed 's/\//\\/' > "$OUTPUTDIR/$PLAYLISTFILE"
+			awk '{sub("\r$",""); printf "%s\r\n", $0}' "$OUTPUTDIR/$PLAYLISTFILE" > "${ABCDETEMPDIR}/PLAYLISTFILE.tmp"
+#			mv -f "${ABCDETEMPDIR}/PLAYLISTFILE.tmp" "$OUTPUTDIR/$PLAYLISTFILE"
+			cat "${ABCDETEMPDIR}/PLAYLISTFILE.tmp" | sed 's/\//\\/' > "$OUTPUTDIR/$PLAYLISTFILE"
 		fi
-		echo "playlistcomplete" >> "$ABCDETEMPDIR/status"
+		echo "playlistcomplete" >> "${ABCDETEMPDIR}/status"
 	done
 }
 
@@ -2105,11 +2105,11 @@ do_discid ()
 						CDPARANOIAAUDIOTRACKS="$TRACKS"
 					else
 						# Previous versions of abcde would store the tracks on a file, instead of the status record.
-						if [ -f "$ABCDETEMPDIR/cdparanoia-audio-tracks" ]; then
-							echo cdparanoia-audio-tracks=$( cat "$ABCDETEMPDIR/cdparanoia-audio-tracks" ) >> "$ABCDETEMPDIR/status"
-							rm -f "$ABCDETEMPDIR/cdparanoia-audio-tracks"
+						if [ -f "${ABCDETEMPDIR}/cdparanoia-audio-tracks" ]; then
+							echo cdparanoia-audio-tracks=$( cat "${ABCDETEMPDIR}/cdparanoia-audio-tracks" ) >> "${ABCDETEMPDIR}/status"
+							rm -f "${ABCDETEMPDIR}/cdparanoia-audio-tracks"
 						fi
-						if [ -f "$ABCDETEMPDIR/status" ] && TRACKS=$(checkstatus cdparanoia-audio-tracks); then :; else
+						if [ -f "${ABCDETEMPDIR}/status" ] && TRACKS=$(checkstatus cdparanoia-audio-tracks); then :; else
 							TRACKS=$(echo $CDDBTRACKINFO | cut -f2 -d' ')
 						fi
 					fi
@@ -2159,31 +2159,31 @@ do_discid ()
 	# We have the discid, create a temp directory after it to store all the temp
 	# info
 
-	if [ -e "$ABCDETEMPDIR" ]; then
-		echo -n "abcde: attempting to resume from $ABCDETEMPDIR"
+	if [ -e "${ABCDETEMPDIR}" ]; then
+		echo -n "abcde: attempting to resume from ${ABCDETEMPDIR}"
 		# It already exists, see if it's a directory
-		if [ ! -d "$ABCDETEMPDIR" ]; then
+		if [ ! -d "${ABCDETEMPDIR}" ]; then
 			# This is a file/socket/fifo/device/etc, not a directory
 			# Complain and exit
 			echo >&2
-			echo "abcde: file $ABCDETEMPDIR already exists and does not belong to abcde." >&2
+			echo "abcde: file ${ABCDETEMPDIR} already exists and does not belong to abcde." >&2
 			echo "Please investigate, remove it, and rerun abcde." >&2
 			exit 1
 		fi
 		echo -n .
 		# It's a directory, let's see if it's writable by us
-		if [ ! -r "$ABCDETEMPDIR" ] || [ ! -w "$ABCDETEMPDIR" ] || [ ! -x "$ABCDETEMPDIR" ]; then
+		if [ ! -r "${ABCDETEMPDIR}" ] || [ ! -w "${ABCDETEMPDIR}" ] || [ ! -x "${ABCDETEMPDIR}" ]; then
 			# Nope, complain and exit
 			echo >&2
-			echo "abcde: directory $ABCDETEMPDIR already exists and is not writeable." >&2
+			echo "abcde: directory ${ABCDETEMPDIR} already exists and is not writeable." >&2
 			echo "Please investigate, remove it, and rerun abcde." >&2
 			exit 1
 		fi
 		echo .
 		# See if it's populated
-		if [ ! -f "$ABCDETEMPDIR/cddbdiscid" ]; then
+		if [ ! -f "${ABCDETEMPDIR}/cddbdiscid" ]; then
 			# Wipe and start fresh
-			echo "abcde: $ABCDETEMPDIR/cddbdiscid not found. Abcde must remove and recreate" >&2
+			echo "abcde: ${ABCDETEMPDIR}/cddbdiscid not found. Abcde must remove and recreate" >&2
 			echo -n "this directory to continue. Continue [y/N]? " >&2
 			if [ "$INTERACTIVE" = "y" ]; then
 				read ANSWER
@@ -2194,38 +2194,38 @@ do_discid ()
 			if [ "$ANSWER" != "y" ]; then
 				exit 1
 			fi
-			rm -rf "$ABCDETEMPDIR" || exit 1
-			mkdir -p "$ABCDETEMPDIR"
+			rm -rf "${ABCDETEMPDIR}" || exit 1
+			mkdir -p "${ABCDETEMPDIR}"
 			if [ "$?" -gt "0" ]; then
 				# Directory already exists or could not be created
-				echo "abcde: Temp directory $ABCDETEMPDIR could not be created." >&2
+				echo "abcde: Temp directory ${ABCDETEMPDIR} could not be created." >&2
 				exit 1
 			fi
 		else
 			# Everything is fine. Check for ^encodetracklocation-
 			# and encode-output entries in the status file and
 			# remove them. These are not relevant across sessions.
-			if [ -f "$ABCDETEMPDIR/status" ]; then
-				mv "$ABCDETEMPDIR/status" "$ABCDETEMPDIR/status.old"
-				grep -v ^encodetracklocation- < "$ABCDETEMPDIR/status.old" \
-					| grep -v ^encode-output > "$ABCDETEMPDIR/status"
+			if [ -f "${ABCDETEMPDIR}/status" ]; then
+				mv "${ABCDETEMPDIR}/status" "${ABCDETEMPDIR}/status.old"
+				grep -v ^encodetracklocation- < "${ABCDETEMPDIR}/status.old" \
+					| grep -v ^encode-output > "${ABCDETEMPDIR}/status"
 			fi
 			# Remove old error messages
-			if [ -f "$ABCDETEMPDIR/errors" ]; then
-				rm -f "$ABCDETEMPDIR/errors"
+			if [ -f "${ABCDETEMPDIR}/errors" ]; then
+				rm -f "${ABCDETEMPDIR}/errors"
 			fi
 		fi
 	else
 		# We are starting from scratch
-		mkdir -p "$ABCDETEMPDIR"
+		mkdir -p "${ABCDETEMPDIR}"
 		if [ "$?" -gt "0" ]; then
 			# Directory already exists or could not be created
-			echo "abcde: Temp directory $ABCDETEMPDIR could not be created." >&2
+			echo "abcde: Temp directory ${ABCDETEMPDIR} could not be created." >&2
 			exit 1
 		fi
-		cat /dev/null > "$ABCDETEMPDIR/status"
+		cat /dev/null > "${ABCDETEMPDIR}/status"
 		# Store the abcde version in the status file.
-		echo "abcde-version=$VERSION" >> "$ABCDETEMPDIR/status"
+		echo "abcde-version=$VERSION" >> "${ABCDETEMPDIR}/status"
 	fi
 	if [ X"$DOCUE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
@@ -2233,15 +2233,15 @@ do_discid ()
 			vecho "Creating cue file..."
 			case $CDROMREADERSYNTAX in
 				flac)
-					if $METAFLAC --export-cuesheet-to=- "$CDROM" > "$ABCDETEMPDIR/$CUEFILE"; then
-						echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+					if $METAFLAC --export-cuesheet-to=- "$CDROM" > "${ABCDETEMPDIR}/$CUEFILE"; then
+						echo cuefile=$CUEFILE >> "${ABCDETEMPDIR}/status"
 					else
 						log warning "the input flac file does not contain a cuesheet."
 					fi
 					;;
 				*)
-					if $CUEREADER $CUEREADEROPTS > "$ABCDETEMPDIR/$CUEFILE"; then
-						echo cuefile=$CUEFILE >> "$ABCDETEMPDIR/status"
+					if $CUEREADER $CUEREADEROPTS > "${ABCDETEMPDIR}/$CUEFILE"; then
+						echo cuefile=$CUEFILE >> "${ABCDETEMPDIR}/status"
 					else
 						log warning "reading the CUE sheet is still considered experimental"
 						log warning "and there was a problem with the CD reading. abcde will continue,"
@@ -2254,15 +2254,15 @@ do_discid ()
 	# If we got the CDPARANOIA status and it is not recorded, save it now
 	if [ -n "$CDPARANOIAAUDIOTRACKS" ]; then
 		if checkstatus cdparanoia-audio-tracks > /dev/null 2>&1; then :; else
-			echo cdparanoia-audio-tracks=$CDPARANOIAAUDIOTRACKS >> "$ABCDETEMPDIR/status"
+			echo cdparanoia-audio-tracks=$CDPARANOIAAUDIOTRACKS >> "${ABCDETEMPDIR}/status"
 		fi
 	fi
 
 	# Create the discid files
-	echo "$CDDBTRACKINFO" > "$ABCDETEMPDIR/cddbdiscid"
+	echo "$CDDBTRACKINFO" > "${ABCDETEMPDIR}/cddbdiscid"
 	case $CDDBMETHOD in
 		*musicbrainz*)
-			echo "$MBTRACKINFO" > "$ABCDETEMPDIR/mbdiscid"
+			echo "$MBTRACKINFO" > "${ABCDETEMPDIR}/mbdiscid"
 			;;
 	esac
 }
@@ -2271,7 +2271,7 @@ do_discid ()
 # Create a proper CUE file based on the CUE file we created before.
 do_cleancue()
 {
-	if CUEFILE_IN="$ABCDETEMPDIR"/$(checkstatus cuefile); then
+	if CUEFILE_IN="${ABCDETEMPDIR}"/$(checkstatus cuefile); then
 		CUEFILE_OUT=$CUEFILE_IN.out
 		### FIXME ### checkstatus cddb
 		if [ -e "$CDDBDATA" ]; then
@@ -2319,7 +2319,7 @@ do_cleancue()
 			done
 			IFS="$OIFS"
 			mv "$CUEFILE_OUT" "$CUEFILE_IN"
-			echo "cleancuefile" >> "$ABCDETEMPDIR/status"
+			echo "cleancuefile" >> "${ABCDETEMPDIR}/status"
 		fi
 	fi
 }
@@ -2387,12 +2387,12 @@ do_localcddb_read ()
 		# If the user has selected to check a local CDDB repo, we proceed with it
 		case $CDDBLOCALMATCH in
 			multiple)
-				echo "Processing multiple matching CDDB entries..." > "$ABCDETEMPDIR/cddblocalchoices"
+				echo "Processing multiple matching CDDB entries..." > "${ABCDETEMPDIR}/cddblocalchoices"
 				X=0
 				echo "$CDDBLOCALRESULTS" | while read RESULT ; do
 					X=$(expr $X + 1)
 					# List out disc title/author and contents
-					CDDBLOCALREAD="$ABCDETEMPDIR/cddblocalread.$X"
+					CDDBLOCALREAD="${ABCDETEMPDIR}/cddblocalread.$X"
 					cat "$RESULT" > "${CDDBLOCALREAD}"
 					{
 						echo -n "#$X: "
@@ -2400,13 +2400,13 @@ do_localcddb_read ()
 						echo ""
 						##FIXME## QUICK HACK !!!!
 						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
-					} >> "$ABCDETEMPDIR/cddblocalchoices"
+					} >> "${ABCDETEMPDIR}/cddblocalchoices"
 				done
-				if [ $(cat "$ABCDETEMPDIR/cddblocalchoices" | wc -l) -ge $LINES ] && [ "$INTERACTIVE" = "y" ]; then
-					page "$ABCDETEMPDIR/cddblocalchoices"
+				if [ $(cat "${ABCDETEMPDIR}/cddblocalchoices" | wc -l) -ge $LINES ] && [ "$INTERACTIVE" = "y" ]; then
+					page "${ABCDETEMPDIR}/cddblocalchoices"
 				else
 					# It's all going to fit in one page, cat it
-					cat "$ABCDETEMPDIR/cddblocalchoices" >&2
+					cat "${ABCDETEMPDIR}/cddblocalchoices" >&2
 				fi
 				CDDBLOCALCHOICES=$( echo "$CDDBLOCALRESULTS" | wc -l )
 				# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
@@ -2435,13 +2435,13 @@ do_localcddb_read ()
 				fi
 				if [ ! "$CDDBLOCALCHOICENUM" = "0" ]; then
 					#echo "Using local copy of CDDB data"
-					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
-					cat "$ABCDETEMPDIR/cddblocalread.$CDDBLOCALCHOICENUM" >> "$ABCDETEMPDIR/cddbread.1"
-					echo "local" > "$ABCDETEMPDIR/datasource.1"
-					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
-					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
-					do_cddbparse "$ABCDETEMPDIR/cddbread.1" > "$ABCDETEMPDIR/cddbchoices"
-					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "${ABCDETEMPDIR}/cddbread.1"
+					cat "${ABCDETEMPDIR}/cddblocalread.$CDDBLOCALCHOICENUM" >> "${ABCDETEMPDIR}/cddbread.1"
+					echo "local" > "${ABCDETEMPDIR}/datasource.1"
+					echo 999 > "${ABCDETEMPDIR}/cddbquery" # Assuming 999 isn't used by CDDB
+					echo cddb-readcomplete >> "${ABCDETEMPDIR}/status"
+					do_cddbparse "${ABCDETEMPDIR}/cddbread.1" > "${ABCDETEMPDIR}/cddbchoices"
+					echo cddb-choice=1 >> "${ABCDETEMPDIR}/status"
 					CDDBLOCALSTATUS="found"
 				else
 					#echo "Not using local copy of CDDB data"
@@ -2468,13 +2468,13 @@ do_localcddb_read ()
 				fi
 				if [ "$USELOCALRESP" = "y" ]; then
 					#echo "Using local copy of CDDB data"
-					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "$ABCDETEMPDIR/cddbread.1"
-					cat "${CDDBLOCALFILE}" >> "$ABCDETEMPDIR/cddbread.1"
-					echo "local" > "$ABCDETEMPDIR/datasource.1"
-					echo 999 > "$ABCDETEMPDIR/cddbquery" # Assuming 999 isn't used by CDDB
-					echo cddb-readcomplete >> "$ABCDETEMPDIR/status"
-					do_cddbparse "${CDDBLOCALFILE}" > "$ABCDETEMPDIR/cddbchoices"
-					echo cddb-choice=1 >> "$ABCDETEMPDIR/status"
+					echo "# DO NOT ERASE THIS LINE! Added by abcde to imitate cddb output" > "${ABCDETEMPDIR}/cddbread.1"
+					cat "${CDDBLOCALFILE}" >> "${ABCDETEMPDIR}/cddbread.1"
+					echo "local" > "${ABCDETEMPDIR}/datasource.1"
+					echo 999 > "${ABCDETEMPDIR}/cddbquery" # Assuming 999 isn't used by CDDB
+					echo cddb-readcomplete >> "${ABCDETEMPDIR}/status"
+					do_cddbparse "${CDDBLOCALFILE}" > "${ABCDETEMPDIR}/cddbchoices"
+					echo cddb-choice=1 >> "${ABCDETEMPDIR}/status"
 					CDDBLOCALSTATUS="single"
 				else
 					#echo "Not using local copy of CDDB data"
@@ -2503,7 +2503,7 @@ do_cdtext_read ()
 
 	vecho "Obtaining CD-Text results..."
 	CDTDISCID=$(echo $CDDBTRACKINFO | cut -d' ' -f1)
-	local SOURCE_WORKDIR="$ABCDETEMPDIR/data-cdtext"
+	local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-cdtext"
 	mkdir -p "${SOURCE_WORKDIR}"
 
 	if [ "$OSFLAVOUR" = "OSX" ] ; then
@@ -2559,10 +2559,10 @@ do_cdtext_read ()
 	( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
 	for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
 		if [ -f $file ]; then
-			cp $file "$ABCDETEMPDIR"
+			cp $file "${ABCDETEMPDIR}"
 		fi
 	done
-	echo "cdtext-readcomplete" >> "$ABCDETEMPDIR/status"
+	echo "cdtext-readcomplete" >> "${ABCDETEMPDIR}/status"
 }
 
 # do_musicbrainz_read
@@ -2594,14 +2594,14 @@ do_musicbrainz_read ()
 			while [ $i -le $NUM_RESPONSES ]; do
 				NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
 				i=$(($i + 1))
-				echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
+				echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
 				ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
 				echo "none $CDDBDISCID ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 				echo "Musicbrainz" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
-				cp -f "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "$ABCDETEMPDIR"
+				cp -f "${SOURCE_WORKDIR}/"*."${NUM_CDDB_MATCHES}" "${ABCDETEMPDIR}"
 			done
 		fi
-		echo "musicbrainz-readcomplete" >> "$ABCDETEMPDIR/status"
+		echo "musicbrainz-readcomplete" >> "${ABCDETEMPDIR}/status"
 	fi
 }
 
@@ -2654,7 +2654,7 @@ do_cddb_read ()
 				CDDBAVAIL="n"
 			fi
 		fi
-		echo cddb-statcomplete >> "$ABCDETEMPDIR/status"
+		echo cddb-statcomplete >> "${ABCDETEMPDIR}/status"
 	fi
 
 	###########
@@ -2694,7 +2694,7 @@ do_cddb_read ()
 				;;
 			esac
 		fi
-		echo cddb-querycomplete >> "$ABCDETEMPDIR/status"
+		echo cddb-querycomplete >> "${ABCDETEMPDIR}/status"
 	fi
 
 	###########
@@ -2735,7 +2735,7 @@ do_cddb_read ()
 						$CDDBTOOL read $CDDBURL $CDDBPROTO $CDDBUSER $CDDBHOST $(echo $DISCINFO | cut -f1,2 -d' ') > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 						echo "$DISCINFO" > ${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}
 						echo "cddb" > ${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}
-						echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
+						echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
 					fi
 				done )
 			# Need to re-count the entries here to be able
@@ -2747,13 +2747,13 @@ do_cddb_read ()
 		999)
 			# Using local copy.
 			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
-			echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "$ABCDETEMPDIR/status"
+			echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
 			;;
 		esac
-		echo "cddb-readcomplete" >> "$ABCDETEMPDIR/status"
+		echo "cddb-readcomplete" >> "${ABCDETEMPDIR}/status"
 		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
 			if [ -f $file ]; then
-				cp $file "$ABCDETEMPDIR"
+				cp $file "${ABCDETEMPDIR}"
 			fi
 		done
 	fi
@@ -2763,7 +2763,7 @@ do_cddb_read ()
 do_cddbedit ()
 {
 	if checkstatus cddb-edit >/dev/null; then
-		CDDBDATA="$ABCDETEMPDIR/cddbread.$(checkstatus cddb-choice)"
+		CDDBDATA="${ABCDETEMPDIR}/cddbread.$(checkstatus cddb-choice)"
 		VARIOUSARTISTS="$(checkstatus variousartists)"
 		VARIOUSARTISTSTYLE="$(checkstatus variousartiststyle)"
 		return 0
@@ -2772,27 +2772,27 @@ do_cddbedit ()
 		# We should show the CDDB results both when we are not using the local CDDB repo
 		# or when we are using it but we could not find a proper match
 		if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSTATUS" = "notfound" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
-			# Display the $ABCDETEMPDIR/cddbchoices file created above
+			# Display the ${ABCDETEMPDIR}/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
-			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
+			if [ -r "${ABCDETEMPDIR}/cddbchoices" ]; then
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
 					case $NUM_CDDB_MATCHES in
-						1) cat "$ABCDETEMPDIR/cddbchoices" ;;
+						1) cat "${ABCDETEMPDIR}/cddbchoices" ;;
 						*)
-						ATITLE=$(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CHOICE" | cut -f2- -d= | tr -d \\r\\n)
+						ATITLE=$(grep -a ^DTITLE= "${ABCDETEMPDIR}/cddbread.$CHOICE" | cut -f2- -d= | tr -d \\r\\n)
 						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CHOICE")
 						echo "Selected: #$CDCHOICENUM ($SOURCE) ($ATITLE)"
-						do_cddbparse "$ABCDETEMPDIR/cddbread.$CHOICE"
+						do_cddbparse "${ABCDETEMPDIR}/cddbread.$CHOICE"
 						;;
 					esac
 				else
 					# The user has a choice to make, display the info in a pager if necessary
-					if [ $(cat "$ABCDETEMPDIR/cddbchoices" | wc -l) -ge $LINES ]; then
-						page "$ABCDETEMPDIR/cddbchoices"
+					if [ $(cat "${ABCDETEMPDIR}/cddbchoices" | wc -l) -ge $LINES ]; then
+						page "${ABCDETEMPDIR}/cddbchoices"
 					else
 						# It's all going to fit in one page, cat it
-						cat "$ABCDETEMPDIR/cddbchoices" >&2
+						cat "${ABCDETEMPDIR}/cddbchoices" >&2
 					fi
 
 					CDDBCHOICENUM=""
@@ -2814,14 +2814,14 @@ do_cddbedit ()
 								else
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
-										do_cddbparse "$ABCDETEMPDIR/cddbread.$PARSECHOICE" > "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE"
+										do_cddbparse "${ABCDETEMPDIR}/cddbread.$PARSECHOICE" > "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE"
 									done
-									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "$ABCDETEMPDIR/cddbread.diff"
-									$DIFF $DIFFOPTS "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE1" "$ABCDETEMPDIR/cddbread.parsechoice.$PARSECHOICE2" >> "$ABCDETEMPDIR/cddbread.diff"
-									if [ $(cat "$ABCDETEMPDIR/cddbread.diff" | wc -l) -ge $LINES ]; then
-										page "$ABCDETEMPDIR/cddbread.diff"
+									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/cddbread.diff"
+									$DIFF $DIFFOPTS "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/cddbread.diff"
+									if [ $(cat "${ABCDETEMPDIR}/cddbread.diff" | wc -l) -ge $LINES ]; then
+										page "${ABCDETEMPDIR}/cddbread.diff"
 									else
-										cat "$ABCDETEMPDIR/cddbread.diff" >&2
+										cat "${ABCDETEMPDIR}/cddbread.diff" >&2
 									fi
 								fi
 							else
@@ -2838,22 +2838,22 @@ do_cddbedit ()
 					if [ "$CDCHOICENUM" = "0" ]; then
 						vecho "Creating empty CDDB template..."
 						UNKNOWNDISK=y
-						$CDDBTOOL template $(cat "$ABCDETEMPDIR/cddbdiscid") > "$ABCDETEMPDIR/cddbread.0"
+						$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${ABCDETEMPDIR}/cddbread.0"
 					else
-						ATITLE=$(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n)
+						ATITLE=$(grep -a ^DTITLE= "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n)
 						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CDCHOICENUM")
 						echo "Selected: #$CDCHOICENUM ($SOURCE) ($ATITLE)" >&2
-						do_cddbparse "$ABCDETEMPDIR/cddbread.$CDCHOICENUM"
+						do_cddbparse "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM"
 					fi
-					echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
+					echo "cddb-choice=$CDCHOICENUM" >> "${ABCDETEMPDIR}/status"
 				fi
 			fi
 		else
 			# We need some code to show the selected option when local repository is selected and we have found a match
 			vecho "Using cached CDDB match..." >&2
-			# Display the $ABCDETEMPDIR/cddbchoices file created above
+			# Display the ${ABCDETEMPDIR}/cddbchoices file created above
 			# Pick a pager so that if the tracks overflow the screen the user can still view everything
-			if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
+			if [ -r "${ABCDETEMPDIR}/cddbchoices" ]; then
 				CHOICE=$(checkstatus cddb-choice)
 				if [ "$USELOCALRESP" = "y" ]; then :; else
 					if [ -n "$CHOICE" ] ; then
@@ -2862,10 +2862,10 @@ do_cddbedit ()
 							UNKNOWNDISK=y
 							echo "Selected template."
 							;;
-							1) cat "$ABCDETEMPDIR/cddbchoices" ;;
+							1) cat "${ABCDETEMPDIR}/cddbchoices" ;;
 							*)
 							echo "Selected: #$CHOICE"
-							do_cddbparse "$ABCDETEMPDIR/cddbread.$CHOICE"
+							do_cddbparse "${ABCDETEMPDIR}/cddbread.$CHOICE"
 							;;
 						esac
 					fi
@@ -2875,22 +2875,22 @@ do_cddbedit ()
 	else
 		# We're noninteractive - pick the first choice.
 		# But in case we run a previous instance and selected a choice, use it.
-		if [ -r "$ABCDETEMPDIR/cddbchoices" ]; then
+		if [ -r "${ABCDETEMPDIR}/cddbchoices" ]; then
 			# Show the choice if we are not using the locally stored one
 			# or when the local search failed to find a match.
 			PREVIOUSCHOICE=$(checkstatus cddb-choice)
 			if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSTATUS" = "notfound" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
 				#if [ "$PREVIOUSCHOICE" ]; then
-					cat "$ABCDETEMPDIR/cddbchoices"
+					cat "${ABCDETEMPDIR}/cddbchoices"
 				#fi
 			fi
 			if [ ! -z "$PREVIOUSCHOICE" ] ; then
 				CDCHOICENUM=$PREVIOUSCHOICE
 			else
 				CDCHOICENUM=1
-				echo "cddb-choice=$CDCHOICENUM" >> "$ABCDETEMPDIR/status"
+				echo "cddb-choice=$CDCHOICENUM" >> "${ABCDETEMPDIR}/status"
 			fi
-			echo "Selected: #$CDCHOICENUM ($(grep -a ^DTITLE= "$ABCDETEMPDIR/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
+			echo "Selected: #$CDCHOICENUM ($(grep -a ^DTITLE= "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n))" >&2
 		fi
 	fi
 
@@ -2899,8 +2899,8 @@ do_cddbedit ()
 		echo "abcde: internal error: cddb-choice not recorded." >&2
 		exit 1
 	fi
-	CDDBDATA="$ABCDETEMPDIR/cddbread.$(checkstatus cddb-choice)"
-	CDDBSOURCE=$(cat "$ABCDETEMPDIR/datasource.$(checkstatus cddb-choice)")
+	CDDBDATA="${ABCDETEMPDIR}/cddbread.$(checkstatus cddb-choice)"
+	CDDBSOURCE=$(cat "${ABCDETEMPDIR}/datasource.$(checkstatus cddb-choice)")
 	echo -n "Edit selected CDDB data " >&2
 	if [ "$INTERACTIVE" = "y" ]; then
 		if [ "$UNKNOWNDISK" = "y" ]; then
@@ -3038,8 +3038,8 @@ do_cddbedit ()
 		esac
 	fi
 
-	echo "variousartists=$VARIOUSARTISTS" >> "$ABCDETEMPDIR/status"
-	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "$ABCDETEMPDIR/status"
+	echo "variousartists=$VARIOUSARTISTS" >> "${ABCDETEMPDIR}/status"
+	echo "variousartiststyle=$VARIOUSARTISTSTYLE" >> "${ABCDETEMPDIR}/status"
 
 	if [ "$EDITCDDB" = "y" ] && [ "$CDDBSOURCE" = "cddb" ] && [ "$UNINTENTIONALLY_ANGER_THE_FREEDB_PEOPLE" = "y" ]; then
 		if [ "$CDDBDATAMD5SUM" != "" ]  && [ "$CDDBDATAMD5SUM" != "$($MD5SUM "$CDDBDATA" | cut -d " " -f 1)" ]; then
@@ -3079,7 +3079,7 @@ do_cddbedit ()
 		cat "$CDDBDATA" | tail -n $(expr $(cat "$CDDBDATA" | wc -l ) - 1 ) > ${CDDBLOCALDIR}/$(echo "$CDDBTRACKINFO" | cut -d' ' -f1)
 	fi
 
-	echo "cddb-edit" >> "$ABCDETEMPDIR/status"
+	echo "cddb-edit" >> "${ABCDETEMPDIR}/status"
 }
 
 # do_getalbumart
@@ -3095,29 +3095,29 @@ do_getalbumart()
 	case "$CDDBMETHOD" in
 		*musicbrainz*)
 			# try musicbrainz mbid
-			if [ -s "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)" ]; then
-				MBID=$(cat "$ABCDETEMPDIR/mbid.$(checkstatus cddb-choice)")
+			if [ -s "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)" ]; then
+				MBID=$(cat "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)")
 				vecho "trying to get cover from coverartarchive.orq with musicbrainz mbid $MBID" >&2
 				ALBUMARTURL="http://coverartarchive.org/release/$MBID/front"
 				vecho "cover URL: $ALBUMARTURL" >&2
-				$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
+				$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
 				if [ $? -ne 0 ]; then
 					vecho "could not download cover from musicbrainz" >&2
 					# try amazon asin
-					if [ -s "$ABCDETEMPDIR/asin.$(checkstatus cddb-choice)" ]; then
-						ASIN=$(cat "$ABCDETEMPDIR/asin.$(checkstatus cddb-choice)")
+					if [ -s "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)" ]; then
+						ASIN=$(cat "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)")
 						vecho "trying to get cover from amazon.com with asin $ASIN" >&2
 						ALBUMARTURL="http://ec1.images-amazon.com/images/P/$ASIN.01.LZZZZZZZZ.jpg"
 						vecho "cover URL: $ALBUMARTURL" >&2
-						$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
+						$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
 						if [ $? -ne 0 ]; then
 							vecho "could not download cover from amazon" >&2
 						else
 							# Check that size is reasonable; sometimes when there is no cover image
 							# on amazon.com a 1x1 pixel gif image will be downloaded instead:
-							FILESIZE=$(wc -c < "$ABCDETEMPDIR/$ALBUMARTFILE")
+							FILESIZE=$(wc -c < "${ABCDETEMPDIR}/$ALBUMARTFILE")
 							if [ "$FILESIZE" -lt 1024 ]; then
-								rm "$ABCDETEMPDIR/$ALBUMARTFILE"
+								rm "${ABCDETEMPDIR}/$ALBUMARTFILE"
 								vecho "could not download cover from amazon" >&2
 							fi
 						fi
@@ -3131,9 +3131,9 @@ do_getalbumart()
 			;;
 	esac
 	# use glyrc
-	if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+	if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
 		vecho "trying to get cover with glyrc for $ARTISTFILE / $ALBUMFILE" >&2
-		$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "$ABCDETEMPDIR/$ALBUMARTFILE" $GLYRCOPTS
+		$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "${ABCDETEMPDIR}/$ALBUMARTFILE" $GLYRCOPTS
 		if [ $? -ne 0 ]; then
 			vecho "could not download cover with glyrc" >&2
 		else
@@ -3141,14 +3141,14 @@ do_getalbumart()
 		fi
 	fi
 	if [ "$INTERACTIVE" = "y" ]; then
-		if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+		if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
 			# display properties of coverart when identify is available
 			if new_checkexec $IDENTIFY; then
-				$IDENTIFY $IDENTIFYOPTS "$ABCDETEMPDIR/$ALBUMARTFILE" >&2
+				$IDENTIFY $IDENTIFYOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
 			fi
 			# display coverart when DISPLAY is set and display command is available
 			if new_checkexec $DISPLAYCMD && [ "$DISPLAY" != "" ]; then
-				$DISPLAYCMD $DISPLAYCMDOPTS "$ABCDETEMPDIR/$ALBUMARTFILE" >&2 &
+				$DISPLAYCMD $DISPLAYCMDOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2 &
 			fi
 		else
 			# nothing downloaded yet
@@ -3168,35 +3168,35 @@ do_getalbumart()
 			read ALBUMARTURL
 			if [ ! -z "$ALBUMARTURL" ]; then
 				if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
-					$HTTPGET "$ALBUMARTURL" > "$ABCDETEMPDIR/$ALBUMARTFILE"
-					if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+					$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
+					if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
 						vecho "unable to download $ALBUMARTURL" >&2
 					fi
 				else # it's a local path
-					cp "$ALBUMARTURL" "$ABCDETEMPDIR/$ALBUMARTFILE"
-					if [ ! -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
-						vecho "unable to copy $ALBUMARTURL to $ABCDETEMPDIR/$ALBUMARTFILE" >&2
+					cp "$ALBUMARTURL" "${ABCDETEMPDIR}/$ALBUMARTFILE"
+					if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+						vecho "unable to copy $ALBUMARTURL to ${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
 					fi
 				fi
 			fi
 		fi
 	fi
 	# convert to ALBUMARTTYPE if ImageMagick is available, if not assume correct type
-	if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ] && new_checkexec $IDENTIFY; then
-		ALBUMARTURLTYPE=$($IDENTIFY "$ABCDETEMPDIR/$ALBUMARTFILE" | cut -d' ' -f2)
+	if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ] && new_checkexec $IDENTIFY; then
+		ALBUMARTURLTYPE=$($IDENTIFY "${ABCDETEMPDIR}/$ALBUMARTFILE" | cut -d' ' -f2)
 		if [ "$ALBUMARTURLTYPE" != "$ALBUMARTTYPE" -o "$ALBUMARTALWAYSCONVERT" = "y" ]; then
 			if new_checkexec $CONVERT; then
-				mv "$ABCDETEMPDIR/$ALBUMARTFILE" "$ABCDETEMPDIR/$ALBUMARTFILE.tmp"
-				$CONVERT "$ABCDETEMPDIR/$ALBUMARTFILE.tmp" $CONVERTOPTS "$ABCDETEMPDIR/$ALBUMARTFILE"
-				rm -f "$ABCDETEMPDIR/$ALBUMARTFILE.tmp"
+				mv "${ABCDETEMPDIR}/$ALBUMARTFILE" "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
+				$CONVERT "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp" $CONVERTOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE"
+				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
 			else
-				rm -f "$ABCDETEMPDIR/$ALBUMARTFILE"
+				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
 				vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE without ImageMagick convert" >&2
 			fi
 		fi
 	fi
 	# copy to target directories
-	if [ -s "$ABCDETEMPDIR/$ALBUMARTFILE" ]; then
+	if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
 		for OUTPUT in $(echo $OUTPUTTYPE | tr , \ )
 		do
 			# put cover in the same place as the album
@@ -3216,13 +3216,13 @@ do_getalbumart()
 			FINALALBUMARTDIR="$(dirname "$OUTPUTDIR/$ALBUMARTDIR")"
 			vecho "copying cover to target directory $FINALALBUMARTDIR" >&2
 			mkdir -p "$FINALALBUMARTDIR"
-			cp "$ABCDETEMPDIR/$ALBUMARTFILE" "$FINALALBUMARTDIR"
+			cp "${ABCDETEMPDIR}/$ALBUMARTFILE" "$FINALALBUMARTDIR"
 		done
-		rm -f "$ABCDETEMPDIR/$ALBUMARTFILE"
-		echo "get-album-art=$ALBUMARTURL" >> "$ABCDETEMPDIR/status"
+		rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
+		echo "get-album-art=$ALBUMARTURL" >> "${ABCDETEMPDIR}/status"
 	else
 		log warning "could not get cover"
-		echo "get-album-art=none" >> "$ABCDETEMPDIR/status"
+		echo "get-album-art=none" >> "${ABCDETEMPDIR}/status"
 	fi
 }
 
@@ -3320,8 +3320,8 @@ do_embedalbumart()
 			# First some variables we can reuse:
 			# Use MIMETYPECOVER to allow use of either png or the more common jpeg:
 			MIMETYPECOVER=$(file -b --mime-type "$ALBUMARTFILE")
-			EXPORTTAGS="$ABCDETEMPDIR/export_ogg_tags"
-			BUILDHEADER="$ABCDETEMPDIR/build_header"
+			EXPORTTAGS="${ABCDETEMPDIR}/export_ogg_tags"
+			BUILDHEADER="${ABCDETEMPDIR}/build_header"
 			# Now build the header, gory details are here:
 			# https://xiph.org/flac/format.html#metadata_block_picture
 				# Picture Type:
@@ -3411,7 +3411,7 @@ do_cdread ()
 		FILEARG="$( eval echo "\$$TEMPARG" )"
 		PIPE_MESSAGE="and encoding "
 	else
-		WAVDATA="$ABCDETEMPDIR/track$UTRACKNUM.wav"
+		WAVDATA="${ABCDETEMPDIR}/track$UTRACKNUM.wav"
 		case "$CDROMREADERSYNTAX" in
 		## FIXME ## Find the cases for flac, to avoid exceptions
 			flac)
@@ -3513,19 +3513,19 @@ do_cdread ()
 			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
 		fi
 		if [ "$USEPIPES" = "y" ]; then
-			echo "readencodetrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+			echo "readencodetrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 		else
-			echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "$ABCDETEMPDIR/errors"
+			echo "readtrack-$UTRACKNUM: $CDROMREADER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 		fi
 		return $RETURN
 	else
 		if [ "$USEPIPES" = "y" ]; then
-			echo readencodetrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+			echo readencodetrack-$UTRACKNUM >> "${ABCDETEMPDIR}/status"
 		else
-			echo readtrack-$UTRACKNUM >> "$ABCDETEMPDIR/status"
+			echo readtrack-$UTRACKNUM >> "${ABCDETEMPDIR}/status"
 		fi
 		if [ "$1" = "onetrack" ]; then
-			echo onetrack >> "$ABCDETEMPDIR/status"
+			echo onetrack >> "${ABCDETEMPDIR}/status"
 		fi
 	fi
 }
@@ -4966,7 +4966,7 @@ if [ "$DOCDDB" = "y" ]; then
 				# Run all the desired data acquisition methods, in the order
 				# specified by the user. Each will use its own temporary
 				# subdirectory, then copy the cddbread.* etc. files up into
-				# $ABCDETEMPDIR
+				# ${ABCDETEMPDIR}
 				case "$CDDBMETHCHOICE" in
 				cddb)
 					do_cddb_read
@@ -5004,34 +5004,34 @@ if [ "$DOCDDB" = "y" ]; then
 				echo >> "${ABCDETEMPDIR}/cddbchoices"
 				echo cddb-read-0-complete >> "${ABCDETEMPDIR}/status"
 				echo cddb-choice=0 >> "${ABCDETEMPDIR}/status"
-				echo 503 > "$ABCDETEMPDIR/cddbquery"
+				echo 503 > "${ABCDETEMPDIR}/cddbquery"
 			else
 				# We have matches; create the cddbchoices and cddbquery
 				# files from all the inputs we have
 				if [ $NUM_CDDB_MATCHES = 1 ]; then
-					echo "Retrieved 1 match..." >> "$ABCDETEMPDIR/cddbchoices"
-					echo -n "200 " > "$ABCDETEMPDIR/cddbquery"
-					cat "$ABCDETEMPDIR/cddbquery.1" >> "$ABCDETEMPDIR/cddbquery"
+					echo "Retrieved 1 match..." >> "${ABCDETEMPDIR}/cddbchoices"
+					echo -n "200 " > "${ABCDETEMPDIR}/cddbquery"
+					cat "${ABCDETEMPDIR}/cddbquery.1" >> "${ABCDETEMPDIR}/cddbquery"
 				else
-					echo "Retrieved $NUM_CDDB_MATCHES matches..." >> "$ABCDETEMPDIR/cddbchoices"
-					echo "210 Found exact matches, list follows (until terminating .)" > "$ABCDETEMPDIR/cddbquery"
+					echo "Retrieved $NUM_CDDB_MATCHES matches..." >> "${ABCDETEMPDIR}/cddbchoices"
+					echo "210 Found exact matches, list follows (until terminating .)" > "${ABCDETEMPDIR}/cddbquery"
 					for X in $(f_seq_row 1 $NUM_CDDB_MATCHES)
 					do
-						cat "$ABCDETEMPDIR/cddbquery.$X" >> "$ABCDETEMPDIR/cddbquery"
+						cat "${ABCDETEMPDIR}/cddbquery.$X" >> "${ABCDETEMPDIR}/cddbquery"
 					done
-					echo "." >> "$ABCDETEMPDIR/cddbquery"
+					echo "." >> "${ABCDETEMPDIR}/cddbquery"
 				fi
 
 				for X in $(f_seq_row 1 $NUM_CDDB_MATCHES)
 				do
 					ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.$X" | cut -c8- | tr -d \\r\\n)
 					SOURCE=$(cat ${ABCDETEMPDIR}/datasource.$X)
-					echo "#$X ($SOURCE): ---- ${ATITLE} ----" >> "$ABCDETEMPDIR/cddbchoices"
+					echo "#$X ($SOURCE): ---- ${ATITLE} ----" >> "${ABCDETEMPDIR}/cddbchoices"
                                         for TRACK in $(f_seq_row 1 $TRACKS)
                                         do
-                                                echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "$ABCDETEMPDIR/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "$ABCDETEMPDIR/cddbchoices"
+                                                echo $TRACK: "$(grep -a ^TTITLE$(expr $TRACK - 1)= "${ABCDETEMPDIR}/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "${ABCDETEMPDIR}/cddbchoices"
                                         done
-                                        echo >> "$ABCDETEMPDIR/cddbchoices"
+                                        echo >> "${ABCDETEMPDIR}/cddbchoices"
 				done
 			fi
 		fi
@@ -5056,10 +5056,10 @@ fi
 FIRSTTRACK=$( get_first $TRACKQUEUE )
 LASTTRACK=$( get_last $TRACKQUEUE )
 
-if [ -f "$ABCDETEMPDIR/status" ] && [ X"$ERASEENCODEDSTATUS" = "Xy" ]; then
-	mv "$ABCDETEMPDIR/status" "$ABCDETEMPDIR/status.old"
-	grep -v ^encodetracklocation- < "$ABCDETEMPDIR/status.old" \
-		| grep -v ^encode-output > "$ABCDETEMPDIR/status"
+if [ -f "${ABCDETEMPDIR}/status" ] && [ X"$ERASEENCODEDSTATUS" = "Xy" ]; then
+	mv "${ABCDETEMPDIR}/status" "${ABCDETEMPDIR}/status.old"
+	grep -v ^encodetracklocation- < "${ABCDETEMPDIR}/status.old" \
+		| grep -v ^encode-output > "${ABCDETEMPDIR}/status"
 fi
 
 if checkstatus onetrack ; then ONETRACK=y ; fi
@@ -5089,7 +5089,7 @@ fi
 # For the lowdisk option, only one program is running at once so the encoder
 # can be unsilenced right away.
 if [ "$LOWDISK" = "y" ] || [ "$ONETRACK" = "y" ]; then
-	echo "encode-output=loud" >> "$ABCDETEMPDIR/status"
+	echo "encode-output=loud" >> "${ABCDETEMPDIR}/status"
 fi
 
 if [ "$ONETRACK" = "y" ]; then
@@ -5130,7 +5130,7 @@ else
 			# If we are not reading, set the encode output to loud already, so
 			# that we can see the output of the first track.
 			if [ "$MAXPROCS" = "1" ] && [ ! "$DOREAD" = "y" ]; then
-				echo "encode-output=loud" >> "$ABCDETEMPDIR/status"
+				echo "encode-output=loud" >> "${ABCDETEMPDIR}/status"
 			fi
 			echo NEXTTRACK # Get the encoder machine churning again
 			if [ "$DOREAD" = "y" ]; then
@@ -5151,7 +5151,7 @@ fi
 # Now that we're done the encoding can be loud again -
 # if we're not using SMP.
 if [ "$MAXPROCS" = "1" ]; then
-	echo "encode-output=loud" >> "$ABCDETEMPDIR/status"
+	echo "encode-output=loud" >> "${ABCDETEMPDIR}/status"
 fi
 
 # All tracks read, start encoding.
@@ -5297,12 +5297,12 @@ do
 			if [ ! $PROCEED ]; then sleep 3; fi
 		done
 		# Record the location we're about to encode the next track at
-		echo "encodetracklocation-$LOCATION=$UTRACKNUM" >> "$ABCDETEMPDIR/status"
+		echo "encodetracklocation-$LOCATION=$UTRACKNUM" >> "${ABCDETEMPDIR}/status"
 	fi
 	# Don't proceed with the rest of the loop if we can't encode
 	if [ "$ABORT" ]; then continue; fi
 	## FIXME ## Add here
-	## run_command tagtrack-$OUTPUT-$1 $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="$ABCDETEMPDIR/$CUEFILE"} --import-tags-from=- "$ABCDETEMPDIR/track$1.$FLACOUTPUTCONTAINER"
+	## run_command tagtrack-$OUTPUT-$1 $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="${ABCDETEMPDIR}/$CUEFILE"} --import-tags-from=- "${ABCDETEMPDIR}/track$1.$FLACOUTPUTCONTAINER"
 	# Set TRACKNUM, TRACKNAME
 	if [ -e "$CDDBDATA" ]; then
 		if [ "$ONETRACK" = "y" ]; then
@@ -5396,9 +5396,9 @@ fi
 post_encode
 
 # Check to see if run_command logged any errors
-if [ -f "$ABCDETEMPDIR/errors" ]; then
+if [ -f "${ABCDETEMPDIR}/errors" ]; then
 	log error "The following commands failed to run:"
-	cat "$ABCDETEMPDIR/errors"
+	cat "${ABCDETEMPDIR}/errors"
 	# Don't clean up
 	DOCLEAN=n
 fi
@@ -5408,8 +5408,8 @@ if [ "$KEEPWAVS" = "y" ];then
 fi
 # Check if we have moved all the formats we had previously encoded, if we are not using the FORCE.
 if [ "$DOCLEAN" = "y" ] && [ ! "$FORCE" = "y" ]; then
-	ENCODED_FORMATS=$(grep -E "^encodetrack-(.{3,6})-(.{1,2})$" "$ABCDETEMPDIR/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
-	MOVED_FORMATS=$(grep -E "^movetrack-output-(.{3,6})$" "$ABCDETEMPDIR/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
+	ENCODED_FORMATS=$(grep -E "^encodetrack-(.{3,6})-(.{1,2})$" "${ABCDETEMPDIR}/status" | cut -d"-" -f2 | sort -u | tr '\n' '|')
+	MOVED_FORMATS=$(grep -E "^movetrack-output-(.{3,6})$" "${ABCDETEMPDIR}/status" | cut -d"-" -f3 | sort -u | tr '\n' '|')
 	if [ "$ENCODED_FORMATS" != "$MOVED_FORMATS" ]; then
 		log warning "The encoded formats does not match with the moved ones"
 		log warning "Formats encoded: $( echo $ENCODED_FORMATS | tr "|" " " )"
@@ -5422,10 +5422,10 @@ if [ "$DOCLEAN" = "y" ]; then
 	# Wipe all the evidence
 	# Gimme gimme gimme some more time!
 	sleep 5
-	rm -rf "$ABCDETEMPDIR"
+	rm -rf "${ABCDETEMPDIR}"
 	echo "Finished."
 else
-	echo "Finished. Not cleaning $ABCDETEMPDIR."
+	echo "Finished. Not cleaning ${ABCDETEMPDIR}."
 fi
 )
 exit 0
