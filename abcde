@@ -4958,9 +4958,10 @@ if [ "$DOCDDB" = "y" ]; then
 			idx=0
 			for CDDBMETHCHOICE in $(echo "$CDDBMETHOD"  | tr -d '	 ' | tr , ' ')
 			do
-			        addstatus "CDDB method $idx: $CDDBMETHCHOICE"
+			        addstatus "Lookup method $idx: $CDDBMETHCHOICE"
 				idx=$(($idx + 1))
-				vecho "Trying CDDB method ${CDDBMETHCHOICE}, found $NUM_CDDB_MATCHES matches so far"
+				vecho "Found $NUM_CDDB_MATCHES matches so far"
+				vecho "Trying lookup method ${CDDBMETHCHOICE}"
 
 				# Run all the desired data acquisition methods, in the order
 				# specified by the user. Each will use its own temporary
@@ -4977,7 +4978,7 @@ if [ "$DOCDDB" = "y" ]; then
 					do_cdtext_read
 					;;
 				*)
-					echo "Unknown CDDB method $CDDBMETHCHOICE. Aborting." >&2
+					echo "Unknown lookup method $CDDBMETHCHOICE. Aborting." >&2
 					exit 1
 					;;
 				esac
@@ -4991,7 +4992,7 @@ if [ "$DOCDDB" = "y" ]; then
 				# If we got no matches, we need to
 				# generate a blank CDDB template.
 				vecho "Unable to find any matches, generating unknown template."
-				echo "No CDDB match." >> "${ABCDETEMPDIR}/cddbchoices"
+				echo "No lookup matches." >> "${ABCDETEMPDIR}/cddbchoices"
 				$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${ABCDETEMPDIR}/cddbread.0"
 				# List out disc title/author and contents of template
 				echo ---- Unknown Artist / Unknown Album ---- >> "${ABCDETEMPDIR}/cddbchoices"
