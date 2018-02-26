@@ -363,7 +363,7 @@ checkexec ()
 					oggenc)
 						MISSING_PACKAGE=vorbis-tools
 						;;
-					lame|flac|cd-discid)
+					lame|flac|cd-discid|eject|mkcue|icedax|glyrc)
 						MISSING_PACKAGE=$X
 						;;
 				esac
