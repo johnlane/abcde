@@ -360,8 +360,12 @@ checkexec ()
 			log info  "Define the full path to the executable if it exists on your system." >&2
 			if [ -e /etc/debian_version ] ; then
 				case $X in
-					oggenc) 	MISSING_PACKAGE=vorbis-tools ;;
-					lame|flac)	MISSING_PACKAGE=$X ;;
+					oggenc)
+						MISSING_PACKAGE=vorbis-tools
+						;;
+					lame|flac|cd-discid)
+						MISSING_PACKAGE=$X
+						;;
 				esac
 				log info "Hint: sudo apt-get install $MISSING_PACKAGE" >&2
 			fi
