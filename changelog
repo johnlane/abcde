@@ -79,6 +79,8 @@ abcde 2.8.2
  * Rework abcde-musicbrainz-tool to work with WebService::MusicBrainz 1.x
    Thanks to Nicolas Guillaumin for the patch. Closes Issue 60:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=60
+   Also added a specific dependency on version 1.0.4 or newer, so
+   abcde-musicbrainz-tool will abort if the version found is too old.
    
 abcde 2.8.1.
 

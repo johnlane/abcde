@@ -19,8 +19,7 @@ With one command, it will:
 .TP
 .B *
 Do a CDDB or Musicbrainz query over the Internet to look up your CD or
-use a locally stored CDDB entry, or read CD-TEXT from your CD as a
-fallback for track information
+use a locally stored CDDB entry, or read CD-TEXT from your CD if it's available
 .TP
 .B *
 Download the album art appropriate for your music tracks with many
@@ -127,7 +126,7 @@ correctly display track lengths when playing variable-bit-rate mp3 files.
 .TP
 .B \-G
 Download album art using the getalbumart function. This is best done with
-CDDBMETHOD set to musicbrainz and requires the installation of glyrc.
+CDDBMETHOD including musicbrainz and requires the installation of glyrc.
 ImageMagick is an optional but highly recommended package. Further details
 of getalbumart can be found in the abcde FAQ document packaged with abcde.
 .TP
@@ -263,13 +262,15 @@ All shell escaping/quoting rules apply.
 Here is a list of options \fBabcde\fR recognizes:
 .TP
 .B CDDBMETHOD
-Specifies the method we want to use to retrieve the track information. Two
-values are recognized: "cddb" and/or "musicbrainz" which can be given as
-a comma delimited list to be tried sequentially in the event of failure
-of the first search. The "cddb" value needs the CDDBURL and HELLOINFO
-variables described below. The "musicbrainz" value uses the Perl helper
-script \fBabcde-musicbrainz-tool\fR to establish a conversation with the
-Musicbrainz server for information retrieval.
+Specifies the methods we want to use to retrieve the track
+information. Three values are recognized: "cddb", "musicbrainz" and
+"cdtext". List all the methods desired in a comma delimited list and
+\fBabcde\fR will attempt them all, returning a list of all search
+results. The "cddb" value needs the CDDBURL and HELLOINFO variables
+described below. The "musicbrainz" value uses the Perl helper script
+\fBabcde-musicbrainz-tool\fR to establish a conversation with the
+Musicbrainz server for information retrieval. "cdtext" needs "icedax"
+or "cdda2wav" to be installed.
 .TP
 .B CDDBURL
 Specifies a server to use for CDDB lookups.

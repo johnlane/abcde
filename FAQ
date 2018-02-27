@@ -214,7 +214,7 @@ A. The details are contained in abcde within a new function called
    from within an ~/.abcde.conf file. The technique works in 3 possible
    ways:
 
-    1. If CDDBMETHOD is musicbrainz the album art is downloaded from
+    1. If CDDBMETHOD includes musicbrainz the album art is downloaded from
        coverartarchive by MBID (MusicBrainz Identifier)
     2. If 1 fails, download is tried from amazon by ASIN (Amazon 
        Standard Identification Number)
@@ -223,7 +223,7 @@ A. The details are contained in abcde within a new function called
 
    You  will need to install your distro's package of glyr, a music 
    related metadata search engine, and it is strongly advised that
-   you use 'musicbrainz' for your cddb lookups. To access the more 
+   you use 'musicbrainz' in your cddb lookups. To access the more 
    advanced features of getalbumart it is also strongly advised that
    you install the ImageMagick package of your distro. getalbumart 
    will work without ImageMagick but functionality will be reduced.
