@@ -16,7 +16,7 @@ use utf8;
 use POSIX qw(ceil);
 use Digest::SHA;
 use MusicBrainz::DiscID;
-use WebService::MusicBrainz;
+use WebService::MusicBrainz 1.0.4;
 use Getopt::Long;
 use Pod::Usage;
 
