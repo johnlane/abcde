@@ -97,10 +97,10 @@ log ()
 f_seq_row ()
 {
 	i=$1
-	while [ $i -ne `expr $2 + 1` ]
+	while [ $i -le $2 ]
 	do
 		echo $i
-		i=`expr $i + 1`
+		i=$(($i + 1))
 	done
 }
 
@@ -108,10 +108,10 @@ f_seq_line ()
 {
 	i=$1
 	if echo $i | grep "[[:digit:]]" > /dev/null 2>&1 ; then
-		while [ $i -ne `expr $2 + 1` ]
+		while [ $i -le $2 ]
 		do
 			printf $i" "
-			i=`expr $i + 1`
+			i=$(($i + 1))
 		done
 		echo
 	else
@@ -123,26 +123,26 @@ f_seq_line ()
 # Functions to replace the need of awk {print $1} and {print $NF}
 get_first()
 {
-if [ X"$1" = "X" ]; then
-	for first in `cat`; do
-		break
-	done
-else
-	first=$1
-fi
-echo $first
+	if [ X"$1" = "X" ]; then
+		for first in $(cat); do
+			break
+		done
+	else
+		first=$1
+	fi
+	echo $first
 }
 
 get_last()
 {
-if [ X"$1" = "X" ]; then
-	for stdin in `cat`; do
-		last=$stdin
-	done
-else
-	for last in $@ ; do :; done
-fi
-echo $last
+	if [ X"$1" = "X" ]; then
+		for stdin in $(cat); do
+			last=$stdin
+		done
+	else
+		for last in $@ ; do :; done
+	fi
+	echo $last
 }
 
 # checkstatus [blurb]
@@ -2655,7 +2655,7 @@ do_cddb_read ()
 					rc=0
 					;;
 				501)  # 501 Illegal CDDB protocol level: <n>.
-					CDDBPROTO=`expr $CDDBPROTO - 1`
+					CDDBPROTO=$(($CDDBPROTO - 1))
 					;;
 				*)	# Try a cddb query, since freedb2.org doesn't support the stat or ver commands
 					# FreeDB TESTCD disc-id is used for query
@@ -3597,7 +3597,7 @@ decho ()
 if [ x"$DEBUG" != "x" ]; then
 	if echo $1 | grep "^\[" > /dev/null 2>&1 ; then
 		DEBUGECHO=$(echo "$@" | tr -d '[]')
-		echo >&4 "[DEBUG] $DEBUGECHO: `eval echo \\$${DEBUGECHO}`"
+		echo >&4 "[DEBUG] $DEBUGECHO: $(eval echo \\$${DEBUGECHO})"
 	else
 		echo >&4 "[DEBUG] $1"
 	fi
@@ -4246,7 +4246,7 @@ if [ X"$CDROM" != "X" ] ; then
 		if [ "$CDROMREADERSYNTAX" = "cdda2wav" ] || [ "$CDROMREADERSYNTAX" = "icedax" ]; then
 			if [ "$OSFLAVOUR" = "IRIX" ]; then
 				if [ -z "$CDROMID" ]; then
-					CDROMID="`echo "$CDROM" | sed -e 's;/dev/scsi/sc\([0-9]*\)d\([0-9]*\)l\([0-9]*\)$;\1,\2,\3;'`"
+					CDROMID="$(echo "$CDROM" | sed -e 's;/dev/scsi/sc\([0-9]*\)d\([0-9]*\)l\([0-9]*\)$;\1,\2,\3;')"
 				fi
 			fi
 			if ! echo "$CDROMID" | grep "^[0-9],[0-9],[0-9]$" >/dev/null 2>&1 ; then
