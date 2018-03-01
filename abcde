@@ -219,22 +219,31 @@ checkerrors ()
 page ()
 {
 	PAGEFILE="$1"
-	# Use the debian sensible-pager wrapper to pick the pager
-	# user has requested via their $PAGER environment variable
-	if [ -x "/usr/bin/sensible-pager" ]; then
-		/usr/bin/sensible-pager "$PAGEFILE"
-	elif [ -x "$PAGER" ]; then
-		# That failed, try to load the preferred editor, starting
-		# with their PAGER variable
-		$PAGER "$PAGEFILE"
-		# If that fails, check for less
-	elif [ -x /usr/bin/less ]; then
-		/usr/bin/less -f "$PAGEFILE"
-		# more should be on all UNIX systems
-	elif [ -x /bin/more ]; then
-		/bin/more "$PAGEFILE"
+	local NUM_LINES=$(wc -l < "$PAGEFILE")
+
+	# Is the text long enough to need a pager?
+	if [ "$NUM_LINES" -ge $LINES ]; then
+		# Yes!
+		# Use the debian sensible-pager wrapper to pick the pager user
+		# has requested via their $PAGER environment variable
+		if [ -x "/usr/bin/sensible-pager" ]; then
+			/usr/bin/sensible-pager "$PAGEFILE"
+		elif [ -x "$PAGER" ]; then
+			# That failed, try to load the preferred pager, starting
+			# with their PAGER variable
+			$PAGER "$PAGEFILE"
+			# If that fails, check for less
+		elif [ -x /usr/bin/less ]; then
+			/usr/bin/less -f "$PAGEFILE"
+			# more should be on all UNIX systems
+		elif [ -x /bin/more ]; then
+			/bin/more "$PAGEFILE"
+		else
+			# No bananas, just cat the thing
+			cat "$PAGEFILE" >&2
+		fi
 	else
-		# No bananas, just cat the thing
+		# No, just cat the thing
 		cat "$PAGEFILE" >&2
 	fi
 }
@@ -402,12 +411,7 @@ diffentries ()
 			done
 			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/$FILENAME.diff"
 			$DIFF $DIFFOPTS "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/$FILENAME.diff"
-			NUM_LINES=$(wc -l < "${ABCDETEMPDIR}/$FILENAME.diff")
-			if [ "$NUM_LINES" -ge $LINES ]; then
-				page "${ABCDETEMPDIR}/$FILENAME.diff"
-			else
-				cat "${ABCDETEMPDIR}/$FILENAME.diff" >&2
-			fi
+			page "${ABCDETEMPDIR}/$FILENAME.diff"
 		fi
 	else
 		echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBDIFFCHOICES." >&2
@@ -2424,13 +2428,7 @@ do_localcddb_read ()
 						if [ ! "$INTERACTIVE" = "y" ]; then break ; fi
 					} >> "${ABCDETEMPDIR}/cddblocalchoices"
 				done
-				NUM_LINES=$(wc -l < "${ABCDETEMPDIR}/cddblocalchoices")
-				if [ "$NUM_LINES" -ge $LINES ] && [ "$INTERACTIVE" = "y" ]; then
-					page "${ABCDETEMPDIR}/cddblocalchoices"
-				else
-					# It's all going to fit in one page, cat it
-					cat "${ABCDETEMPDIR}/cddblocalchoices" >&2
-				fi
+				page "${ABCDETEMPDIR}/cddblocalchoices"
 				CDDBLOCALCHOICES=$( echo "$CDDBLOCALRESULTS" | wc -l )
 				# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 				CDDBLOCALCHOICENUM=-1
@@ -2797,7 +2795,6 @@ do_cddbedit ()
 		# or when we are using it but we could not find a proper match
 		if [ "$CDDBUSELOCAL" = "y" ] && [ "$CDDBLOCALSTATUS" = "notfound" ] || [ ! "$CDDBUSELOCAL" = "y" ]; then
 			# Display the ${ABCDETEMPDIR}/cddbchoices file created above
-			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "${ABCDETEMPDIR}/cddbchoices" ]; then
 				CHOICE=$(checkstatus cddb-choice)
 				if [ -n "$CHOICE" ] ; then
@@ -2811,15 +2808,7 @@ do_cddbedit ()
 						;;
 					esac
 				else
-					# The user has a choice to make, display the info in a pager if necessary
-					NUM_LINES=$(wc -l < "${ABCDETEMPDIR}/cddbchoices")
-					if [ "$NUM_LINES" -ge $LINES ]; then
-						page "${ABCDETEMPDIR}/cddbchoices"
-					else
-						# It's all going to fit in one page, cat it
-						cat "${ABCDETEMPDIR}/cddbchoices" >&2
-					fi
-
+					page "${ABCDETEMPDIR}/cddbchoices"
 					CDDBCHOICENUM=""
 					# Setting the choice to an impossible integer to avoid errors in the numeric comparisons
 					CDCHOICENUM=-1
@@ -2843,12 +2832,7 @@ do_cddbedit ()
 									done
 									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/cddbread.diff"
 									$DIFF $DIFFOPTS "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/cddbread.diff"
-									NUM_LINES=$(wc -l < "${ABCDETEMPDIR}/cddbread.diff")
-									if [ "$NUM_LINES" -ge $LINES ]; then
-										page "${ABCDETEMPDIR}/cddbread.diff"
-									else
-										cat "${ABCDETEMPDIR}/cddbread.diff" >&2
-									fi
+									page "${ABCDETEMPDIR}/cddbread.diff"
 								fi
 							else
 								echo "The diff program was not found in your path. Please choose a number between 0 and $NUM_CDDB_MATCHES." >&2
@@ -2879,7 +2863,6 @@ do_cddbedit ()
 			# We need some code to show the selected option when local repository is selected and we have found a match
 			vecho "Using cached CDDB match..." >&2
 			# Display the ${ABCDETEMPDIR}/cddbchoices file created above
-			# Pick a pager so that if the tracks overflow the screen the user can still view everything
 			if [ -r "${ABCDETEMPDIR}/cddbchoices" ]; then
 				CHOICE=$(checkstatus cddb-choice)
 				if [ "$USELOCALRESP" = "y" ]; then :; else
