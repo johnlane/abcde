@@ -20,8 +20,9 @@ echo "Usage: abcde [options] [tracks]"
 echo "Options:"
 echo "-1     Encode the whole CD in a single file"
 echo "-a <action1[,action2]...>"
-echo "       Actions to perform:"
-echo "       cddb,read,getalbumart,embedalbumart,normalize,encode,tag,move,replaygain,playlist,clean"
+echo "       Actions to perform, comma separated:"
+echo "       (cddb,read,getalbumart,embedalbumart,normalize,encode,"
+echo "       tag,move,replaygain,playlist,clean)"
 #echo "-A     Experimental actions (retag, transcode)"
 echo "-b     Enable batch normalization"
 echo "-B     Embed albumart (this also activates getalbumart)"
@@ -48,10 +49,13 @@ echo "-m     Modify playlist to include CRLF endings, to comply with some player
 echo "-n     No lookup. Don't query CDDB, just create and use template"
 echo "-N     Noninteractive. Never prompt for anything"
 echo "-o <type1[,type2]...>"
-echo "       Output file type(s) (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta,aiff). Defaults to vorbis"
+echo "       Output file type(s), comma separated"
+echo "       (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta,aiff)."
+echo "       Defaults to vorbis"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
-echo "-Q     Select CDDBMETHOD method(s) from the command line. Choose from any/all of musicbrainz,cddb,cdtext. Defaults to musicbrainz".
+echo "-Q     CD lookup method(s), comma separated"
+echo "       (musicbrainz,cddb,cdtext). Defaults to musicbrainz".
 echo "-r <host1[,host2]...>"
 echo "       Also encode on these remote hosts"
 echo "-s <field>"
@@ -404,7 +408,8 @@ diffentries ()
 		if [ "$PARSECHOICE1" -lt 1 ] || [ "$PARSECHOICE1" -gt "$CDDBDIFFCHOICES" ] || \
 		   [ "$PARSECHOICE2" -lt 1 ] || [ "$PARSECHOICE2" -gt "$CDDBDIFFCHOICES" ] || \
 		   [ "$PARSECHOICE1" -eq "$PARSECHOICE2" ]; then
-			echo "Invalid diff range. Please select two comma-separated numbers between 1 and $CDDBDIFFCHOICES" >&2
+			echo "Invalid diff range." >&2
+			echo "Please select two comma-separated numbers between 1 and $CDDBDIFFCHOICES" >&2
 		else
 			# We parse the 2 choices to diff, store them in temporary files and diff them.
 			for PARSECHOICE in $(echo "$CDDBDIFFCHOICE" | tr , \ ); do
@@ -416,7 +421,8 @@ diffentries ()
 			page "${ABCDETEMPDIR}/$FILENAME.diff"
 		fi
 	else
-		echo "The diff program was not found in your path. Please choose a number between 0 and $CDDBDIFFCHOICES." >&2
+		echo "The diff program was not found in your path." >&2
+		echo "Please choose a number between 0 and $CDDBDIFFCHOICES." >&2
 	fi
 }
 
@@ -2468,7 +2474,8 @@ do_localcddb_read ()
 				CDDBLOCALCHOICENUM=-1
 				if [ "$INTERACTIVE" = "y" ]; then
 					while [ "$CDDBLOCALCHOICENUM" -lt 0 ] || [ "$CDDBLOCALCHOICENUM" -gt "$CDDBLOCALCHOICES" ]; do
-						echo -n "Locally cached CDDB entries found. Which one would you like to use (0 for none)? [0-$CDDBLOCALCHOICES]: " >&2
+						echo "Locally cached CDDB entries found." >&2
+						echo -n "Which one would you like to use (0 for none)? [0-$CDDBLOCALCHOICES]: " >&2
 						read CDDBLOCALCHOICE
 						[ x"$CDDBLOCALCHOICE" = "x" ] && CDDBLOCALCHOICE="1"
 						# FIXME # Introduce diff's
@@ -2862,7 +2869,8 @@ do_cddbedit ()
 								if [ "$PARSECHOICE1" -lt 1 ] || [ "$PARSECHOICE1" -gt "$NUM_CDDB_MATCHES" ] || \
 								   [ "$PARSECHOICE2" -lt 1 ] || [ "$PARSECHOICE2" -gt "$NUM_CDDB_MATCHES" ] || \
 								   [ "$PARSECHOICE1" -eq "$PARSECHOICE2" ]; then
-									echo "Invalid diff range. Please select two comma-separated numbers between 1 and $NUM_CDDB_MATCHES" >&2
+									echo "Invalid diff range." >&2
+									echo "Please select two comma-separated numbers between 1 and $NUM_CDDB_MATCHES" >&2
 								else
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
@@ -2877,7 +2885,8 @@ do_cddbedit ()
 									page "${ABCDETEMPDIR}/cddbread.diff"
 								fi
 							else
-								echo "The diff program was not found in your path. Please choose a number between 0 and $NUM_CDDB_MATCHES." >&2
+								echo "The diff program was not found in your path." >&2
+								echo "Please choose a number between 0 and $NUM_CDDB_MATCHES." >&2
 							fi
 						elif echo $CDDBCHOICE | grep -E "[[:space:]]*[[:digit:]]+[[:space:]]*" > /dev/null 2>&1 ; then
 							# Make sure we get a valid choice
@@ -3245,7 +3254,8 @@ do_getalbumart()
 				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
 			else
 				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
-				vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE without ImageMagick convert" >&2
+				vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE" >&2
+				vecho "without ImageMagick convert" >&2
 			fi
 		fi
 	fi
@@ -4808,7 +4818,8 @@ if [ X"$OGGOUTPUTCONTAINER" = "Xogg" ] && [ X"$FLACOUTPUTCONTAINER" = "Xogg" ]; 
 	exit 1
 	OGGOUTPUTCONTAINER=ogg.ogg
 	FLACOUTPUTCONTAINER=flac.ogg
-	vecho warning "modified file endings due to conflicting transport layers in Ogg/Vorbis and Ogg/FLAC"
+	vecho warning "modified file endings due to conflicting transport"
+	vecho warning "layers in Ogg/Vorbis and Ogg/FLAC"
 fi
 
 # Clean up nice options (either use '-n NICELEVEL or -NICELEVEL')
