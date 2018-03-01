@@ -1083,18 +1083,18 @@ do_nogap_encode ()
 				(
 					cd "${ABCDETEMPDIR}"
 					TRACKFILES=
-					for UTRACKNUM in $TRACKQUEUE
+					for THISTRACKNUM in $TRACKQUEUE
 					do
-						TRACKFILES="$TRACKFILES track$UTRACKNUM.wav"
+						TRACKFILES="$TRACKFILES track$THISTRACKNUM.wav"
 					done
 					nice $ENCNICE $MP3ENCODER $MP3ENCODEROPTS --nogap $TRACKFILES
 					RETURN=$?
 					if [ "$RETURN" != "0" ]; then
 						echo "nogap-encode: $MP3ENCODER returned code $RETURN" >> "${ABCDETEMPDIR}/errors"
 					else
-						for UTRACKNUM in $TRACKQUEUE
+						for THISTRACKNUM in $TRACKQUEUE
 						do
-							run_command "encodetrack-$OUTPUT-$UTRACKNUM" true
+							run_command "encodetrack-$OUTPUT-$THISTRACKNUM" true
 						done
 					fi
 				)
