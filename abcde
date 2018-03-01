@@ -411,7 +411,8 @@ diffentries ()
 				do_cddbparse "${ABCDETEMPDIR}/$FILENAME.$PARSECHOICE" > "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE"
 			done
 			echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/$FILENAME.diff"
-			$DIFF $DIFFOPTS "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/$FILENAME.diff"
+			$DIFF $DIFFOPTS "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE1" \
+				  "${ABCDETEMPDIR}/$FILENAME.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/$FILENAME.diff"
 			page "${ABCDETEMPDIR}/$FILENAME.diff"
 		fi
 	else
@@ -944,13 +945,15 @@ do_tag ()
 					fi
 					) | run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE \
 						$VORBISCOMMENT $VORBISCOMMENTOPTS -w \
-						"${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
+						"${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" \
+						"${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
 					# Doublecheck that the commented file was created
 					# successfully before wiping the original
 					if [ -f "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" ]; then
 						rm -f "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					else
-						mv "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
+						mv "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" \
+						   "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER"
 					fi
 					;;
 			esac
@@ -991,8 +994,9 @@ do_tag ()
 					*)   echo COMMENT="$COMMENTOUTPUT";;
 				esac
 			fi
-			) | run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE $METAFLAC $METAFLACOPTS ${IMPORTCUESHEET:+--import-cuesheet-from="${ABCDETEMPDIR}/$CUEFILE"} \
-			--import-tags-from=- "${ABCDETEMPDIR}/track$1.$FLACOUTPUTCONTAINER"
+			) | run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE $METAFLAC $METAFLACOPTS \
+							${IMPORTCUESHEET:+--import-cuesheet-from="${ABCDETEMPDIR}/$CUEFILE"} \
+							--import-tags-from=- "${ABCDETEMPDIR}/track$1.$FLACOUTPUTCONTAINER"
 			;;
 		spx)
 			run_command "tagtrack-$OUTPUT-$1" true
@@ -1007,16 +1011,18 @@ do_tag ()
 			# This tagging syntax is suitable for Robert Muth's application 'apetag', the Monkey's Audio 
 			# Console port (mac) used for encoding does not have the ability to tag.
 			run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$APETAG" -i "${ABCDETEMPDIR}/track$1.ape" -m overwrite \
-			-p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track="${TRACKNUM:-$1}" \
-			-p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
+						-p artist="$TRACKARTIST" -p album="$DALBUM" -p title="$TRACKNAME" -p track="${TRACKNUM:-$1}" \
+						-p year="$CDYEAR" -p genre="$CDGENRE" ${COMMENTOUTPUT:+-p comment="$COMMENTOUTPUT"} 
  			;;
  		mp2)
 			# Using Mutagen's mid3v2 for tagging with id3v2.4.0. Interesting enough vlc, MPlayer and XMMS ignore
 			# these tags but they are read by Audacious, Xine, Aqualung, mediainfo, ffplay, ffprobe. FFmpeg does
 			# not currently tag mp2 audio so twolame and FFmpeg will both use mid3v2...
-			run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
-			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
-			"${ABCDETEMPDIR}/track$1.mp2"
+			run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" \
+						-a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" -g "$CDGENRE" \
+						-T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} \
+						${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
+						"${ABCDETEMPDIR}/track$1.mp2"
 			;;
 		aac)
 			run_command "tagtrack-$OUTPUT-$1" true
@@ -1029,9 +1035,11 @@ do_tag ()
 					;;
 				neroAacEnc)
 					# Tag post encode with neroAacTag...
-					run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$NEROAACTAG" "${ABCDETEMPDIR}/track$1.m4a" \
-					-meta:artist="$TRACKARTIST" -meta:album="$DALBUM" -meta:title="$TRACKNAME" -meta:track="${TRACKNUM:-$1}" \
-					-meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
+					run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$NEROAACTAG" \
+								"${ABCDETEMPDIR}/track$1.m4a" \
+								-meta:artist="$TRACKARTIST" -meta:album="$DALBUM" \
+								-meta:title="$TRACKNAME" -meta:track="${TRACKNUM:-$1}" \
+								-meta:year="$CDYEAR" -meta:genre="$CDGENRE" -meta:comment="$COMMENT"
 					;;
 				faac)
 					run_command "tagtrack-$OUTPUT-$1" true
@@ -1042,9 +1050,11 @@ do_tag ()
 				fhgaacenc)
 					# Tag post encode with AtomicParsley. Note that previous problems with seg fault when using
 					# 'overWrite' cannot be reproduced with newer versions: https://bitbucket.org/wez/atomicparsley
-					run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$ATOMICPARSLEY" "${ABCDETEMPDIR}/track$1.m4a" \
-					--artist="$TRACKARTIST" --album="$DALBUM" --title="$TRACKNAME" --tracknum="${TRACKNUM:-$1}" \
-					--year="$CDYEAR" --genre="$CDGENRE" --comment="$COMMENT" $ATOMICPARSLEYOPTS --overWrite
+					run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$ATOMICPARSLEY" \
+								"${ABCDETEMPDIR}/track$1.m4a" --artist="$TRACKARTIST" --album="$DALBUM" \
+								--title="$TRACKNAME" --tracknum="${TRACKNUM:-$1}" \
+								--year="$CDYEAR" --genre="$CDGENRE" --comment="$COMMENT" \
+								$ATOMICPARSLEYOPTS --overWrite
 					;;
 				ffmpeg)
 					run_command "tagtrack-$OUTPUT-$1" true
@@ -1053,9 +1063,10 @@ do_tag ()
 			;;
 		tta)
 			# We use mid3v2 tagging for True Audio:
-			run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" -a "$TRACKARTIST" -t "$TRACKNAME" \
-			-y "$CDYEAR" -g "$CDGENRE" -T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} ${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} \
-			"${ABCDETEMPDIR}/track$1.tta"
+			run_command "tagtrack-$OUTPUT-$1" nice $ENCNICE "$MID3V2" --verbose -A "$DALBUM" \
+						-a "$TRACKARTIST" -t "$TRACKNAME" -y "$CDYEAR" -g "$CDGENRE" \
+						-T "${TRACKNUM:-$1}/$TRACKS" ${TPE2:+--TPE2 "$TPE2"} \
+						${COMMENTOUTPUT:+--comment="$COMMENTOUTPUT"} "${ABCDETEMPDIR}/track$1.tta"
 			;;
 		wav)
 			run_command "tagtrack-$OUTPUT-$1" true
@@ -1243,9 +1254,10 @@ do_encode ()
 					opusenc)
 					# Tag the file at encode time, as it can't be done after encoding.
 						if [ "$DOTAG" = "y" ]; then
-							$RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS --artist "$TRACKARTIST" \
-							--album "$DALBUM" --title "$TRACKNAME" --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" \
-							${COMMENT:+--comment COMMENT="$COMMENT"} "$IN" "$OUT"
+							$RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS \
+										 --artist "$TRACKARTIST" --album "$DALBUM" --title "$TRACKNAME" \
+										 --genre "$CDGENRE" --date "$CDYEAR" --comment TRACKNUMBER="$1" \
+										 ${COMMENT:+--comment COMMENT="$COMMENT"} "$IN" "$OUT"
 						else
 							$RUN_COMMAND nice $EFFECTIVE_NICE $OPUSENCODER $OPUSENCODEROPTS "$IN" "$OUT"
 						fi
@@ -1261,9 +1273,11 @@ do_encode ()
 				case "$MKAENCODERSYNTAX" in
 				ffmpeg)
 					if [ "$DOTAG" = "y" ]; then
-						$RUN_COMMAND nice $EFFECTIVE_NICE $MKAENCODER -i "$IN" $MKAENCODEROPTS -metadata artist="$TRACKARTIST" \
-						-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
-						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT"
+						$RUN_COMMAND nice $EFFECTIVE_NICE $MKAENCODER -i "$IN" $MKAENCODEROPTS \
+									 -metadata artist="$TRACKARTIST" -metadata album="$DALBUM" \
+									 -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" \
+									 -metadata date="$CDYEAR" -metadata genre="$CDGENRE" \
+									 -metadata comment="$COMMENT" "$OUT"
 					else
 						$RUN_COMMAND nice $EFFECTIVE_NICE $MKAENCODER -i "$IN" $MKAENCODEROPTS "$OUT"
 					fi
@@ -1274,9 +1288,11 @@ do_encode ()
 				case "$AIFFENCODERSYNTAX" in
 				ffmpeg)
 					if [ "$DOTAG" = "y" ]; then
-						$RUN_COMMAND nice $EFFECTIVE_NICE $AIFFENCODER -i "$IN" $AIFFENCODEROPTS -metadata artist="$TRACKARTIST" \
-						-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
-						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT"
+						$RUN_COMMAND nice $EFFECTIVE_NICE $AIFFENCODER -i "$IN" $AIFFENCODEROPTS \
+									 -metadata artist="$TRACKARTIST" -metadata album="$DALBUM" \
+									 -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" \
+									 -metadata date="$CDYEAR" -metadata genre="$CDGENRE" \
+									 -metadata comment="$COMMENT" "$OUT"
 					else
 						$RUN_COMMAND nice $EFFECTIVE_NICE $AIFFENCODER -i "$IN" $AIFFENCODEROPTS "$OUT"
 					fi
@@ -1306,8 +1322,9 @@ do_encode ()
 				fi
 				# Tag the file at encode time, as it can't be done after encoding.
 				if [ "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS --author "$TRACKARTIST" --title "$TRACKNAME" \
-					${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS \
+								 --author "$TRACKARTIST" --title "$TRACKNAME" \
+								 ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $SPEEXENCODER $SPEEXENCODEROPTS "$IN" "$OUT"
 				fi
@@ -1315,8 +1332,10 @@ do_encode ()
 			mpc)
 				# Tag the file inline at encode time.
 				if [ "$DOTAG" = "y" ]; then
-					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
-					--title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --year "$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
+					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS \
+								 --artist "$TRACKARTIST" --album "$DALBUM" \
+								 --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" \
+								 --year "$CDYEAR" ${COMMENT:+--comment "$COMMENT"} "$IN" "$OUT"
 				else
 					$RUN_COMMAND nice $EFFECTIVE_NICE $MPCENCODER $MPCENCODEROPTS "$IN" "$OUT"
 				fi
@@ -1336,17 +1355,21 @@ do_encode ()
 			case "$WVENCODERSYNTAX" in
 				wavpack)
 					if [ "$DOTAG" = "y" ]; then
-						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS -w Artist="$TRACKARTIST" -w Album="$DALBUM" \
-						-w Title="$TRACKNAME" -w Track="$1" -w Genre="$CDGENRE" -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS \
+									 -w Artist="$TRACKARTIST" -w Album="$DALBUM" \
+									 -w Title="$TRACKNAME" -w Track="$1" -w Genre="$CDGENRE" \
+									 -w Year="$CDYEAR" ${COMMENT:+-w Comment="$COMMENT"} "$IN" -o "$OUT"
 					else
 						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER $WVENCODEROPTS "$IN" -o "$OUT"
 					fi
 				;;
 				ffmpeg)
 					if [ "$DOTAG" = "y" ]; then
-						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER -i "$IN" $WVENCODEROPTS -metadata artist="$TRACKARTIST" \
-						-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
-						-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
+						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER -i "$IN" $WVENCODEROPTS \
+									 -metadata artist="$TRACKARTIST" \
+									 -metadata album="$DALBUM" -metadata title="$TRACKNAME" \
+									 -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
+									 -metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
 					else 
 						$RUN_COMMAND nice $EFFECTIVE_NICE $WVENCODER -i "$IN" $WVENCODEROPTS "$OUT"
 					fi
@@ -1359,11 +1382,11 @@ do_encode ()
 			mp2)
 				case "$MP2ENCODERSYNTAX" in
 					twolame)
-					$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER $MP2ENCODEROPTS "$IN" "$OUT"
-					;;
+						$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER $MP2ENCODEROPTS "$IN" "$OUT"
+						;;
 					ffmpeg)
-					$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER -i "$IN" $MP2ENCODEROPTS "$OUT" 
-					;;
+						$RUN_COMMAND nice $EFFECTIVE_NICE $MP2ENCODER -i "$IN" $MP2ENCODEROPTS "$OUT" 
+						;;
 				esac
 				;;
 			aac)
@@ -1375,8 +1398,10 @@ do_encode ()
 				case "$AACENCODERSYNTAX" in
 					faac)
 						if [ "$DOTAG" = "y" ]; then
-							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" --album "$DALBUM" \
-							--title "$TRACKNAME" --track "${TRACKNUM:-$1}" --year "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS  \
+										 --artist "$TRACKARTIST" --album "$DALBUM" \
+										 --title "$TRACKNAME" --track "${TRACKNUM:-$1}" \
+										 --year "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
 						else 
 							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN" 	
 						fi
@@ -1386,16 +1411,20 @@ do_encode ()
 						;;
 					fdkaac)      
 						if [ "$DOTAG" = "y" ]; then
-							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS --artist "$TRACKARTIST" --album "$DALBUM" \
-							--title "$TRACKNAME" --track "$1" --genre "$CDGENRE" --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS \
+										 --artist "$TRACKARTIST" --album "$DALBUM" \
+										 --title "$TRACKNAME" --track "$1" --genre "$CDGENRE" \
+										 --date "$CDYEAR" --comment "$COMMENT" "$IN" -o "$OUT"
 						else
 							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER $AACENCODEROPTS "$IN" -o "$OUT"
 						fi
 						;;
 					qaac)
 						if [ "$DOTAG" = "y" ]; then
-							$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS  --artist "$TRACKARTIST" --album "$DALBUM" \
-							--title "$TRACKNAME" --track "${TRACKNUM:-$1}" --date "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
+							$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS \
+										 --artist "$TRACKARTIST" --album "$DALBUM" \
+										 --title "$TRACKNAME" --track "${TRACKNUM:-$1}" \
+										 --date "$CDYEAR" --genre "$CDGENRE" --comment "$COMMENT" -o "$OUT" "$IN"
 						else 
 							$RUN_COMMAND nice $EFFECTIVE_NICE $WINE $AACENCODER $AACENCODEROPTS -o "$OUT" "$IN"
 						fi
@@ -1405,9 +1434,11 @@ do_encode ()
 						;;
 					ffmpeg)
 						if [ "$DOTAG" = "y" ]; then
-							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER -i "$IN" $AACENCODEROPTS -metadata artist="$TRACKARTIST" \
-							-metadata album="$DALBUM" -metadata title="$TRACKNAME" -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
-							-metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
+							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER -i "$IN" \
+										 $AACENCODEROPTS -metadata artist="$TRACKARTIST" \
+										 -metadata album="$DALBUM" -metadata title="$TRACKNAME" \
+										 -metadata track="${TRACKNUM:-$1}" -metadata date="$CDYEAR" \
+										 -metadata genre="$CDGENRE" -metadata comment="$COMMENT" "$OUT" 
 						else 
 							$RUN_COMMAND nice $EFFECTIVE_NICE $AACENCODER -i "$IN"  $AACENCODEROPTS "$OUT"
 						fi
@@ -1441,7 +1472,8 @@ do_encode ()
 
 # do_preprocess [tracknumber]
 # variables used:
-# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
+# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX,
+# OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
 #do_preprocess ()
 #{
 #	IN="${ABCDETEMPDIR}/track$1.wav"
@@ -1482,7 +1514,8 @@ do_encode ()
 
 # do_postprocess [tracknumber]
 # variables used:
-# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
+# TRACKS, TRACKNAME, TRACKARTIST, DISTMP3, DISTMP3OPTS, {FOO}ENCODERSYNTAX, OUTPUTTYPE, ENCODEROPTS, 
+# DALBUM, DARTIST, ENCNICE, CDYEAR, CDGENRE, COMMENT
 #do_postprocess ()
 #{
 #	for POSTPROCESSFORMAT in $(echo $POSTPROCESSFORMATS | tr , \ )
@@ -2734,7 +2767,9 @@ do_cddb_read ()
 			# One exact match, retrieve it
 			# 200 [section] [discid] [artist] / [title]
 			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
-			$CDDBTOOL read "$CDDBURL" "$CDDBPROTO" "$CDDBUSER" "$CDDBHOST" $(cut -f2,3 -d' ' "${SOURCE_WORKDIR}/cddbquery") > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+			$CDDBTOOL read "$CDDBURL" "$CDDBPROTO" "$CDDBUSER" "$CDDBHOST" \
+					  $(cut -f2,3 -d' ' "${SOURCE_WORKDIR}/cddbquery") \
+					  > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 			cat "${SOURCE_WORKDIR}/cddbquery" | cut -f2- -d' ' > "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 			echo "cddb" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
 			echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
@@ -2755,7 +2790,9 @@ do_cddb_read ()
 				do
 					NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
 					if checkstatus "cddb-read-${NUM_CDDB_MATCHES}-complete"; then :; else
-						$CDDBTOOL read "$CDDBURL" "$CDDBPROTO" "$CDDBUSER" "$CDDBHOST" $(echo "$DISCINFO" | cut -f1,2 -d' ') > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+						$CDDBTOOL read "$CDDBURL" "$CDDBPROTO" "$CDDBUSER" "$CDDBHOST" \
+								  $(echo "$DISCINFO" | cut -f1,2 -d' ') \
+								  > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
 						echo "$DISCINFO" > "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 						echo "cddb" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
 						echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
@@ -2829,10 +2866,14 @@ do_cddbedit ()
 								else
 									# We parse the 2 choices to diff, store them in temporary files and diff them.
 									for PARSECHOICE in $(echo $CDDBCHOICE | tr , \ ); do
-										do_cddbparse "${ABCDETEMPDIR}/cddbread.$PARSECHOICE" > "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE"
+										do_cddbparse "${ABCDETEMPDIR}/cddbread.$PARSECHOICE" \
+													 > "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE"
 									done
-									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." > "${ABCDETEMPDIR}/cddbread.diff"
-									$DIFF $DIFFOPTS "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE1" "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE2" >> "${ABCDETEMPDIR}/cddbread.diff"
+									echo "Showing diff between choices $PARSECHOICE1 and $PARSECHOICE2..." \
+										 > "${ABCDETEMPDIR}/cddbread.diff"
+									$DIFF $DIFFOPTS "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE1" \
+										  "${ABCDETEMPDIR}/cddbread.parsechoice.$PARSECHOICE2" \
+										  >> "${ABCDETEMPDIR}/cddbread.diff"
 									page "${ABCDETEMPDIR}/cddbread.diff"
 								fi
 							else
@@ -4035,7 +4076,13 @@ while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pP:Q:r:s:S:t:T:UvVxX:w:W:z opt ; do
 		A) EXPACTIONS="$OPTARG" ;;
 		b) BATCHNORM=y ;;
 		B) GETALBUMART=y ; EMBEDALBUMART=y ;;
-		c) if [ -e "$OPTARG" ] ; then . "$OPTARG" ; else log error "config file \"$OPTARG\" cannot be found." ; exit 1 ; fi ;;
+		c) if [ -e "$OPTARG" ]; then
+			   . "$OPTARG"
+		   else
+			   log error "config file \"$OPTARG\" cannot be found."
+			   exit 1
+		   fi
+		   ;;
 		C) CDDBDISCID="$( echo "${OPTARG#abcde.}" | tr -d /)" ;;
 		d) CDROM="$OPTARG" ;;
 		D) set -x ;;
