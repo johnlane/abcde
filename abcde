@@ -2870,8 +2870,8 @@ do_cddbedit ()
 						ATITLE=$(grep -a ^DTITLE= "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n)
 						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CDCHOICENUM")
 						echo "Selected: #$CDCHOICENUM ($SOURCE) ($ATITLE)" >&2
-						do_cddbparse "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM"
 					fi
+					do_cddbparse "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM"
 					echo "cddb-choice=$CDCHOICENUM" >> "${ABCDETEMPDIR}/status"
 				fi
 			fi
