@@ -152,7 +152,7 @@ get_last()
 checkstatus ()
 {
 	# Take the last line in the status file if there's multiple matches
-	PATTERN='^$1(=.*)?$'
+	PATTERN="^$1(=.*)?$"
 	BLURB=$(grep -E "$PATTERN" "${ABCDETEMPDIR}/status" | tail -n 1)
 
 	if [ -z "$BLURB" ]; then
@@ -179,7 +179,7 @@ checkwarnings ()
 		return 1
 	fi
 	# Take the last line in the status file if there's multiple matches
-	PATTERN='^$1(:.*)?$'
+	PATTERN="^$1(:.*)?$"
 	BLURB=$(grep -E "$PATTERN" "${ABCDETEMPDIR}/warnings" | tail -n 1)
 
 	if [ -z "$BLURB" ]; then
@@ -202,7 +202,7 @@ checkerrors ()
 		return 1
 	fi
 	# Take the last line in the status file if there's multiple matches
-	PATTERN='^$1(:.*)?$'
+	PATTERN="^$1(:.*)?$"
 	BLURB=$(grep -E "$PATTERN" "${ABCDETEMPDIR}/errors" | tail -n 1)
 
 	if [ -z "$BLURB" ]; then
