@@ -253,7 +253,7 @@ run_command ()
 	else
 		# Special case for SMP, since
 		# encoder output is never displayed, don't mute echos
-		if [ -z "$BLURB" -a "$MAXPROCS" != "1" ]; then
+		if [ -z "$BLURB" ] && [ "$MAXPROCS" != "1" ]; then
 			"$@" >&2
 			RETURN=$?
 		else
@@ -901,8 +901,10 @@ do_tag ()
 			case "$OGGENCODERSYNTAX" in
 				vorbize|oggenc)
 					# vorbiscomment can't do in-place modification, mv the file first
-					if [ -f "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" -a ! -f "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
-						mv "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER"
+					if [ -f "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" ] && \
+						   [ ! -f "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER" ]; then
+						mv "${ABCDETEMPDIR}/track$1.$OGGOUTPUTCONTAINER" \
+						   "${ABCDETEMPDIR}/track$1.uncommented.$OGGOUTPUTCONTAINER"
 					fi
 					(
 					# These are from
@@ -1158,8 +1160,8 @@ do_encode ()
 		IN="${ABCDETEMPDIR}/track$1.wav"
 	fi
 	# We need IN to proceed, if we are not using pipes.
-	if [ -s "$IN" -o X"$USEPIPES" = "Xy" ] ; then
-		for TMPOUTPUT in $(echo $OUTPUTTYPE | tr , \ )
+	if [ -s "$IN" ] || [ X"$USEPIPES" = "Xy" ] ; then
+		for TMPOUTPUT in $(echo "$OUTPUTTYPE" | tr , \ )
 		do
 			case "$TMPOUTPUT" in
 				vorbis|ogg)
@@ -1775,12 +1777,12 @@ do_playlist ()
 				ERASEPLAYLIST=e
 			fi
 			# Once we erase the playlist, we use append to create the new one.
-			[ "$ERASEPLAYLIST" = "e" -o "$ERASEPLAYLIST" = "E" ] && rm -f "$OUTPUTDIR/$PLAYLISTFILE" && ERASEPLAYLIST=a
+			[ "$ERASEPLAYLIST" = "e" ] || [ "$ERASEPLAYLIST" = "E" ] && rm -f "$OUTPUTDIR/$PLAYLISTFILE" && ERASEPLAYLIST=a
 		else
 			# The playlist does not exist, so we can safelly use append to create the new list
 			ERASEPLAYLIST=a
 		fi
-		if [ "$ERASEPLAYLIST" = "a" -o "$ERASEPLAYLIST" = "A" ]; then
+		if [ "$ERASEPLAYLIST" = "a" ] || [ "$ERASEPLAYLIST" = "A" ]; then
 			touch "$OUTPUTDIR/$PLAYLISTFILE"
 			for UTRACKNUM in $TRACKQUEUE
 			do
@@ -1977,9 +1979,9 @@ abcde.mkcue () {
 	while [ $i -le "$TRACKS" ] ; do
 		LBA=$(( $1 - $OFFSET ))
 		printf "  TRACK %02i AUDIO\n" $i
-		if [ $i -eq 1 -a $1 -ne 150 ] ; then
-			if [ $MODE = PREGAP ] ; then
-				echomsf "    PREGAP " $(($OFFSET-150))
+		if [ "$i" -eq 1 ] && [ "$1" -ne 150 ] ; then
+			if [ "$MODE" = PREGAP ] ; then
+				echomsf "    PREGAP " $(($"OFFSET" - 150))
 			else
 				echo    "    INDEX 00 00:00:00"
 			fi
@@ -2244,7 +2246,7 @@ do_discid ()
 		# Store the abcde version in the status file.
 		echo "abcde-version=$VERSION" >> "${ABCDETEMPDIR}/status"
 	fi
-	if [ X"$DOCUE" = "Xy" -a X"$WEHAVEACD" = "Xy" ]; then
+	if [ X"$DOCUE" = "Xy" ] && [ X"$WEHAVEACD" = "Xy" ]; then
 		if checkstatus cuefile > /dev/null 2>&1 ; then :; else
 			CUEFILE=cue-$(echo "$CDDBTRACKINFO" | cut -f1 -d' ').txt
 			vecho "Creating cue file..."
@@ -2644,11 +2646,11 @@ do_cddb_read ()
 			echo 503 > "${SOURCE_WORKDIR}/cddbstat"
 		else
 			rc=1
-			CDDBUSER=$(echo $HELLOINFO | cut -f1 -d'@')
-			CDDBHOST=$(echo $HELLOINFO | cut -f2- -d'@')
-			while test $rc -eq 1 -a $CDDBPROTO -ge 3; do
+			CDDBUSER=$(echo "$HELLOINFO" | cut -f1 -d'@')
+			CDDBHOST=$(echo "$HELLOINFO" | cut -f2- -d'@')
+			while [ $rc -eq 1 ] && [ "$CDDBPROTO" -ge 3 ]; do
 				vecho "Checking CDDB server status..."
-				$CDDBTOOL stat $CDDBURL $CDDBUSER $CDDBHOST $CDDBPROTO > "${SOURCE_WORKDIR}/cddbstat"
+				$CDDBTOOL stat "$CDDBURL" "$CDDBUSER" "$CDDBHOST" "$CDDBPROTO" > "${SOURCE_WORKDIR}/cddbstat"
 				RESPONSECODE=$(head -n 1 "${SOURCE_WORKDIR}/cddbstat" | cut -f1 -d' ')
 				case "$RESPONSECODE" in
 				210)    # 210 OK, status information follows (until terminating `.')
@@ -3528,10 +3530,10 @@ do_cdread ()
 	RETURN=$?
 	# If we get some error or we get some missing wav
 	# (as long as we dont use pipes)
-	if [ "$RETURN" != "0" -o \( ! -s "$WAVDATA" -a X"$USEPIPES" != "Xy" \) ]; then
+	if [ "$RETURN" != "0" ] || ( [ ! -s "$WAVDATA" ] && [ X"$USEPIPES" != "Xy" ] ); then
 		# Thank goodness errors is only machine-parseable up to the
 		# first colon, otherwise this woulda sucked
-		if [ "$RETURN" = "0" -a ! -s "$WAVDATA" ]; then
+		if [ "$RETURN" = "0" ] || [ ! -s "$WAVDATA" ]; then
 			RETURN=73 # fake a return code as cdparanoia return 0 also on aborted reads
 		fi
 		if [ "$USEPIPES" = "y" ]; then
@@ -4255,7 +4257,7 @@ if [ X"$CDROM" != "X" ] ; then
 				exit 1
 			fi
 		fi
-	elif [ ! -e "$CDROM" -a X"$DOREAD" = "Xy" ]; then
+	elif [ ! -e "$CDROM" ] && [ X"$DOREAD" = "Xy" ]; then
 		log error "CDROM device cannot be found."
 		exit 1
 	fi
@@ -5296,7 +5298,7 @@ do
 	read GOAHEAD # For blocking - will contain either "NO" or "NEXTTRACK"
 	if [ "$GOAHEAD" = "NO" ]; then break; fi
 	# find out where this track is to be encoded
-	if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
+	if [ "$DOENCODE" = "y" ] && [ "$USEPIPES" != "y" ]; then
 		# Make sure we have a place to encode this, if not, exit stage right
 		if [ -z "$ENCODELOCATIONS" ]; then
 			continue
@@ -5359,9 +5361,8 @@ do
 			if checkstatus normalizetrack-$UTRACKNUM; then :; else do_normalize $UTRACKNUM; fi
 		fi
 	fi
-	if [ "$DOENCODE" = "y" -a "$USEPIPES" != "y" ]; then
-		if checkstatus readtrack-$UTRACKNUM; then
-			#if checkstatus encodetrack-$UTRACKNUM; then :; else do_encode $UTRACKNUM $LOCATION; fi
+	if [ "$DOENCODE" = "y" ] && [ "$USEPIPES" != "y" ]; then
+		if checkstatus "readtrack-$UTRACKNUM"; then
 			if [ "$DONORMALIZE" = "y" ]; then
 				if checkstatus normalizetrack-$UTRACKNUM; then
 					if checkstatus encodetrack-$UTRACKNUM; then :; else do_encode $UTRACKNUM $LOCATION $OUTPUT; fi
