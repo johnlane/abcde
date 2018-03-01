@@ -215,7 +215,8 @@ checkerrors ()
 }
 
 # page [file]
-# Finds the right pager in the system to display a file
+# Display a file. If it's too long to fit the current terminal size,
+# find the right pager in the system and use it
 page ()
 {
 	PAGEFILE="$1"
