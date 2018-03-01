@@ -2865,6 +2865,7 @@ do_cddbedit ()
 						vecho "Creating empty CDDB template..."
 						UNKNOWNDISK=y
 						$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${ABCDETEMPDIR}/cddbread.0"
+						echo "template" > "${ABCDETEMPDIR}/datasource.0"
 					else
 						ATITLE=$(grep -a ^DTITLE= "${ABCDETEMPDIR}/cddbread.$CDCHOICENUM" | cut -f2- -d= | tr -d \\r\\n)
 						SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$CDCHOICENUM")
@@ -5036,6 +5037,7 @@ if [ "$DOCDDB" = "y" ]; then
 				vecho "Unable to find any matches, generating unknown template."
 				echo "No lookup matches." >> "${ABCDETEMPDIR}/cddbchoices"
 				$CDDBTOOL template $(cat "${ABCDETEMPDIR}/cddbdiscid") > "${ABCDETEMPDIR}/cddbread.0"
+				echo "template" > "${ABCDETEMPDIR}/datasource.0"
 				# List out disc title/author and contents of template
 				echo ---- Unknown Artist / Unknown Album ---- >> "${ABCDETEMPDIR}/cddbchoices"
 				UNKNOWNDISK=y
