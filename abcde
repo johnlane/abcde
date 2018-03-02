@@ -1937,7 +1937,7 @@ abcde.cue2discid () {
 
 	done
 
-	TRACKS="$i"
+	TRACKS=$i
 	LEADOUT=$(( "$LEADOUT" + "$LEADIN" ))
 
 	LENGTH=$(( "$LEADOUT"/75 - "$TRACK1"/75 ))
