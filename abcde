@@ -100,22 +100,22 @@ log ()
 # Functions to replace the need of seq, which is too distribution dependent.
 f_seq_row ()
 {
-	i="$1"
-	while [ "$i" -le "$2" ]
+	i=$1
+	while [ $i -le $2 ]
 	do
-		echo "$i"
-		i=$(("$i" + 1))
+		echo $i
+		i=$(( $i + 1 ))
 	done
 }
 
 f_seq_line ()
 {
-	i="$1"
+	i=$1
 	if echo "$i" | grep "[[:digit:]]" > /dev/null 2>&1 ; then
-		while [ "$i" -le "$2" ]
+		while [ $i -le $2 ]
 		do
 			printf "%d " "$i"
-			i=$(("$i" + 1))
+			i=$(( $i + 1 ))
 		done
 		echo
 	else
@@ -2414,7 +2414,7 @@ do_cddbparse ()
 		fi
 	fi
 	if [ ! "$ONETRACK" = "y" ]; then
-		for TRACK in $(f_seq_row 1 "$TRACKS")
+		for TRACK in $(f_seq_row 1 $TRACKS)
 		do
 			echo "$TRACK": "$(grep -a ^TTITLE$(($TRACK - 1))= "${CDDBPARSEFILE}" | cut -f2- -d= | tr -d \\r\\n)"
 		done
@@ -5083,7 +5083,7 @@ if [ "$DOCDDB" = "y" ]; then
 				# List out disc title/author and contents of template
 				echo ---- Unknown Artist / Unknown Album ---- >> "${ABCDETEMPDIR}/cddbchoices"
 				UNKNOWNDISK=y
-				for TRACK in $(f_seq_row 1 "$TRACKS")
+				for TRACK in $(f_seq_row 1 $TRACKS)
 				do
 					echo "$TRACK:" "$(grep -a ^TTITLE$(($TRACK - 1))= "${ABCDETEMPDIR}/cddbread.0" | cut -f2- -d= | tr -d \\r\\n)" >> "${ABCDETEMPDIR}/cddbchoices"
 				done
@@ -5113,7 +5113,7 @@ if [ "$DOCDDB" = "y" ]; then
 					ATITLE=$(grep -a -e '^DTITLE=' "${ABCDETEMPDIR}/cddbread.$X" | cut -c8- | tr -d \\r\\n)
 					SOURCE=$(cat "${ABCDETEMPDIR}/datasource.$X")
 					echo "#$X ($SOURCE): ---- ${ATITLE} ----" >> "${ABCDETEMPDIR}/cddbchoices"
-                    for TRACK in $(f_seq_row 1 "$TRACKS")
+                    for TRACK in $(f_seq_row 1 $TRACKS)
 					do
                         echo "$TRACK:" "$(grep -a ^TTITLE$(($TRACK - 1))= "${ABCDETEMPDIR}/cddbread.$X" | cut -f2- -d= | tr -d \\r\\n)" >> "${ABCDETEMPDIR}/cddbchoices"
 					done
@@ -5335,7 +5335,7 @@ fi
 # Figure out where each track is going to be encoded
 ENCODELOCATIONS="$(echo "$REMOTEHOSTS" | tr , ' ')"
 if [ "$MAXPROCS" != "0" ]; then
-	for NUM in $(f_seq_row 1 "$MAXPROCS")
+	for NUM in $(f_seq_row 1 $MAXPROCS)
 	do
 		ENCODELOCATIONS="$ENCODELOCATIONS %local$NUM%"
 	done
