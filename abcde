@@ -5012,8 +5012,19 @@ HTTPGET="$HTTPGET $HTTPGETOPTS"
 # Hey, for grins, as of 2016-08-30 this is now line 4814! -GR
 
 # Export needed things so they can be read in this subshell
-export CDDBTOOL ABCDETEMPDIR TRACKQUEUE LOWDISK EJECTCD EJECT EJECTOPTS
-export CDROM CDDBDATA REMOTEHOSTS MAXPROCS HTTPGET MD5SUM
+export CDDBTOOL        # Path and options for the tool to query CDDB
+export ABCDETEMPDIR    # Path to the tmpdir for this rip
+export TRACKQUEUE      # 0-padded list of tracks to be processed
+export LOWDISK         # Are we using the low-diskspace algorithm?
+export EJECTCD         # Should we eject the CD when we're finished ripping?
+export EJECT           # The commend to use to eject the CD, if we have one
+export EJECTOPTS       # Options to that command
+export CDROM           # Device path for the CD device
+export CDDBDATA        # The filename we're using for CD lookup data
+export REMOTEHOSTS     # List of remote hosts for parallel encoding, if given
+export MAXPROCS        # The number of *local* encodes to do in parallel
+export HTTPGET         # Program to use to grab files via http
+export MD5SUM          # Program to calculate MD5 checksums
 
 if [ "$DOREAD" = "y" ]; then
 	# User-definable function to set some things. Use it for
