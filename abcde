@@ -3451,7 +3451,7 @@ do_cdread ()
 		# the user said
 		# We need the first and last track for cdda2wav/icedax
 		FIRSTTRACK=$2
-		LASTTRACK=$(($3 + 0))
+		LASTTRACK=$(expr $3 + 0)
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
 			flac) READTRACKNUMS="-" ;;
@@ -5190,14 +5190,14 @@ if [ "$LOWDISK" = "y" ] || [ "$ONETRACK" = "y" ]; then
 fi
 
 if [ "$ONETRACK" = "y" ]; then
-	TRACKS="$FIRSTTRACK"
+	TRACKS=$FIRSTTRACK
 	if [ "$USEPIPES" = "y" ]; then
 		if checkstatus "readencodetrack-$FIRSTTRACK"; then :; else
-			do_cdread onetrack "$FIRSTTRACK" "$LASTTRACK" | do_encode "$FIRSTTRACK" %local0% > /dev/null 2>&1
+			do_cdread onetrack $FIRSTTRACK $LASTTRACK | do_encode $FIRSTTRACK %local0% > /dev/null 2>&1
 		fi
 	else
 		if checkstatus "readtrack-$FIRSTTRACK"; then :; else
-			do_cdread onetrack "$FIRSTTRACK" "$LASTTRACK"
+			do_cdread onetrack $FIRSTTRACK $LASTTRACK
 		fi
 	fi
 else
@@ -5207,11 +5207,11 @@ else
 			if [ "$USEPIPES" = "y" ]; then
 				if checkstatus "readencodetrack-$UTRACKNUM"; then :; else
 					# Read, pipe, shut up!
-					do_cdread "$UTRACKNUM" | do_encode "$UTRACKNUM" %local0% > /dev/null 2>&1
+					do_cdread $UTRACKNUM | do_encode $UTRACKNUM %local0% > /dev/null 2>&1
 				fi
 			else
 				if checkstatus "readtrack-$UTRACKNUM"; then :; else
-					do_cdread "$UTRACKNUM"
+					do_cdread $UTRACKNUM
 				fi
 				if [ "$?" != "0" ]; then
 					# CD read failed - don't give the goahead to
