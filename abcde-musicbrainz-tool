@@ -95,8 +95,14 @@ if ($command =~ m/^id/) {
 
     foreach my $release (@releases) {
         my $a_artist = "";
-        if (@{ $release->{'artist-credit'} } > 0) {
-            $a_artist = @{ $release->{'artist-credit'} }[0]->{'name'};
+        my $number_artists = @{ $release->{'artist-credit'}};
+        if ($number_artists > 0) {
+            for (my $i = 0; $i < $number_artists; $i++) {
+                if ($i > 0) {
+                    $a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i-1]->{'joinphrase'};
+                }
+                $a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i]->{'name'};
+            }
         }
         my $va = 0;
         my $rel_year = "";
@@ -161,8 +167,15 @@ if ($command =~ m/^id/) {
         for (my $i = 0; $i < scalar(@tracks); $i++) {
             my $track = $tracks[$i];
             my $t_name = $track->{'title'};
-            if ($va and @{ $track->{'artist-credit'} } > 0) {
-                my $t_artist = $track->{'artist-credit'}->[0]->{'name'};
+            my $number_artists = @{$track->{'recording'}->{'artist-credit'}};
+            if ($va and $number_artists > 0) {
+                my $t_artist = "";
+                for (my $j = 0; $j < $number_artists; $j++) {
+                    if ($j > 0) {
+                        $t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j-1]->{'joinphrase'};
+                    }
+                    $t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j]->{'name'};
+                }
                 printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
             } else {
                 printf OUT "TTITLE%d=%s\n", $i, $t_name;
