@@ -144,7 +144,7 @@ get_last()
 			last=$stdin
 		done
 	else
-		for last in "$@" ; do :; done
+		for last in $@ ; do :; done
 	fi
 	echo "$last"
 }
@@ -2064,7 +2064,7 @@ do_discid ()
 							TRACKS=${#OFFSETTIMES[@]}
 							unset OFFSETS
 							#echo "processing offsetimes ${OFFSETTIMES[@]}"
-							for OFFSETTIME in "${OFFSETTIMES[@]}"; do
+							for OFFSETTIME in ${OFFSETTIMES[@]}; do
 								OFFSETS="$OFFSETS $(( 10#${OFFSETTIME:0:2} * 4500 + 10#${OFFSETTIME:3:2} * 75 + 10#${OFFSETTIME:6:2} ))"
 								#OFFSETS[${#OFFSETS[*]}]=$(( 10#${OFFSETTIME:0:2} * 4500 + 10#${OFFSETTIME:3:2} * 75 + 10#${OFFSETTIME:6:2} ))
 							done
