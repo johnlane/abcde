@@ -4079,7 +4079,7 @@ case "$EXTRAVERBOSE" in
 esac
 
 # Parse command line options
-while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pP:Q:r:s:S:t:T:UvVxX:w:W:z opt ; do
+while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pPQ:r:s:S:t:T:UvVxX:w:W:z opt ; do
 	case "$opt" in
 		1) ONETRACK=y ;;
 		a) ACTIONS="$OPTARG" ;;
