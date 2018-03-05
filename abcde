@@ -225,13 +225,13 @@ page ()
 {
 	PAGEFILE="$1"
 	local NUM_LINES=$(wc -l < "$PAGEFILE")
+	local LINES=""
 
 	# Check the terminal length every time we're called - the user
 	# might have resized since last time we were here
-
 	# First, try tput
-	if [ -z "$LINES" ]; then
-		LINES=$(tput lines 2>/dev/null)
+	if new_checkexec tput; then
+		LINES=$(tput lines)
 	fi
 
 	# If tput didn't work, 24 will do...
