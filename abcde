@@ -226,6 +226,19 @@ page ()
 	PAGEFILE="$1"
 	local NUM_LINES=$(wc -l < "$PAGEFILE")
 
+	# Check the terminal length every time we're called - the user
+	# might have resized since last time we were here
+
+	# First, try tput
+	if [ -z "$LINES" ]; then
+		LINES=$(tput lines 2>/dev/null)
+	fi
+
+	# If tput didn't work, 24 will do...
+	if [ -z "$LINES" ]; then
+		LINES=24
+	fi
+
 	# Is the text long enough to need a pager?
 	if [ "$NUM_LINES" -ge $LINES ]; then
 		# Yes!
@@ -4044,12 +4057,6 @@ CDDBAVAIL=y
 # variables.
 GREP_OPTIONS=""
 GREP_COLOR=""
-
-# Length of the terminal *should* be in $LINES. If it's not, guess at
-# a reasonable number instead
-if [ -z "$LINES" ]; then
-	LINES=24
-fi
 
 if [ -z "$OUTPUTDIR" ]; then
 	OUTPUTDIR=$(pwd)
