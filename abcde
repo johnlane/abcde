@@ -2271,6 +2271,7 @@ do_discid ()
 			# Everything is fine. Check for ^encodetracklocation-
 			# and encode-output entries in the status file and
 			# remove them. These are not relevant across sessions.
+			echo "Resuming" >> "${ABCDETEMPDIR}/status"
 			if [ -f "${ABCDETEMPDIR}/status" ]; then
 				mv "${ABCDETEMPDIR}/status" "${ABCDETEMPDIR}/status.old"
 				grep -v ^encodetracklocation- < "${ABCDETEMPDIR}/status.old" \
@@ -2560,67 +2561,74 @@ do_cdtext_read ()
 		return 0
 	fi
 
-	vecho "Obtaining CD-Text results..."
-	local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-cdtext"
-	mkdir -p "${SOURCE_WORKDIR}"
-
-	if [ "$OSFLAVOUR" = "OSX" ] ; then
-		# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
-		diskutil unmount "${CDROM#/dev/}"
-		# Also, in OSX the cdrom device for cdda2wav/icedax changes...
-		CDDA2WAVCDROM="IODVDServices"
-	elif [ "$OSFLAVOUR" = "FBSD" ] || [ "$OSFLAVOUR" = "IRIX" ]; then
-		CDDA2WAVCDROM="$CDROMID"
+	if checkstatus cdtext-readcomplete; then
+		NUM_RESPONSES=$(checkstatus "cdtext-entries")
+		NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
+		vecho "Re-using existing data from CD-Text"
 	else
-		if [ "$CDROMID" = "" ]; then
-			CDDA2WAVCDROM="$CDROM"
-		else
+		vecho "Obtaining CD-Text results..."
+		local SOURCE_WORKDIR="${ABCDETEMPDIR}/data-cdtext"
+		mkdir -p "${SOURCE_WORKDIR}"
+
+		if [ "$OSFLAVOUR" = "OSX" ] ; then
+			# Hei, we have to unmount the device before running anything like cdda2wav/icedax in OSX
+			diskutil unmount "${CDROM#/dev/}"
+			# Also, in OSX the cdrom device for cdda2wav/icedax changes...
+			CDDA2WAVCDROM="IODVDServices"
+		elif [ "$OSFLAVOUR" = "FBSD" ] || [ "$OSFLAVOUR" = "IRIX" ]; then
 			CDDA2WAVCDROM="$CDROMID"
+		else
+			if [ "$CDROMID" = "" ]; then
+				CDDA2WAVCDROM="$CDROM"
+			else
+				CDDA2WAVCDROM="$CDROMID"
+			fi
 		fi
-	fi
 
-	# Do we have CD-Text on the disc (and can the drive read it?)
-	(
-		cd "${SOURCE_WORKDIR}" && rm -f audio.* audio_*
-		${CDTEXT_READER} -J -v titles -D "${CDDA2WAVCDROM}" > "${SOURCE_WORKDIR}/cd-text" 2>&1
-	)
-	grep -a -q '^CD-Text: detected' "${SOURCE_WORKDIR}/cd-text"
-	ERRORCODE=$?
-	if [ $ERRORCODE -ne 0 ]; then
-		# No CD-Text found, bail
-		return 0
-	fi
-
-	NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
-	# Make an empty template
-	$CDDBTOOL template "$(cat "${ABCDETEMPDIR}/cddbdiscid")" > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
-	echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
-	rm -f "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
-
-	# XXX FIXME - this is a hack and should be replaced by proper
-	# character set tracking for the CDDB data we have.
-	if [ "$CDDBPROTO" -ge 6 ]; then
-		# convert to Unicode
-		iconv -f iso-8859-1 -t utf-8 <"${SOURCE_WORKDIR}/audio.cddb" >"${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
-	else
-		# copy verbatim, assuming CD-TEXT is in ISO-8859-1 format
-		# apparently icedax/cdda2wav have no support for 16-bit
-		# characters yet, either
-		cp -p "${SOURCE_WORKDIR}/audio.cddb" "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
-	fi
-
-	CDDBDISCID=$(echo "$CDDBTRACKINFO" | cut -d' ' -f1)
-	ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
-	echo "CD-Text" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
-	echo "none ${CDDBDISCID} ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
-
-	( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
-	for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
-		if [ -f "$file" ]; then
-			cp "$file" "${ABCDETEMPDIR}"
+		# Do we have CD-Text on the disc (and can the drive read it?)
+		(
+			cd "${SOURCE_WORKDIR}" && rm -f audio.* audio_*
+			${CDTEXT_READER} -J -v titles -D "${CDDA2WAVCDROM}" > "${SOURCE_WORKDIR}/cd-text" 2>&1
+		)
+		grep -a -q '^CD-Text: detected' "${SOURCE_WORKDIR}/cd-text"
+		ERRORCODE=$?
+		if [ $ERRORCODE -ne 0 ]; then
+			# No CD-Text found, bail
+			return 0
 		fi
-	done
-	echo "cdtext-readcomplete" >> "${ABCDETEMPDIR}/status"
+
+		NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+		# Make an empty template
+		$CDDBTOOL template "$(cat "${ABCDETEMPDIR}/cddbdiscid")" > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+		echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
+		rm -f "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+
+		# XXX FIXME - this is a hack and should be replaced by proper
+		# character set tracking for the CDDB data we have.
+		if [ "$CDDBPROTO" -ge 6 ]; then
+			# convert to Unicode
+			iconv -f iso-8859-1 -t utf-8 <"${SOURCE_WORKDIR}/audio.cddb" >"${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+		else
+			# copy verbatim, assuming CD-TEXT is in ISO-8859-1 format
+			# apparently icedax/cdda2wav have no support for 16-bit
+			# characters yet, either
+			cp -p "${SOURCE_WORKDIR}/audio.cddb" "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
+		fi
+
+		CDDBDISCID=$(echo "$CDDBTRACKINFO" | cut -d' ' -f1)
+		ATITLE=$(grep -a -e '^DTITLE=' "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}" | cut -c8- | tr -d \\r\\n)
+		echo "CD-Text" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
+		echo "none ${CDDBDISCID} ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
+
+		( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
+		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
+			if [ -f "$file" ]; then
+				cp "$file" "${ABCDETEMPDIR}"
+			fi
+		done
+		echo "cdtext-readcomplete" >> "${ABCDETEMPDIR}/status"
+		echo "cdtext-entries=1" >> "${ABCDETEMPDIR}/status"
+	fi
 }
 
 # do_musicbrainz_read
@@ -2632,7 +2640,11 @@ do_cdtext_read ()
 #
 do_musicbrainz_read ()
 {
-	if checkstatus musicbrainz-readcomplete; then :; else
+	if checkstatus musicbrainz-readcomplete; then
+		NUM_RESPONSES=$(checkstatus "musicbrainz-entries")
+		NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
+		vecho "Re-using existing data from $NUM_RESPONSES Musicbrainz match(es)"
+	else
 		vecho "Obtaining Musicbrainz results..."
 		# If MB is to be used, interpret the query results and read all
 		# the available entries.
@@ -2665,6 +2677,7 @@ do_musicbrainz_read ()
 			done
 		fi
 		echo "musicbrainz-readcomplete" >> "${ABCDETEMPDIR}/status"
+		echo "musicbrainz-entries=$NUM_RESPONSES" >> "${ABCDETEMPDIR}/status"
 	fi
 }
 
@@ -2766,14 +2779,19 @@ do_cddb_read ()
 
 	# If it's not to be used, generate a template.
 	# Then, display it (or them) and let the user choose/edit it
-	if checkstatus cddb-readcomplete; then :; else
+	if checkstatus cddb-readcomplete; then
+		NUM_RESPONSES=$(checkstatus "cddb-entries")
+		NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
+		vecho "Re-using existing data from $NUM_RESPONSES cddb match(es)"
+	else
 		RESPONSECODE=$(head -n 1 "${SOURCE_WORKDIR}/cddbquery" | cut -f1 -d' ')
 		vecho "Obtaining CDDB results..."
 		case "$RESPONSECODE" in
 		200)
 			# One exact match, retrieve it
 			# 200 [section] [discid] [artist] / [title]
-			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+			NUM_RESPONSES=1
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
 			$CDDBTOOL read "$CDDBURL" "$CDDBPROTO" "$CDDBUSER" "$CDDBHOST" \
 					  $(cut -f2,3 -d' ' "${SOURCE_WORKDIR}/cddbquery") \
 					  > "${SOURCE_WORKDIR}/cddbread.${NUM_CDDB_MATCHES}"
@@ -2808,21 +2826,24 @@ do_cddb_read ()
 			# Need to re-count the entries here to be able
 			# to incrememnt $NUM_CDDB_MATCHES in the
 			# parent
-			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $(echo "${SOURCE_WORKDIR}/datasource.*" | wc -w)))
+			NUM_RESPONSES=$(echo "${SOURCE_WORKDIR}/datasource.*" | wc -w)
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
 			vecho "done."
 			;;
 		999)
 			# Using local copy.
-			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
+			NUM_RESPONSES=1
+			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
 			echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
 			;;
 		esac
-		echo "cddb-readcomplete" >> "${ABCDETEMPDIR}/status"
 		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
 			if [ -f "$file" ]; then
 				cp "$file" "${ABCDETEMPDIR}"
 			fi
 		done
+		echo "cddb-readcomplete" >> "${ABCDETEMPDIR}/status"
+		echo "cddb-entries=$NUM_RESPONSES" >> "${ABCDETEMPDIR}/status"
 	fi
 }
 
