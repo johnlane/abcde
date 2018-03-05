@@ -2246,6 +2246,19 @@ do_discid ()
 			exit 1
 		fi
 		echo .
+		# Check to see the version of abcde that was used. If it's not
+		# the same version as we are, bail.
+		RESUME_VERSION="$(checkstatus abcde-version)"
+		if [ "$RESUME_VERSION" != "$VERSION" ]; then
+			# Nope, complain and exit
+			echo >&2
+			echo "abcde: Working directory ${ABCDETEMPDIR} was created using version $RESUME_VERSION." >&2
+			echo "abcde: Current version is $VERSION." >&2
+			echo "abcde: Refusing to resume with a version mismatch." >&2
+			echo "Please remove it, and rerun abcde." >&2
+			exit 1
+		fi
+		echo .
 		# See if it's populated
 		if [ ! -f "${ABCDETEMPDIR}/cddbdiscid" ]; then
 			# Wipe and start fresh
