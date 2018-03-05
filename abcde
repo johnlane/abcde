@@ -3170,96 +3170,98 @@ do_cddbedit ()
 # try to download CD cover
 do_getalbumart()
 {
-	# set variables
-	ALBUMFILE="$(mungealbumname "$DALBUM")"
-	ARTISTFILE="$(mungeartistname "$DARTIST")"
-	GENRE="$(mungegenre "$GENRE")"
-	YEAR=${CDYEAR:-$CDYEAR}
-	# have we got a musicbrainz mbid or amazon asin?
-	case "$CDDBMETHOD" in
-		*musicbrainz*)
-			# try musicbrainz mbid
-			if [ -s "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)" ]; then
-				MBID=$(cat "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)")
-				vecho "trying to get cover from coverartarchive.orq with musicbrainz mbid $MBID" >&2
-				ALBUMARTURL="http://coverartarchive.org/release/$MBID/front"
-				vecho "cover URL: $ALBUMARTURL" >&2
-				$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
-				if [ $? -ne 0 ]; then
-					vecho "could not download cover from musicbrainz" >&2
-					# try amazon asin
-					if [ -s "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)" ]; then
-						ASIN=$(cat "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)")
-						vecho "trying to get cover from amazon.com with asin $ASIN" >&2
-						ALBUMARTURL="http://ec1.images-amazon.com/images/P/$ASIN.01.LZZZZZZZZ.jpg"
-						vecho "cover URL: $ALBUMARTURL" >&2
-						$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
-						if [ $? -ne 0 ]; then
-							vecho "could not download cover from amazon" >&2
-						else
-							# Check that size is reasonable; sometimes when there is no cover image
-							# on amazon.com a 1x1 pixel gif image will be downloaded instead:
-							FILESIZE=$(wc -c < "${ABCDETEMPDIR}/$ALBUMARTFILE")
-							if [ "$FILESIZE" -lt 1024 ]; then
-								rm "${ABCDETEMPDIR}/$ALBUMARTFILE"
+	if checkstatus "get-album-art"; then :; else
+		# set variables
+		ALBUMFILE="$(mungealbumname "$DALBUM")"
+		ARTISTFILE="$(mungeartistname "$DARTIST")"
+		GENRE="$(mungegenre "$GENRE")"
+		YEAR=${CDYEAR:-$CDYEAR}
+		# have we got a musicbrainz mbid or amazon asin?
+		case "$CDDBMETHOD" in
+			*musicbrainz*)
+				# try musicbrainz mbid
+				if [ -s "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)" ]; then
+					MBID=$(cat "${ABCDETEMPDIR}/mbid.$(checkstatus cddb-choice)")
+					vecho "trying to get cover from coverartarchive.orq with musicbrainz mbid $MBID" >&2
+					ALBUMARTURL="http://coverartarchive.org/release/$MBID/front"
+					vecho "cover URL: $ALBUMARTURL" >&2
+					$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
+					if [ $? -ne 0 ]; then
+						vecho "could not download cover from musicbrainz" >&2
+						# try amazon asin
+						if [ -s "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)" ]; then
+							ASIN=$(cat "${ABCDETEMPDIR}/asin.$(checkstatus cddb-choice)")
+							vecho "trying to get cover from amazon.com with asin $ASIN" >&2
+							ALBUMARTURL="http://ec1.images-amazon.com/images/P/$ASIN.01.LZZZZZZZZ.jpg"
+							vecho "cover URL: $ALBUMARTURL" >&2
+							$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
+							if [ $? -ne 0 ]; then
 								vecho "could not download cover from amazon" >&2
+							else
+								# Check that size is reasonable; sometimes when there is no cover image
+								# on amazon.com a 1x1 pixel gif image will be downloaded instead:
+								FILESIZE=$(wc -c < "${ABCDETEMPDIR}/$ALBUMARTFILE")
+								if [ "$FILESIZE" -lt 1024 ]; then
+									rm "${ABCDETEMPDIR}/$ALBUMARTFILE"
+									vecho "could not download cover from amazon" >&2
+								fi
 							fi
+						else
+							vecho "no amazon ID found" >&2
 						fi
-					else
-						vecho "no amazon ID found" >&2
 					fi
+				else
+					vecho "no musicbrainz ID found" >&2
+				fi
+				;;
+		esac
+		# use glyrc
+		if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+			vecho "trying to get cover with glyrc for $ARTISTFILE / $ALBUMFILE" >&2
+			$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "${ABCDETEMPDIR}/$ALBUMARTFILE" $GLYRCOPTS
+			if [ $? -ne 0 ]; then
+				vecho "could not download cover with glyrc" >&2
+			else
+				ALBUMARTURL="glyrc"
+			fi
+		fi
+		if [ "$INTERACTIVE" = "y" ]; then
+			if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+				# display properties of coverart when identify is available
+				if new_checkexec "$IDENTIFY"; then
+					$IDENTIFY $IDENTIFYOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
+				fi
+				# display coverart when DISPLAY is set and display command is available
+				if new_checkexec "$DISPLAYCMD" && [ "$DISPLAY" != "" ]; then
+					$DISPLAYCMD $DISPLAYCMDOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2 &
 				fi
 			else
-				vecho "no musicbrainz ID found" >&2
+				# nothing downloaded yet
+				vecho "automatic album art downloading failed" >&2
 			fi
-			;;
-	esac
-	# use glyrc
-	if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-		vecho "trying to get cover with glyrc for $ARTISTFILE / $ALBUMFILE" >&2
-		$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "${ABCDETEMPDIR}/$ALBUMARTFILE" $GLYRCOPTS
-		if [ $? -ne 0 ]; then
-			vecho "could not download cover with glyrc" >&2
-		else
-			ALBUMARTURL="glyrc"
-		fi
-	fi
-	if [ "$INTERACTIVE" = "y" ]; then
-		if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-			# display properties of coverart when identify is available
-			if new_checkexec "$IDENTIFY"; then
-				$IDENTIFY $IDENTIFYOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
-			fi
-			# display coverart when DISPLAY is set and display command is available
-			if new_checkexec "$DISPLAYCMD" && [ "$DISPLAY" != "" ]; then
-				$DISPLAYCMD $DISPLAYCMDOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE" >&2 &
-			fi
-		else
-			# nothing downloaded yet
-			vecho "automatic album art downloading failed" >&2
-		fi
-		# see if the user can find a better album art manually
-		echo -n "Do you want to enter URL or local path for the album art [y/N]? " >&2
-		read YESNO
-		while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
-			[ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
-		do
-			echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
+			# see if the user can find a better album art manually
+			echo -n "Do you want to enter URL or local path for the album art [y/N]? " >&2
 			read YESNO
-		done
-		if [ "$YESNO" = "y" ] || [ "$YESNO" = "Y" ]; then
-			echo -n "Enter URL or local path (ENTER to cancel) :" >&2
-			read ALBUMARTURL
-			if [ ! -z "$ALBUMARTURL" ]; then
-				if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
-					$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
-					if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-						vecho "unable to download $ALBUMARTURL" >&2
-					fi
-				else # it's a local path
-					cp "$ALBUMARTURL" "${ABCDETEMPDIR}/$ALBUMARTFILE"
-					if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-						vecho "unable to copy $ALBUMARTURL to ${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
+			while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
+					  [ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
+			do
+				echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
+				read YESNO
+			done
+			if [ "$YESNO" = "y" ] || [ "$YESNO" = "Y" ]; then
+				echo -n "Enter URL or local path (ENTER to cancel) :" >&2
+				read ALBUMARTURL
+				if [ ! -z "$ALBUMARTURL" ]; then
+					if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
+						$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
+						if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+							vecho "unable to download $ALBUMARTURL" >&2
+						fi
+					else # it's a local path
+						cp "$ALBUMARTURL" "${ABCDETEMPDIR}/$ALBUMARTFILE"
+						if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+							vecho "unable to copy $ALBUMARTURL to ${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
+						fi
 					fi
 				fi
 			fi
