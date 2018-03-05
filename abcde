@@ -3266,50 +3266,50 @@ do_getalbumart()
 				fi
 			fi
 		fi
-	fi
-	# convert to ALBUMARTTYPE if ImageMagick is available, if not assume correct type
-	if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ] && new_checkexec "$IDENTIFY"; then
-		ALBUMARTURLTYPE=$($IDENTIFY "${ABCDETEMPDIR}/$ALBUMARTFILE" | cut -d' ' -f2)
-		if [ "$ALBUMARTURLTYPE" != "$ALBUMARTTYPE" ] || [ "$ALBUMARTALWAYSCONVERT" = "y" ]; then
-			if new_checkexec "$CONVERT"; then
-				mv "${ABCDETEMPDIR}/$ALBUMARTFILE" "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
-				$CONVERT "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp" $CONVERTOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE"
-				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
-			else
-				rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
-				vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE" >&2
-				vecho "without ImageMagick convert" >&2
-			fi
-		fi
-	fi
-	# copy to target directories
-	if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-		for OUTPUT in $(echo "$OUTPUTTYPE" | tr , \ )
-		do
-			# put cover in the same place as the album
-			if [ "$ONETRACK" = "y" ] ; then
-				if [ "$VARIOUSARTISTS" = "y" ] ; then
-					ALBUMARTDIR="$(eval echo "$VAONETRACKOUTPUTFORMAT")"
+		# convert to ALBUMARTTYPE if ImageMagick is available, if not assume correct type
+		if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ] && new_checkexec "$IDENTIFY"; then
+			ALBUMARTURLTYPE=$($IDENTIFY "${ABCDETEMPDIR}/$ALBUMARTFILE" | cut -d' ' -f2)
+			if [ "$ALBUMARTURLTYPE" != "$ALBUMARTTYPE" ] || [ "$ALBUMARTALWAYSCONVERT" = "y" ]; then
+				if new_checkexec "$CONVERT"; then
+					mv "${ABCDETEMPDIR}/$ALBUMARTFILE" "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
+					$CONVERT "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp" $CONVERTOPTS "${ABCDETEMPDIR}/$ALBUMARTFILE"
+					rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE.tmp"
 				else
-					ALBUMARTDIR="$(eval echo "$ONETRACKOUTPUTFORMAT")"
-			fi
-		else
-			if [ "$VARIOUSARTISTS" = "y" ] ; then
-				ALBUMARTDIR="$(eval echo "$VAOUTPUTFORMAT")"
-			else
-				ALBUMARTDIR="$(eval echo "$OUTPUTFORMAT")"
+					rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
+					vecho "sorry, cannot convert $ALBUMARTURLTYPE to $ALBUMARTTYPE" >&2
+					vecho "without ImageMagick convert" >&2
+				fi
 			fi
 		fi
-			FINALALBUMARTDIR="$(dirname "$OUTPUTDIR/$ALBUMARTDIR")"
-			vecho "copying cover to target directory $FINALALBUMARTDIR" >&2
-			mkdir -p "$FINALALBUMARTDIR"
-			cp "${ABCDETEMPDIR}/$ALBUMARTFILE" "$FINALALBUMARTDIR"
-		done
-		rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
-		echo "get-album-art=$ALBUMARTURL" >> "${ABCDETEMPDIR}/status"
-	else
-		log warning "could not get cover"
-		echo "get-album-art=none" >> "${ABCDETEMPDIR}/status"
+		# copy to target directories
+		if [ -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+			for OUTPUT in $(echo "$OUTPUTTYPE" | tr , \ )
+			do
+				# put cover in the same place as the album
+				if [ "$ONETRACK" = "y" ] ; then
+					if [ "$VARIOUSARTISTS" = "y" ] ; then
+						ALBUMARTDIR="$(eval echo "$VAONETRACKOUTPUTFORMAT")"
+					else
+						ALBUMARTDIR="$(eval echo "$ONETRACKOUTPUTFORMAT")"
+					fi
+				else
+					if [ "$VARIOUSARTISTS" = "y" ] ; then
+						ALBUMARTDIR="$(eval echo "$VAOUTPUTFORMAT")"
+					else
+						ALBUMARTDIR="$(eval echo "$OUTPUTFORMAT")"
+					fi
+				fi
+				FINALALBUMARTDIR="$(dirname "$OUTPUTDIR/$ALBUMARTDIR")"
+				vecho "copying cover to target directory $FINALALBUMARTDIR" >&2
+				mkdir -p "$FINALALBUMARTDIR"
+				cp "${ABCDETEMPDIR}/$ALBUMARTFILE" "$FINALALBUMARTDIR"
+			done
+			rm -f "${ABCDETEMPDIR}/$ALBUMARTFILE"
+			echo "get-album-art=$ALBUMARTURL" >> "${ABCDETEMPDIR}/status"
+		else
+			log warning "could not get cover"
+			echo "get-album-art=none" >> "${ABCDETEMPDIR}/status"
+		fi
 	fi
 }
 
