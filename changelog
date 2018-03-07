@@ -81,6 +81,8 @@ abcde 2.8.2
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=60
    Also added a specific dependency on version 1.0.4 or newer, so
    abcde-musicbrainz-tool will abort if the version found is too old.
+   Since tweaked to deal with multi-artist albums and tracks more
+   completely.
    
 abcde 2.8.1.
 
