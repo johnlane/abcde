@@ -83,6 +83,7 @@ abcde 2.8.2
    abcde-musicbrainz-tool will abort if the version found is too old.
    Since tweaked to deal with multi-artist albums and tracks more
    completely.
+ * Add resume support in do_getalbumart()
    
 abcde 2.8.1.
 
