@@ -84,6 +84,16 @@ abcde 2.8.2
    Since tweaked to deal with multi-artist albums and tracks more
    completely.
  * Add resume support in do_getalbumart()
+ * Fix getopts setup for "P". Thanks to Alan W. Kerr for reporting this.
+ * Major set of code cleanups to fix up lots of warnings found with
+   shellcheck, and a few other style issues:
+   + Lots of quoting fixes
+   + Use $( instead of `
+   + Stop using -o and -a syntax with if [ - use || or && instead
+   + Wrap and shorten some very long lines
+ * Wrap some output messages so they fit on a standard width console
+ * Factor out repeated code and make page() more useful
+ * Add version check before resuming from an old ripping run
    
 abcde 2.8.1.
 
