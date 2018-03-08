@@ -25,6 +25,18 @@ for more help.
 MAJOR CHANGES
 =============
 
+Changes in 2.9
+* Allow for embedding of  album art downloaded by the getalbumart fuction
+* Add support for another output encoding: Audio Interchange File Format (AIFF)
+* Reworked CD lookup code to fully support using all of CDDB,
+  Musicbrainz and CD-Text
+* Correct Musicbrainz ID calculation for discs where PREGAP is non-zero
+* Add initial Irix support
+* Musicbrainz support now depends on WebService::MusicBrainz 1.x to
+  support the v2 MusicBrainz web API
+* Major refactoring and shell quoting fixes
+* Many other bug fixes - see the changelog for a full list
+
 Changes in 2.8.1
 * Fix for stupid bug introduced in abcde-musicbrainz-tool in 2.8
 

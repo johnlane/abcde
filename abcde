@@ -11,7 +11,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-VERSION='2.8.2-UNRELEASED'
+VERSION='2.9'
 
 usage ()
 {
@@ -3426,7 +3426,7 @@ do_embedalbumart()
 			#	3. base64 the cover art image
 			#	4. Copy the original tags + the base64 image back to the original ogg file
 			#
-			# Might need some fine tuning but it is a start for abcde 2.8.2         Andrew.
+			# Might need some fine tuning but it is a start for abcde 2.9.         Andrew.
 			# FIXME: I am not sure if there is a maximum size for images converted in this
 			# way, but this could be perhaps handled by CONVERTOPTS called from do_getalbumart.
 			# ----------------

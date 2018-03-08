@@ -1,4 +1,4 @@
-abcde 2.8.2
+abcde 2.9
 
  * Add some documentation for the aged CD ripper dagrab. Thanks to 
    Teika Kazura for the notification and suggested documentation. This 
@@ -95,6 +95,8 @@ abcde 2.8.2
  * Factor out repeated code and make page() more useful
  * Add version check before resuming from an old ripping run
    
+ -- Steve McIntyre <93sam@debian.org>  Thu, 08 Mar 2018 00:14:56 +0000
+
 abcde 2.8.1.
 
  * Fix silly error introduced in abcde-musicbrainz-tool when fixing bug
