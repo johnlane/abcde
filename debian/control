@@ -3,23 +3,26 @@ Section: sound
 Priority: optional
 Maintainer: Steve McIntyre <93sam@debian.org>
 Homepage: https://abcde.einval.com/
-Standards-Version: 3.9.6
-Build-Depends: debhelper (>= 8)
+Standards-Version: 4.1.3
+Build-Depends: debhelper (>= 10)
 Vcs-Browser: https://git.einval.com/cgi-bin/gitweb.cgi?p=abcde.git;a=summary
 Vcs-Git: https://git.einval.com/git/abcde.git
 
 Package: abcde
 Architecture: all
-Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | speex | musepack-tools | opus-tools
-Recommends: vorbis-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl, libdigest-sha-perl, bsd-mailx, glyrc, imagemagick
+Depends: ${misc:Depends}, cd-discid, wget, cdparanoia | icedax, vorbis-tools (>= 1.0beta4-1) | lame | flac | speex | musepack-tools | opus-tools, libmusicbrainz-discid-perl, libwebservice-musicbrainz-perl (>= 1.0.4-1.1)
+Recommends: vorbis-tools, libdigest-sha-perl, bsd-mailx, glyrc, imagemagick
 Suggests: eject, distmp3, id3 (>= 0.12), id3v2, eyed3 (<< 0.7~),
  normalize-audio, vorbisgain, mkcue, mp3gain, atomicparsley
 Description: A Better CD Encoder
- frontend program to cdparanoia, wget, cd-discid, id3, and your favorite
- Ogg/Vorbis, MP3, FLAC, Ogg/Speex and/or MPP/MP+(Musepack) encoder (defaults 
- to oggenc). Grabs an entire CD and converts each track to the specified 
- formats and then comments or ID3-tags each file, with one command.
+ frontend program to cdparanoia, wget, cd-discid, id3, and your
+ favorite Ogg/Vorbis, MP3, FLAC, Ogg/Speex, M4A, Opus, WavPack,
+ Monkey's Audio (ape), MPP/MP+(Musepack) and/or AIFF format encoder
+ (defaults to oggenc). Grabs an entire CD and converts each track to
+ the specified formats and then comments or tags each file, with
+ one command.
  .
- With abcde you can encode several formats with one single command, using a 
- single CD read operation. It also allows you to read and encode while not
- on the internet, and later query a CDDB server to tag your files.
+ With abcde you can encode several formats with one single command,
+ using a single CD read operation. It also allows you to read and
+ encode while not on the internet, and later query a CDDB or
+ Musicbrainz server to lookup metadata and tag your files.

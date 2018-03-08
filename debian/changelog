@@ -1,4 +1,124 @@
+abcde (2.9-1) unstable; urgency=medium
+
+  * New upstream version with various improvements and bugfixes:
+    + Add some documentation for the aged CD ripper dagrab. Thanks to 
+      Teika Kazura for the notification and suggested documentation. This 
+      closes Issue 50: https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
+    + Work by Matthias Andree <matthias.andree@gmx.de> to address the issue
+      where abcde fails with accented characters from CD-TEXT. The issue and
+      partial fix applied here documented in Issue 53:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=53
+      and also in the abcde mailing list:
+      https://lists.einval.com/pipermail/abcde-users/2017-January/000232.html
+    + Allow for embedding of  album art downloaded by the getalbumart function. 
+      Currently this is available for flac (using metaflac), mp3 (using eyed3),
+      m4a (using AtomicParsley) and WavPack aka wv (using wvtag).
+      This can be invoked in 3 ways:
+
+      1. Use the commandline '-B' option (this will also call getalbumart)
+      2. Use the commandline '-a embedalbumart' option to add to list of actions
+      3. Use 'embedalbumart' in the 'ACTIONS' list in ~/.abcde.conf
+
+      Still needs more development but it is perfectly usable at the moment!
+    + Use md5 rather than md5sum under macOS. Thanks to JCount for the bug
+      report and also the fix. This solves Issue 59:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=59
+    + Support added for encoding with Audio Interchange File Format (AIFF). 
+      Thanks to Massimo Villa for the feature request. FFmpeg is required
+      for the encoding, the container and suffix are 'aiff'.
+    + Allow selection of either cddb or musicbrainz from the command line:
+      -Q Select CDDBMETHOD from the command line. Choice is cddb or musicbrainz.
+    + Command line letters are fast running out but the 'Q' option quite neatly
+      stands for 'Query'!
+    + Allow for embedding with do_embedalbumart() for single track encodes when
+      OUTPUTFORMAT and ONETRACKOUTPUTFORMAT are different. Thanks to
+	  Ashley Gittins for the bug report. This closes Issue 63:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=63
+    + Experimental support for embedding albumart with ogg files. The slightly
+      tortuous technique drawn from 2 sources:
+
+      1. https://github.com/biapy/howto.biapy.com/blob/master/various/mussync-tools
+      2. https://github.com/acabal/scripts/blob/master/ogg-cover-art
+
+      Testing is strongly encouraged, perhaps the simplest way to test is with:
+         abcde -o ogg -B
+       Or the appropriate settings in an ~/.abcde.conf file.
+    + Massive rework of CD lookup code so support multiple sources
+      better. Thanks to Gabriel Rosenkoetter for his initial idea in this
+      area, and to Tomasz Goliński on irc for initial inspiration on how
+      this should work better.
+      There are now 3 different options for CD lookup: cddb, musicbrainz and
+      cdtext. They can all be listed in a comma-separated list for
+      CDDBMETHOD and the code will now call all of them in the sequence
+      listed. All the results will be combined into one list at the end for
+      the user to select, just like would have previously worked for one
+      source only. Closes Issue 42:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=42
+	  Closes: #842180
+    + Fix Musicbrainz ID calculation in makeids()
+      Apply fix suggested by petecollins24@gmail.com; add PREGAP to
+      LEADOUT to correct Musicbrainz ID calculation. Hopefully closes
+      Issue 54: https://abcde.einval.com/bugzilla/show_bug.cgi?id=54
+	  Closes: #892071
+    + Fix abcde.mkcue() when handling the --wholedisk option. Thanks to
+      Nino Burini for the patch. Closes Issue 47 and maybe also 45:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=47
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=45
+    + Add more comprehensive examples for filename munging in the example
+      config file. Closes Issue 49:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=49
+    + Add a more better fix for the year lookup problem in
+	  abcde-musicbrainz-tool
+      Thanks to Tom Samstag for the patch. Closes Issue 57:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=57
+    + Redirect stderr on "which" calls to clear up error noise on some
+      systems. Closes Issue 56:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=56
+    + Add Irix support, based on a patch by abcde@canavan.de. Closes Issue 29:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=29
+    + Rework abcde-musicbrainz-tool to work with WebService::MusicBrainz 1.x
+      Thanks to Nicolas Guillaumin for the patch. Closes Issue 60:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=60
+      Also added a specific dependency on version 1.0.4 or newer, so
+      abcde-musicbrainz-tool will abort if the version found is too old.
+      Since tweaked to deal with multi-artist albums and tracks more
+      completely.
+    + Add resume support in do_getalbumart()
+    + Fix getopts setup for "P". Thanks to Alan W. Kerr for reporting this.
+    + Major set of code cleanups to fix up lots of warnings found with
+      shellcheck, and a few other style issues:
+      - Lots of quoting fixes
+      - Use $( instead of `
+      - Stop using -o and -a syntax with if [ - use || or && instead
+      - Wrap and shorten some very long lines
+    + Wrap some output messages so they fit on a standard width console
+    + Factor out repeated code and make page() more useful
+    + Add version check before resuming from an old ripping run
+  * Fix up wrong years in old changelog entries. Closes: #852745
+  * New MusicBrainz code fixes lots of things. Closes: #864006
+  * Move the Recommends on musicbrainz perl modules to Depends now that
+    MusicBrainz is the default CD lookup method.
+  * Add a version to the Depends on libwebservice-musicbrainz-perl - we
+ 	now need 1.0.4 or newer.
+  * Various minor packaging updates:
+    + Update Standards-Version to 4.1.3
+    + Update debhelper version
+    + Switch to source format 3.0 (quilt)
+    + Update the long description to update the list of output formats
+
+ -- Steve McIntyre <93sam@debian.org>  Thu, 08 Mar 2018 14:06:40 +0000
+
+abcde (2.8.1-1) unstable; urgency=medium
+
+  * New upstream version with one last-minute bugfix:
+    +Fix silly error introduced in abcde-musicbrainz-tool when fixing bug
+     30. Thanks to Thomas Klausner for the bug/patch. Closes Issue 52:
+     https://abcde.einval.com/bugzilla/show_bug.cgi?id=52
+
+ -- Steve McIntyre <93sam@debian.org>  Wed, 18 Jan 2017 14:06:40 +0000
+
 abcde (2.8-1) unstable; urgency=medium
+
   * New upstream version with various improvements and bugfixes:
     + Make fdkaac the default for m4a encoding. Faac can still be selected
       for m4a encding via ~/.abcde.conf file but best not to :).
@@ -42,7 +162,7 @@ abcde (2.8-1) unstable; urgency=medium
   * Update debhelper compat level to 10, and tweak debian/rules to fix
     debhelper warnings.
 
- -- Steve McIntyre <93sam@debian.org>  Sat, 14 Jan 2016 17:16:20 +0000
+ -- Steve McIntyre <93sam@debian.org>  Sat, 14 Jan 2017 17:16:20 +0000
 
 abcde (2.7.2-1) unstable; urgency=medium
 
@@ -629,7 +749,7 @@ abcde (2.3.99-1) unstable; urgency=low
     parsed CDDB output.
   * Suggests mkcue, and erase old cdgrab info since sarge is out.
   * Changed cdparanoia-audio-tracks to use the status file to save the data.
-  * Added the possibility of using a singletrack flac file with an embedded
+  * Added the possibility of using a singletrack flac file with an embeded
     cuesheet as a source of tracks.
   * Added -z for easy and quick debug.
   * BATCH has been split into two options: BATCHNORM which allows, by using
@@ -748,7 +868,7 @@ abcde (2.2.4-1) unstable; urgency=low
   * DOSPLAYLIST was not included in the list of options.
   * Options passed to the encoder by using <-o ogg:"-b 192"> are now
     supported. One can modify the way abcde encodes just for the current CD.
-  * Unfortunately I forgot to add the starting number for tags in Ogg. For
+  * Unfortunatelly I forgot to add the starting number for tags in Ogg. For
     MP3 is a bit more difficult, since it needs changing the X/YY code.
   * Also, the order of the tags in metaflac is important for the utf8 names.
     Thanks to Frederik Juul Christiani (Closes: #297482)
@@ -913,7 +1033,7 @@ abcde (2.1.15-1) unstable; urgency=low
     cleaner, works faster and some not needed network operations are no
     longer performed when we are working with local CDDB repositories.
   * Added "-V" for extra verbosity (on slow networks the user might be waiting
-    and wondering is something is happening).
+    and wondering is somethins is happening).
   * Solved a bug with the non-interactive code.
 
  -- Jesus Climent <jesus.climent@hispalinux.es>  Mon, 16 Feb 2004 00:13:12 +0000
@@ -1079,7 +1199,7 @@ abcde (2.1.5-1) unstable; urgency=low
       should use the right variables for the HTTPGET command.
     + Tagging also use TRACKS and CDGENRE for MP3 files (kudos to Dirk
       Ruediger)
-    + FLAC encoding now uses dismp3 to encode remotely (kudos to Taylor and
+    + FLAC encoding now uses dismp3 to encode remotelly (kudos to Taylor and
       Kevin Cramer). HANDLE WITH CARE ;)
       Also FLAC now uses CDGENRE and CDYEAR for tagging.
   * Debian specific:

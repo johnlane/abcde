@@ -1,3 +1,7 @@
+abcde 2.9.1
+
+ * Merged Debian packaging files updates
+
 abcde 2.9
 
  * Add some documentation for the aged CD ripper dagrab. Thanks to 
@@ -9,7 +13,7 @@ abcde 2.9
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=53
    and also in the abcde mailing list:
    https://lists.einval.com/pipermail/abcde-users/2017-January/000232.html
- * Allow for embedding of  album art downloaded by the getalbumart fuction. 
+ * Allow for embedding of  album art downloaded by the getalbumart function. 
    Currently this is available for flac (using metaflac), mp3 (using eyed3),
     m4a (using AtomicParsley) and WavPack aka wv (using wvtag).
     This can be invoked in 3 ways:
