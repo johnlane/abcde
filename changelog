@@ -1,6 +1,11 @@
 abcde 2.9.1
 
  * Merged Debian packaging files updates
+ * Fixups in the new Musicbrainz code:
+   + Cope with not finding an entry for a CD!
+   + Fix (again!) dealing with CDs with no release events
+
+ -- Steve McIntyre <93sam@debian.org>  Fri, 09 Mar 2018 23:01:04 +0000
 
 abcde 2.9
 
