@@ -2688,7 +2688,7 @@ do_musicbrainz_read ()
 		# Check for no matches.
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
-		NUM_RESPONSES=$(ls -1 "${SOURCE_WORKDIR}/cddbread.*" 2>/dev/null | wc -l)
+		NUM_RESPONSES=$(ls -1 "${SOURCE_WORKDIR}"/cddbread.* 2>/dev/null | wc -l)
 		if [ "$NUM_RESPONSES" -gt 0 ] ; then
 			# One or more exact matches
 			i=1
@@ -2852,7 +2852,7 @@ do_cddb_read ()
 			# Need to re-count the entries here to be able
 			# to incrememnt $NUM_CDDB_MATCHES in the
 			# parent
-			NUM_RESPONSES=$(ls -1 "${SOURCE_WORKDIR}/datasource.*" 2>/dev/null | wc -l)
+			NUM_RESPONSES=$(ls -1 "${SOURCE_WORKDIR}"/datasource.* 2>/dev/null | wc -l)
 			NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + $NUM_RESPONSES))
 			vecho "done."
 			;;
