@@ -116,12 +116,12 @@ if ($command =~ m/^id/) {
             $va = 1;
         }
 
-        my @release_events = @{ $release->{'release-events'} };
-
-        if (@release_events > 0) {
-            $rel_year =  substr(@release_events[0]->{'date'},0,4);
-        }
-
+	if ($release->{'release-events'}) {
+	    my @release_events = @{ $release->{'release-events'} };
+	    if (@release_events > 0) {
+		$rel_year =  substr(@release_events[0]->{'date'},0,4);
+	    }
+	}
         $releasenum++;
         open (OUT, "> $workdir/cddbread.$releasenum");
         binmode OUT, ":utf8";
