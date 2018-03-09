@@ -89,6 +89,12 @@ if ($command =~ m/^id/) {
 	discid => $discid,
 	inc => ['artists', 'artist-credits', 'recordings']
         });
+
+    if ($response->{'error'}) {
+	print STDERR "MusicBrainz lookup returned an error \"$response->{'error'}\"\n";
+	exit(0);
+    }
+
     my @releases = @{ $response->{'releases'} };
     my $releasenum = $start;
     my @sums;
