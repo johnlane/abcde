@@ -95,128 +95,208 @@ if ($command =~ m/^id/) {
 	exit(0);
     }
 
-    my @releases = @{ $response->{'releases'} };
     my $releasenum = $start;
     my @sums;
 
-    foreach my $release (@releases) {
-        my $a_artist = "";
-        my $number_artists = @{ $release->{'artist-credit'}};
-        if ($number_artists > 0) {
-            for (my $i = 0; $i < $number_artists; $i++) {
-                if ($i > 0) {
-                    $a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i-1]->{'joinphrase'};
-                }
-                $a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i]->{'name'};
-            }
-        }
-        my $va = 0;
-        my $rel_year = "";
-        if ($a_artist =~ /Various Artists/) {
-            $va = 1;
-        }
+    if ($response->{'releases'}) {
+	my @releases = @{ $response->{'releases'} };
+	foreach my $release (@releases) {
+	    my $a_artist = "";
+	    my $number_artists = @{ $release->{'artist-credit'}};
+	    if ($number_artists > 0) {
+		for (my $i = 0; $i < $number_artists; $i++) {
+		    if ($i > 0) {
+			$a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i-1]->{'joinphrase'};
+		    }
+		    $a_artist = $a_artist . @{ $release->{'artist-credit'} }[$i]->{'name'};
+		}
+	    }
+	    my $va = 0;
+	    my $rel_year = "";
+	    if ($a_artist =~ /Various Artists/) {
+		$va = 1;
+	    }
 
-	if ($release->{'release-events'}) {
-	    my @release_events = @{ $release->{'release-events'} };
-	    if (@release_events > 0) {
-		$rel_year =  substr(@release_events[0]->{'date'},0,4);
+	    if ($release->{'release-events'}) {
+		my @release_events = @{ $release->{'release-events'} };
+		if (@release_events > 0) {
+		    $rel_year =  substr(@release_events[0]->{'date'},0,4);
+		}
+	    }
+	    $releasenum++;
+	    open (OUT, "> $workdir/cddbread.$releasenum");
+	    binmode OUT, ":utf8";
+	    print OUT "# xmcd style database file\n";
+	    print OUT "#\n";
+	    print OUT "# Track frame offsets:\n";
+
+	    my @offsets = @{ $response->{'offsets'}};
+	    foreach my $offset (@offsets) {
+		printf OUT "#       %d\n", $offset;
+	    }
+
+	    # Locate the media that contains a disc with the discid we requested
+	    # initially. The API may return multiple media associated with the
+	    # release, including media with different discids
+	    my @mediums = grep {
+		my @disks = @{ $_->{'discs'} };
+		grep { $_->{'id'} eq $discid } @disks;
+	    } @{ $release->{'media'} };
+
+	    if (not @mediums) {
+		# This release doesn't have a media with our requested dicsid
+		# Shouldn't happen (?), skip it
+		next;
+	    }
+
+	    # Only consider the first medium
+	    my $medium = @mediums[0];
+	    my @tracks = @{ $medium->{'tracks'} };
+
+	    my $total_len = 0;
+	    for (my $i = 0; $i < scalar(@tracks); $i++) {
+		my $track = $tracks[$i];
+		$total_len += $track->{'length'};
+	    }
+
+	    print OUT "#\n";
+	    printf OUT "# Disc length: %d seconds\n", $total_len / 1000.0;
+	    print OUT "#\n";
+	    print OUT "# Submitted via: XXXXXX\n";
+	    print OUT "#\n";
+	    print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
+	    print OUT "#CATEGORY=none\n";
+	    print OUT "DISCID=" . $discid . "\n";
+	    print OUT "DTITLE=" . $a_artist. " / " . $release->{'title'} . "\n";
+	    print OUT "DYEAR=" . $rel_year . "\n";
+	    print OUT "DGENRE=\n";        
+
+	    for (my $i = 0; $i < scalar(@tracks); $i++) {
+		my $track = $tracks[$i];
+		my $t_name = $track->{'title'};
+		my $number_artists = @{$track->{'recording'}->{'artist-credit'}};
+		if ($va and $number_artists > 0) {
+		    my $t_artist = "";
+		    for (my $j = 0; $j < $number_artists; $j++) {
+			if ($j > 0) {
+			    $t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j-1]->{'joinphrase'};
+			}
+			$t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j]->{'name'};
+		    }
+		    printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
+		} else {
+		    printf OUT "TTITLE%d=%s\n", $i, $t_name;
+		}
+	    }
+
+	    print OUT "EXTD=\n";
+	    for (my $i = 0; $i < scalar(@tracks); $i++) {
+		printf OUT "EXTT%d=\n", $i;
+	    }
+	    print OUT "PLAYORDER=\n";
+	    print OUT ".\n";
+	    close OUT;
+
+	    # save release mbid
+	    open (OUT, "> $workdir/mbid.$releasenum");
+	    print OUT $release->{'id'};
+	    close OUT;
+
+	    # save release asin
+	    open (OUT, "> $workdir/asin.$releasenum");
+	    print OUT $release->{'asin'};
+	    close OUT;
+
+	    # Check to see that this entry is unique; generate a checksum
+	    # and compare to any previous checksums
+	    my $checksum = calc_sha1("$workdir/cddbread.$releasenum");
+	    foreach my $sum (@sums) {
+		if ($checksum eq $sum) {
+		    unlink("$workdir/cddbread.$releasenum");
+		    $releasenum--;
+		    last;
+		}
+	    }
+	    push (@sums, $checksum);
+	}
+    } else {
+	# No release events found - looks like we have a stub
+	# entry. We can parse it, but it's going to be very
+	# different.
+	print STDERR "MusicBrainz lookup only returned a stub, trying to cope\n";
+	
+	my $va = 0;
+	my $a_artist = "";
+	my $a_title = "";
+	my $rel_year = "";
+
+	if ($response->{'artist'}) {
+	    $a_artist = $response->{'artist'};
+	}
+	if ($response->{'title'}) {
+	    $a_title = $response->{'title'};
+	}
+	if ($a_artist =~ /Various Artists/) {
+	    $va = 1;
+	}
+
+	$releasenum++;
+	open (OUT, "> $workdir/cddbread.$releasenum");
+	binmode OUT, ":utf8";
+	print OUT "# xmcd style database file\n";
+	print OUT "#\n";
+	print OUT "# Musicbrainz stub entry - check carefully!\n";
+	print OUT "#\n";
+
+	my @tracks = @{ $response->{'tracks'} };
+
+	my $total_len = 0;
+	for (my $i = 0; $i < scalar(@tracks); $i++) {
+	    my $track = $tracks[$i];
+	    $total_len += $track->{'length'};
+	}
+
+	printf OUT "# Disc length: %d seconds\n", $total_len / 1000.0;
+	print OUT "#\n";
+	print OUT "# Submitted via: XXXXXX\n";
+	print OUT "#\n";
+	print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
+	print OUT "#CATEGORY=none\n";
+	print OUT "DISCID=" . $discid . "\n";
+	print OUT "DTITLE=" . $a_artist. " / " . $a_title . "\n";
+	print OUT "DYEAR=" . $rel_year . "\n";
+	print OUT "DGENRE=\n";        
+
+	for (my $i = 0; $i < scalar(@tracks); $i++) {
+	    my $track = $tracks[$i];
+	    my $t_name = $track->{'title'};
+	    if ($va) {
+		my $t_artist = $track->{'artist'};
+		printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
+	    } else {
+		printf OUT "TTITLE%d=%s\n", $i, $t_name;
 	    }
 	}
-        $releasenum++;
-        open (OUT, "> $workdir/cddbread.$releasenum");
-        binmode OUT, ":utf8";
-        print OUT "# xmcd style database file\n";
-        print OUT "#\n";
-        print OUT "# Track frame offsets:\n";
 
-        my @offsets = @{ $response->{'offsets'}};
-        foreach my $offset (@offsets) {
-            printf OUT "#       %d\n", $offset;
-        }
+	print OUT "EXTD=\n";
+	for (my $i = 0; $i < scalar(@tracks); $i++) {
+	    printf OUT "EXTT%d=\n", $i;
+	}
+	print OUT "PLAYORDER=\n";
+	print OUT ".\n";
+	close OUT;
 
-        # Locate the media that contains a disc with the discid we requested
-        # initially. The API may return multiple media associated with the
-        # release, including media with different discids
-        my @mediums = grep {
-            my @disks = @{ $_->{'discs'} };
-            grep { $_->{'id'} eq $discid } @disks;
-        } @{ $release->{'media'} };
-
-        if (not @mediums) {
-            # This release doesn't have a media with our requested dicsid
-            # Shouldn't happen (?), skip it
-            next;
-        }
-
-        # Only consider the first medium
-        my $medium = @mediums[0];
-        my @tracks = @{ $medium->{'tracks'} };
-
-        my $total_len = 0;
-        for (my $i = 0; $i < scalar(@tracks); $i++) {
-            my $track = $tracks[$i];
-            $total_len += $track->{'length'};
-        }
-
-        print OUT "#\n";
-        printf OUT "# Disc length: %d seconds\n", $total_len / 1000.0;
-        print OUT "#\n";
-        print OUT "# Submitted via: XXXXXX\n";
-        print OUT "#\n";
-        print OUT "#blues,classical,country,data,folk,jazz,newage,reggae,rock,soundtrack,misc\n";
-        print OUT "#CATEGORY=none\n";
-        print OUT "DISCID=" . $discid . "\n";
-        print OUT "DTITLE=" . $a_artist. " / " . $release->{'title'} . "\n";
-        print OUT "DYEAR=" . $rel_year . "\n";
-        print OUT "DGENRE=\n";        
-
-        for (my $i = 0; $i < scalar(@tracks); $i++) {
-            my $track = $tracks[$i];
-            my $t_name = $track->{'title'};
-            my $number_artists = @{$track->{'recording'}->{'artist-credit'}};
-            if ($va and $number_artists > 0) {
-                my $t_artist = "";
-                for (my $j = 0; $j < $number_artists; $j++) {
-                    if ($j > 0) {
-                        $t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j-1]->{'joinphrase'};
-                    }
-                    $t_artist = $t_artist . @{$track->{'recording'}->{'artist-credit'}}[$j]->{'name'};
-                }
-                printf OUT "TTITLE%d=%s / %s\n", $i, $t_artist, $t_name;
-            } else {
-                printf OUT "TTITLE%d=%s\n", $i, $t_name;
-            }
-        }
-
-        print OUT "EXTD=\n";
-        for (my $i = 0; $i < scalar(@tracks); $i++) {
-            printf OUT "EXTT%d=\n", $i;
-        }
-        print OUT "PLAYORDER=\n";
-        print OUT ".\n";
-        close OUT;
-
-        # save release mbid
-        open (OUT, "> $workdir/mbid.$releasenum");
-        print OUT $release->{'id'};
-        close OUT;
-
-        # save release asin
-        open (OUT, "> $workdir/asin.$releasenum");
-        print OUT $release->{'asin'};
-        close OUT;
-
-        # Check to see that this entry is unique; generate a checksum
-        # and compare to any previous checksums
-        my $checksum = calc_sha1("$workdir/cddbread.$releasenum");
-        foreach my $sum (@sums) {
-            if ($checksum eq $sum) {
-                unlink("$workdir/cddbread.$releasenum");
-                $releasenum--;
-                last;
-            }
-        }
-        push (@sums, $checksum);
+	# Check to see that this entry is unique; generate a checksum
+	# and compare to any previous checksums
+	my $checksum = calc_sha1("$workdir/cddbread.$releasenum");
+	foreach my $sum (@sums) {
+	    if ($checksum eq $sum) {
+		unlink("$workdir/cddbread.$releasenum");
+		$releasenum--;
+		last;
+	    }
+	}
+	push (@sums, $checksum);
     }
 } elsif ($command =~ m/calcid/) {
     # Calculate MusicBrainz ID from disc offsets; see
