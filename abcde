@@ -463,9 +463,9 @@ gettracknum()
 	if [ -n "$STARTTRACKNUMBER" ] ; then
 		# Get the trackpadding from the current track, also trim whitespace for MacOSX
 		CURRENTTRACKPADDING=$(echo -n "$UTRACKNUM" | wc -c | tr -d ' ')
-		TRACKNUM=$( printf %0."${CURRENTTRACKPADDING}"d $(("${UTRACKNUM}" + "${STARTTRACKNUMBER}" - "${FIRSTTRACK}")))
+		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $((${UTRACKNUM} + ${STARTTRACKNUMBER} - ${FIRSTTRACK})))
 	else
-		TRACKNUM="${UTRACKNUM}"
+		TRACKNUM=${UTRACKNUM}
 	fi
 }
 
@@ -566,7 +566,7 @@ do_replaygain()
 			REPLAYINDEX=0
 			for UTRACKNUM in $TRACKQUEUE
 			do
-				CDDBTRACKNUM=$(expr "$UTRACKNUM" - 1) # Unpad
+				CDDBTRACKNUM=$(expr $UTRACKNUM - 1) # Unpad
 				getcddbinfo TRACKNAME
 				splitvarious
 				TRACKFILE="$(mungetrackname "$TRACKNAME")"
@@ -1878,7 +1878,6 @@ do_playlist ()
 		## (some hardware players insist on CRLF endings)
 		if [ "$DOSPLAYLIST" = "y" ]; then
 			awk '{sub("\r$",""); printf "%s\r\n", $0}' "$OUTPUTDIR/$PLAYLISTFILE" > "${ABCDETEMPDIR}/PLAYLISTFILE.tmp"
-#			mv -f "${ABCDETEMPDIR}/PLAYLISTFILE.tmp" "$OUTPUTDIR/$PLAYLISTFILE"
 			cat "${ABCDETEMPDIR}/PLAYLISTFILE.tmp" | sed 's/\//\\/' > "$OUTPUTDIR/$PLAYLISTFILE"
 		fi
 		echo "playlistcomplete" >> "${ABCDETEMPDIR}/status"
@@ -1896,8 +1895,8 @@ abcde.cue2discid () {
 		val=$1
 		ret=0
 		while [ "$val" -gt 0 ] ; do
-			ret=$(( "$ret" + ( "$val" % 10) ))
-			val=$(( "$val" / 10 ))
+			ret=$(( $ret + ( $val % 10) ))
+			val=$(( $val / 10 ))
 		done
 		echo "$ret"
 	}
@@ -1905,14 +1904,14 @@ abcde.cue2discid () {
 	msf2lba () {
 		OIFS="$IFS"
 		IFS=":"
-		set -- "$1"
+		set -- $1
 		IFS="$OIFS"
 		local first second third
 		first=$(( $1 + 0 ))
 		second=$(( $2 + 0 ))
 		third=$(( $3 + 0 ))
 
-		echo $(( ((("$first" * 60) + "$second") * 75) + "$third" ))
+		echo $(( ((($first * 60) + $second) * 75) + $third ))
 	}
 
 	OFFSET=150
@@ -1923,26 +1922,30 @@ abcde.cue2discid () {
 	N=0
 
 	while read line ; do
-		set -- "$line"
+		set -- $line
 		case "$1" in
-		TRACK)	i=$(( i + 1 ))
+		TRACK)
+			i=$(( i + 1 ))
 			;;
-		INDEX)	if [ "$2" -eq 1 ] ; then
-				LBA=$(msf2lba "$3")
-				START=$(( "$LBA" + "$PREGAP" + "$OFFSET" ))
+		INDEX)
+			if [ "$2" -eq 1 ] ; then
+				LBA=$(msf2lba $3)
+				START=$(( $LBA + $PREGAP + $OFFSET ))
 				eval TRACK$i=$START
-				X=$(cddb_sum $(( "$START" / 75 )) )
-				N=$(( "$N" + "$X" ))
+				X=$(cddb_sum $(( $START / 75 )) )
+				N=$(( $N + $X ))
 			fi
 			;;
-		PREGAP)	PREGAP=$(msf2lba "$2")
+		PREGAP)
+			PREGAP=$(msf2lba $2)
 			;;
-		REM)	case "$2" in
+		REM)
+			case "$2" in
 			FLAC__lead-out)
-				LEADOUT=$(( "$4" / 588 ))
+				LEADOUT=$(( $4 / 588 ))
 				;;
 			FLAC__lead-in)
-				LEADIN=$(( "$3" / 588 ))
+				LEADIN=$(( $3 / 588 ))
 				;;
 			esac
 			;;
@@ -1951,18 +1954,18 @@ abcde.cue2discid () {
 	done
 
 	TRACKS=$i
-	LEADOUT=$(( "$LEADOUT" + "$LEADIN" ))
+	LEADOUT=$(( $LEADOUT + $LEADIN ))
 
-	LENGTH=$(( "$LEADOUT"/75 - "$TRACK1"/75 ))
-	CDDBDISCID=$(( ( "$N" % 255 ) * 2**24 | "$LENGTH" * 2**8 | "$TRACKS" ))
-	printf "%08x %i" "${CDDBDISCID}" "$TRACKS"
+	LENGTH=$(( $LEADOUT/75 - $TRACK1/75 ))
+	CDDBDISCID=$(( ( $N % 255 ) * 2**24 | $LENGTH * 2**8 | $TRACKS ))
+	printf %08x %i ${CDDBDISCID} $TRACKS
 
 	j=1
-	while [ $j -le "$TRACKS" ] ; do
+	while [ $j -le $TRACKS ] ; do
 		eval echo -n "\" \$TRACK$j\""
 		j=$(( $j + 1))
 	done
-	echo " $(( $LEADOUT / 75 ))"
+	echo  $(( $LEADOUT / 75 ))
 }
 
 # abcde.mkcue
@@ -1997,7 +2000,7 @@ abcde.mkcue () {
 	local i OFFSET LBA
 	local CUEWAVFILE
 
-	if [ "$1" = --wholedisk ] ; then
+	if [ "$1" = "--wholedisk" ] ; then
 		MODE=INDEX
 	else
 		MODE=PREGAP
@@ -2018,19 +2021,19 @@ abcde.mkcue () {
 		CUEWAVFILE="dummy.wav"
 	fi
 
-	set -- "$CDDBTRACKINFO"
+	set -- $CDDBTRACKINFO
 
-	DISCID="$1"
-	TRACKS="$2"
+	DISCID=$1
+	TRACKS=$2
 	shift 2
 
 	echo "REM DISCID $DISCID"
 	echo FILE \""$CUEWAVFILE"\" WAVE
 
-	if [ "$1" -ne 150 ] && [ "$MODE" = "PREGAP" ] ; then
-		OFFSET="$1"
+	if [ $1 -ne 150 ] && [ $MODE = "PREGAP" ] ; then
+		OFFSET=$1
 	else
-		OFFSET="150"
+		OFFSET=150
 	fi
 
 	i=1
@@ -2076,10 +2079,9 @@ do_discid ()
 							OFFSETTIMES=( $(echo "$CUESHEET" | sed -n -e's/\ *INDEX 01\ \+//p' ) )
 							TRACKS=${#OFFSETTIMES[@]}
 							unset OFFSETS
-							#echo "processing offsetimes ${OFFSETTIMES[@]}"
+							vecho "processing offsetimes ${OFFSETTIMES[@]}"
 							for OFFSETTIME in ${OFFSETTIMES[@]}; do
 								OFFSETS="$OFFSETS $(( 10#${OFFSETTIME:0:2} * 4500 + 10#${OFFSETTIME:3:2} * 75 + 10#${OFFSETTIME:6:2} ))"
-								#OFFSETS[${#OFFSETS[*]}]=$(( 10#${OFFSETTIME:0:2} * 4500 + 10#${OFFSETTIME:3:2} * 75 + 10#${OFFSETTIME:6:2} ))
 							done
 
 							LEADOUT=$(( $(echo "$CUESHEET" | grep lead-out | get_last) * 75 / 44100 ))
@@ -2166,7 +2168,7 @@ do_discid ()
 		TRACKNUMPADDING=2
 	fi
 
-	ABCDETEMPDIR="$WAVOUTPUTDIR/abcde.$(echo "$CDDBTRACKINFO" | cut -f1 -d' ')"
+	ABCDETEMPDIR="$WAVOUTPUTDIR/abcde.${CDDBDISCID}"
 	if [ -z "$TRACKQUEUE" ]; then
 		if [ ! "$STRIPDATATRACKS" = "n" ]; then
 			case "$CDROMREADERSYNTAX" in
@@ -2202,14 +2204,14 @@ do_discid ()
 		fi
 		echo -n "Grabbing entire CD - tracks: "
 		if [ ! "$PADTRACKS" = "y" ] ; then
-			TRACKNUMPADDING=$(echo -n "$TRACKS" | wc -c | tr -d ' ')
+			TRACKNUMPADDING=$(echo -n $TRACKS | wc -c | tr -d ' ')
 		fi
 
 		TRACKS=$(printf "%0.${TRACKNUMPADDING}d" $TRACKS)
-		X=0
-		while [ "$X" -ne "$TRACKS" ]
+		X=1
+		while [ $X -le $TRACKS ]
 		do
-			PT=$(printf "%0.${TRACKNUMPADDING}d" $(($X + 1)))
+			PT=$(printf "%0.${TRACKNUMPADDING}d" $X)
 			TRACKQUEUE="$TRACKQUEUE $PT"
 			X=$(($X + 1))
 		done
@@ -2225,9 +2227,9 @@ do_discid ()
 			TRACKNUMPADDING=$(echo -n "$LASTTRACK" | wc -c | tr -d ' ')
 		fi
 		# Now we normalize the trackqueue
-		for TRACK in $TRACKQUEUE ; do
-			TRACKNUM=$(printf "%0.${TRACKNUMPADDING}d" $(($TRACK + 0)))
-			PADTRACKQUEUE="$PADTRACKQUEUE $TRACKNUM"
+		for TRACK in $TRACKQUEUE; do
+			PADTRACKNUM=$(printf "%0.${TRACKNUMPADDING}d" $(expr ${TRACK} + 0 ))
+			PADTRACKQUEUE="$PADTRACKQUEUE $PADTRACKNUM"
 		done
 		TRACKQUEUE="$PADTRACKQUEUE"
 		echo Grabbing tracks: "$TRACKQUEUE"
@@ -2338,7 +2340,7 @@ do_discid ()
 					else
 						log warning "reading the CUE sheet is still considered experimental"
 						log warning "and there was a problem with the CD reading. abcde will continue,"
-						log warning "but consider reporting the problem to the abcde author"
+						log warning "but consider reporting the problem to the abcde authors"
 					fi
 					;;
 			esac
@@ -2692,10 +2694,10 @@ do_musicbrainz_read ()
 		# The helper script will write disc matches out to
 		# cddbread.*. Count how many we have
 		NUM_RESPONSES=$(ls -1 "${SOURCE_WORKDIR}"/cddbread.* 2>/dev/null | wc -l)
-		if [ "$NUM_RESPONSES" -gt 0 ] ; then
+		if [ $NUM_RESPONSES -gt 0 ] ; then
 			# One or more exact matches
 			i=1
-			while [ $i -le "$NUM_RESPONSES" ]; do
+			while [ $i -le $NUM_RESPONSES ]; do
 				NUM_CDDB_MATCHES=$(($NUM_CDDB_MATCHES + 1))
 				i=$(($i + 1))
 				echo cddb-read-${NUM_CDDB_MATCHES}-complete >> "${ABCDETEMPDIR}/status"
@@ -3506,7 +3508,7 @@ do_cdread ()
 		# the user said
 		# We need the first and last track for cdda2wav/icedax
 		FIRSTTRACK=$2
-		LASTTRACK=$(expr $3 + 0)
+		LASTTRACK=$(expr $3 + 0) # Unpad
 		UTRACKNUM=$FIRSTTRACK
 		case "$CDROMREADERSYNTAX" in
 			flac) READTRACKNUMS="-" ;;
