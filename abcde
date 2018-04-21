@@ -2646,12 +2646,15 @@ do_cdtext_read ()
 		echo "CD-Text" > "${SOURCE_WORKDIR}/datasource.${NUM_CDDB_MATCHES}"
 		echo "none ${CDDBDISCID} ${ATITLE}" >> "${SOURCE_WORKDIR}/cddbquery.${NUM_CDDB_MATCHES}"
 
-		( cd "${SOURCE_WORKDIR}" && rm -f audio_* audio.* )
-		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
-			if [ -f "$file" ]; then
-				cp "$file" "${ABCDETEMPDIR}"
-			fi
-		done
+		(
+			cd "${SOURCE_WORKDIR}"
+			rm -f audio_* audio.*
+			for file in cddbread.* cddbquery.* datasource.*; do
+				if [ -f "$file" ]; then
+					cp "$file" "${ABCDETEMPDIR}"
+				fi
+			done
+		)
 		echo "cdtext-readcomplete" >> "${ABCDETEMPDIR}/status"
 		echo "cdtext-entries=1" >> "${ABCDETEMPDIR}/status"
 	fi
@@ -2863,11 +2866,14 @@ do_cddb_read ()
 			echo "cddb-read-${NUM_CDDB_MATCHES}-complete" >> "${ABCDETEMPDIR}/status"
 			;;
 		esac
-		for file in ${SOURCE_WORKDIR}/cddbread.* ${SOURCE_WORKDIR}/cddbquery.* ${SOURCE_WORKDIR}/datasource.*; do
-			if [ -f "$file" ]; then
-				cp "$file" "${ABCDETEMPDIR}"
-			fi
-		done
+		(
+			cd "${SOURCE_WORKDIR}"
+			for file in cddbread.* cddbquery.* datasource.*; do
+				if [ -f "$file" ]; then
+					cp "$file" "${ABCDETEMPDIR}"
+				fi
+			done
+		)
 		echo "cddb-readcomplete" >> "${ABCDETEMPDIR}/status"
 		echo "cddb-entries=$NUM_RESPONSES" >> "${ABCDETEMPDIR}/status"
 	fi

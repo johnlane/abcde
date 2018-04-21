@@ -1,6 +1,6 @@
 abcde 2.9.2
 
- * 
+ * Fix up lookup code to deal with spaces etc. in directory names
 
 abcde 2.9.1
 
