@@ -4,6 +4,8 @@ abcde 2.9.2
  * Always call glyrc with LC_ALL=C. Thanks to Andreas Vögele for the
    report and the suggested fix. Closes Issue 83:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
+ * Add a link to the CDDB data format in the abcde man page. Closes
+   Issue 81: https://abcde.einval.com/bugzilla/show_bug.cgi?id=81
 
 abcde 2.9.1
 
