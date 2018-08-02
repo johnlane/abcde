@@ -463,7 +463,8 @@ gettracknum()
 	if [ -n "$STARTTRACKNUMBER" ] ; then
 		# Get the trackpadding from the current track, also trim whitespace for MacOSX
 		CURRENTTRACKPADDING=$(echo -n "$UTRACKNUM" | wc -c | tr -d ' ')
-		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $((${UTRACKNUM} + ${STARTTRACKNUMBER} - ${FIRSTTRACK})))
+		REALTRACKNUM=$(expr $UTRACKNUM + 0) # Unpad
+		TRACKNUM=$( printf %0.${CURRENTTRACKPADDING}d $((${REALTRACKNUM} + ${STARTTRACKNUMBER} - ${FIRSTTRACK})))
 	else
 		TRACKNUM=${UTRACKNUM}
 	fi
