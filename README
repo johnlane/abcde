@@ -26,7 +26,7 @@ MAJOR CHANGES
 =============
 
 Changes in 2.9
-* Allow for embedding of  album art downloaded by the getalbumart fuction
+* Allow for embedding of album art downloaded by the getalbumart fuction
 * Add support for another output encoding: Audio Interchange File Format (AIFF)
 * Reworked CD lookup code to fully support using all of CDDB,
   Musicbrainz and CD-Text
