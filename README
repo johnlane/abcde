@@ -25,6 +25,12 @@ for more help.
 MAJOR CHANGES
 =============
 
+Changes in 2.9.2
+* More fixes to Musicbrainz code
+
+Changes in 2.9.1
+* Fixes in Musicbrainz code
+
 Changes in 2.9
 * Allow for embedding of album art downloaded by the getalbumart fuction
 * Add support for another output encoding: Audio Interchange File Format (AIFF)

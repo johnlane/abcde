@@ -10,6 +10,8 @@ abcde 2.9.2
  * More fixups of track number padding. Thanks to John Straw for the
    patch.
 
+ -- Steve McIntyre <93sam@debian.org>  Thu, 02 Aug 2018 23:07:12 +0800
+
 abcde 2.9.1
 
  * Merged Debian packaging files updates
