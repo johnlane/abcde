@@ -1,6 +1,7 @@
 abcde 2.9.2
 
  * Fix up lookup code to deal with spaces etc. in directory names
+ * Cope with "stub" releases in Musicbrainz
  * Always call glyrc with LC_ALL=C. Thanks to Andreas Vögele for the
    report and the suggested fix. Closes Issue 83:
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
