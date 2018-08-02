@@ -3252,7 +3252,7 @@ do_getalbumart()
 		# use glyrc
 		if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
 			vecho "trying to get cover with glyrc for $ARTISTFILE / $ALBUMFILE" >&2
-			$GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "${ABCDETEMPDIR}/$ALBUMARTFILE" $GLYRCOPTS
+			env LC_ALL=C $GLYRC cover --artist "$ARTISTFILE" --album "$ALBUMFILE" --write "${ABCDETEMPDIR}/$ALBUMARTFILE" $GLYRCOPTS
 			if [ $? -ne 0 ]; then
 				vecho "could not download cover with glyrc" >&2
 			else
