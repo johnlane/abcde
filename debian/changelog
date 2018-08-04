@@ -1,3 +1,29 @@
+abcde (2.9.2-1) unstable; urgency=medium
+
+  * New upstream version with fixes since the 2.9.1 release:
+    + Fix up lookup code to deal with spaces etc. in directory names
+    + Cope with "stub" releases in Musicbrainz
+    + Always call glyrc with LC_ALL=C. Thanks to Andreas Vögele for the
+      report and the suggested fix. Closes Issue 83:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=50
+    + Add a link to the CDDB data format in the abcde man page. Closes
+      Issue 81: https://abcde.einval.com/bugzilla/show_bug.cgi?id=81
+    + More fixups of track number padding. Thanks to John Straw for the
+      patch.
+  * Updates also fix various Debian bugs. Closes: #905124, #893892, #898046
+  * Add a Depends on sensible-utils
+
+ -- Steve McIntyre <93sam@debian.org>  Thu, 02 Aug 2018 23:34:06 +0800
+
+abcde (2.9.1-1) unstable; urgency=medium
+
+  * New upstream version with fixes since the 2.9 release:
+    + Fixups in the new Musicbrainz code:
+      - Cope with not finding an entry for a CD! (Closes: #892480)
+      - Fix (again!) dealing with CDs with no release events
+
+ -- Steve McIntyre <93sam@debian.org>  Fri, 09 Mar 2018 23:25:03 +0000
+
 abcde (2.9-1) unstable; urgency=medium
 
   * New upstream version with various improvements and bugfixes:
