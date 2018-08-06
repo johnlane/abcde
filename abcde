@@ -2110,7 +2110,7 @@ do_discid ()
 				CDPARANOIAAUDIOTRACKS="$TRACKS"
 
 				LEADOUT="$(echo "$CDPARANOIAOUTPUT" | grep -Eo '^TOTAL[[:space:]]+([[:digit:]]+)' | get_last)"
-				OFFSETS="$(echo "$CDPARANOIAOUTPUT" | sed -n -e's/^ .* \([0-9]\+\) \[.*/\1/p')"
+				OFFSETS="$(echo "$CDPARANOIAOUTPUT" | awk '/^ +.*\[/ {print $4}')"
 				makeids
 				;;
 			*)

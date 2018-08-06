@@ -1,5 +1,8 @@
 abcde 2.9.3-DEV
 
+ * Replace non-portable sed code for generating offset list with some
+   simple awk instead. Should now work on FreeBSD again.
+
 abcde 2.9.2
 
  * Fix up lookup code to deal with spaces etc. in directory names
