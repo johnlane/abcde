@@ -2,6 +2,9 @@ abcde 2.9.3-DEV
 
  * Replace non-portable sed code for generating offset list with some
    simple awk instead. Should now work on FreeBSD again.
+ * Deal with bizarre cdda2wav behaviour when doing cdtext lookup - it
+   writes the track information to *stdin*. Closes Issue #89:
+   https://abcde.einval.com/bugzilla/show_bug.cgi?id=89
 
 abcde 2.9.2
 

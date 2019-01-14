@@ -2617,7 +2617,10 @@ do_cdtext_read ()
 		# Do we have CD-Text on the disc (and can the drive read it?)
 		(
 			cd "${SOURCE_WORKDIR}" && rm -f audio.* audio_*
-			${CDTEXT_READER} -J -v titles -D "${CDDA2WAVCDROM}" > "${SOURCE_WORKDIR}/cd-text" 2>&1
+			# Even redirect fd 0 to our output file. It seems cdda2wav
+			# writes to stdin too these days. Bizarre, buggy
+			# behaviour! Should be harmless for icedax.
+			${CDTEXT_READER} -J -v titles -D "${CDDA2WAVCDROM}" > "${SOURCE_WORKDIR}/cd-text" 2>&1 0>&1
 		)
 		grep -a -q '^CD-Text: detected' "${SOURCE_WORKDIR}/cd-text"
 		ERRORCODE=$?
