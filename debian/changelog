@@ -1,3 +1,17 @@
+abcde (2.9.3-1) unstable; urgency=medium
+
+  * New upstream version with fixes since the 2.9.2 release:
+    + Replace non-portable sed code for generating offset list with some
+      simple awk instead. Should now work on FreeBSD again.
+    + Deal with bizarre cdda2wav behaviour when doing cdtext lookup - it
+      writes the track information to *stdin*. Closes Issue #89:
+      https://abcde.einval.com/bugzilla/show_bug.cgi?id=89
+    + Add a warning in abcde.conf about mayb needing to install recode before
+      using it in mungefilename()
+  * Update Standards-Version
+
+ -- Steve McIntyre <93sam@debian.org>  Tue, 05 Feb 2019 09:57:06 +0000
+
 abcde (2.9.2-1) unstable; urgency=medium
 
   * New upstream version with fixes since the 2.9.1 release:

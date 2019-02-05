@@ -1,4 +1,4 @@
-abcde 2.9.3-DEV
+abcde 2.9.3
 
  * Replace non-portable sed code for generating offset list with some
    simple awk instead. Should now work on FreeBSD again.
@@ -7,6 +7,8 @@ abcde 2.9.3-DEV
    https://abcde.einval.com/bugzilla/show_bug.cgi?id=89
  * Add a warning in abcde.conf about mayb needing to install recode before
    using it in mungefilename()
+
+ -- Steve McIntyre <93sam@debian.org>  Tue, 05 Feb 2018 09:55:12 +0000
 
 abcde 2.9.2
 
