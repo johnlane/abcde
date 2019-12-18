@@ -1,3 +1,7 @@
+abcde 2.9.4-DEV
+
+ -- Steve McIntyre <93sam@debian.org>  XXXXX
+
 abcde 2.9.3
 
  * Replace non-portable sed code for generating offset list with some
