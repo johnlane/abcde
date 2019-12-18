@@ -3,22 +3,24 @@
 
 Q. Who created abcde? Who develops it nowadays?
 A. It was originally created by Robert Woodcook. He decided to give up
-   maintaining it at some point in 2002 and Jesus Climent took over. In 2012,
-   Colin Tuckley and Steve McIntyre joined in to help. During 2015-2016 Andrew
-   Strong helped out. Currently Steve maintains abcde. Contact Steve with
-   comments or suggestions at the following email address:
-      Steve McIntyre <93sam@@debian.org>
+   maintaining it at some point in 2002 and Jesus Climent took
+   over. In 2012, Colin Tuckley and Steve McIntyre joined in to
+   help. During 2015-2016 Andrew Strong helped out. Currently Steve
+   maintains abcde. You can contact Steve directly with comments or
+   suggestions at the following email address: Steve McIntyre
+   <93sam@@debian.org>. Or (and maybe better!) try the abcde-users
+   mailing list: abcde-users@lists.einval.com
 
 
 1. INSTALLATION
    ============
 
 Q. How can I install abcde on my system?
-A. To get abcde you can use a pre-packaged version, available for Debian,
-   FreeBSD, OpenBSD, NetBSD and others.
-   In case you want to install your own release, you need to download the
-   source and install the complementary programs (abcde is just a frontend
-   and its functionality is provided by other programs).
+A. To get abcde you can use a pre-packaged version, available for
+   Debian, Ubuntu, FreeBSD, OpenBSD, NetBSD and others.
+   In case you want to install your own release, you need to download
+   the source and install the complementary programs (abcde is just a
+   frontend and its functionality is provided by other programs).
 
    abcde needs cd-discid. Grab it from:
    http://www.hispalinux.es/~data/files/cd-discid/
@@ -197,6 +199,19 @@ A. abcde tries to use the system's default pager to display these results
 Q. I don't like CDDB/FreeDB. How can I use Musicbrainz instead?
 A. Set CDDBMETHOD=musicbrainz and try it!
 
+Q. Some of my CDs are on FreeDB, but others are only on
+   Musicbrainz. It's painful having to switch!
+
+A. Since version 2.9, you can specify multiple lookup methods in
+   CDDBMETHOD, abcde will use all of them, and display all the results
+   for you to choose your favourite. This even includes CD-TEXT. To
+   enable all the options, use
+
+   CDDBMETHOD="musicbrainz,cddb,cdtext" in abcde.conf, or
+
+   "-Q musicbrainz,cddb,cdtext"
+
+   on the command line
 
 4. abcde and Album Art
    ===================
@@ -336,8 +351,7 @@ A. Since MP3 is considered non-free (you get it for free, but hardware players
 
    If you are among those individuals, you might need to add support for MP3
    encoding to your system:
-   Debian : check http://ftp.nerim.net/debian-marillat to install lame in your
-            system. Others prefer bladeenc. Check www.apt-get.org or google.
+   Debian : By default includes LAME support.
    RedHat : search on rpmfind.net
    FreeBSD: By default includes LAME support.
    OpenBSD: Available by specifying you want to install the port with LAME
@@ -499,12 +513,12 @@ A. Sure! If you plan to use a ripper or encoder which is not supported you
   take a look at the lines below the one marked with "###USEPIPESSUPPORT###",
   the required syntax is reasonably clear.
 
-6. MISC PROBLEMS
-   =============
+6. MISC
+   ====
 
 Q. What happened with normalize?
 A. Normalize has changed its name under Debian, which is the GNU/Linux
-   distribution for developing abcde (well, is The GNU/Linux Distribution
+   distribution for developing abcde (well, is the GNU/Linux Distribution
    Steve uses, at the moment). Now it is called normalize-audio.
    If you are using some other flavour of OS, you need to change the name
    of the executable in your abcde.conf file.
@@ -522,6 +536,13 @@ Q. My hardware player (put it here) does not recognize the playlists created
    with abcde. What I am doing wrong?
 A. Try using "-m" when creating the playlists, or setting DOSPLAYLIST as an
    option in the config file.
+
+Q. What is the odd-looking progress indicator when ripping?
+A. cdparanoia is the default ripping program used by abcde on many
+   platforms, and it tries to give information about the ripping
+   quality as it runs. See the cdparanoia(1) man page for more
+   details, or look online at
+   https://www.xiph.org/paranoia/faq.html#progbar
 
 OBSOLETE
 --------

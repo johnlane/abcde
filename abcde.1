@@ -18,7 +18,7 @@ or AIFF (Audio Interchange File Format) format(s).
 With one command, it will:
 .TP
 .B *
-Do a CDDB or Musicbrainz query over the Internet to look up your CD or
+Do a CDDB and/or Musicbrainz query over the Internet to look up your CD or
 use a locally stored CDDB entry, or read CD-TEXT from your CD if it's available
 .TP
 .B *
@@ -126,7 +126,7 @@ correctly display track lengths when playing variable-bit-rate mp3 files.
 .TP
 .B \-G
 Download album art using the getalbumart function. This is best done with
-CDDBMETHOD including musicbrainz and requires the installation of glyrc.
+CDDBMETHOD including "musicbrainz", and requires the installation of glyrc.
 ImageMagick is an optional but highly recommended package. Further details
 of getalbumart can be found in the abcde FAQ document packaged with abcde.
 .TP
@@ -145,7 +145,7 @@ Keep the wav files after encoding.
 Use the low-diskspace algorithm. See the LOWDISK configuration variable.
 .TP
 .B \-L
-Use a local CDDB repository. See CDDBLOCALDIR variable.
+Use a local CDDB repository. See the CDDBLOCALDIR variable.
 .TP
 .B \-m
 Create DOS-style playlists, modifying the resulting one by adding CRLF line
@@ -714,11 +714,27 @@ ImageMagick package should be installed.
 .SH DATA FORMATS
 The CDDB metadata format is used a lot by abcde, both for lookups and
 internally. It's documented online at
-http://ftp.freedb.org/pub/freedb/latest/DBFORMAT
+\%http://ftp.freedb.org/pub/freedb/latest/DBFORMAT
+
+.SH FAQ
+
+.TP
+.B What is the odd-looking progress indicator when ripping?
+\fBcdparanoia\fR is the default ripping program used by abcde on many
+platforms, and it tries to give information about the ripping quality
+as it runs. See the
+.BR cdparanoia (1)
+man page for more details, or look online at
+\%https://www.xiph.org/paranoia/faq.html#progbar .
 
 .SH AUTHORS
-Robert Woodcock <rcw@debian.org>,
-Jesus Climent <jesus.climent@hispalinux.es>,
-Colin Tuckley <colint@debian.org>,
-Steve McIntyre <93sam@debian.org>,
-Andrew Strong <andrew.david.strong@gmail.com> and contributions from many others.
+The main authors and maintainers have been Robert Woodcock
+\%<rcw@debian.org>, Jesus Climent \%<jesus.climent@hispalinux.es>,
+Colin Tuckley \%<colint@debian.org>, Steve McIntyre
+\%<93sam@debian.org>, Andrew Strong \%<andrew.david.strong@gmail.com>,
+and there have been lots of contributions from many others over the
+years.
+
+If you're looking for help with abcde, the best place in the first
+instance is likely to be the mailing list:
+\%abcde-users@lists.einval.com.
