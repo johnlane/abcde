@@ -52,6 +52,7 @@ echo "-o <type1[,type2]...>"
 echo "       Output file type(s), comma separated"
 echo "       (vorbis,mp3,flac,spx,mpc,wav,m4a,opus,mka,wv,ape,mp2,tta,aiff)."
 echo "       Defaults to vorbis"
+echo "-O     Allow Override of album art lookup"
 echo "-p     Pad track numbers with 0's (if less than 10 tracks)"
 echo "-P     Use UNIX pipes to read+encode without wav files"
 echo "-Q     CD lookup method(s), comma separated"
@@ -3278,27 +3279,30 @@ do_getalbumart()
 				vecho "automatic album art downloading failed" >&2
 			fi
 			# see if the user can find a better album art manually
-			echo -n "Do you want to enter URL or local path for the album art [y/N]? " >&2
-			read YESNO
-			while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
-					  [ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
-			do
-				echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
+			if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ] || \
+				   [ "$OVERRIDEALBUMARTDOWNLOAD" = "y" ]; then
+				echo -n "Do you want to enter URL or local path for the album art [y/N]? " >&2
 				read YESNO
-			done
-			if [ "$YESNO" = "y" ] || [ "$YESNO" = "Y" ]; then
-				echo -n "Enter URL or local path (ENTER to cancel) :" >&2
-				read ALBUMARTURL
-				if [ ! -z "$ALBUMARTURL" ]; then
-					if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
-						$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
-						if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-							vecho "unable to download $ALBUMARTURL" >&2
-						fi
-					else # it's a local path
-						cp "$ALBUMARTURL" "${ABCDETEMPDIR}/$ALBUMARTFILE"
-						if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
-							vecho "unable to copy $ALBUMARTURL to ${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
+				while [ "$YESNO" != "y" ] && [ "$YESNO" != "n" ] && [ "$YESNO" != "Y" ] && \
+						  [ "$YESNO" != "N" ] && [ "$YESNO" != "" ]
+				do
+					echo -n 'Invalid selection. Please answer "y" or "n": ' >&2
+					read YESNO
+				done
+				if [ "$YESNO" = "y" ] || [ "$YESNO" = "Y" ]; then
+					echo -n "Enter URL or local path (ENTER to cancel) :" >&2
+					read ALBUMARTURL
+					if [ ! -z "$ALBUMARTURL" ]; then
+						if [[ ${ALBUMARTURL} =~ (https?|ftp|file)://.* ]]; then
+							$HTTPGET "$ALBUMARTURL" > "${ABCDETEMPDIR}/$ALBUMARTFILE"
+							if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+								vecho "unable to download $ALBUMARTURL" >&2
+							fi
+						else # it's a local path
+							cp "$ALBUMARTURL" "${ABCDETEMPDIR}/$ALBUMARTFILE"
+							if [ ! -s "${ABCDETEMPDIR}/$ALBUMARTFILE" ]; then
+								vecho "unable to copy $ALBUMARTURL to ${ABCDETEMPDIR}/$ALBUMARTFILE" >&2
+							fi
 						fi
 					fi
 				fi
@@ -3814,6 +3818,7 @@ PLAYLISTDATAPREFIX=''
 VAPLAYLISTFORMAT='${ARTISTFILE}-${ALBUMFILE}.${OUTPUT}.m3u'
 VAPLAYLISTDATAPREFIX=''
 DOSPLAYLIST=n
+OVERRIDEALBUMARTDOWNLOAD=n
 COMMENT=''
 ID3TAGV=id3v2.4
 ENCNICE=10
@@ -4167,6 +4172,7 @@ while getopts 1a:bBc:C:d:DefgGhj:klLmMnNo:pPQ:r:s:S:t:T:UvVxX:w:W:z opt ; do
 		m) DOSPLAYLIST=y ;;
 		M) DOCUE=y ;;
 		o) OUTPUTTYPE="$OPTARG" ;;
+		O) OVERRIDEALBUMARTDOWNLOAD=y ;;
 		p) PADTRACKS=y ;;
 		P) USEPIPES=y ;;
 		Q) CDDBMETHOD="$OPTARG" ;;
