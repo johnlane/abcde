@@ -519,6 +519,11 @@ makeids ()
 	COOKEDOFFSETS="${COOKEDOFFSETS:1}"  # eat the leading space
 
 	PREGAP=$(echo $OFFSETS | cut -f1 -d' ')
+
+	if [ "$CDROMREADERSYNTAX" = "flac" ]; then
+		LEADOUT=$((LEADOUT - PREGAP))
+	fi
+
 	TOTALTIME=$(( (($LEADOUT + $LEADIN + $PREGAP) / $CDFRAMES) - (($LEADIN + $PREGAP) / $CDFRAMES)))
 
 	vvecho "makeids: PREGAP $PREGAP, LEADIN $LEADIN, LEADOUT $LEADOUT"
