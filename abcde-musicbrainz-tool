@@ -302,7 +302,7 @@ if ($command =~ m/^id/) {
     # Calculate MusicBrainz ID from disc offsets; see
     # https://musicbrainz.org/doc/DiscIDCalculation
 
-    if ($#discinfo < 5) {
+    if ($#discinfo < 4) {
 	print STDERR "Insufficient or missing discinfo data.\n";
 	exit(1);
     }
