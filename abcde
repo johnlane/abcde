@@ -3775,7 +3775,7 @@ post_encode ()
 # Currently three supported options ("musicbrainz", "cddb" for freedb.org and "cdtext")
 CDDBMETHOD=cddb,musicbrainz
 CDDBURL="http://gnudb.gnudb.org/~cddb/cddb.cgi"
-CDDBSUBMIT=freedb-submit@freedb.org
+CDDBSUBMIT=submit@gnudb.org
 CDDBPROTO=6
 HELLOINFO="$(whoami)@$(hostname)"
 CDDBCOPYLOCAL="n"
